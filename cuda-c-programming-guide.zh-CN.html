@@ -1360,7 +1360,7 @@ html
 </li>
 <li class="toctree-l1">
 <a class="reference internal" href="#driver-api">21. 驱动程序API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#context">21.1。语境</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#context">21.1。上下文</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module">21.2.模块</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#kernel-execution">21.3。内核执行</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#interoperability-between-runtime-and-driver-apis">21.4。运行时和驱动程序 API 之间的互操作性</a></li>
@@ -2162,7 +2162,7 @@ html
 <span class="section-number">6.2.1. </span>初始化<a class="headerlink" href="#initialization" title="跳转到此标题"></a>
 </h3>
 <p>从 CUDA 12.0 开始， <code class="docutils literal notranslate"><span class="pre">cudaInitDevice()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code> 调用初始化与指定设备关联的运行时和主要上下文。如果没有这些调用，运行时将隐式使用设备 0 并根据需要进行自初始化，以处理其他运行时 API 请求。在计时运行时函数调用以及解释第一次调用到运行时的错误代码时，需要牢记这一点。 12.0之前， <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code> 不会初始化运行时，应用程序通常会使用无操作运行时调用 <code class="docutils literal notranslate"><span class="pre">cudaFree(0)</span></code> 将运行时初始化与其他 api 活动隔离（都是为了计时和错误处理）。</p>
-<p>运行时为系统中的每个设备创建一个 CUDA 上下文（请参阅 <a class="reference internal" href="#context"><span class="std std-ref">语境</span></a> 有关 CUDA 上下文的更多详细信息）。这个上下文是 <em>主要背景</em> 对于该设备，并在第一个运行时函数处初始化，该函数需要该设备上的活动上下文。它在应用程序的所有主机线程之间共享。作为此上下文创建的一部分，如有必要，设备代码会及时编译（请参阅 <a class="reference internal" href="#just-in-time-compilation"><span class="std std-ref">即时编译</span></a>）并加载到设备内存中。这一切都是透明发生的。如果需要，例如，为了驱动程序 API 互操作性，可以从驱动程序 API 访问设备的主要上下文，如下所述 <a class="reference internal" href="#interoperability-between-runtime-and-driver-apis"><span class="std std-ref">运行时和驱动程序 API 之间的互操作性</span></a>.</p>
+<p>运行时为系统中的每个设备创建一个 CUDA 上下文（请参阅 <a class="reference internal" href="#context"><span class="std std-ref">上下文</span></a> 有关 CUDA 上下文的更多详细信息）。这个上下文是 <em>主要背景</em> 对于该设备，并在第一个运行时函数处初始化，该函数需要该设备上的活动上下文。它在应用程序的所有主机线程之间共享。作为此上下文创建的一部分，如有必要，设备代码会及时编译（请参阅 <a class="reference internal" href="#just-in-time-compilation"><span class="std std-ref">即时编译</span></a>）并加载到设备内存中。这一切都是透明发生的。如果需要，例如，为了驱动程序 API 互操作性，可以从驱动程序 API 访问设备的主要上下文，如下所述 <a class="reference internal" href="#interoperability-between-runtime-and-driver-apis"><span class="std std-ref">运行时和驱动程序 API 之间的互操作性</span></a>.</p>
 <p>当主机线程调用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceReset()</span></code>，这会破坏主机线程当前操作的设备的主要上下文（即，定义在 <a class="reference internal" href="#device-selection"><span class="std std-ref">设备选择</span></a>）。将此设备作为当前设备的任何主机线程进行的下一个运行时函数调用将为该设备创建一个新的主上下文。</p>
 <div class="admonition note">
 <p class="admonition-title">注意</p>
@@ -3543,7 +3543,7 @@ html
 <p>这些方案对于 CUDA 图来说很困难，因为资源的非固定指针或句柄需要间接或图更新，并且每次提交工作时都需要同步 CPU 代码。如果这些注意事项对库的调用者隐藏，并且由于在捕获期间使用了不允许的 API，它们也无法与流捕获一起使用。存在多种解决方案，例如将资源公开给调用者。 CUDA 用户对象提供了另一种方法。</p>
 <p>CUDA 用户对象将用户指定的析构函数回调与内部引用计数相关联，类似于 C++ <code class="docutils literal notranslate"><span class="pre">shared_ptr</span></code>。引用可能由 CPU 上的用户代码和 CUDA 图拥有。请注意，对于用户拥有的引用，与 C++ 智能指针不同，没有表示引用的对象；用户必须手动跟踪用户拥有的引用。典型的用例是在创建用户对象后立即将唯一用户拥有的引用移至 CUDA 图形。</p>
 <p>当引用与 CUDA 图关联时，CUDA 将自动管理图操作。克隆的 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 保留来源所拥有的每个参考文献的副本 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code>，具有相同的重数。一个实例化的 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 保留源中每个引用的副本 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code>。当一个 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 在没有同步的情况下被销毁，引用将保留直到执行完成。</p>
-<p>这是一个使用示例。</p>
+<p>以下是一个使用示例。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">cudaGraph_t</span><span class="w"> </span><span class="n">graph</span><span class="p">;</span><span class="w"> </span><span class="c1">// Preexisting graph</span>
 
@@ -4498,7 +4498,7 @@ html
 </h3>
 <p>主机线程创建的任何设备内存指针或事件句柄都可以由同一进程中的任何其他线程直接引用。然而，它在该进程之外无效，因此不能被属于不同进程的线程直接引用。</p>
 <p>要在进程间共享设备内存指针和事件，应用程序必须使用进程间通信 API，参考手册中对此进行了详细描述。 IPC API 仅支持 Linux 上的 64 位进程以及计算能力 2.0 及更高版本的设备。请注意，IPC API 不支持 <code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code> 分配。</p>
-<p>使用此 API，应用程序可以使用以下命令获取给定设备内存指针的 IPC 句柄： <code class="docutils literal notranslate"><span class="pre">cudaIpcGetMemHandle()</span></code>，使用标准 IPC 机制（例如进程间共享内存或文件）将其传递给另一个进程，并使用 <code class="docutils literal notranslate"><span class="pre">cudaIpcOpenMemHandle()</span></code> 从 IPC 句柄检索设备指针，该指针是其他进程中的有效指针。可以使用类似的入口点共享事件句柄。</p>
+<p>使用此 API，应用程序可以使用以下命令获取给定设备内存指针的 IPC 句柄： <code class="docutils literal notranslate"><span class="pre">cudaIpcGetMemHandle()</span></code>，使用标准 IPC 机制（例如进程间共享内存或文件）将其传递给另一个进程，并使用 <code class="docutils literal notranslate"><span class="pre">cudaIpcOpenMemHandle()</span></code> 从 IPC 句柄检索设备指针，该指针是其他进程中的有效指针。类似的 API 入口点也可用于共享事件句柄。</p>
 <p>请注意，分配由 <code class="docutils literal notranslate"><span class="pre">cudaMalloc()</span></code> 出于性能原因，可能会从较大的内存块中进行子分配。在这种情况下，CUDA IPC API 将共享整个底层内存块，这可能会导致其他子分配也被共享，从而可能导致进程之间的信息泄露。为了防止这种行为，建议仅共享 2MiB 对齐大小的分配。</p>
 <p>使用 IPC API 的一个示例是，单个主进程生成一批输入数据，使数据可供多个辅助进程使用，而无需重新生成或复制。</p>
 <p>使用 CUDA IPC 相互通信的应用程序应使用相同的 CUDA 驱动程序和运行时进行编译、链接和运行。</p>
@@ -6171,7 +6171,7 @@ html
 <span id="id111"></span><h5>
 <span class="section-number">6.2.16.4.2. </span>导入内存对象<a class="headerlink" href="#importing-memory-objects-dir3d-11-int" title="跳转到此标题"></a>
 </h5>
-<p>可共享的 Direct3D 11 纹理资源，即 <code class="docutils literal notranslate"><span class="pre">ID3D11Texture1D</span></code>, <code class="docutils literal notranslate"><span class="pre">ID3D11Texture2D</span></code> 或 <code class="docutils literal notranslate"><span class="pre">ID3D11Texture3D</span></code>，可以通过设置创建 <code class="docutils literal notranslate"><span class="pre">D3D11_RESOURCE_MISC_SHARED</span></code> 或 <code class="docutils literal notranslate"><span class="pre">D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX</span></code> （在 Windows 7 上）或 <code class="docutils literal notranslate"><span class="pre">D3D11_RESOURCE_MISC_SHARED_NTHANDLE</span></code> （在 Windows 10 上）拨打电话时 <code class="docutils literal notranslate"><span class="pre">ID3D11Device:CreateTexture1D</span></code>, <code class="docutils literal notranslate"><span class="pre">ID3D11Device:CreateTexture2D</span></code> 或 <code class="docutils literal notranslate"><span class="pre">ID3D11Device:CreateTexture3D</span></code> 分别。可共享ared的 Direct3D 11 缓冲区资源， <code class="docutils literal notranslate"><span class="pre">ID3D11Buffer</span></code>，可以通过在调用时指定上述任一标志来创建 <code class="docutils literal notranslate"><span class="pre">ID3D11Device::CreateBuffer</span></code>。通过指定创建的可共享ared资源 <code class="docutils literal notranslate"><span class="pre">D3D11_RESOURCE_MISC_SHARED_NTHANDLE</span></code> 可以使用与该对象关联的 NT 句柄导入到 CUDA 中，如下所示。请注意，当不再需要 NT 句柄时，应用程序有责任关闭它。 NT 句柄保存对资源的引用，因此必须在释放底层内存之前显式释放它。导入 Direct3D 11 资源时，标志 <code class="docutils literal notranslate"><span class="pre">cudaExternalMemoryDedicated</span></code> 必须设置。</p>
+<p>可共享的 Direct3D 11 纹理资源，即 <code class="docutils literal notranslate"><span class="pre">ID3D11Texture1D</span></code>, <code class="docutils literal notranslate"><span class="pre">ID3D11Texture2D</span></code> 或 <code class="docutils literal notranslate"><span class="pre">ID3D11Texture3D</span></code>，可以通过设置创建 <code class="docutils literal notranslate"><span class="pre">D3D11_RESOURCE_MISC_SHARED</span></code> 或 <code class="docutils literal notranslate"><span class="pre">D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX</span></code> （在 Windows 7 上）或 <code class="docutils literal notranslate"><span class="pre">D3D11_RESOURCE_MISC_SHARED_NTHANDLE</span></code> （在 Windows 10 上）调用 <code class="docutils literal notranslate"><span class="pre">ID3D11Device:CreateTexture1D</span></code>, <code class="docutils literal notranslate"><span class="pre">ID3D11Device:CreateTexture2D</span></code> 或 <code class="docutils literal notranslate"><span class="pre">ID3D11Device:CreateTexture3D</span></code> 分别。可共享ared的 Direct3D 11 缓冲区资源， <code class="docutils literal notranslate"><span class="pre">ID3D11Buffer</span></code>，可以通过在调用时指定上述任一标志来创建 <code class="docutils literal notranslate"><span class="pre">ID3D11Device::CreateBuffer</span></code>。通过指定创建的可共享ared资源 <code class="docutils literal notranslate"><span class="pre">D3D11_RESOURCE_MISC_SHARED_NTHANDLE</span></code> 可以使用与该对象关联的 NT 句柄导入到 CUDA 中，如下所示。请注意，当不再需要 NT 句柄时，应用程序有责任关闭它。 NT 句柄保存对资源的引用，因此必须在释放底层内存之前显式释放它。导入 Direct3D 11 资源时，标志 <code class="docutils literal notranslate"><span class="pre">cudaExternalMemoryDedicated</span></code> 必须设置。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">cudaExternalMemory_t</span><span class="w"> </span><span class="nf">importD3D11ResourceFromNTHandle</span><span class="p">(</span><span class="n">HANDLE</span><span class="w"> </span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaExternalMemory_t</span><span class="w"> </span><span class="n">extMem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
@@ -6830,7 +6830,7 @@ html
 <h2>
 <span class="section-number">6.6. </span>适用于 Windows 的 Tesla 计算集群模式<a class="headerlink" href="#tesla-compute-cluster-mode-for-windows" title="跳转到此标题"></a>
 </h2>
-<p>使用 NVIDIA 的系统管理界面 (<em>英伟达-SMI</em>），对于 Tesla 和 Quadro 系列的设备，Windows 设备驱动程序可以置于 TCC（Tesla 计算集群）模式。</p>
+<p>使用 NVIDIA 的系统管理界面 (<em>nvidia-smi</em>），对于 Tesla 和 Quadro 系列的设备，Windows 设备驱动程序可以置于 TCC（Tesla 计算集群）模式。</p>
 <p>TCC 模式取消了对任何图形功能的支持。</p>
 </section>
 </section>
@@ -16880,7 +16880,7 @@ $ nvcc -arch=sm_75 -rdc=true hello_world.o -o hello -lcudadevrt
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>虚拟内存管理公开的访问控制机制允许用户明确他们想要与系统上的其他对等设备共享哪些分配。如前所述， <code class="docutils literal notranslate"><span class="pre">cudaEnablePeerAccess</span></code> 强制将所有先前和未来的 cudaMalloc 分配映射到目标对等设备。这在许多情况下都很方便，因为用户不必担心跟踪每个分配到系统中每个设备的映射状态。但对于关心应用程序性能的用户来说，这种方法 <a class="reference external" href="https://devblogs.nvidia.com/introducing-low-level-gpu-virtual-memory-management/">对性能有影响</a>。通过分配粒度的访问控制，虚拟内存管理公开了一种以最小开销实现对等映射的机制。</p>
+<p>虚拟内存管理公开的访问控制机制允许用户明确他们想要与系统上的其他对等设备共享哪些分配。如前所述， <code class="docutils literal notranslate"><span class="pre">cudaEnablePeerAccess</span></code> 强制将所有先前和未来的 cudaMalloc 分配映射到目标对等设备。这在许多场景下很方便，因为用户无需跟踪每个分配在系统各设备上的映射状态。但对于关注应用性能的用户，这种方法 <a class="reference external" href="https://devblogs.nvidia.com/introducing-low-level-gpu-virtual-memory-management/">可能带来性能影响</a>。通过分配粒度的访问控制，虚拟内存管理公开了一种以最小开销实现对等映射的机制。</p>
 <p><code class="docutils literal notranslate"><span class="pre">vectorAddMMAP</span></code> 示例可以用作使用虚拟内存管理 API 的示例。</p>
 </section>
 <section id="fabric-memory">
@@ -17043,7 +17043,7 @@ $ nvcc -arch=sm_75 -rdc=true hello_world.o -o hello -lcudadevrt
 <span id="id316"></span><h2>
 <span class="section-number">15.1. </span>介绍<a class="headerlink" href="#stream-ordered-memory-allocator-intro" title="跳转到此标题"></a>
 </h2>
-<p>使用管理内存分配 <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code> 使 GPU 在所有正在执行的 CUDA 流之间同步。流顺序内存分配器使应用程序能够与启动到 CUDA 流中的其他工作（例如内核启动和异步复制）一起排序内存分配和释放。这通过利用流排序语义来重用内存分配来改善应用程序内存的使用。分配器还允许应用程序控制分配器的内存缓存行为。当设置适当的释放阈值时，当应用程序表明它愿意接受更大的内存占用时，缓存行为允许分配器避免对操作系统进行昂贵的调用。分配器还支持在进程之间轻松安全地共享分配。</p>
+<p>使用管理内存分配 <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code> 使 GPU 在所有正在执行的 CUDA 流之间同步。流顺序内存分配器使应用程序能够与启动到 CUDA 流中的其他工作（例如内核启动和异步复制）一起排序内存分配和释放。它通过利用流排序语义复用内存分配，从而改进应用的内存使用效率。分配器还允许应用程序控制分配器的内存缓存行为。当设置适当的释放阈值时，当应用程序表明它愿意接受更大的内存占用时，缓存行为允许分配器避免对操作系统进行昂贵的调用。分配器还支持在进程之间轻松安全地共享分配。</p>
 <p>对于许多应用程序来说，流排序内存分配器减少了对自定义内存管理抽象的需求，并且可以更轻松地为需要它的应用程序创建高性能自定义内存管理。对于已经具有自定义内存分配器的应用程序和库，采用流顺序内存分配器可以使多个库共享的、由驱动程序管理的公共内存池，从而减少多余的内存消耗。此外，驱动程序可以根据其对分配器和其他流管理 API 的了解来执行优化。最后，Nsight Compute 和下一代 CUDA 调试器将分配器视为其 CUDA 11.3 工具包支持的一部分。</p>
 </section>
 <section id="stream-ordered-querying-memory-support">
@@ -17359,7 +17359,7 @@ $ nvcc -arch=sm_75 -rdc=true hello_world.o -o hello -lcudadevrt
 <span id="stream-ordered-creating-and-sharing-ipc-memory-pools"></span><h3>
 <span class="section-number">15.11.1. </span>创建和共享 IPC 内存池<a class="headerlink" href="#creating-and-sharing-ipc-memory-pools" title="跳转到此标题"></a>
 </h3>
-<p>共享对池的访问涉及检索池的操作系统本机句柄（使用 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolExportToShareableHandle()</span></code> API），使用通常的操作系统本机IPC机制将句柄传输到导入进程，并创建一个导入的内存池（使用 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolImportFromShareableHandle()</span></code> API）。为了 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolExportToShareableHandle</span></code> 为了成功，必须使用池属性结构中指定的请求句柄类型创建内存池。请参考示例以了解适当的 IPC 机制，以在进程之间传输操作系统本机句柄。该过程的其余部分可以在以下代码片段中找到。</p>
+<p>共享对池的访问涉及检索池的操作系统本机句柄（使用 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolExportToShareableHandle()</span></code> API），使用通常的操作系统本机IPC机制将句柄传输到导入进程，并创建一个导入的内存池（使用 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolImportFromShareableHandle()</span></code> API）。要使 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolExportToShareableHandle</span></code> 调用成功，必须使用池属性结构中指定的句柄类型创建内存池。请参考示例以了解适当的 IPC 机制，以在进程之间传输操作系统本机句柄。其余流程可参考以下代码片段。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="c1">// in exporting process</span>
 <span class="c1">// create an exportable IPC capable pool on device 0</span>
@@ -17900,7 +17900,7 @@ cudaGraphLaunch(waitAndFreeGraphExec, stream3);
 <span class="section-number">16.6. </span>物理内存占用<a class="headerlink" href="#physical-memory-footprint" title="跳转到此标题"></a>
 </h2>
 <p>异步分配的池管理行为意味着销毁包含内存节点的图（即使它们的分配是空闲的）不会立即将物理内存返回给操作系统以供其他进程使用。要显式地将内存释放回操作系统，应用程序应使用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGraphMemTrim</span></code> API。</p>
-<p><code class="docutils literal notranslate"><span class="pre">cudaDeviceGraphMemTrim</span></code> 将取消映射并释放未主动使用的图形内存节点保留的任何物理内存。尚未释放的分配以及计划或运行的图形被视为正在积极使用物理内存，不会受到影响。使用修剪 API 将使物理内存可供其他分配 API 和其他应用程序或进程使用，但会导致 CUDA 在下次启动修剪后的图形时重新分配和重新映射内存。注意 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGraphMemTrim</span></code> 在不同的池上运行 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolTrimTo()</span></code>。图形内存池不暴露给steam有序内存分配器。 CUDA 允许应用程序通过以下方式查询其图形内存占用量 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetGraphMemAttribute</span></code> API。查询属性 <code class="docutils literal notranslate"><span class="pre">cudaGraphMemAttrReservedMemCurrent</span></code> 返回驱动程序为当前进程中的图形分配保留的物理内存量。查询 <code class="docutils literal notranslate"><span class="pre">cudaGraphMemAttrUsedMemCurrent</span></code> 返回当前至少由一张图映射的物理内存量。这些属性中的任何一个都可以用于跟踪 CUDA 何时为了分配图而获取新的物理内存。这两个属性对于检查共享机制节省了多少内存都很有用。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaDeviceGraphMemTrim</span></code> 将取消映射并释放未主动使用的图形内存节点保留的任何物理内存。尚未释放的分配以及计划或运行的图形被视为正在积极使用物理内存，不会受到影响。使用修剪 API 将使物理内存可供其他分配 API 和其他应用程序或进程使用，但会导致 CUDA 在下次启动修剪后的图形时重新分配和重新映射内存。注意 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGraphMemTrim</span></code> 在不同的池上运行 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolTrimTo()</span></code>。图形内存池不对流有序内存分配器暴露。 CUDA 允许应用程序通过以下方式查询其图形内存占用量 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetGraphMemAttribute</span></code> API。查询属性 <code class="docutils literal notranslate"><span class="pre">cudaGraphMemAttrReservedMemCurrent</span></code> 返回驱动程序为当前进程中的图形分配保留的物理内存量。查询 <code class="docutils literal notranslate"><span class="pre">cudaGraphMemAttrUsedMemCurrent</span></code> 返回当前至少由一张图映射的物理内存量。这些属性中的任何一个都可以用于跟踪 CUDA 何时为了分配图而获取新的物理内存。这两个属性对于检查共享机制节省了多少内存都很有用。</p>
 </section>
 <section id="peer-access">
 <span id="graph-memory-nodes-peer-access"></span><h2>
@@ -23672,7 +23672,7 @@ nvlink fatal : merge_elf failed
 <td><p>支持 CUDA 的设备</p></td>
 </tr>
 <tr class="row-odd">
-<td><p>语境</p></td>
+<td><p>上下文</p></td>
 <td><p>CU上下文</p></td>
 <td><p>大致相当于一个CPU进程</p></td>
 </tr>
@@ -23718,7 +23718,7 @@ nvlink fatal : merge_elf failed
 </tr>
 </tbody>
 </table>
-<p>驱动程序 API 必须初始化 <code class="docutils literal notranslate"><span class="pre">cuInit()</span></code> 在调用驱动程序 API 中的任何函数之前。然后必须创建一个 CUDA 上下文，该上下文附加到特定设备并成为调用主机线程的当前上下文，详细信息请参见 <a class="reference internal" href="#context"><span class="std std-ref">语境</span></a>.</p>
+<p>驱动程序 API 必须初始化 <code class="docutils literal notranslate"><span class="pre">cuInit()</span></code> 在调用驱动程序 API 中的任何函数之前。然后必须创建一个 CUDA 上下文，该上下文附加到特定设备并成为调用主机线程的当前上下文，详细信息请参见 <a class="reference internal" href="#context"><span class="std std-ref">上下文</span></a>.</p>
 <p>在 CUDA 上下文中，内核由主机代码显式加载为 PTX 或二进制对象，如中所述 <a class="reference internal" href="#module"><span class="std std-ref">模块</span></a>。因此，用 C++ 编写的内核必须单独编译为 <em>PTX</em> 或二进制对象。内核是使用 API 入口点启动的，如中所述 <a class="reference internal" href="#kernel-execution"><span class="std std-ref">内核执行</span></a>.</p>
 <p>任何想要在未来设备架构上运行的应用程序都必须加载 <em>PTX</em>，不是二进制代码。这是因为二进制代码是特定于体系结构的，因此与未来的体系结构不兼容，而 <em>PTX</em> 代码在加载时由设备驱动程序编译为二进制代码。</p>
 <p>这是示例的主机代码 <a class="reference internal" href="#kernels"><span class="std std-ref">内核</span></a> 使用驱动程序API编写：</p>
@@ -23790,7 +23790,7 @@ nvlink fatal : merge_elf failed
 <p>完整代码可以在 <code class="docutils literal notranslate"><span class="pre">vectorAddDrv</span></code> CUDA 示例。</p>
 <section id="context">
 <span id="id432"></span><h2>
-<span class="section-number">21.1. </span>语境<a class="headerlink" href="#context" title="跳转到此标题"></a>
+<span class="section-number">21.1. </span>上下文<a class="headerlink" href="#context" title="跳转到此标题"></a>
 </h2>
 <p>CUDA 上下文类似于 CPU 进程。驱动程序 API 中执行的所有资源和操作都封装在 CUDA 上下文中，当上下文被破坏时，系统会自动清理这些资源。除了模块和纹理或表面引用等对象之外，每个上下文都有自己独特的地址空间。因此， <code class="docutils literal notranslate"><span class="pre">CUdeviceptr</span></code> 来自不同上下文的值引用不同的内存位置。</p>
 <p>主机线程一次可能只有一个当前设备上下文。当创建上下文时 <code class="docutils literal notranslate"><span class="pre">cuCtxCreate()</span></code>，它成为调用主机线程的当前线程。在上下文中运行的 CUDA 函数（大多数不涉及设备枚举或上下文管理的函数）将返回 <code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_INVALID_CONTEXT</span></code> 如果有效上下文不是线程的当前上下文。</p>
@@ -24280,7 +24280,7 @@ nvlink fatal : merge_elf failed
 <tr class="row-odd">
 <td><p>CUDA_VISIBLE_DEVICES</p></td>
 <td><p>MIG 支持的 GPU 标识符的逗号分隔序列： <code class="docutils literal notranslate"><span class="pre">MIG-&lt;GPU-UUID&gt;/&lt;GPU</span><span class="pre">instance</span><span class="pre">ID&gt;/&lt;compute</span><span class="pre">instance</span><span class="pre">ID&gt;</span></code></p></td>
-<td><p>GPU 标识符以整数索引或 UUID 字符串的形式给出。 GPU UUID 字符串应遵循与给出的格式相同的格式 <em>英伟达-SMI</em>，例如GPU-8932f937-d72c-4106-c12f-20bd9faed9f6。然而，为了方便起见，允许使用缩写形式；只需从 GPU UUID 的开头指定足够的数字即可唯一标识目标系统中的该 GPU。例如，假设系统中没有其他 GPU 共享此前缀，则 CUDA_VISIBLE_DEVICES=GPU-8932f937 可能是引用上述 GPU UUID 的有效方法。只有索引存在于序列中的设备对 CUDA 应用程序可见，并且它们按序列的顺序进行枚举。如果索引之一无效，则只有索引在无效索引之前的设备对 CUDA 应用程序可见。例如，将 CUDA_VISIBLE_DEVICES 设置为 2,1 会导致设备 0 不可见，并且在设备 1 之前枚举设备 2。将 CUDA_VISIBLE_DEVICES 设置为 0,2,-1,1 会导致设备 0 和 2 可见，而设备 1 不可见。 MIG 格式以 MIG 关键字开头，GPU UUID 应遵循与给出的格式相同的格式 <em>英伟达-SMI</em>。例如，MIG-GPU-8932f937-d72c-4106-c12f-20bd9faed9f6/1/2。仅支持单个 MIG 实例枚举。</p></td>
+<td><p>GPU 标识符以整数索引或 UUID 字符串的形式给出。 GPU UUID 字符串应遵循与给出的格式相同的格式 <em>nvidia-smi</em>，例如GPU-8932f937-d72c-4106-c12f-20bd9faed9f6。然而，为了方便起见，允许使用缩写形式；只需从 GPU UUID 的开头指定足够的数字即可唯一标识目标系统中的该 GPU。例如，假设系统中没有其他 GPU 共享此前缀，则 CUDA_VISIBLE_DEVICES=GPU-8932f937 可能是引用上述 GPU UUID 的有效方法。只有索引存在于序列中的设备对 CUDA 应用程序可见，并且它们按序列的顺序进行枚举。如果索引之一无效，则只有索引在无效索引之前的设备对 CUDA 应用程序可见。例如，将 CUDA_VISIBLE_DEVICES 设置为 2,1 会导致设备 0 不可见，并且在设备 1 之前枚举设备 2。将 CUDA_VISIBLE_DEVICES 设置为 0,2,-1,1 会导致设备 0 和 2 可见，而设备 1 不可见。 MIG 格式以 MIG 关键字开头，GPU UUID 应遵循与给出的格式相同的格式 <em>nvidia-smi</em>。例如，MIG-GPU-8932f937-d72c-4106-c12f-20bd9faed9f6/1/2。仅支持单个 MIG 实例枚举。</p></td>
 </tr>
 <tr class="row-even">
 <td><p>CUDA_MANAGED_FORCE_DEVICE_ALLOC</p></td>
