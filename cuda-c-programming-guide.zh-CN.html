@@ -943,7 +943,7 @@ html
 <li class="toctree-l6"><a class="reference internal" href="#global-memory-cdp1">13.6.1.2.1.1。全局内存 (CDP1)</a></li>
 <li class="toctree-l6"><a class="reference internal" href="#zero-copy-memory-cdp1">13.6.1.2.1.2。零复制内存 (CDP1)</a></li>
 <li class="toctree-l6"><a class="reference internal" href="#constant-memory-cdp1">13.6.1.2.1.3。恒定内存 (CDP1)</a></li>
-<li class="toctree-l6"><a class="reference internal" href="#shared-and-local-memory-cdp1">13.6.1.2.1.4。shared和本地内存 (CDP1)</a></li>
+<li class="toctree-l6"><a class="reference internal" href="#shared-and-local-memory-cdp1">13.6.1.2.1.4。共享内存和本地内存 (CDP1)</a></li>
 <li class="toctree-l6"><a class="reference internal" href="#local-memory-cdp1">13.6.1.2.1.5。本地内存 (CDP1)</a></li>
 <li class="toctree-l6"><a class="reference internal" href="#texture-memory-cdp1">13.6.1.2.1.6。纹理内存 (CDP1)</a></li>
 </ul>
@@ -2852,7 +2852,7 @@ html
 <span id="id26"></span><h4>
 <span class="section-number">6.2.6.1. </span>便携式存储器<a class="headerlink" href="#portable-memory" title="跳转到此标题"></a>
 </h4>
-<p>页锁定内存块可以与系统中的任何设备结合使用（请参阅 <a class="reference internal" href="#multi-device-system"><span class="std std-ref">多设备系统</span></a> 有关多设备系统的更多详细信息），但默认情况下，使用上述页锁定内存的好处仅与分配块时当前的设备一起使用（并且所有设备shared相同的统一地址空间（如果有），如中所述） <a class="reference internal" href="#unified-virtual-address-space"><span class="std std-ref">统一虚拟地址空间</span></a>）。为了使所有设备都可以使用这些优势，需要通过传递标志来分配块 <code class="docutils literal notranslate"><span class="pre">cudaHostAllocPortable</span></code> 到 <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code> 或通过传递标志来锁定页面 <code class="docutils literal notranslate"><span class="pre">cudaHostRegisterPortable</span></code> 到 <code class="docutils literal notranslate"><span class="pre">cudaHostRegister()</span></code>.</p>
+<p>页锁定内存块可以与系统中的任何设备结合使用（请参阅 <a class="reference internal" href="#multi-device-system"><span class="std std-ref">多设备系统</span></a> 有关多设备系统的更多详细信息），但默认情况下，使用上述页锁定内存的好处仅与分配块时当前的设备一起使用（并且所有设备共享相同的统一地址空间（如果有），如中所述） <a class="reference internal" href="#unified-virtual-address-space"><span class="std std-ref">统一虚拟地址空间</span></a>）。为了使所有设备都可以使用这些优势，需要通过传递标志来分配块 <code class="docutils literal notranslate"><span class="pre">cudaHostAllocPortable</span></code> 到 <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code> 或通过传递标志来锁定页面 <code class="docutils literal notranslate"><span class="pre">cudaHostRegisterPortable</span></code> 到 <code class="docutils literal notranslate"><span class="pre">cudaHostRegister()</span></code>.</p>
 </section>
 <section id="write-combining-memory">
 <span id="id27"></span><h4>
@@ -6171,7 +6171,7 @@ html
 <span id="id111"></span><h5>
 <span class="section-number">6.2.16.4.2. </span>导入内存对象<a class="headerlink" href="#importing-memory-objects-dir3d-11-int" title="跳转到此标题"></a>
 </h5>
-<p>可共享的 Direct3D 11 纹理资源，即 <code class="docutils literal notranslate"><span class="pre">ID3D11Texture1D</span></code>, <code class="docutils literal notranslate"><span class="pre">ID3D11Texture2D</span></code> 或 <code class="docutils literal notranslate"><span class="pre">ID3D11Texture3D</span></code>，可以通过设置创建 <code class="docutils literal notranslate"><span class="pre">D3D11_RESOURCE_MISC_SHARED</span></code> 或 <code class="docutils literal notranslate"><span class="pre">D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX</span></code> （在 Windows 7 上）或 <code class="docutils literal notranslate"><span class="pre">D3D11_RESOURCE_MISC_SHARED_NTHANDLE</span></code> （在 Windows 10 上）拨打电话时 <code class="docutils literal notranslate"><span class="pre">ID3D11Device:CreateTexture1D</span></code>, <code class="docutils literal notranslate"><span class="pre">ID3D11Device:CreateTexture2D</span></code> 或 <code class="docutils literal notranslate"><span class="pre">ID3D11Device:CreateTexture3D</span></code> 分别。可shared的 Direct3D 11 缓冲区资源， <code class="docutils literal notranslate"><span class="pre">ID3D11Buffer</span></code>，可以通过在调用时指定上述任一标志来创建 <code class="docutils literal notranslate"><span class="pre">ID3D11Device::CreateBuffer</span></code>。通过指定创建的可shared资源 <code class="docutils literal notranslate"><span class="pre">D3D11_RESOURCE_MISC_SHARED_NTHANDLE</span></code> 可以使用与该对象关联的 NT 句柄导入到 CUDA 中，如下所示。请注意，当不再需要 NT 句柄时，应用程序有责任关闭它。 NT 句柄保存对资源的引用，因此必须在释放底层内存之前显式释放它。导入 Direct3D 11 资源时，标志 <code class="docutils literal notranslate"><span class="pre">cudaExternalMemoryDedicated</span></code> 必须设置。</p>
+<p>可共享的 Direct3D 11 纹理资源，即 <code class="docutils literal notranslate"><span class="pre">ID3D11Texture1D</span></code>, <code class="docutils literal notranslate"><span class="pre">ID3D11Texture2D</span></code> 或 <code class="docutils literal notranslate"><span class="pre">ID3D11Texture3D</span></code>，可以通过设置创建 <code class="docutils literal notranslate"><span class="pre">D3D11_RESOURCE_MISC_SHARED</span></code> 或 <code class="docutils literal notranslate"><span class="pre">D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX</span></code> （在 Windows 7 上）或 <code class="docutils literal notranslate"><span class="pre">D3D11_RESOURCE_MISC_SHARED_NTHANDLE</span></code> （在 Windows 10 上）拨打电话时 <code class="docutils literal notranslate"><span class="pre">ID3D11Device:CreateTexture1D</span></code>, <code class="docutils literal notranslate"><span class="pre">ID3D11Device:CreateTexture2D</span></code> 或 <code class="docutils literal notranslate"><span class="pre">ID3D11Device:CreateTexture3D</span></code> 分别。可共享ared的 Direct3D 11 缓冲区资源， <code class="docutils literal notranslate"><span class="pre">ID3D11Buffer</span></code>，可以通过在调用时指定上述任一标志来创建 <code class="docutils literal notranslate"><span class="pre">ID3D11Device::CreateBuffer</span></code>。通过指定创建的可共享ared资源 <code class="docutils literal notranslate"><span class="pre">D3D11_RESOURCE_MISC_SHARED_NTHANDLE</span></code> 可以使用与该对象关联的 NT 句柄导入到 CUDA 中，如下所示。请注意，当不再需要 NT 句柄时，应用程序有责任关闭它。 NT 句柄保存对资源的引用，因此必须在释放底层内存之前显式释放它。导入 Direct3D 11 资源时，标志 <code class="docutils literal notranslate"><span class="pre">cudaExternalMemoryDedicated</span></code> 必须设置。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">cudaExternalMemory_t</span><span class="w"> </span><span class="nf">importD3D11ResourceFromNTHandle</span><span class="p">(</span><span class="n">HANDLE</span><span class="w"> </span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaExternalMemory_t</span><span class="w"> </span><span class="n">extMem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
@@ -6394,7 +6394,7 @@ html
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>与可shared Direct3D 11 资源关联的可shared Direct3D 11 键控互斥对象，即 <code class="docutils literal notranslate"><span class="pre">IDXGIKeyedMutex</span></code>，通过设置标志创建 <code class="docutils literal notranslate"><span class="pre">D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX</span></code>，可以使用与该对象关联的 NT 句柄导入到 CUDA 中，如下所示。请注意，当不再需要句柄时，应用程序有责任关闭该句柄。 NT 句柄保存对资源的引用，因此必须在释放底层信号量之前显式释放它。</p>
+<p>与可共享 Direct3D 11 资源关联的可共享 Direct3D 11 键控互斥对象，即 <code class="docutils literal notranslate"><span class="pre">IDXGIKeyedMutex</span></code>，通过设置标志创建 <code class="docutils literal notranslate"><span class="pre">D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX</span></code>，可以使用与该对象关联的 NT 句柄导入到 CUDA 中，如下所示。请注意，当不再需要句柄时，应用程序有责任关闭该句柄。 NT 句柄保存对资源的引用，因此必须在释放底层信号量之前显式释放它。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">cudaExternalSemaphore_t</span><span class="w"> </span><span class="nf">importD3D11KeyedMutexFromNTHandle</span><span class="p">(</span><span class="n">HANDLE</span><span class="w"> </span><span class="n">handle</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaExternalSemaphore_t</span><span class="w"> </span><span class="n">extSem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
@@ -6918,7 +6918,7 @@ html
 <span class="section-number">8.2.1. </span>应用层<a class="headerlink" href="#application-level" title="跳转到此标题"></a>
 </h3>
 <p>在较高级别上，应用程序应通过使用异步函数调用和流，最大限度地提高主机、设备以及将主机连接到设备的总线之间的并行执行，如 <a class="reference internal" href="#asynchronous-concurrent-execution"><span class="std std-ref">异步并发执行</span></a>。它应该为每个处理器分配它最擅长的工作类型：主机的串行工作负载；设备的并行工作负载。</p>
-<p>对于并行工作负载，在算法中由于某些线程需要同步才能彼此shared数据而破坏并行性的点，有两种情况：这些线程属于同一个块，在这种情况下它们应该使用 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 并通过同一内核调用中的共享内存shared数据，或者它们属于不同的块，在这种情况下，它们必须使用两个单独的内核调用通过全局内存shared数据，一个用于写入，一个用于从全局内存读取。第二种情况不太理想，因为它增加了额外内核调用和全局内存流量的开销。因此，应通过将算法映射到 CUDA 编程模型来最大程度地减少其发生，使得需要线程间通信的计算尽可能在单个线程块内执行。</p>
+<p>对于并行工作负载，在算法中由于某些线程需要同步才能彼此共享数据而破坏并行性的点，有两种情况：这些线程属于同一个块，在这种情况下它们应该使用 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 并通过同一内核调用中的共享内存交换数据，或者它们属于不同的块，在这种情况下，它们必须使用两个单独的内核调用通过全局内存交换数据，一个用于写入，一个用于从全局内存读取。第二种情况不太理想，因为它增加了额外内核调用和全局内存流量的开销。因此，应通过将算法映射到 CUDA 编程模型来最大程度地减少其发生，使得需要线程间通信的计算尽可能在单个线程块内执行。</p>
 </section>
 <section id="device-level">
 <span id="id132"></span><h3>
@@ -7854,7 +7854,7 @@ html
 </pre></div>
 </div>
 <p>等待，直到线程块中的所有线程都到达此点，并且这些线程在此之前进行的所有全局和共享内存访问 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 对块中的所有线程可见。</p>
-<p><code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 用于协调同一块的线程之间的通信。当块内的某些线程访问shared或全局内存中的相同地址时，其中一些内存访问存在潜在的先读后写、先写后读或先写后写危险。通过在这些访问之间同步线程可以避免这些数据危险。</p>
+<p><code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 用于协调同一块的线程之间的通信。当块内的某些线程访问共享内存或全局内存中的相同地址时，其中一些内存访问存在潜在的先读后写、先写后读或先写后写危险。通过在这些访问之间同步线程可以避免这些数据危险。</p>
 <p><code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 允许在条件代码中使用，但前提是条件在整个线程块中计算结果相同，否则代码执行可能会挂起或产生意外的副作用。</p>
 <p>计算能力 2.x 及更高版本的设备支持以下三种变体 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 如下所述。</p>
 <div class="highlight-c++ notranslate">
@@ -9231,7 +9231,7 @@ html
 <span class="n">assert</span><span class="p">(</span><span class="n">o</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">42</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
-<p>利用这些其他地址表示的属性的常见程序优化是通过利用shared空间、本地空间和 const 空间的地址范围小于 32 位来减少数据结构大小，这允许程序存储 32 位地址而不是 64 位指针。要获得这些地址的 32 位整数表示形式，只需通过执行无符号 64 位整数到无符号 32 位整数转换来截断它即可：</p>
+<p>利用这些其他地址表示的属性的常见程序优化是通过利用共享空间、本地空间和 const 空间的地址范围小于 32 位来减少数据结构大小，这允许程序存储 32 位地址而不是 64 位指针。要获得这些地址的 32 位整数表示形式，只需通过执行无符号 64 位整数到无符号 32 位整数转换来截断它即可：</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">__shared__</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">;</span><span class="w"></span>
 <span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">x</span><span class="p">;</span><span class="w"></span>
@@ -9865,7 +9865,7 @@ html
 <li><p>如果元素结果为-Infinity，则相应的累加器将包含 <code class="docutils literal notranslate"><span class="pre">-MAX_NORM</span></code></p></li>
 <li><p>如果元素结果为 NaN，则相应的累加器将包含 <code class="docutils literal notranslate"><span class="pre">+0</span></code></p></li>
 </ul>
-<p>因为矩阵元素映射到每个线程的 <code class="docutils literal notranslate"><span class="pre">fragment</span></code> 未指定，调用后必须从内存（shared或全局）访问各个矩阵元素 <code class="docutils literal notranslate"><span class="pre">store_matrix_sync</span></code>。在特殊情况下，warp 中的所有线程将对所有片段元素统一应用逐元素操作，可以使用以下方式实现直接元素访问 <code class="docutils literal notranslate"><span class="pre">fragment</span></code> class成员。</p>
+<p>因为矩阵元素映射到每个线程的 <code class="docutils literal notranslate"><span class="pre">fragment</span></code> 未指定，调用后必须从内存（共享或全局）访问各个矩阵元素 <code class="docutils literal notranslate"><span class="pre">store_matrix_sync</span></code>。在特殊情况下，warp 中的所有线程将对所有片段元素统一应用逐元素操作，可以使用以下方式实现直接元素访问 <code class="docutils literal notranslate"><span class="pre">fragment</span></code> class成员。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="k">enum</span><span class="w"> </span><span class="nc">fragment</span><span class="o">&lt;</span><span class="n">Use</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="n">Layout</span><span class="o">&gt;::</span><span class="n">num_elements</span><span class="p">;</span><span class="w"></span>
 <span class="n">T</span><span class="w"> </span><span class="n">fragment</span><span class="o">&lt;</span><span class="n">Use</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="n">Layout</span><span class="o">&gt;::</span><span class="n">x</span><span class="p">[</span><span class="n">num_elements</span><span class="p">];</span><span class="w"></span>
@@ -10750,7 +10750,7 @@ html
 <div class="highlight"><pre><span></span><span class="n">cooperative_groups</span><span class="o">::</span><span class="n">memcpy_async</span><span class="p">(</span><span class="n">group</span><span class="p">,</span><span class="w"> </span><span class="n">shared</span><span class="p">,</span><span class="w"> </span><span class="n">global_in</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">batch_idx</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">size</span><span class="p">());</span><span class="w"></span>
 </pre></div>
 </div>
-<p>这 <a class="reference internal" href="#collectives-cg-memcpy-async"><span class="std std-ref">cooperative_groups::memcpy_async</span></a> API 副本 <code class="docutils literal notranslate"><span class="pre">sizeof(int)</span><span class="pre">*</span><span class="pre">block.size()</span></code> 全局内存中的字节起始于 <code class="docutils literal notranslate"><span class="pre">global_in</span><span class="pre">+</span><span class="pre">batch_idx</span></code> 到 <code class="docutils literal notranslate"><span class="pre">shared</span></code> 数据。此操作的发生就像由另一个线程执行一样，该线程与当前线程的调用同步 <a class="reference internal" href="#collectives-cg-wait"><span class="std std-ref">cooperative_groups::wait</span></a> 复制完成后。在复制操作完成之前，修改全局数据或读取或写入shared数据会引入数据竞争。</p>
+<p>该 <a class="reference internal" href="#collectives-cg-memcpy-async"><span class="std std-ref">cooperative_groups::memcpy_async</span></a> API 会复制 <code class="docutils literal notranslate"><span class="pre">sizeof(int)</span><span class="pre">*</span><span class="pre">block.size()</span></code> 全局内存中的字节起始于 <code class="docutils literal notranslate"><span class="pre">global_in</span><span class="pre">+</span><span class="pre">batch_idx</span></code> 到 <code class="docutils literal notranslate"><span class="pre">shared</span></code> 数据。此操作的发生就像由另一个线程执行一样，该线程与当前线程的调用同步 <a class="reference internal" href="#collectives-cg-wait"><span class="std std-ref">cooperative_groups::wait</span></a> 复制完成后。在复制操作完成之前，修改全局数据或读取或写入共享数据会引入数据竞争。</p>
 <p>在计算能力 8.0或更高的设备上， <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 从全局内存到 共享内存的传输可以受益于硬件加速，从而避免通过中间寄存器传输数据。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cooperative_groups.h&gt;</span><span class="cp"></span>
@@ -10848,10 +10848,10 @@ html
 <h4>
 <span class="section-number">10.27.6.3. </span>Warp Entanglement - 提交<a class="headerlink" href="#warp-entanglement-commit" title="跳转到此标题"></a>
 </h4>
-<p>的顺序为 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 批次在经纱上shared。提交操作被合并，使得对于调用提交操作的所有聚合线程，序列递增一次。如果warp完全收敛，则序列加一；如果warp完全发散，则序列增加 32。</p>
+<p>的顺序为 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 批次在 warp 内共享。提交操作被合并，使得对于调用提交操作的所有聚合线程，序列递增一次。如果warp完全收敛，则序列加一；如果warp完全发散，则序列增加 32。</p>
 <ul>
 <li>
-<p>让 <em>PB</em> 是warpshared管道的 <em>实际的</em> 批次顺序。</p>
+<p>设 <em>PB</em> 为 warp 共享管道的<em>实际</em>批次顺序。</p>
 <p><code class="docutils literal notranslate"><span class="pre">PB</span><span class="pre">=</span><span class="pre">{BP0,</span><span class="pre">BP1,</span><span class="pre">BP2,</span><span class="pre">…,</span><span class="pre">BPL}</span></code></p>
 </li>
 <li>
@@ -10860,13 +10860,13 @@ html
 <p><code class="docutils literal notranslate"><span class="pre">pipeline::producer_commit()</span></code> 返回值来自线程的 <em>感知到的</em> 批次顺序。</p>
 </li>
 <li>
-<p>线程感知序列中的索引始终与实际warpshared序列中相同或更大的索引对齐。仅当从聚合线程调用所有提交操作时，序列才相等。</p>
+<p>线程感知序列中的索引始终与实际 warp 共享序列中相同或更大的索引对齐。仅当从聚合线程调用所有提交操作时，序列才相等。</p>
 <p><code class="docutils literal notranslate"><span class="pre">BTn</span><span class="pre">≡</span><span class="pre">BPm</span></code> 在哪里 <code class="docutils literal notranslate"><span class="pre">n</span><span class="pre">&lt;=</span><span class="pre">m</span></code></p>
 </li>
 </ul>
 <p>例如，当warp完全发散时：</p>
 <ul class="simple">
-<li><p>warpshared管道的实际顺序是： <code class="docutils literal notranslate"><span class="pre">PB</span><span class="pre">=</span><span class="pre">{0,</span><span class="pre">1,</span><span class="pre">2,</span><span class="pre">3,</span><span class="pre">...,</span><span class="pre">31}</span></code> (<code class="docutils literal notranslate"><span class="pre">PL=31</span></code>。</p></li>
+<li><p>warp 共享管道的实际顺序是： <code class="docutils literal notranslate"><span class="pre">PB</span><span class="pre">=</span><span class="pre">{0,</span><span class="pre">1,</span><span class="pre">2,</span><span class="pre">3,</span><span class="pre">...,</span><span class="pre">31}</span></code> (<code class="docutils literal notranslate"><span class="pre">PL=31</span></code>。</p></li>
 <li>
 <p>该经纱的每个线程的感知序列将是：</p>
 <ul>
@@ -11006,7 +11006,7 @@ html
 <p>在前面的示例中 <a class="reference internal" href="#collectives-cg-wait"><span class="std std-ref">cooperative_groups::wait</span></a> 和 <a class="reference internal" href="#aw-barrier"><span class="std std-ref">cuda::barrier</span></a>，内核线程立即等待数据传输到共享内存完成。这避免了数据从全局内存传输到寄存器，但并没有 <em>隐藏</em> 的潜伏期 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 通过重叠计算进行操作。</p>
 <p>为此，我们使用 CUDA <a class="reference internal" href="#pipeline-interface"><span class="std std-ref">管道</span></a> 以下示例中的功能。它提供了一种管理序列的机制 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 批处理，使 CUDA 内核能够将内存传输与计算重叠。以下示例实现了一个将数据传输与计算重叠的两级管道。它：</p>
 <ul class="simple">
-<li><p>初始化管道shared状态（更多内容见下文）</p></li>
+<li><p>初始化管道共享状态（更多内容见下文）</p></li>
 <li><p>通过调度启动管道 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 对于第一批。</p></li>
 <li><p>循环所有批次：它安排 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 对于下一个批次，在完成时阻塞所有线程 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 对于前一个批次，然后将前一个批次的计算与下一个批次的内存异步副本重叠。</p></li>
 <li><p>最后，它通过对最后一批执行计算来耗尽管道。</p></li>
@@ -12066,7 +12066,7 @@ swizzle映射的粒度固定为16字节。这意味着数据以 16 字节的块�
 <tr class="row-odd">
 <th class="head"><p>图案</p></th>
 <th class="head"><p>搅拌宽度</p></th>
-<th class="head"><p>shared盒子内部尺寸</p></th>
+<th class="head"><p>共享框内部尺寸</p></th>
 <th class="head"><p>之后重复</p></th>
 <th class="head"><p>共享内存对齐</p></th>
 <th class="head"><p>全局内存对齐</p></th>
@@ -12486,7 +12486,7 @@ Assertion `&lt;expression&gt;` failed.
 <li><p>在执行由添加的流回调之前 <code class="docutils literal notranslate"><span class="pre">cudaLaunchHostFunc</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cuLaunchHostFunc</span></code>.</p></li>
 </ul>
 <p>请注意，程序退出时缓冲区不会自动刷新。用户必须调用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceReset()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cuCtxDestroy()</span></code> 明确地，如下面的示例所示。</p>
-<p>内部 <code class="docutils literal notranslate"><span class="pre">printf()</span></code> 使用shared数据结构，因此可以调用 <code class="docutils literal notranslate"><span class="pre">printf()</span></code> 可能会改变线程的执行顺序。特别是，调用的线程 <code class="docutils literal notranslate"><span class="pre">printf()</span></code> 可能比不调用的执行路径更长 <code class="docutils literal notranslate"><span class="pre">printf()</span></code>，路径长度取决于参数 <code class="docutils literal notranslate"><span class="pre">printf()</span></code>。但请注意，除了显式的情况外，CUDA 不保证线程执行顺序。 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 障碍，因此无法判断执行顺序是否已被修改 <code class="docutils literal notranslate"><span class="pre">printf()</span></code> 或通过硬件中的其他调度行为。</p>
+<p>内部 <code class="docutils literal notranslate"><span class="pre">printf()</span></code> 使用共享数据结构，因此可以调用 <code class="docutils literal notranslate"><span class="pre">printf()</span></code> 可能会改变线程的执行顺序。特别是，调用的线程 <code class="docutils literal notranslate"><span class="pre">printf()</span></code> 可能比不调用的执行路径更长 <code class="docutils literal notranslate"><span class="pre">printf()</span></code>，路径长度取决于参数 <code class="docutils literal notranslate"><span class="pre">printf()</span></code>。但请注意，除了显式的情况外，CUDA 不保证线程执行顺序。 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 障碍，因此无法判断执行顺序是否已被修改 <code class="docutils literal notranslate"><span class="pre">printf()</span></code> 或通过硬件中的其他调度行为。</p>
 </section>
 <section id="associated-host-side-api">
 <span id="id198"></span><h3>
@@ -14373,7 +14373,7 @@ Hello thread 3, f=1.2345
 <ul>
 <li>
 <p>减少线程块开销。</p>
-<p>这种方法不仅减少了分摊线程块启动延迟，而且还最大限度地减少了与所有线程块之间的shared操作相关的计算开销。这些开销可能明显高于启动延迟开销。</p>
+<p>这种方法不仅减少了分摊线程块启动延迟，而且还最大限度地减少了与所有线程块之间的共享操作相关的计算开销。这些开销可能明显高于启动延迟开销。</p>
 <p>例如，在卷积核中，由于线程块数量固定，用于计算卷积系数的序言（与线程块索引无关）可以计算更少的次数，从而减少冗余计算。</p>
 </li>
 </ul>
@@ -14840,7 +14840,7 @@ Hello thread 3, f=1.2345
 <span id="scope-of-cuda-primitives-cdp2"></span><h4>
 <span class="section-number">13.2.1.2. </span>CUDA 基元的范围<a class="headerlink" href="#scope-of-cuda-primitives" title="跳转到此标题"></a>
 </h4>
-<p>在主机和设备上，CUDA 运行时都提供了一个 API，用于启动内核并通过流和事件跟踪启动之间的依赖关系。在主机系统上，启动状态以及引用流和事件的 CUDA 原语由进程内的所有线程shared；然而进程独立执行并且不能shared CUDA 对象。</p>
+<p>在主机和设备上，CUDA 运行时都提供了一个 API，用于启动内核并通过流和事件跟踪启动之间的依赖关系。在主机系统上，启动状态以及引用流和事件的 CUDA 原语由进程内的所有线程共享；然而，进程独立执行，且不能共享 CUDA 对象。</p>
 <p>在设备上，启动的内核和 CUDA 对象对网格中的所有线程都是可见的。例如，这意味着流可以由一个线程创建并由网格中的任何其他线程使用。</p>
 </section>
 <section id="dynamic-parallelism-synchronization">
@@ -14866,7 +14866,7 @@ Hello thread 3, f=1.2345
 <span class="section-number">13.2.1.5. </span>排序和并发<a class="headerlink" href="#ordering-and-concurrency" title="跳转到此标题"></a>
 </h4>
 <p>从设备运行时启动内核的顺序遵循 CUDA Stream 排序语义。在网格内，所有内核启动到同一流（稍后讨论的即发即弃流除外）都是按顺序执行的。当同一网格中的多个线程启动到同一流中时，流内的排序取决于网格内的线程调度，这可以通过同步原语进行控制，例如 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code>.</p>
-<p>请注意，虽然命名流由网格内的所有线程shared，但隐式 <em>无效的</em> 流仅由线程块内的所有线程shared。如果线程块中的多个线程启动到隐式流中，则这些启动将按顺序执行。如果不同线程块中的多个线程启动到隐式流中，则这些启动可以并发执行。如果线程块内的多个线程需要并发启动，则应使用显式命名流。</p>
+<p>请注意，虽然命名流由网格内的所有线程共享，但隐式 <em>无效的</em> 流仅由线程块内的所有线程共享。如果线程块中的多个线程启动到隐式流中，则这些启动将按顺序执行。如果不同线程块中的多个线程启动到隐式流中，则这些启动可以并发执行。如果线程块内的多个线程需要并发启动，则应使用显式命名流。</p>
 <p><em>动态并行性</em> 使并发性能够在程序中更容易地表达；但是，设备运行时在 CUDA 执行模型中没有引入新的并发保证。不保证设备上任意数量的不同线程块之间的并发执行。</p>
 <p>缺乏并发保证扩展到父网格及其子网格。当父网格启动子网格时，一旦满足流依赖性并且硬件资源可用于托管子网格，子网格就可以开始执行，但不保证在父网格到达隐式同步点之前开始执行。</p>
 <p>虽然并发通常很容易实现，但它可能会随着设备配置、应用程序工作负载和运行时调度的变化而变化。因此，依赖于不同线程块之间的任何并发性都是不安全的。</p>
@@ -14882,7 +14882,7 @@ Hello thread 3, f=1.2345
 <span id="id216"></span><h3>
 <span class="section-number">13.2.2. </span>内存模型<a class="headerlink" href="#memory-model" title="跳转到此标题"></a>
 </h3>
-<p>父网格和子网格shared相同的全局和const内存存储，但具有不同的本地和共享内存。</p>
+<p>父网格和子网格共享相同的全局和 const 内存存储，但具有不同的本地和共享内存。</p>
 <section id="coherence-and-consistency">
 <span id="coherence-and-consistency-cdp2"></span><h4>
 <span class="section-number">13.2.2.1. </span>连贯性和一致性<a class="headerlink" href="#coherence-and-consistency" title="跳转到此标题"></a>
@@ -14938,7 +14938,7 @@ Hello thread 3, f=1.2345
 </h5>
 <p>共享内存和本地内存分别是线程块或线程私有的，并且在父级和子级之间不可见或不一致。当这些位置之一的对象在其所属范围之外被引用时，行为是未定义的，并且可能会导致错误。</p>
 <p>NVIDIA 编译器将尝试警告是否可以检测到指向本地或共享内存的指针正在作为参数传递给内核启动。在运行时，程序员可以使用 <code class="docutils literal notranslate"><span class="pre">__isGlobal()</span></code> 内部确定指针是否引用全局内存，因此可以安全地传递给子启动。</p>
-<p>请注意，调用 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy*Async()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaMemset*Async()</span></code> 可以调用设备上的新子内核以保留流语义。因此，将shared或本地内存指针传递给这些 API 是非法的，并且会返回错误。</p>
+<p>请注意，调用 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy*Async()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaMemset*Async()</span></code> 可以调用设备上的新子内核以保留流语义。因此，将共享或本地内存指针传递给这些 API 是非法的，并且会返回错误。</p>
 </section>
 <section id="local-memory">
 <span id="local-memory-cdp2"></span><h5>
@@ -15755,8 +15755,8 @@ $ nvcc -arch=sm_75 -rdc=true hello_world.o -o hello -lcudadevrt
 <span class="section-number">13.6.1.1.2. </span>CUDA 基元的范围 (CDP1)<a class="headerlink" href="#scope-of-cuda-primitives-cdp1" title="跳转到此标题"></a>
 </h5>
 <p>参见上文 <a class="reference internal" href="#scope-of-cuda-primitives-cdp2"><span class="std std-ref">CUDA 基元的范围</span></a>（CDP2 版本）。</p>
-<p>在主机和设备上，CUDA 运行时都提供了一个 API，用于启动内核、等待启动的工作完成以及通过流和事件跟踪启动之间的依赖关系。在主机系统上，启动状态以及引用流和事件的 CUDA 原语由进程内的所有线程shared；然而进程独立执行并且不能shared CUDA 对象。</p>
-<p>设备上存在类似的层次结构：启动的内核和 CUDA 对象对线程块中的所有线程可见，但在线程块之间是独立的。这意味着例如流可以由一个线程创建并由同一线程块中的任何其他线程使用，但不能与任何其他线程块中的线程shared。</p>
+<p>在主机和设备上，CUDA 运行时都提供了一个 API，用于启动内核、等待启动的工作完成以及通过流和事件跟踪启动之间的依赖关系。在主机系统上，启动状态以及引用流和事件的 CUDA 原语由进程内的所有线程共享；然而，进程独立执行，且不能共享 CUDA 对象。</p>
+<p>设备上存在类似的层次结构：启动的内核和 CUDA 对象对线程块中的所有线程可见，但在线程块之间是独立的。这意味着例如流可以由一个线程创建并由同一线程块中的任何其他线程使用，但不能与任何其他线程块中的线程共享。</p>
 </section>
 <section id="synchronization-cdp1">
 <span id="id259"></span><h5>
@@ -15784,7 +15784,7 @@ $ nvcc -arch=sm_75 -rdc=true hello_world.o -o hello -lcudadevrt
 </h5>
 <p>见 <a class="reference internal" href="#ordering-and-concurrency-cdp2"><span class="std std-ref">排序和并发</span></a>（见上文 CDP2 版本）。</p>
 <p>从设备运行时启动内核的顺序遵循 CUDA Stream 排序语义。在线程块内，所有内核启动到同一流中都是按顺序执行的。当同一线程块中的多个线程启动到同一流中时，流内的顺序取决于块内的线程调度，这可以通过同步原语进行控制，例如 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code>.</p>
-<p>请注意，由于流由线程块内的所有线程shared，因此隐式 <em>无效的</em> 流也是shared的。如果线程块中的多个线程启动到隐式流中，则这些启动将按顺序执行。如果需要并发，则应使用显式命名流。</p>
+<p>请注意，由于流由线程块内的所有线程共享，因此隐式 <em>无效的</em> 流也是共享的。如果线程块中的多个线程启动到隐式流中，则这些启动将按顺序执行。如果需要并发，则应使用显式命名流。</p>
 <p><em>动态并行性</em> 使并发性能够在程序中更容易地表达；但是，设备运行时在 CUDA 执行模型中没有引入新的并发保证。不保证设备上任意数量的不同线程块之间的并发执行。</p>
 <p>缺乏并发保证扩展到父线程块及其子网格。当父线程块启动子网格时，在父线程块到达显式同步点（例如 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code>。</p>
 <div class="admonition warning">
@@ -15806,7 +15806,7 @@ $ nvcc -arch=sm_75 -rdc=true hello_world.o -o hello -lcudadevrt
 <span class="section-number">13.6.1.2. </span>内存模型 (CDP1)<a class="headerlink" href="#memory-model-cdp1" title="跳转到此标题"></a>
 </h4>
 <p>见 <a class="reference internal" href="#memory-model"><span class="std std-ref">内存模型</span></a>（见上文 CDP2 版本）。</p>
-<p>父网格和子网格shared相同的全局和const内存存储，但具有不同的本地和共享内存。</p>
+<p>父网格和子网格共享相同的全局和 const 内存存储，但具有不同的本地和共享内存。</p>
 <section id="coherence-and-consistency-cdp1">
 <span id="id264"></span><h5>
 <span class="section-number">13.6.1.2.1. </span>连贯性和一致性 (CDP1)<a class="headerlink" href="#coherence-and-consistency-cdp1" title="跳转到此标题"></a>
@@ -15865,12 +15865,12 @@ $ nvcc -arch=sm_75 -rdc=true hello_world.o -o hello -lcudadevrt
 </section>
 <section id="shared-and-local-memory-cdp1">
 <span id="id268"></span><h6>
-<span class="section-number">13.6.1.2.1.4. </span>shared和本地内存 (CDP1)<a class="headerlink" href="#shared-and-local-memory-cdp1" title="跳转到此标题"></a>
+<span class="section-number">13.6.1.2.1.4. </span>共享内存和本地内存 (CDP1)<a class="headerlink" href="#shared-and-local-memory-cdp1" title="跳转到此标题"></a>
 </h6>
 <p>见 <a class="reference internal" href="#shared-and-local-memory-cdp2"><span class="std std-ref">共享内存和本地内存</span></a>（见上文 CDP2 版本）。</p>
 <p>共享内存和本地内存分别是线程块或线程私有的，并且在父级和子级之间不可见或不一致。当这些位置之一的对象在其所属范围之外被引用时，行为是未定义的，并且可能会导致错误。</p>
 <p>NVIDIA 编译器将尝试警告是否可以检测到指向本地或共享内存的指针正在作为参数传递给内核启动。在运行时，程序员可以使用 <code class="docutils literal notranslate"><span class="pre">__isGlobal()</span></code> 内部确定指针是否引用全局内存，因此可以安全地传递给子启动。</p>
-<p>请注意，调用 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy*Async()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaMemset*Async()</span></code> 可以调用设备上的新子内核以保留流语义。因此，将shared或本地内存指针传递给这些 API 是非法的，并且会返回错误。</p>
+<p>请注意，调用 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy*Async()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaMemset*Async()</span></code> 可以调用设备上的新子内核以保留流语义。因此，将共享或本地内存指针传递给这些 API 是非法的，并且会返回错误。</p>
 </section>
 <section id="local-memory-cdp1">
 <span id="id269"></span><h6>
@@ -16669,11 +16669,11 @@ $ nvcc -arch=sm_75 -rdc=true hello_world.o -o hello -lcudadevrt
 </h2>
 <p>这 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__VA.html">虚拟内存管理 API</a> 为应用程序提供一种直接管理 CUDA 提供的统一虚拟地址空间的方法，以将物理内存映射到 GPU 可访问的虚拟地址。这些 API 在 CUDA 10.2 中引入，还提供了一种与其他进程和图形 API（例如 OpenGL 和 Vulkan）互操作的新方法，并提供了更新的内存属性，用户可以调整这些属性以适应其应用程序。</p>
 <p>从历史上看，内存分配调用（例如 <code class="docutils literal notranslate"><span class="pre">cudaMalloc()</span></code>）在CUDA编程模型中返回了一个指向GPU内存的内存地址。由此获得的地址可以与任何 CUDA API 一起使用或在设备内核内部使用。但是，分配的内存无法根据用户的内存需求调整大小。为了增加分配的大小，用户必须显式分配更大的缓冲区，从初始分配复制数据，释放它，然后继续跟踪新分配的地址。这通常会导致应用程序性能降低和峰值内存利用率更高。本质上，用户有一个类似 malloc 的接口来分配 GPU 内存，但没有相应的重新分配来补充它。虚拟内存管理 API 将地址和内存的概念解耦，并允许应用程序单独处理它们。 API 允许应用程序根据需要映射和取消映射虚拟地址范围内的内存。</p>
-<p>在通过使用启用对等设备访问内存分配的情况下 <code class="docutils literal notranslate"><span class="pre">cudaEnablePeerAccess</span></code>，所有过去和未来的用户分配都映射到目标对等设备。这导致用户无意中支付将所有 cudaMalloc 分配映射到对等设备的运行时成本。然而，在大多数情况下，应用程序通过仅与另一个设备shared一些分配来进行通信，并且并不需要将所有分配映射到所有设备。通过虚拟内存管理，应用程序可以专门选择可从目标设备访问的某些分配。</p>
+<p>在通过使用启用对等设备访问内存分配的情况下 <code class="docutils literal notranslate"><span class="pre">cudaEnablePeerAccess</span></code>，所有过去和未来的用户分配都映射到目标对等设备。这导致用户无意中支付将所有 cudaMalloc 分配映射到对等设备的运行时成本。然而，在大多数情况下，应用程序通过仅与另一个设备共享一些分配来进行通信，并且并不需要将所有分配映射到所有设备。通过虚拟内存管理，应用程序可以专门选择可从目标设备访问的某些分配。</p>
 <p>CUDA 虚拟内存管理 API 向用户提供细粒度控制，以管理应用程序中的 GPU 内存。它提供的 API 允许用户：</p>
 <ul class="simple">
 <li><p>将不同设备上分配的内存放入连续的 VA 范围中。</p></li>
-<li><p>使用特定于平台的机制执行内存shared的进程间通信。</p></li>
+<li><p>使用特定于平台的机制执行内存共享的进程间通信。</p></li>
 <li><p>在支持它们的设备上选择更新的内存类型。</p></li>
 </ul>
 <p>为了分配内存，虚拟内存管理编程模型公开了以下功能：</p>
@@ -16703,7 +16703,7 @@ $ nvcc -arch=sm_75 -rdc=true hello_world.o -o hello -lcudadevrt
 <h2>
 <span class="section-number">14.3. </span>分配物理内存<a class="headerlink" href="#allocating-physical-memory" title="跳转到此标题"></a>
 </h2>
-<p>使用虚拟内存管理 API 进行内存分配的第一步是创建一个物理内存块，为分配提供支持。为了分配物理内存，应用程序必须使用 <code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code> API。此函数创建的分配没有任何设备或主机映射。函数参数 <code class="docutils literal notranslate"><span class="pre">CUmemGenericAllocationHandle</span></code> 描述要分配的内存的属性，例如分配的位置（如果该分配将shared给另一个进程（或其他图形 API）），或者要分配的内存的物理属性。用户必须确保请求的分配大小必须符合适当的粒度。可以使用以下方式查询有关分配粒度要求的信息 <code class="docutils literal notranslate"><span class="pre">cuMemGetAllocationGranularity</span></code>。以下代码片段显示了分配物理内存 <code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code>:</p>
+<p>使用虚拟内存管理 API 进行内存分配的第一步是创建一个物理内存块，为分配提供支持。为了分配物理内存，应用程序必须使用 <code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code> API。此函数创建的分配没有任何设备或主机映射。函数参数 <code class="docutils literal notranslate"><span class="pre">CUmemGenericAllocationHandle</span></code> 描述要分配的内存的属性，例如分配的位置（如果该分配将共享给另一个进程（或其他图形 API）），或者要分配的内存的物理属性。用户必须确保请求的分配大小必须符合适当的粒度。可以使用以下方式查询有关分配粒度要求的信息 <code class="docutils literal notranslate"><span class="pre">cuMemGetAllocationGranularity</span></code>。以下代码片段显示了分配物理内存 <code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code>:</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">CUmemGenericAllocationHandle</span><span class="w"> </span><span class="nf">allocatePhysicalMemory</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">device</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w"> </span><span class="n">CUmemAllocationProp</span><span class="w"> </span><span class="n">prop</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span><span class="w"></span>
@@ -16880,14 +16880,14 @@ $ nvcc -arch=sm_75 -rdc=true hello_world.o -o hello -lcudadevrt
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>虚拟内存管理公开的访问控制机制允许用户明确他们想要与系统上的其他对等设备shared哪些分配。如前所述， <code class="docutils literal notranslate"><span class="pre">cudaEnablePeerAccess</span></code> 强制将所有先前和未来的 cudaMalloc 分配映射到目标对等设备。这在许多情况下都很方便，因为用户不必担心跟踪每个分配到系统中每个设备的映射状态。但对于关心应用程序性能的用户来说，这种方法 <a class="reference external" href="https://devblogs.nvidia.com/introducing-low-level-gpu-virtual-memory-management/">对性能有影响</a>。通过分配粒度的访问控制，虚拟内存管理公开了一种以最小开销实现对等映射的机制。</p>
+<p>虚拟内存管理公开的访问控制机制允许用户明确他们想要与系统上的其他对等设备共享哪些分配。如前所述， <code class="docutils literal notranslate"><span class="pre">cudaEnablePeerAccess</span></code> 强制将所有先前和未来的 cudaMalloc 分配映射到目标对等设备。这在许多情况下都很方便，因为用户不必担心跟踪每个分配到系统中每个设备的映射状态。但对于关心应用程序性能的用户来说，这种方法 <a class="reference external" href="https://devblogs.nvidia.com/introducing-low-level-gpu-virtual-memory-management/">对性能有影响</a>。通过分配粒度的访问控制，虚拟内存管理公开了一种以最小开销实现对等映射的机制。</p>
 <p><code class="docutils literal notranslate"><span class="pre">vectorAddMMAP</span></code> 示例可以用作使用虚拟内存管理 API 的示例。</p>
 </section>
 <section id="fabric-memory">
 <span id="fabric-mem"></span><h2>
 <span class="section-number">14.8. </span>织物记忆<a class="headerlink" href="#fabric-memory" title="跳转到此标题"></a>
 </h2>
-<p>CUDA 12.4引入了新的VMM分配句柄类型 <code class="docutils literal notranslate"><span class="pre">CU_MEM_HANDLE_TYPE_FABRIC</span></code>。在受支持的平台上，并且如果 NVIDIA IMEX 守护进程正在运行，则此分配句柄类型不仅可以通过任何通信机制（例如，节点内）shared分配。 MPI，也是节点间。这允许多节点 NVLINK 系统中的 GPU 映射同一 NVLINK 结构的所有其他 GPU 部分的内存，即使它们位于不同的节点中，也大大增加了使用 NVLINK 进行多 GPU 编程的规模。</p>
+<p>CUDA 12.4引入了新的VMM分配句柄类型 <code class="docutils literal notranslate"><span class="pre">CU_MEM_HANDLE_TYPE_FABRIC</span></code>。在受支持的平台上，并且如果 NVIDIA IMEX 守护进程正在运行，则此分配句柄类型不仅可以通过任何通信机制（例如，节点内）共享分配（例如节点内 MPI），也支持节点间共享。这允许多节点 NVLINK 系统中的 GPU 映射同一 NVLINK 结构的所有其他 GPU 部分的内存，即使它们位于不同的节点中，也大大增加了使用 NVLINK 进行多 GPU 编程的规模。</p>
 <section id="querying-fabric-mem-support">
 <span id="id312"></span><h3>
 <span class="section-number">14.8.1. </span>查询支持<a class="headerlink" href="#querying-fabric-mem-support" title="跳转到此标题"></a>
@@ -16901,7 +16901,7 @@ $ nvcc -arch=sm_75 -rdc=true hello_world.o -o hello -lcudadevrt
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>除了使用 <code class="docutils literal notranslate"><span class="pre">CU_MEM_HANDLE_TYPE_FABRIC</span></code> 作为句柄类型并且不需要操作系统本机机制进行进程间通信来交换可shared句柄，与其他分配句柄类型相比，使用结构内存没有区别。</p>
+<p>除了使用 <code class="docutils literal notranslate"><span class="pre">CU_MEM_HANDLE_TYPE_FABRIC</span></code> 作为句柄类型并且不需要操作系统本机机制进行进程间通信来交换可共享句柄，与其他分配句柄类型相比，使用结构内存没有区别。</p>
 </section>
 </section>
 <section id="multicast-support">
@@ -16916,7 +16916,7 @@ $ nvcc -arch=sm_75 -rdc=true hello_world.o -o hello -lcudadevrt
 <ul class="simple">
 <li><p>查询组播支持</p></li>
 <li><p>创建多播句柄 <code class="docutils literal notranslate"><span class="pre">cuMulticastCreate</span></code>.</p></li>
-<li><p>与控制应参与多播组的 GPU 的所有进程shared多播句柄。这适用于 <code class="docutils literal notranslate"><span class="pre">cuMemExportToShareableHandle</span></code> 如上所述。</p></li>
+<li><p>与控制应参与多播组的 GPU 的所有进程共享多播句柄。这适用于 <code class="docutils literal notranslate"><span class="pre">cuMemExportToShareableHandle</span></code> 如上所述。</p></li>
 <li><p>添加应参与多播团队的所有 GPU <code class="docutils literal notranslate"><span class="pre">cuMulticastAddDevice</span></code>.</p></li>
 <li><p>对于每个参与的 GPU 绑定分配的物理内存 <code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code> 如上所述的多播句柄。在任何设备上绑定内存之前，需要将所有设备添加到多播组。</p></li>
 <li><p>保留地址范围、映射多播句柄并按照上述常规单播映射设置访问权限。单播和多播映射到同一物理内存是可能的。请参阅 <a class="reference internal" href="#virtual-aliasing-support"><span class="std std-ref">虚拟别名支持</span></a> 上面的部分如何确保到同一物理内存的多个映射之间的一致性。</p></li>
@@ -17043,7 +17043,7 @@ $ nvcc -arch=sm_75 -rdc=true hello_world.o -o hello -lcudadevrt
 <span id="id316"></span><h2>
 <span class="section-number">15.1. </span>介绍<a class="headerlink" href="#stream-ordered-memory-allocator-intro" title="跳转到此标题"></a>
 </h2>
-<p>使用管理内存分配 <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code> 使 GPU 在所有正在执行的 CUDA 流之间同步。流顺序内存分配器使应用程序能够与启动到 CUDA 流中的其他工作（例如内核启动和异步复制）一起排序内存分配和释放。这通过利用流排序语义来重用内存分配来改善应用程序内存的使用。分配器还允许应用程序控制分配器的内存缓存行为。当设置适当的释放阈值时，当应用程序表明它愿意接受更大的内存占用时，缓存行为允许分配器避免对操作系统进行昂贵的调用。分配器还支持在进程之间轻松安全地shared分配。</p>
+<p>使用管理内存分配 <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code> 使 GPU 在所有正在执行的 CUDA 流之间同步。流顺序内存分配器使应用程序能够与启动到 CUDA 流中的其他工作（例如内核启动和异步复制）一起排序内存分配和释放。这通过利用流排序语义来重用内存分配来改善应用程序内存的使用。分配器还允许应用程序控制分配器的内存缓存行为。当设置适当的释放阈值时，当应用程序表明它愿意接受更大的内存占用时，缓存行为允许分配器避免对操作系统进行昂贵的调用。分配器还支持在进程之间轻松安全地共享分配。</p>
 <p>对于许多应用程序来说，流排序内存分配器减少了对自定义内存管理抽象的需求，并且可以更轻松地为需要它的应用程序创建高性能自定义内存管理。对于已经具有自定义内存分配器的应用程序和库，采用流顺序内存分配器可以使多个库共享的、由驱动程序管理的公共内存池，从而减少多余的内存消耗。此外，驱动程序可以根据其对分配器和其他流管理 API 的了解来执行优化。最后，Nsight Compute 和下一代 CUDA 调试器将分配器视为其 CUDA 11.3 工具包支持的一部分。</p>
 </section>
 <section id="stream-ordered-querying-memory-support">
@@ -17353,13 +17353,13 @@ $ nvcc -arch=sm_75 -rdc=true hello_world.o -o hello -lcudadevrt
 <span id="stream-ordered-ipc-memory-pools"></span><h2>
 <span class="section-number">15.11. </span>IPC 内存池<a class="headerlink" href="#ipc-memory-pools" title="跳转到此标题"></a>
 </h2>
-<p>支持 IPC 的内存池允许在进程之间轻松、高效且安全地shared GPU 内存。 CUDA 的 IPC 内存池提供与 CUDA 的虚拟内存管理 API 相同的安全优势。</p>
-<p>使用内存池在进程之间共享内存有两个阶段。进程首先需要shared对池的访问，然后shared该池中的特定分配。第一阶段建立并加强安全性。第二阶段协调每个进程中使用的虚拟地址以及映射在导入过程中何时需要有效。</p>
+<p>支持 IPC 的内存池允许在进程之间轻松、高效且安全地共享 GPU 内存。 CUDA 的 IPC 内存池提供与 CUDA 的虚拟内存管理 API 相同的安全优势。</p>
+<p>使用内存池在进程之间共享内存有两个阶段。进程首先需要共享对池的访问，然后共享该池中的特定分配。第一阶段建立并加强安全性。第二阶段协调每个进程中使用的虚拟地址以及映射在导入过程中何时需要有效。</p>
 <section id="creating-and-sharing-ipc-memory-pools">
 <span id="stream-ordered-creating-and-sharing-ipc-memory-pools"></span><h3>
 <span class="section-number">15.11.1. </span>创建和共享 IPC 内存池<a class="headerlink" href="#creating-and-sharing-ipc-memory-pools" title="跳转到此标题"></a>
 </h3>
-<p>shared对池的访问涉及检索池的操作系统本机句柄（使用 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolExportToShareableHandle()</span></code> API），使用通常的操作系统本机IPC机制将句柄传输到导入进程，并创建一个导入的内存池（使用 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolImportFromShareableHandle()</span></code> API）。为了 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolExportToShareableHandle</span></code> 为了成功，必须使用池属性结构中指定的请求句柄类型创建内存池。请参考示例以了解适当的 IPC 机制，以在进程之间传输操作系统本机句柄。该过程的其余部分可以在以下代码片段中找到。</p>
+<p>共享对池的访问涉及检索池的操作系统本机句柄（使用 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolExportToShareableHandle()</span></code> API），使用通常的操作系统本机IPC机制将句柄传输到导入进程，并创建一个导入的内存池（使用 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolImportFromShareableHandle()</span></code> API）。为了 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolExportToShareableHandle</span></code> 为了成功，必须使用池属性结构中指定的请求句柄类型创建内存池。请参考示例以了解适当的 IPC 机制，以在进程之间传输操作系统本机句柄。该过程的其余部分可以在以下代码片段中找到。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="c1">// in exporting process</span>
 <span class="c1">// create an exportable IPC capable pool on device 0</span>
@@ -17414,7 +17414,7 @@ $ nvcc -arch=sm_75 -rdc=true hello_world.o -o hello -lcudadevrt
 <span class="section-number">15.11.3. </span>从导出的池创建和共享分配<a class="headerlink" href="#creating-and-sharing-allocations-from-an-exported-pool" title="跳转到此标题"></a>
 </h3>
 <p>一旦池被共享，导出进程中池内通过 <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync()</span></code> 获得的分配即可与导入该池的其他进程共享。由于池的安全策略是在池级别建立和验证的，因此操作系统不需要额外的簿记来为特定池分配提供安全性；换句话说，不透明的 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolPtrExportData</span></code> 导入池分配所需的信息可以使用任何机制发送到导入进程。</p>
-<p>虽然可以在不以任何方式与分配流同步的情况下导出甚至导入分配，但导入进程在访问分配时必须遵循与导出进程相同的规则。即，对分配的访问必须发生在分配流中的分配操作的流排序之后。下面的两个代码片段显示 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolExportPointer()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolImportPointer()</span></code> 与 IPC 事件shared分配，用于保证在分配准备好之前在导入过程中不会访问分配。</p>
+<p>虽然可以在不以任何方式与分配流同步的情况下导出甚至导入分配，但导入进程在访问分配时必须遵循与导出进程相同的规则。即，对分配的访问必须发生在分配流中的分配操作的流排序之后。下面的两个代码片段显示 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolExportPointer()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolImportPointer()</span></code> 与 IPC 事件共享分配，用于保证在分配准备好之前在导入过程中不会访问分配。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="c1">// preparing an allocation in the exporting process</span>
 <span class="n">cudaMemPoolPtrExportData</span><span class="w"> </span><span class="n">exportData</span><span class="p">;</span><span class="w"></span>
@@ -17681,7 +17681,7 @@ cudaStreamEndCapture(stream1, &amp;graph);
 <p>图分配不必由分配图释放。当图未释放分配时，该分配将在图的执行之外持续存在，并且可以由后续 CUDA 操作访问。这些分配可以在另一个图中访问或直接使用流操作来访问，只要访问操作在分配之后通过 CUDA 事件和其他流排序机制进行排序即可。随后可以通过定期调用来释放分配 <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code>，或者通过启动另一个具有相应空闲节点的图，或者随后启动分配图（如果它是用 <a class="reference internal" href="#graph-memory-nodes-cudagraphinstantiateflagautofreeonlaunch"><span class="std std-ref">cudaGraphInstantiateFlagAutoFreeOnLaunch</span></a> 旗帜）。释放内存后访问内存是非法的 - 必须在使用图依赖项、CUDA 事件和其他流排序机制访问内存的所有操作之后对释放操作进行排序。</p>
 <div class="admonition note">
 <p class="admonition-title">注意</p>
-<p>由于图分配可能彼此shared底层物理内存，因此 <a class="reference internal" href="#virtual-aliasing-support"><span class="std std-ref">虚拟别名支持</span></a> 必须考虑与一致性和连贯性有关的规则。简单地说，释放操作必须在完整设备操作（例如计算内核/memcpy）完成后进行。具体来说，带外同步（例如，作为访问图形分配内存的计算内核的一部分通过内存进行握手）不足以提供对图形内存的内存写入和该图形内存的自由操作之间的排序保证。</p>
+<p>由于图分配可能彼此共享底层物理内存，因此 <a class="reference internal" href="#virtual-aliasing-support"><span class="std std-ref">虚拟别名支持</span></a> 必须考虑与一致性和连贯性有关的规则。简单地说，释放操作必须在完整设备操作（例如计算内核/memcpy）完成后进行。具体来说，带外同步（例如，作为访问图形分配内存的计算内核的一部分通过内存进行握手）不足以提供对图形内存的内存写入和该图形内存的自由操作之间的排序保证。</p>
 </div>
 <p>以下代码片段演示了如何访问分配图之外的图分配，并通过以下方式正确建立顺序：使用单个流、使用流之间的事件以及使用烘焙到分配和释放图中的事件。</p>
 <p><strong>使用单个流建立的排序：</strong></p>
@@ -17900,7 +17900,7 @@ cudaGraphLaunch(waitAndFreeGraphExec, stream3);
 <span class="section-number">16.6. </span>物理内存占用<a class="headerlink" href="#physical-memory-footprint" title="跳转到此标题"></a>
 </h2>
 <p>异步分配的池管理行为意味着销毁包含内存节点的图（即使它们的分配是空闲的）不会立即将物理内存返回给操作系统以供其他进程使用。要显式地将内存释放回操作系统，应用程序应使用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGraphMemTrim</span></code> API。</p>
-<p><code class="docutils literal notranslate"><span class="pre">cudaDeviceGraphMemTrim</span></code> 将取消映射并释放未主动使用的图形内存节点保留的任何物理内存。尚未释放的分配以及计划或运行的图形被视为正在积极使用物理内存，不会受到影响。使用修剪 API 将使物理内存可供其他分配 API 和其他应用程序或进程使用，但会导致 CUDA 在下次启动修剪后的图形时重新分配和重新映射内存。注意 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGraphMemTrim</span></code> 在不同的池上运行 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolTrimTo()</span></code>。图形内存池不暴露给steam有序内存分配器。 CUDA 允许应用程序通过以下方式查询其图形内存占用量 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetGraphMemAttribute</span></code> API。查询属性 <code class="docutils literal notranslate"><span class="pre">cudaGraphMemAttrReservedMemCurrent</span></code> 返回驱动程序为当前进程中的图形分配保留的物理内存量。查询 <code class="docutils literal notranslate"><span class="pre">cudaGraphMemAttrUsedMemCurrent</span></code> 返回当前至少由一张图映射的物理内存量。这些属性中的任何一个都可以用于跟踪 CUDA 何时为了分配图而获取新的物理内存。这两个属性对于检查shared机制节省了多少内存都很有用。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaDeviceGraphMemTrim</span></code> 将取消映射并释放未主动使用的图形内存节点保留的任何物理内存。尚未释放的分配以及计划或运行的图形被视为正在积极使用物理内存，不会受到影响。使用修剪 API 将使物理内存可供其他分配 API 和其他应用程序或进程使用，但会导致 CUDA 在下次启动修剪后的图形时重新分配和重新映射内存。注意 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGraphMemTrim</span></code> 在不同的池上运行 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolTrimTo()</span></code>。图形内存池不暴露给steam有序内存分配器。 CUDA 允许应用程序通过以下方式查询其图形内存占用量 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetGraphMemAttribute</span></code> API。查询属性 <code class="docutils literal notranslate"><span class="pre">cudaGraphMemAttrReservedMemCurrent</span></code> 返回驱动程序为当前进程中的图形分配保留的物理内存量。查询 <code class="docutils literal notranslate"><span class="pre">cudaGraphMemAttrUsedMemCurrent</span></code> 返回当前至少由一张图映射的物理内存量。这些属性中的任何一个都可以用于跟踪 CUDA 何时为了分配图而获取新的物理内存。这两个属性对于检查共享机制节省了多少内存都很有用。</p>
 </section>
 <section id="peer-access">
 <span id="graph-memory-nodes-peer-access"></span><h2>
@@ -19764,7 +19764,7 @@ nvcc –arch=compute_80 –dc b.cu
 nvcc –arch=sm_80 a.o b.o
 </pre></div>
 </div>
-<p>在链接时只有一个版本 <code class="docutils literal notranslate"><span class="pre">getptr</span></code> 使用，因此行为将取决于选择的版本。为了避免这种情况，要么 <code class="docutils literal notranslate"><span class="pre">a.cu</span></code> 和 <code class="docutils literal notranslate"><span class="pre">b.cu</span></code> 必须针对相同的计算架构进行编译，或者 <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH__</span></code> 不应该在shared头函数中使用。</p>
+<p>在链接时只有一个版本 <code class="docutils literal notranslate"><span class="pre">getptr</span></code> 使用，因此行为将取决于选择的版本。为了避免这种情况，要么 <code class="docutils literal notranslate"><span class="pre">a.cu</span></code> 和 <code class="docutils literal notranslate"><span class="pre">b.cu</span></code> 必须针对相同的计算架构进行编译，或者 <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH__</span></code> 不应该在共享头函数中使用。</p>
 </li>
 </ol>
 <p>编译器不保证将为不支持的用途生成诊断信息 <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH__</span></code> 如上所述。</p>
@@ -22699,7 +22699,7 @@ nvlink fatal : merge_elf failed
 <p><strong>基线功能集</strong>：主要的计算功能集，旨在供后续计算架构​​使用。这些功能及其可用性总结在 <a class="reference internal" href="#features-and-technical-specifications-feature-support-per-compute-capability"><span class="std std-numref">表26</span></a>.</p>
 <p><strong>特定于架构的功能集</strong>：一组小型且高度专业化的功能，称为特定于架构的功能，引入这些功能是为了加速专用操作，这些操作不能保证可用，或者可能在后续计算架构​​上发生重大变化。这些功能在相应的“计算能力#.#”小节中进行了总结。特定于体系结构的功能集是特定于系列的功能集的超集。特定于架构的编译器目标是随 Compute Capability 9.0 设备一起引入的，并通过使用 <strong>一个</strong> 编译目标中的后缀，例如通过指定 <code class="docutils literal notranslate"><span class="pre">compute_100a</span></code> 或 <code class="docutils literal notranslate"><span class="pre">compute_120a</span></code> 作为计算目标。</p>
 <p><strong>系列特定功能集</strong>：一些特定于架构的功能对于具有多种计算能力的 GPU 是通用的。这些功能在相应的“计算能力#.#”小节中进行了总结。除少数例外，具有相同主要计算能力的新一代设备都属于同一系列。 <a class="reference internal" href="#family-specific-compatibility"><span class="std std-numref">表25</span></a> 指示特定于系列的目标与设备计算功能的兼容性，包括例外。系列特定功能集是基线功能集的超集。特定于系列的编译器目标是随 Compute Capability 10.0 器件引入的，并通过使用 <strong>f</strong> 编译目标中的后缀，例如通过指定 <code class="docutils literal notranslate"><span class="pre">compute_100f</span></code> 或 <code class="docutils literal notranslate"><span class="pre">compute_120f</span></code> 作为计算目标。</p>
-<p>从计算能力 9.0 开始的所有设备都具有一组特定于体系结构的功能。要在特定 GPU 上利用完整的这些功能集，特定于体系结构的编译器目标带有后缀 <strong>一个</strong> 必须使用。此外，从计算能力 10.0 开始，在具有不同次要计算能力的多个设备中出现了一些功能集。这些指令集称为系列特定功能，shared这些功能的设备被称为同一系列的一部分。系列特定功能是该 GPU 系列所有成员shared的特定架构功能的子集。带有后缀的特定于系列的编译器目标 <strong>f</strong> 允许编译器生成使用特定于体系结构的功能的公共子集的代码。</p>
+<p>从计算能力 9.0 开始的所有设备都具有一组特定于体系结构的功能。要在特定 GPU 上利用完整的这些功能集，特定于体系结构的编译器目标带有后缀 <strong>一个</strong> 必须使用。此外，从计算能力 10.0 开始，在具有不同次要计算能力的多个设备中出现了一些功能集。这些指令集称为系列特定功能，共享这些功能的设备被称为同一系列的一部分。系列特定功能是该 GPU 系列所有成员共享的特定架构功能的子集。带有后缀的特定于系列的编译器目标 <strong>f</strong> 允许编译器生成使用特定于体系结构的功能的公共子集的代码。</p>
 <p>例如：</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">compute_100</span></code> 编译目标不允许使用特定于体系结构的功能。该目标将与计算能力 10.0 及更高版本的所有设备兼容。</p></li>
@@ -23123,12 +23123,12 @@ nvlink fatal : merge_elf failed
 <p>当 SM 被赋予要执行的warp时，它首先将它们分配给四个调度程序。然后，在每次指令发出时，每个调度程序都会为其分配的已准备好执行的warp之一发出一条指令（如果有的话）。</p>
 <p>SM 具有：</p>
 <ul class="simple">
-<li><p>只读const缓存，由所有功能单元shared，并加速从驻留在设备内存中的const内存空间的读取，</p></li>
+<li><p>只读 const 缓存，由所有功能单元共享，并加速从驻留在设备内存中的const内存空间的读取，</p></li>
 <li><p>24 KB 的统一 L1/纹理缓存，用于缓存从全局内存读取的数据，</p></li>
 <li><p>对于计算能力 5.0 的设备，需要 64 KB 共享内存；对于计算能力 5.2 的设备，需要 96 KB 共享内存。</p></li>
 </ul>
 <p>统一的L1/纹理缓存也被纹理单元使用，实现了中提到的各种寻址模式和数据过滤。 <a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理与表面内存</span></a>.</p>
-<p>还有一个由所有 SM shared的 L2 缓存，用于缓存对本地或全局内存的访问，包括临时寄存器溢出。应用程序可以通过检查 L2 缓存大小来查询 <code class="docutils literal notranslate"><span class="pre">l2CacheSize</span></code> 设备属性（参见 <a class="reference internal" href="#device-enumeration"><span class="std std-ref">设备枚举</span></a>。</p>
+<p>还有一个由所有 SM 共享的 L2 缓存，用于缓存对本地或全局内存的访问，包括临时寄存器溢出。应用程序可以通过检查 L2 缓存大小来查询 <code class="docutils literal notranslate"><span class="pre">l2CacheSize</span></code> 设备属性（参见 <a class="reference internal" href="#device-enumeration"><span class="std std-ref">设备枚举</span></a>。</p>
 <p>缓存行为（例如，读取是否缓存在统一 L1/纹理缓存和 L2 中，还是仅缓存在 L2 中）可以使用加载指令的修饰符在每次访问的基础上进行部分配置。</p>
 </section>
 <section id="global-memory-5-x">
@@ -23216,12 +23216,12 @@ nvlink fatal : merge_elf failed
 <p>当 SM 被赋予要执行的warp时，它首先将它们分配给它的调度程序。然后，在每次指令发出时，每个调度程序都会为其分配的已准备好执行的warp之一发出一条指令（如果有的话）。</p>
 <p>SM 具有：</p>
 <ul class="simple">
-<li><p>只读const缓存，由所有功能单元shared，并加速从驻留在设备内存中的const内存空间的读取，</p></li>
+<li><p>只读 const 缓存，由所有功能单元共享，并加速从驻留在设备内存中的const内存空间的读取，</p></li>
 <li><p>统一的 L1/纹理缓存，用于从大小为 24 KB（6.0 和 6.2）或 48 KB（6.1）的全局内存读取，</p></li>
 <li><p>大小为 64 KB（6.0 和 6.2）或 96 KB（6.1）的共享内存。</p></li>
 </ul>
 <p>统一的L1/纹理缓存也被纹理单元使用，实现了中提到的各种寻址模式和数据过滤。 <a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理与表面内存</span></a>.</p>
-<p>还有一个由所有 SM shared的 L2 缓存，用于缓存对本地或全局内存的访问，包括临时寄存器溢出。应用程序可以通过检查 L2 缓存大小来查询 <code class="docutils literal notranslate"><span class="pre">l2CacheSize</span></code> 设备属性（参见 <a class="reference internal" href="#device-enumeration"><span class="std std-ref">设备枚举</span></a>。</p>
+<p>还有一个由所有 SM 共享的 L2 缓存，用于缓存对本地或全局内存的访问，包括临时寄存器溢出。应用程序可以通过检查 L2 缓存大小来查询 <code class="docutils literal notranslate"><span class="pre">l2CacheSize</span></code> 设备属性（参见 <a class="reference internal" href="#device-enumeration"><span class="std std-ref">设备枚举</span></a>。</p>
 <p>缓存行为（例如，读取是缓存在统一 L1/纹理缓存和 L2 中还是仅缓存在 L2 中）可以使用加载指令的修饰符在每次访问的基础上进行部分配置。</p>
 </section>
 <section id="global-memory-6-x">
@@ -23257,7 +23257,7 @@ nvlink fatal : merge_elf failed
 <p>SM 在其调度程序之间静态分配其warp。然后，在每次指令发出时，每个调度程序都会为其分配的已准备好执行的warp之一发出一条指令（如果有的话）。</p>
 <p>SM 具有：</p>
 <ul class="simple">
-<li><p>只读const缓存，由所有功能单元shared，并加速从驻留在设备内存中的const内存空间的读取，</p></li>
+<li><p>只读 const 缓存，由所有功能单元共享，并加速从驻留在设备内存中的const内存空间的读取，</p></li>
 <li><p>统一的数据缓存和共享内存，总大小为128 KB（<em>沃尔特</em>) 或 96 KB (<em>图灵</em>。</p></li>
 </ul>
 <p>共享内存从统一数据缓存中划分出来，并且可以配置为各种大小（请参见 <a class="reference internal" href="#shared-memory-7-x"><span class="std std-ref">共享内存</span></a>.) 剩余的数据缓存用作 L1 缓存，也由实现中提到的各种寻址和数据过滤模式的纹理单元使用。 <a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理与表面内存</span></a>.</p>
@@ -23385,7 +23385,7 @@ nvlink fatal : merge_elf failed
 </h3>
 <p>为共享内存保留的统一数据缓存的数量可以根据每个内核进行配置。对于 <em>沃尔特</em> 架构（计算能力7.0），统一数据缓存大小为128 KB，共享内存容量可设置为0、8、16、32、64或96 KB。对于 <em>图灵</em> 架构（计算能力7.5），统一数据缓存大小为96KB，共享内存容量可设置为32KB或64KB。与 Kepler 不同的是，该驱动程序会自动为每个内核配置共享内存容量，以避免共享内存占用瓶颈，同时还允许在可能的情况下与已启动的内核并发执行。在大多数情况下，驱动程序的默认行为应该提供最佳性能。</p>
 <p>由于驱动程序并不总是了解全部工作负载，因此应用程序有时提供有关所需共享内存配置的附加提示很有用。例如，很少或没有共享内存使用的内核可能会请求更大的剥离，以鼓励与需要更多共享内存的后续内核并发执行。新的 <code class="docutils literal notranslate"><span class="pre">cudaFuncSetAttribute()</span></code> API 允许应用程序设置首选共享内存容量，或者 <code class="docutils literal notranslate"><span class="pre">carveout</span></code>，作为最大支持的共享内存容量的百分比（96 KB <em>沃尔特</em>，64 KB <em>图灵</em>。</p>
-<p><code class="docutils literal notranslate"><span class="pre">cudaFuncSetAttribute()</span></code> 与传统的相比，放松了首选shared容量的执行 <code class="docutils literal notranslate"><span class="pre">cudaFuncSetCacheConfig()</span></code> API 随 Kepler 一起引入。旧版 API 将共享内存容量视为内核启动的硬性要求。因此，具有不同共享内存配置的交错内核将不必要地序列化共享内存重新配置后的启动。在新的 API 中，剥离被视为提示。如果需要执行该功能或避免抖动，驱动程序可以选择不同的配置。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaFuncSetAttribute()</span></code> 与传统的相比，放松了首选共享容量的执行 <code class="docutils literal notranslate"><span class="pre">cudaFuncSetCacheConfig()</span></code> API 随 Kepler 一起引入。旧版 API 将共享内存容量视为内核启动的硬性要求。因此，具有不同共享内存配置的交错内核将不必要地序列化共享内存重新配置后的启动。在新的 API 中，剥离被视为提示。如果需要执行该功能或避免抖动，驱动程序可以选择不同的配置。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="c1">// Device code</span>
 <span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">MyKernel</span><span class="p">(...)</span><span class="w"></span>
@@ -23404,7 +23404,7 @@ nvlink fatal : merge_elf failed
 <span class="n">MyKernel</span><span class="w"> </span><span class="o">&lt;&lt;&lt;</span><span class="n">gridDim</span><span class="p">,</span><span class="w"> </span><span class="n">BLOCK_DIM</span><span class="o">&gt;&gt;&gt;</span><span class="p">(...);</span><span class="w"></span>
 </pre></div>
 </div>
-<p>除了整数百分比之外，还提供了几个方便的枚举，如上面代码注释中列出的。如果所选的整数百分比未准确映射到支持的容量（SM 7.0 设备支持 0、8、16、32、64 或 96 KB 的shared容量），则使用下一个更大的容量。例如，在上面的示例中，96 KB 最大值的 50% 是 48 KB，这不是受支持的共享内存容量。因此，首选项向上舍入为 64 KB。</p>
+<p>除了整数百分比之外，还提供了几个方便的枚举，如上面代码注释中列出的。如果所选的整数百分比未准确映射到支持的容量（SM 7.0 设备支持 0、8、16、32、64 或 96 KB 的共享容量），则使用下一个更大的容量。例如，在上面的示例中，96 KB 最大值的 50% 是 48 KB，这不是受支持的共享内存容量。因此，首选项向上舍入为 64 KB。</p>
 <p>计算能力 7.x 设备允许单个线程块寻址共享内存的全部容量：96 KB <em>沃尔特</em>, 64 KB <em>图灵</em>。依赖于每块超过 48 KB 共享内存分配的内核是特定于体系结构的，因此它们必须使用动态共享内存（而不是静态大小的数组），并且需要显式选择使用 <code class="docutils literal notranslate"><span class="pre">cudaFuncSetAttribute()</span></code> 如下。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="c1">// Device code</span>
@@ -23444,7 +23444,7 @@ nvlink fatal : merge_elf failed
 <p>SM 在其调度程序之间静态分配其warp。然后，在每次指令发出时，每个调度程序都会为其分配的已准备好执行的warp之一发出一条指令（如果有的话）。</p>
 <p>SM 具有：</p>
 <ul class="simple">
-<li><p>只读const缓存，由所有功能单元shared，并加速从驻留在设备内存中的const内存空间的读取，</p></li>
+<li><p>只读 const 缓存，由所有功能单元共享，并加速从驻留在设备内存中的const内存空间的读取，</p></li>
 <li><p>总大小为 192 KB 的统一数据缓存和共享内存，适用于计算能力 8.0 和 8.7 的设备（1.5 倍） <em>沃尔特</em>的 128 KB 容量），计算能力 8.6 和 8.9 的设备为 128 KB。</p></li>
 </ul>
 <p>共享内存从统一数据缓存中划分出来，并且可以配置为各种大小（请参阅 <a class="reference internal" href="#shared-memory-8-x"><span class="std std-ref">共享内存</span></a>）。剩余的数据缓存用作L1缓存，也被纹理单元使用，该纹理单元实现中提到的各种寻址和数据过滤模式。 <a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理与表面内存</span></a>.</p>
@@ -23490,7 +23490,7 @@ nvlink fatal : merge_elf failed
 <p>SM 在其调度程序之间静态分配其warp。然后，在每次指令发出时，每个调度程序都会为其分配的已准备好执行的warp之一发出一条指令（如果有的话）。</p>
 <p>SM 具有：</p>
 <ul class="simple">
-<li><p>只读const缓存，由所有功能单元shared，并加速从驻留在设备内存中的const内存空间的读取，</p></li>
+<li><p>只读 const 缓存，由所有功能单元共享，并加速从驻留在设备内存中的const内存空间的读取，</p></li>
 <li><p>统一数据缓存和共享内存，总大小为 256 KB，适用于计算能力 9.0 的设备（1.33x <strong>NVIDIA Ampere GPU 架构</strong> 192 KB 容量）。</p></li>
 </ul>
 <p>共享内存从统一数据缓存中划分出来，并且可以配置为各种大小（请参阅 <a class="reference internal" href="#shared-memory-9-0"><span class="std std-ref">共享内存</span></a>）。剩余的数据缓存用作L1缓存，也被纹理单元使用，该纹理单元实现中提到的各种寻址和数据过滤模式。 <a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理与表面内存</span></a>.</p>
@@ -23546,7 +23546,7 @@ nvlink fatal : merge_elf failed
 <p>SM 在其调度程序之间静态分配其warp。然后，在每次指令发出时，每个调度程序都会为其分配的已准备好执行的warp之一发出一条指令（如果有的话）。</p>
 <p>SM 具有：</p>
 <ul class="simple">
-<li><p>只读const缓存，由所有功能单元shared，并加速从驻留在设备内存中的const内存空间的读取，</p></li>
+<li><p>只读 const 缓存，由所有功能单元共享，并加速从驻留在设备内存中的const内存空间的读取，</p></li>
 <li><p>计算能力10.0设备的统一数据缓存和共享内存，总大小为256KB</p></li>
 </ul>
 <p>共享内存从统一数据缓存中划分出来，并且可以配置为各种大小（请参阅 <a class="reference internal" href="#shared-memory-10-0"><span class="std std-ref">共享内存</span></a>）。剩余的数据缓存用作L1缓存，也被纹理单元使用，该纹理单元实现中提到的各种寻址和数据过滤模式。 <a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理与表面内存</span></a>.</p>
@@ -23596,7 +23596,7 @@ nvlink fatal : merge_elf failed
 <p>SM 在其调度程序之间静态分配其warp。然后，在每次指令发出时，每个调度程序都会为其分配的已准备好执行的warp之一发出一条指令（如果有的话）。</p>
 <p>SM 具有：</p>
 <ul class="simple">
-<li><p>只读const缓存，由所有功能单元shared，并加速从驻留在设备内存中的const内存空间的读取，</p></li>
+<li><p>只读 const 缓存，由所有功能单元共享，并加速从驻留在设备内存中的const内存空间的读取，</p></li>
 <li><p>计算能力12.0设备的统一数据缓存和共享内存，总大小为100KB</p></li>
 </ul>
 <p>共享内存从统一数据缓存中划分出来，并且可以配置为各种大小（请参阅 <a class="reference internal" href="#shared-memory-12-0"><span class="std std-ref">共享内存</span></a>）。剩余的数据缓存用作L1缓存，也被纹理单元使用，该纹理单元实现中提到的各种寻址和数据过滤模式。 <a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理与表面内存</span></a>.</p>
@@ -24280,7 +24280,7 @@ nvlink fatal : merge_elf failed
 <tr class="row-odd">
 <td><p>CUDA_VISIBLE_DEVICES</p></td>
 <td><p>MIG 支持的 GPU 标识符的逗号分隔序列： <code class="docutils literal notranslate"><span class="pre">MIG-&lt;GPU-UUID&gt;/&lt;GPU</span><span class="pre">instance</span><span class="pre">ID&gt;/&lt;compute</span><span class="pre">instance</span><span class="pre">ID&gt;</span></code></p></td>
-<td><p>GPU 标识符以整数索引或 UUID 字符串的形式给出。 GPU UUID 字符串应遵循与给出的格式相同的格式 <em>英伟达-SMI</em>，例如GPU-8932f937-d72c-4106-c12f-20bd9faed9f6。然而，为了方便起见，允许使用缩写形式；只需从 GPU UUID 的开头指定足够的数字即可唯一标识目标系统中的该 GPU。例如，假设系统中没有其他 GPU shared此前缀，则 CUDA_VISIBLE_DEVICES=GPU-8932f937 可能是引用上述 GPU UUID 的有效方法。只有索引存在于序列中的设备对 CUDA 应用程序可见，并且它们按序列的顺序进行枚举。如果索引之一无效，则只有索引在无效索引之前的设备对 CUDA 应用程序可见。例如，将 CUDA_VISIBLE_DEVICES 设置为 2,1 会导致设备 0 不可见，并且在设备 1 之前枚举设备 2。将 CUDA_VISIBLE_DEVICES 设置为 0,2,-1,1 会导致设备 0 和 2 可见，而设备 1 不可见。 MIG 格式以 MIG 关键字开头，GPU UUID 应遵循与给出的格式相同的格式 <em>英伟达-SMI</em>。例如，MIG-GPU-8932f937-d72c-4106-c12f-20bd9faed9f6/1/2。仅支持单个 MIG 实例枚举。</p></td>
+<td><p>GPU 标识符以整数索引或 UUID 字符串的形式给出。 GPU UUID 字符串应遵循与给出的格式相同的格式 <em>英伟达-SMI</em>，例如GPU-8932f937-d72c-4106-c12f-20bd9faed9f6。然而，为了方便起见，允许使用缩写形式；只需从 GPU UUID 的开头指定足够的数字即可唯一标识目标系统中的该 GPU。例如，假设系统中没有其他 GPU 共享此前缀，则 CUDA_VISIBLE_DEVICES=GPU-8932f937 可能是引用上述 GPU UUID 的有效方法。只有索引存在于序列中的设备对 CUDA 应用程序可见，并且它们按序列的顺序进行枚举。如果索引之一无效，则只有索引在无效索引之前的设备对 CUDA 应用程序可见。例如，将 CUDA_VISIBLE_DEVICES 设置为 2,1 会导致设备 0 不可见，并且在设备 1 之前枚举设备 2。将 CUDA_VISIBLE_DEVICES 设置为 0,2,-1,1 会导致设备 0 和 2 可见，而设备 1 不可见。 MIG 格式以 MIG 关键字开头，GPU UUID 应遵循与给出的格式相同的格式 <em>英伟达-SMI</em>。例如，MIG-GPU-8932f937-d72c-4106-c12f-20bd9faed9f6/1/2。仅支持单个 MIG 实例枚举。</p></td>
 </tr>
 <tr class="row-even">
 <td><p>CUDA_MANAGED_FORCE_DEVICE_ALLOC</p></td>
@@ -25145,7 +25145,7 @@ nvlink fatal : merge_elf failed
 <span id="um-oversubscription"></span><h4>
 <span class="section-number">24.1.2.7. </span>GPU 内存超额认购<a class="headerlink" href="#gpu-memory-oversubscription" title="跳转到此标题"></a>
 </h4>
-<p>统一内存使应用程序能够 <em>超额认购</em> 任何单个处理器的内存：换句话说，它们可以分配和shared大于系统中任何单个处理器的内存容量的数组，从而能够对不适合单个 GPU 的数据集进行核外处理，而不会显着增加编程模型的复杂性。</p>
+<p>统一内存使应用程序能够 <em>超额认购</em> 任何单个处理器的内存：换句话说，它们可以分配和共享大于系统中任何单个处理器的内存容量的数组，从而能够对不适合单个 GPU 的数据集进行核外处理，而不会显着增加编程模型的复杂性。</p>
 </section>
 <section id="performance-hints">
 <span id="um-perf-hints"></span><h4>
@@ -25580,7 +25580,7 @@ nvlink fatal : merge_elf failed
 <p>截至目前，将 IPC 与统一内存结合使用可能会对性能产生重大影响。</p>
 </div>
 <p>许多应用程序更喜欢每个进程管理一个 GPU，但仍然需要使用统一内存（例如超额订阅）并从多个 GPU 访问它。</p>
-<p>CUDA IPC（参见 <a class="reference internal" href="#interprocess-communication"><span class="std std-ref">进程间通信</span></a>）不支持托管内存：此类内存的句柄可能无法通过本节中讨论的任何机制shared。在 <a class="reference internal" href="#um-requirements"><span class="std std-ref">具有完整 CUDA 统一内存支持的系统</span></a>，系统分配的内存具有进程间通信（IPC）能力。一旦与其他进程shared对系统分配内存的访问，相同的 <a class="reference internal" href="#um-programming-model"><span class="std std-ref">编程模型</span></a> 适用，类似于 <a class="reference internal" href="#um-sam-file-backed"><span class="std std-ref">文件支持的统一内存</span></a>.</p>
+<p>CUDA IPC（参见 <a class="reference internal" href="#interprocess-communication"><span class="std std-ref">进程间通信</span></a>）不支持托管内存：此类内存的句柄可能无法通过本节中讨论的任何机制共享。在 <a class="reference internal" href="#um-requirements"><span class="std std-ref">具有完整 CUDA 统一内存支持的系统</span></a>，系统分配的内存具有进程间通信（IPC）能力。一旦与其他进程共享对系统分配内存的访问，相同的 <a class="reference internal" href="#um-programming-model"><span class="std std-ref">编程模型</span></a> 适用，类似于 <a class="reference internal" href="#um-sam-file-backed"><span class="std std-ref">文件支持的统一内存</span></a>.</p>
 <p>有关在 Linux 下创建支持 IPC 的系统分配内存的各种方法的更多信息，请参阅以下参考资料：</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://man7.org/linux/man-pages/man2/mmap.2.html">mmap 与 MAP_SHARED</a></p></li>
