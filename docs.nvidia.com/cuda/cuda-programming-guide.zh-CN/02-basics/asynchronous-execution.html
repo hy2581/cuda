@@ -541,30 +541,30 @@
 </section>
 <section id="launching-kernels-in-cuda-streams">
 <h3><span class="section-number">2.3.2.2. </span>在 CUDA 流中启动内核<a class="headerlink" href="asynchronous-execution.html#launching-kernels-in-cuda-streams" title="跳转到此标题">#</a></h3>
-<p>The usual triple-chevron syntax for launching a kernel can also be used to launch a kernel into a specific stream. The stream is specified as an extra parameter to the kernel launch. In the following example the kernel named <code class="docutils literal notranslate"><span class="pre">kernel</span></code> is launched into the stream with handle <code class="docutils literal notranslate"><span class="pre">stream</span></code>, which is of type <code class="docutils literal notranslate"><span class="pre">cudaStream_t</span></code> and has been assumed to have been created previously:</p>
+<p>通常用于启动内核的三尖括号语法同样可将内核发射到指定流中。做法是在内核启动参数中额外传入流。如下示例中，名为 <code class="docutils literal notranslate"><span class="pre">kernel</span></code> 的内核被发射到句柄为 <code class="docutils literal notranslate"><span class="pre">stream</span></code> 的流中；该句柄类型为 <code class="docutils literal notranslate"><span class="pre">cudaStream_t</span></code>，并假定已事先创建。</p>
 <div class="highlight-c notranslate" id="kernel-launch-stream"><div class="highlight"><pre><span></span><span class="n">kernel</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="p">,</span><span class="w"> </span><span class="n">shared_mem_size</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(...);</span>
 </pre></div>
 </div>
-<p>The kernel launch is asynchronous and the function call returns immediately. Assuming that the kernel launch is successful, the kernel will execute in the stream <code class="docutils literal notranslate"><span class="pre">stream</span></code> and the application is free to perform other tasks on the CPU or in other streams on the GPU while the kernel is executing.</p>
+<p>内核启动是异步的，函数调用会立即返回。若内核成功发射，它将在流 <code class="docutils literal notranslate"><span class="pre">stream</span></code> 中执行；与此同时，应用可以在 CPU 上或 GPU 的其他流中并行执行其他任务。</p>
 </section>
 <section id="launching-memory-transfers-in-cuda-streams">
 <span id="async-execution-memory-transfers"></span><h3><span class="section-number">2.3.2.3. </span>在 CUDA 流中发起内存传输<a class="headerlink" href="asynchronous-execution.html#launching-memory-transfers-in-cuda-streams" title="跳转到此标题">#</a></h3>
-<p>To launch a memory transfer into a stream, we can use the function <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyAsync()</span></code>. This function is similar to the  <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code> function, but it takes an additional parameter specifying the stream to use for the memory transfer. The function call in the code block below copies <code class="docutils literal notranslate"><span class="pre">size</span></code> bytes from the host memory pointed to by <code class="docutils literal notranslate"><span class="pre">src</span></code> to the device memory pointed to by <code class="docutils literal notranslate"><span class="pre">dst</span></code> in the stream <code class="docutils literal notranslate"><span class="pre">stream</span></code>.</p>
+<p>若要把内存传输发起到某个流中，可使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyAsync()</span></code>。它与 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code> 类似，但多了一个参数用于指定传输所使用的流。下面代码将 <code class="docutils literal notranslate"><span class="pre">src</span></code> 指向的主机内存中的 <code class="docutils literal notranslate"><span class="pre">size</span></code> 字节复制到流 <code class="docutils literal notranslate"><span class="pre">stream</span></code> 中 <code class="docutils literal notranslate"><span class="pre">dst</span></code> 指向的设备内存。</p>
 <div class="highlight-c notranslate" id="async-memory-transfer"><div class="highlight"><pre><span></span><span class="c1">// Copy `size` bytes from `src` to `dst` in stream `stream`</span>
 <span class="n">cudaMemcpyAsync</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span><span class="w"> </span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">cudaMemcpyHostToDevice</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>Like other asynchronous function calls, this function call returns immediately, whereas the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code> function blocks until the memory transfer is complete. In order to access the results of the transfer safely, the application must determine that the operation has completed using some form of synchronization.</p>
-<p>Other CUDA memory transfer functions such as <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpy2D()</span></code> also have asynchronous variants.</p>
+<p>与其他异步函数调用一样，该调用会立即返回；而 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code> 会阻塞直到传输完成。要安全访问传输结果，应用必须通过某种同步手段确认该操作已经结束。</p>
+<p>其他 CUDA 内存传输函数（如 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpy2D()</span></code>）也有对应的异步版本。</p>
 <div class="admonition note">
 <p class="admonition-title">注意</p>
-<p>In order for memory copies involving CPU memory to be carried out asynchronously, the host buffers must be pinned and page-locked. <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyAsync()</span></code> will function correctly if host memory which is not pinned and page-locked is used, but it will revert to a synchronous behavior which will not overlap with other work. This can inhibit the performance benefits of using asynchronous memory transfers. It is recommended programs use <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMallocHost()</span></code> to allocate buffers which will be used to send or receive data from GPUs.</p>
+<p>若要让涉及 CPU 内存的拷贝真正异步执行，主机缓冲区必须是固定页内存（pinned/page-locked）。若主机内存不是固定页，<code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyAsync()</span></code> 虽能正常工作，但会退化为同步行为，无法与其他任务重叠，从而削弱异步传输的性能收益。建议使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMallocHost()</span></code> 分配用于与 GPU 收发数据的缓冲区。</p>
 </div>
 </section>
 <section id="stream-synchronization">
 <span id="async-execution-stream-synchronization"></span><h3><span class="section-number">2.3.2.4. </span>流同步<a class="headerlink" href="asynchronous-execution.html#stream-synchronization" title="跳转到此标题">#</a></h3>
 <p>与流同步最简单的方法，是等待该流中的任务全部清空。这可以通过两种方式完成：<code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code> 或 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamQuery()</span></code>。</p>
-<p>The <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code> function will block until all the work in the stream has completed.</p>
+<p><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code> 会阻塞，直到该流中的所有工作完成。</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// Wait for the stream to be empty of tasks</span>
 <span class="n">cudaStreamSynchronize</span><span class="p">(</span><span class="n">stream</span><span class="p">);</span>
 
@@ -572,7 +572,7 @@
 <span class="c1">// and we can access the results of stream operations safely</span>
 </pre></div>
 </div>
-<p>If we prefer not to block, but just need a quick check to see if the steam is empty we can use the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamQuery()</span></code> function.</p>
+<p>如果不希望阻塞，只想快速检查流是否为空，可使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamQuery()</span></code>。</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// Have a peek at the stream</span>
 <span class="c1">// returns cudaSuccess if the stream is empty</span>
 <span class="c1">// returns cudaErrorNotReady if the stream is not empty</span>
@@ -602,7 +602,7 @@
 <p>CUDA 流还会保留时间信息，可用于测量内核启动和内存传输耗时。</p>
 <section id="creating-and-destroying-cuda-events">
 <h3><span class="section-number">2.3.3.1. </span>创建与销毁 CUDA 事件<a class="headerlink" href="asynchronous-execution.html#creating-and-destroying-cuda-events" title="跳转到此标题">#</a></h3>
-<p>CUDA Events can be created and destroyed using the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaEventCreate()</span></code> and <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaEventDestroy()</span></code> functions.</p>
+<p>可使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaEventCreate()</span></code> 与 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaEventDestroy()</span></code> 创建和销毁 CUDA 事件。</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">cudaEvent_t</span><span class="w"> </span><span class="n">event</span><span class="p">;</span>
 
 <span class="c1">// Create the event</span>
@@ -615,11 +615,11 @@
 <span class="n">cudaEventDestroy</span><span class="p">(</span><span class="n">event</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>The application is responsible for destroying events when they are no longer needed.</p>
+<p>事件不再需要时，应由应用负责销毁。</p>
 </section>
 <section id="inserting-events-into-cuda-streams">
 <h3><span class="section-number">2.3.3.2. </span>向 CUDA 流中插入事件<a class="headerlink" href="asynchronous-execution.html#inserting-events-into-cuda-streams" title="跳转到此标题">#</a></h3>
-<p>CUDA Events can be inserted into a stream using the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaEventRecord()</span></code> function.</p>
+<p>可通过 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaEventRecord()</span></code> 将 CUDA 事件插入流中。</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">cudaEvent_t</span><span class="w"> </span><span class="n">event</span><span class="p">;</span>
 <span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">;</span>
 
@@ -633,7 +633,7 @@
 </section>
 <section id="timing-operations-in-cuda-streams">
 <h3><span class="section-number">2.3.3.3. </span>对 CUDA 流中的操作计时<a class="headerlink" href="asynchronous-execution.html#timing-operations-in-cuda-streams" title="跳转到此标题">#</a></h3>
-<p>CUDA events can be used to time the execution of various stream operations including kernels. When an event reaches the front of a stream it records a timestamp. By surrounding a kernel in a stream with two events we can get an accurate timing of the duration of the kernel execution as is shown in the code snippet below:</p>
+<p>CUDA 事件可用于计时流中的各类操作（包括内核）。当事件到达流前端时会记录时间戳。像下方示例这样在同一流中用两个事件包围一个内核，即可准确测得该内核执行时长。</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">;</span>
 <span class="n">cudaStreamCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream</span><span class="p">);</span>
 
@@ -671,8 +671,8 @@
 </section>
 <section id="checking-the-status-of-cuda-events">
 <h3><span class="section-number">2.3.3.4. </span>检查 CUDA 事件状态<a class="headerlink" href="asynchronous-execution.html#checking-the-status-of-cuda-events" title="跳转到此标题">#</a></h3>
-<p>Like in the case of checking the status of streams, we can check the status of events in either a blocking or a non-blocking way.</p>
-<p>The <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaEventSynchronize()</span></code> function will block until the event has completed. In the code snippet below we launch a kernel into a stream, followed by an event and then by a second kernel. We can use the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaEventSynchronize()</span></code> function to wait for the event after the first kernel to complete and in principle launch a dependent task immediately, potentially before <cite>kernel2</cite> finishes.</p>
+<p>与检查流状态类似，事件状态也可用阻塞或非阻塞两种方式检查。</p>
+<p><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaEventSynchronize()</span></code> 会阻塞直到事件完成。下方示例先向流中发射一个内核，再记录事件，再发射第二个内核。我们可以通过 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaEventSynchronize()</span></code> 等待第一个内核后的事件完成，从而在理论上可立即启动依赖任务，且可能早于 <cite>kernel2</cite> 结束。</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">cudaEvent_t</span><span class="w"> </span><span class="n">event</span><span class="p">;</span>
 <span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">;</span>
 
@@ -708,7 +708,7 @@
 <span class="n">cudaStreamDestroy</span><span class="p">(</span><span class="n">stream</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>CUDA Events can be checked for completion in a non-blocking way using the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaEventQuery()</span></code> function. In the example below we launch 2 kernels into a stream. The first kernel, <cite>kernel1</cite> generates some data which we would like to copy to the host, however we also have some CPU side work to do. In the code below, we enqueue <cite>kernel1</cite> followed by an event (<cite>event</cite>) and then <cite>kernel2</cite> into stream <cite>stream1</cite>. We then go into a CPU work loop, but occasionally take a peek to see if the event has completed indicating that <cite>kernel1</cite> is done. If so, we launch a host to device copy into stream <cite>stream2</cite>. This approach allows the overlap of the CPU work with the GPU kernel execution and the device to host copy.</p>
+<p>可使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaEventQuery()</span></code> 以非阻塞方式检查 CUDA 事件是否完成。下例中我们向一个流发射两个内核。第一个内核 <cite>kernel1</cite> 生成了希望拷回主机的数据，同时 CPU 侧还有其他工作要做。代码中先把 <cite>kernel1</cite>、事件（<cite>event</cite>）和 <cite>kernel2</cite> 依次入队到 <cite>stream1</cite>。随后进入 CPU 工作循环，并偶尔检查事件是否完成（即 <cite>kernel1</cite> 是否结束）。若完成，则在 <cite>stream2</cite> 中发起设备到主机拷贝。这样可以实现 CPU 工作、GPU 内核执行与设备到主机传输之间的重叠。</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">cudaEvent_t</span><span class="w"> </span><span class="n">event</span><span class="p">;</span>
 <span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream1</span><span class="p">;</span>
 <span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream2</span><span class="p">;</span>
