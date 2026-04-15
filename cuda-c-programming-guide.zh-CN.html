@@ -7720,7 +7720,7 @@ html
 <span id="id162"></span><h2>
 <span class="section-number">10.5. </span>内存栅栏功能<a class="headerlink" href="#memory-fence-functions" title="跳转到此标题"></a>
 </h2>
-<p>CUDA 编程模型假设设备具有弱有序内存模型，即 CUDA 线程将数据写入shared 内存、全局内存、页锁定主机内存或对等设备内存的顺序不一定是观察到另一个 CUDA 或主机线程写入数据的顺序。两个线程在没有同步的情况下读取或写入同一内​​存位置是未定义的行为。</p>
+<p>CUDA 编程模型假设设备具有弱有序内存模型，即 CUDA 线程将数据写入 shared 内存、全局内存、页锁定主机内存或对等设备内存的顺序不一定是观察到另一个 CUDA 或主机线程写入数据的顺序。两个线程在没有同步的情况下读取或写入同一内​​存位置是未定义的行为。</p>
 <p>在下面的示例中，线程 1 执行 <code class="docutils literal notranslate"><span class="pre">writeXY()</span></code>，当线程 2 执行时 <code class="docutils literal notranslate"><span class="pre">readXY()</span></code>.</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">__device__</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">X</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">Y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"></span>
@@ -10702,7 +10702,7 @@ html
 <span id="id189"></span><h3>
 <span class="section-number">10.27.3. </span>没有 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code><a class="headerlink" href="#without-memcpy-async" title="跳转到此标题"></a>
 </h3>
-<p>没有 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code>， 这 <em>复制</em> 的阶段 <em>复制和计算</em> 模式表示为 <code class="docutils literal notranslate"><span class="pre">shared[local_idx]</span> <span class="pre">=</span> <span class="pre">全局[global_idx]</span></code>。这种全局到shared 内存的复制被扩展为从全局内存读取到寄存器，然后从寄存器写入shared 内存。</p>
+<p>没有 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code>， 这 <em>复制</em> 的阶段 <em>复制和计算</em> 模式表示为 <code class="docutils literal notranslate"><span class="pre">shared[local_idx]</span> <span class="pre">=</span> <span class="pre">全局[global_idx]</span></code>。这种全局到shared 内存的复制被扩展为从全局内存读取到寄存器，然后从寄存器写入 shared 内存。</p>
 <p>当这种模式出现在迭代算法中时，每个线程块都需要在迭代算法之后进行同步。 <code class="docutils literal notranslate"><span class="pre">shared[local_idx]</span> <span class="pre">=</span> <span class="pre">全局[global_idx]</span></code> 分配，以确保在计算阶段开始之前完成对shared 内存的所有写入。线程块还需要在计算阶段之后再次同步，以防止在所有线程完成计算之前覆盖shared 内存。下面的代码片段说明了这种模式。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cooperative_groups.h&gt;</span><span class="cp"></span>
@@ -11517,7 +11517,7 @@ html
 所有字节均已到达。一旦屏障翻转，字节就可以安全地从shared 内存中读取，无论是通过线程还是通过后续的批量异步副本。有关障碍交易会计的更多信息，请参阅 <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-mbarrier-tracking-async-operations">PTX ISA</a>.</p>
 <p><strong>障碍等待</strong>。等待障碍物翻转是使用
 <code class="docutils literal notranslate"><span class="pre">mbarrier.try_wait</span></code>。它可以返回 true，表明等待结束，也可以返回 false，这可能意味着等待超时。 while 循环等待完成，并在超时时重试。</p>
-<p><strong>SMEM写入和同步</strong>。缓冲区值的增量读取和写入shared 内存。为了使写入对后续批量异步副本可见，
+<p><strong>SMEM写入和同步</strong>。缓冲区值的增量读取和写入 shared 内存。为了使写入对后续批量异步副本可见，
 <code class="docutils literal notranslate"><span class="pre">fence.proxy.async.shared::cta</span></code> 使用指令。这会在从批量异步复制操作（通过异步代理读取）的后续读取之前对shared 内存进行写入排序。因此，每个线程首先通过以下命令命令写入异步代理中shared 内存中的对象：
 <code class="docutils literal notranslate"><span class="pre">fence.proxy.async.shared::cta</span></code>，并且所有线程的这些操作都在线程 0 中执行的异步操作之前排序，使用
 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code>.</p>
@@ -13158,7 +13158,7 @@ Hello thread 3, f=1.2345
 <span class="section-number">11.1. </span>介绍<a class="headerlink" href="#introduction-cg" title="跳转到此标题"></a>
 </h2>
 <p>协作组是 CUDA 编程模型的扩展，于 CUDA 9 引入，用于组织能够通信的线程组。它让开发者可以明确表达线程通信粒度，从而实现更丰富、更高效的并行分解。</p>
-<p>从历史上看，CUDA 编程模型提供了一个用于同步协作线程的单一、简单的构造：线程块的所有线程之间的屏障，如通过 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 内在功能。然而，程序员希望以其他粒度定义和同步线程组，以“集体”组范围函数接口的形式实现更高的性能、设计灵活性和软件重用。为了表达更广泛的并行交互模式，许多面向性能的程序员诉诸于编写自己的临时且不安全的原语，以在单个 warp 内或跨在单个 GPU 上运行的线程块集之间同步线程。虽然所实现的性能改进通常很有价值，但这导致了脆弱代码的不断增加，随着时间的推移和跨代 GPU 的编写、调整和维护成本高昂。 Cooperative Groups（协作组） 通过提供安全且面向未来的机制来实现高性能代码来解决这个问题。</p>
+<p>历史上，CUDA 在协作线程同步方面主要提供了单一机制：线程块内所有线程之间的屏障（例如 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code>）。但开发者常常需要以不同粒度定义和同步线程组，以通过组范围的“集体”接口获得更高性能、更高设计灵活性和更好的代码复用。为表达更复杂的并行交互模式，许多性能敏感程序过去会自行实现临时且不够安全的同步原语，用于单个 warp 内或跨多个线程块的同步。尽管这些做法往往带来性能收益，但也造成了脆弱代码的累积，并显著提高了跨时间、跨代 GPU 的编写、调优与维护成本。Cooperative Groups（协作组）通过提供安全、可组合且更面向未来的机制来解决这些问题。</p>
 </section>
 <section id="what-s-new-in-cooperative-groups">
 <h2>
@@ -22919,7 +22919,7 @@ nvlink fatal : merge_elf failed
 <td colspan="9"><p>1024</p></td>
 </tr>
 <tr class="row-odd">
-<td><p>经纱尺寸</p></td>
+<td><p>warp 尺寸</p></td>
 <td colspan="9"><p>32</p></td>
 </tr>
 <tr class="row-even">
