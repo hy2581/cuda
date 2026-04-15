@@ -770,52 +770,51 @@
 </section>
 <section id="callback-functions-from-streams">
 <h2><span class="section-number">2.3.4. </span>来自流的回调函数<a class="headerlink" href="asynchronous-execution.html#callback-functions-from-streams" title="跳转到此标题">#</a></h2>
-<p>CUDA provides a mechanism for launching functions on the host from within a stream. There are currently two functions available for this purpose: <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaLaunchHostFunc()</span></code> and <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaAddCallback()</span></code>. However, <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaAddCallback()</span></code> is slated for deprecation, so applications should use <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaLaunchHostFunc()</span></code>.</p>
-<p>Using <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaLaunchHostFunc()</span></code></p>
-<p>The signature of the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaLaunchHostFunc()</span></code> function is as follows:</p>
+<p>CUDA 提供了一种机制，可在流内部触发主机侧函数。当前可用的函数有两个：<code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaLaunchHostFunc()</span></code> 和 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaAddCallback()</span></code>。但 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaAddCallback()</span></code> 已计划弃用，因此应用应使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaLaunchHostFunc()</span></code>。</p>
+<p>使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaLaunchHostFunc()</span></code></p>
+<p><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaLaunchHostFunc()</span></code> 的函数签名如下：</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">cudaError_t</span><span class="w"> </span><span class="nf">cudaLaunchHostFunc</span><span class="p">(</span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">func</span><span class="p">)(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>where</p>
+<p>其中：</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">stream</span></code>: The stream to launch the callback function into.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">func</span></code>: The callback function to launch.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">data</span></code>: A pointer to the data to pass to the callback function.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stream</span></code>：要将回调函数放入的流。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">func</span></code>：要执行的回调函数。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data</span></code>：传给回调函数的数据指针。</p></li>
 </ul>
-<p>The host function itself is a simple C function with the signature:</p>
+<p>主机函数本身是一个简单的 C 函数，签名如下：</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">hostFunction</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>with the <code class="docutils literal notranslate"><span class="pre">data</span></code> parameter pointing to a user defined data structure which the function can interpret. There are some caveats to keep in mind when using callback functions like this. In particular, the host
-function may not call any CUDA APIs.</p>
-<p>For the purposes of being used with unified memory, the following execution guarantees are provided:
-- The stream is considered idle for the duration of the function’s execution. Thus, for example, the function may always use memory attached to the stream it was enqueued in.
-- The start of execution of the function has the same effect as synchronizing an event recorded in the same stream immediately prior to the function. It thus synchronizes streams which have been “joined” prior to the function.
-- Adding device work to any stream does not have the effect of making the stream active until all preceding host functions and stream callbacks have executed. Thus, for example, a function might use global attached memory even if work has been added to another stream, if the work has been ordered behind the function call with an event.
-- Completion of the function does not cause a stream to become active except as described above. The stream will remain idle if no device work follows the function, and will remain idle across consecutive host functions or stream callbacks without device work in between. Thus, for example, stream synchronization can be done by signaling from a host function at the end of the stream.</p>
+<p>其中 <code class="docutils literal notranslate"><span class="pre">data</span></code> 参数指向用户定义的数据结构，函数可自行解释该结构。使用这类回调函数时有一些注意事项：尤其是，主机函数内部不得调用任何 CUDA API。</p>
+<p>在统一内存语义下，系统提供如下执行保证：
+- 函数执行期间，该流被视为空闲状态。因此函数可始终使用其入队流所附加的内存。
+- 函数开始执行的效果，等价于同步同一流中紧邻其前的一个事件，因此会同步此前“汇合”的流。
+- 在所有前序主机函数和流回调执行完之前，向任何流加入设备工作都不会使该流变为活跃。
+- 除上述情况外，函数完成本身不会使流变为活跃。若后续没有设备工作，该流将保持空闲；连续主机函数/回调之间若无设备工作，流也保持空闲。</p>
 <section id="using-cudastreamaddcallback">
-<h3><span class="section-number">2.3.4.1. </span>Using <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamAddCallback()</span></code><a class="headerlink" href="asynchronous-execution.html#using-cudastreamaddcallback" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">2.3.4.1. </span>使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamAddCallback()</span></code><a class="headerlink" href="asynchronous-execution.html#using-cudastreamaddcallback" title="跳转到此标题">#</a></h3>
 <div class="admonition note">
 <p class="admonition-title">注意</p>
-<p>The <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamAddCallback()</span></code> function is slated for deprecation and removal and is discussed here for completeness and because it may still appear in existing code. Applications should use or switch to using <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaLaunchHostFunc()</span></code>.</p>
+<p><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamAddCallback()</span></code> 已计划弃用并移除。此处仅为完整性与兼容存量代码而说明。应用应使用或迁移到 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaLaunchHostFunc()</span></code>。</p>
 </div>
-<p>The signature of the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamAddCallback()</span></code> function is as follows:</p>
+<p><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamAddCallback()</span></code> 的函数签名如下：</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">cudaError_t</span><span class="w"> </span><span class="nf">cudaStreamAddCallback</span><span class="p">(</span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamCallback_t</span><span class="w"> </span><span class="n">callback</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">userData</span><span class="p">,</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>where</p>
+<p>其中：</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">stream</span></code>: The stream to launch the callback function into.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">callback</span></code>: The callback function to launch.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">userData</span></code>: A pointer to the data to pass to the callback function.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">flags</span></code>: Currently, this parameter must be 0 for future compatibility.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stream</span></code>：要将回调函数放入的流。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">callback</span></code>：要执行的回调函数。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">userData</span></code>：传入回调函数的数据指针。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">flags</span></code>：当前必须设为 0，以保证未来兼容性。</p></li>
 </ul>
 <p>The signature of the  <code class="docutils literal notranslate"><span class="pre">callback</span></code> function is a little different from the case when we used the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaLaunchHostFunc()</span></code> function.
 In this case the callback function is a C function with the signature:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">callbackFunction</span><span class="p">(</span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="n">cudaError_t</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">userData</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>where the function is now passed</p>
+<p>此时该函数会接收：</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">stream</span></code>: The stream handle from which the callback function was launched.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">status</span></code>: The status of the stream operation that triggered the callback.</p></li>
@@ -826,15 +825,15 @@ Similarly to the <code class="xref cpp cpp-func docutils literal notranslate"><s
 </section>
 <section id="asynchronous-error-handling">
 <span id="asynchronous-execution-error-handling"></span><h3><span class="section-number">2.3.4.2. </span>异步错误处理<a class="headerlink" href="asynchronous-execution.html#asynchronous-error-handling" title="跳转到此标题">#</a></h3>
-<p>In a cuda stream, errors may originate from any operation in the stream, including for kernel launches and memory transfers. These errors may not be propagated back to the user at run-time until the stream is synchronized, for example, by waiting for an event or calling <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code>. There are two ways to find out about errors which may have occurred in a stream.</p>
+<p>在 CUDA 流中，错误可能来自流内任一操作（包括内核启动和内存传输）。这类错误在运行时可能要等到流被同步后（例如等待事件或调用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code>）才会反馈给用户。排查流内错误通常有两种方式。</p>
 <ul class="simple">
-<li><p>Using the function <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaGetLastError()</span></code>  - this function returns and clears the last error encountered in any stream in the current context. An immediate second call to cudaGetLastError() would return <code class="docutils literal notranslate"><span class="pre">cudaSuccess</span></code> if no other error occurred between the two calls.</p></li>
-<li><p>Using the function <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaPeekAtLastError()</span></code> - this function returns the last error in the current context, but does not clear it.</p></li>
+<li><p>使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaGetLastError()</span></code>：返回并清除当前上下文中任意流遇到的最后一个错误。若两次调用间无新错误，紧接着第二次调用会返回 <code class="docutils literal notranslate"><span class="pre">cudaSuccess</span></code>。</p></li>
+<li><p>使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaPeekAtLastError()</span></code>：返回当前上下文的最后一个错误，但不会清除它。</p></li>
 </ul>
-<p>Both of these functions return the error as a value of type <code class="docutils literal notranslate"><span class="pre">cudaError_t</span></code>. Printable names names of the errors can be generated using the functions <cite>cudaGetErrorName()</cite> and <cite>cudaGetErrorString()</cite>.</p>
-<p>An example of using these functions is shown below:</p>
+<p>两者都以 <code class="docutils literal notranslate"><span class="pre">cudaError_t</span></code> 返回错误值。可通过 <cite>cudaGetErrorName()</cite> 与 <cite>cudaGetErrorString()</cite> 获取可读错误名称和描述。</p>
+<p>下面给出这些函数的使用示例：</p>
 <div class="literal-block-wrapper docutils container" id="id6">
-<div class="code-block-caption"><span class="caption-number">Listing 1 </span><span class="caption-text">Example of using cudaGetLastError() and cudaPeekAtLastError()</span><a class="headerlink" href="asynchronous-execution.html#id6" title="Link to this code">#</a></div>
+<div class="code-block-caption"><span class="caption-number">代码清单 1 </span><span class="caption-text">使用 cudaGetLastError() 与 cudaPeekAtLastError() 的示例</span><a class="headerlink" href="asynchronous-execution.html#id6" title="跳转到此代码">#</a></div>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// Some work occurs in streams.</span>
 <span class="n">cudaStreamSynchronize</span><span class="p">(</span><span class="n">stream</span><span class="p">);</span>
 
@@ -865,19 +864,18 @@ Similarly to the <code class="xref cpp cpp-func docutils literal notranslate"><s
 </div>
 </div>
 <div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>When an error appears at a synchronization, especially in a stream with many operations, it is often difficult to pinpoint exactly where in the stream the error may have occurred. To debug such a situation a useful trick may be to set the environment variable  <code class="docutils literal notranslate"><span class="pre">CUDA_LAUNCH_BLOCKING=1</span></code> and then run the application. The effect of this environment variable is to synchronize after every single kernel launch. This can aid in tracking down which kernel, or transfer caused the error.
-Synchronization can be expensive; applications may run substantially slower when this environment variable is set.</p>
+<p class="admonition-title">提示</p>
+<p>当错误在同步点暴露出来时（尤其在包含大量操作的流中），通常很难定位具体出错位置。一个实用调试技巧是设置环境变量 <code class="docutils literal notranslate"><span class="pre">CUDA_LAUNCH_BLOCKING=1</span></code> 后再运行程序。该变量会让每次内核启动后都执行同步，有助于定位是哪一次内核或传输导致错误。需要注意，同步代价较高，启用该变量后程序可能明显变慢。</p>
 </div>
 </section>
 </section>
 <section id="cuda-stream-ordering">
-<h2><span class="section-number">2.3.5. </span>CUDA Stream Ordering<a class="headerlink" href="asynchronous-execution.html#cuda-stream-ordering" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">2.3.5. </span>CUDA 流的顺序语义<a class="headerlink" href="asynchronous-execution.html#cuda-stream-ordering" title="跳转到此标题">#</a></h2>
 <p>Now that we have discussed the basic mechanisms of streams, events and callback functions it is important to consider the ordering semantics of asynchronous operations in a stream. These semantics are to allow application programmers to think about the ordering of operations in a stream in a safe way. There are some special cases where these semantics may be relaxed for purposes of performance optimization such as in the case of a <em>Programmatic Dependent Kernel Launch</em> scenario, which allows the overlap of two kernels through the use of special attributes and kernel launch mechanisms, or in the case of batching memory transfers using the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyBatchAsync()</span></code> function when the runtime can perform non-overlapping batch copies concurrently. We will discuss these optimizations later on <em>link needed</em>.</p>
 <p>Most importantly CUDA streams are what are known as in-order streams. This means that the order of execution of the operations in a stream is the same as the order in which those operations were enqueued. An operation in a stream cannot leap-frog other operations. Memory operations (such as copies) are tracked by the runtime and will always complete before the next operation in order to allow dependent kernels safe access to the data being transferred.</p>
 </section>
 <section id="blocking-and-non-blocking-streams-and-the-default-stream">
-<span id="async-execution-blocking-non-blocking-default-stream"></span><h2><span class="section-number">2.3.6. </span>Blocking and non-blocking streams and the default stream<a class="headerlink" href="asynchronous-execution.html#blocking-and-non-blocking-streams-and-the-default-stream" title="Link to this heading">#</a></h2>
+<span id="async-execution-blocking-non-blocking-default-stream"></span><h2><span class="section-number">2.3.6. </span>阻塞/非阻塞流与默认流<a class="headerlink" href="asynchronous-execution.html#blocking-and-non-blocking-streams-and-the-default-stream" title="跳转到此标题">#</a></h2>
 <p>In CUDA there are two types of streams: blocking and non-blocking. The name can be a little misleading as the blocking and non-blocking semantics refer only to how the streams synchronize with the default stream. By default, streams created with <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamCreate()</span></code> are blocking streams. In order to create a non-blocking stream, the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamCreateWithFlags()</span></code> function must be used with the <code class="docutils literal notranslate"><span class="pre">cudaStreamNonBlocking</span></code> flag:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">;</span>
 <span class="n">cudaStreamCreateWithFlags</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamNonBlocking</span><span class="p">);</span>
@@ -885,7 +883,7 @@ Synchronization can be expensive; applications may run substantially slower when
 </div>
 <p>and non-blocking streams can be destroyed in the usual way with <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamDestroy()</span></code>.</p>
 <section id="legacy-default-stream">
-<span id="async-execution-default-stream"></span><h3><span class="section-number">2.3.6.1. </span>Legacy Default Stream<a class="headerlink" href="asynchronous-execution.html#legacy-default-stream" title="Link to this heading">#</a></h3>
+<span id="async-execution-default-stream"></span><h3><span class="section-number">2.3.6.1. </span>传统默认流<a class="headerlink" href="asynchronous-execution.html#legacy-default-stream" title="跳转到此标题">#</a></h3>
 <p>The key difference between the blocking and non-blocking streams is how they synchronize with the <strong>default stream</strong>. CUDA provides a legacy default stream ( also known as the NULL stream or the stream with stream ID 0) which is used when no stream is specified in kernel launches or in blocking <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code> calls. This default stream, which was shared amongst all host threads, is a blocking stream. When an operation is launched into this default stream, it will synchronize with all other blocking streams, in other words it will wait for all other blocking streams to complete before it can execute.</p>
 <div class="highlight-c notranslate" id="legacy-default-stream-example"><div class="highlight"><pre><span></span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream1</span><span class="p">,</span><span class="w"> </span><span class="n">stream2</span><span class="p">;</span>
 <span class="n">cudaStreamCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream1</span><span class="p">);</span>
@@ -912,12 +910,12 @@ Synchronization can be expensive; applications may run substantially slower when
 </div>
 </section>
 <section id="per-thread-default-stream">
-<h3><span class="section-number">2.3.6.2. </span>Per-thread Default Stream<a class="headerlink" href="asynchronous-execution.html#per-thread-default-stream" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">2.3.6.2. </span>每线程默认流<a class="headerlink" href="asynchronous-execution.html#per-thread-default-stream" title="跳转到此标题">#</a></h3>
 <p>Starting in CUDA-7, CUDA allows for each host thread to have its own independent default stream, rather than the shared legacy default stream. In order to enable this behavior one must either use the <cite>nvcc</cite> compiler option <code class="docutils literal notranslate"><span class="pre">--default-stream</span> <span class="pre">per-thread</span></code> or define the <code class="docutils literal notranslate"><span class="pre">CUDA_API_PER_THREAD_DEFAULT_STREAM</span></code> preprocessor macro. When this behavior is enabled, each host thread will have its own independent default stream which will not synchronize with other streams in the same way the legacy default stream does. In such a situation the <a class="reference internal" href="asynchronous-execution.html#legacy-default-stream-example"><span class="std std-ref">legacy default stream example</span></a> will now exhibit the same synchronization behavior as the <a class="reference internal" href="asynchronous-execution.html#non-blocking-stream-example"><span class="std std-ref">non-blocking stream example</span></a>.</p>
 </section>
 </section>
 <section id="explicit-synchronization">
-<span id="id4"></span><h2><span class="section-number">2.3.7. </span>Explicit Synchronization<a class="headerlink" href="asynchronous-execution.html#explicit-synchronization" title="Link to this heading">#</a></h2>
+<span id="id4"></span><h2><span class="section-number">2.3.7. </span>显式同步<a class="headerlink" href="asynchronous-execution.html#explicit-synchronization" title="跳转到此标题">#</a></h2>
 <p>There are various ways to explicitly synchronize streams with each other.</p>
 <p><code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code> waits until all preceding commands in all streams of all host threads have completed.</p>
 <p><code class="docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code>takes a stream as a parameter and waits until all preceding commands in the given stream have completed. It can be used to synchronize the host with a specific stream, allowing other streams to continue executing on the device.</p>
@@ -925,7 +923,7 @@ Synchronization can be expensive; applications may run substantially slower when
 <p><code class="docutils literal notranslate"><span class="pre">cudaStreamQuery()</span></code>provides applications with a way to know if all preceding commands in a stream have completed.</p>
 </section>
 <section id="implicit-synchronization">
-<span id="id5"></span><h2><span class="section-number">2.3.8. </span>Implicit Synchronization<a class="headerlink" href="asynchronous-execution.html#implicit-synchronization" title="Link to this heading">#</a></h2>
+<span id="id5"></span><h2><span class="section-number">2.3.8. </span>隐式同步<a class="headerlink" href="asynchronous-execution.html#implicit-synchronization" title="跳转到此标题">#</a></h2>
 <p>Two operations from different streams cannot run concurrently if any CUDA operation on the NULL stream is submitted
 in-between them, unless the streams are non-blocking streams (created with the <code class="docutils literal notranslate"><span class="pre">cudaStreamNonBlocking</span></code> flag).</p>
 <p>Applications should follow these guidelines to improve their potential for concurrent kernel execution:</p>
@@ -935,9 +933,9 @@ in-between them, unless the streams are non-blocking streams (created with the <
 </ul>
 </section>
 <section id="miscellaneous-and-advanced-topics">
-<h2><span class="section-number">2.3.9. </span>Miscellaneous and Advanced topics<a class="headerlink" href="asynchronous-execution.html#miscellaneous-and-advanced-topics" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">2.3.9. </span>杂项与高级主题<a class="headerlink" href="asynchronous-execution.html#miscellaneous-and-advanced-topics" title="跳转到此标题">#</a></h2>
 <section id="stream-prioritization">
-<span id="async-execution-stream-priorities"></span><h3><span class="section-number">2.3.9.1. </span>Stream Prioritization<a class="headerlink" href="asynchronous-execution.html#stream-prioritization" title="Link to this heading">#</a></h3>
+<span id="async-execution-stream-priorities"></span><h3><span class="section-number">2.3.9.1. </span>流优先级<a class="headerlink" href="asynchronous-execution.html#stream-prioritization" title="跳转到此标题">#</a></h3>
 <p>As mentioned previously, developers can assign priorities to CUDA streams. Prioritized streams need to be created using the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamCreateWithPriority()</span></code> function. The function takes two parameters: the stream handle and the priority level.
 The general scheme is that lower numbers correspond to higher priorities. The given priority range for a given device and context
 can be queried using the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaDeviceGetStreamPriorityRange()</span></code> function. The default priority of a stream is 0.</p>
@@ -1094,24 +1092,24 @@ can be queried using the <code class="xref cpp cpp-func docutils literal notrans
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#callback-functions-from-streams">2.3.4. Callback Functions from Streams</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#using-cudastreamaddcallback">2.3.4.1. Using <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamAddCallback()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#using-cudastreamaddcallback">2.3.4.1. 使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamAddCallback()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#asynchronous-error-handling">2.3.4.2. Asynchronous Error Handling</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#cuda-stream-ordering">2.3.5. CUDA Stream Ordering</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#blocking-and-non-blocking-streams-and-the-default-stream">2.3.6. Blocking and non-blocking streams and the default stream</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#legacy-default-stream">2.3.6.1. Legacy Default Stream</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#per-thread-default-stream">2.3.6.2. Per-thread Default Stream</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#blocking-and-non-blocking-streams-and-the-default-stream">2.3.6. 阻塞/非阻塞流与默认流</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#legacy-default-stream">2.3.6.1. 传统默认流</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#per-thread-default-stream">2.3.6.2. 每线程默认流</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#explicit-synchronization">2.3.7. Explicit Synchronization</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#implicit-synchronization">2.3.8. Implicit Synchronization</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#miscellaneous-and-advanced-topics">2.3.9. Miscellaneous and Advanced topics</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#stream-prioritization">2.3.9.1. Stream Prioritization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#explicit-synchronization">2.3.7. 显式同步</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#implicit-synchronization">2.3.8. 隐式同步</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#miscellaneous-and-advanced-topics">2.3.9. 杂项与高级主题</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#stream-prioritization">2.3.9.1. 流优先级</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#introduction-to-cuda-graphs-with-stream-capture">2.3.9.2. Introduction to CUDA Graphs with Stream Capture</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#summary-of-asynchronous-execution">2.3.10. Summary of Asynchronous Execution</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#summary-of-asynchronous-execution">2.3.10. 异步执行总结</a></li>
 </ul>
   </nav></div>
 
