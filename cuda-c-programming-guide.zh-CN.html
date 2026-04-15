@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CUDA C++ Programming Guide（中文手动翻译节选）</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif; line-height: 1.7; max-width: 980px; margin: 0 auto; padding: 24px; color: #1f2328; }
+    h1, h2, h3 { line-height: 1.3; }
+    pre { background: #f6f8fa; padding: 12px; border-radius: 8px; overflow: auto; }
+    code { background: #f6f8fa; padding: 2px 4px; border-radius: 4px; }
+    .note { border-left: 4px solid #2f81f7; padding: 8px 12px; background: #f1f8ff; }
+    .warn { border-left: 4px solid #d1242f; padding: 8px 12px; background: #fff1f0; }
+    .meta { color: #57606a; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <h1>CUDA C++ Programming Guide（中文手动翻译节选）</h1>
+  <p class="meta">来源：<code>cuda-c-programming-guide.html</code>（NVIDIA 官方文档下载版）</p>
+  <p class="meta">原文链接：<a href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html">https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html</a></p>
+
+  <div class="warn">
+    <strong>说明：</strong>该文档是我基于已下载 HTML 的手动中文翻译节选，优先覆盖入门与编程模型核心章节（Overview / Introduction / Programming Model / Programming Interface 的关键内容）。
+  </div>
+
+  <h2>1. 概述（Overview）</h2>
+  <p>CUDA 是 NVIDIA 开发的并行计算平台与编程模型。它通过利用 GPU 的并行能力显著提升计算性能。开发者可以使用 C、C++、Fortran 等语言加速计算密集型应用。CUDA 已广泛应用于深度学习、科学计算与高性能计算（HPC）等领域。</p>
+
+  <h2>2. 什么是 CUDA C Programming Guide？</h2>
+  <p>《CUDA C Programming Guide》是官方、系统性的 CUDA 编程文档，涵盖 CUDA 架构、编程模型、语言扩展与性能优化建议。无论是初学者，还是需要优化复杂 GPU Kernel 的开发者，这份指南都属于核心参考资料。</p>
+
+  <h2>3. 引言（Introduction）</h2>
+  <div class="warn">
+    <strong>原文警告（翻译）：</strong>该文档已被新的 CUDA Programming Guide 替代。自 CUDA 13.0 起，这份文档被视为 legacy（历史文档），不再继续更新。最新信息请参考新文档。
+  </div>
+
+  <h3>3.1 使用 GPU 的收益</h3>
+  <p>在相近成本和功耗下，GPU 通常比 CPU 具有更高的指令吞吐和内存带宽。CPU 擅长尽快执行少量线程，而 GPU 擅长同时执行海量线程，以更高总体吞吐完成并行任务。</p>
+  <p>GPU 将更多晶体管预算分配给数据处理（例如浮点计算），而不是复杂控制逻辑与大缓存，因此非常适合高度并行计算。现实应用通常既有串行部分也有并行部分，因而系统通常结合 CPU 与 GPU，以获得整体最优性能。</p>
+
+  <h3>3.2 CUDA：通用并行计算平台与编程模型</h3>
+  <p>NVIDIA 在 2006 年推出 CUDA，使开发者能够在 GPU 并行计算引擎上更高效地解决复杂计算问题。CUDA 提供了以 C++ 为主的高级编程环境，同时支持 FORTRAN、DirectCompute、OpenACC 等接口或语言生态。</p>
+
+  <h3>3.3 可扩展编程模型</h3>
+  <p>CUDA 的核心抽象包括：线程组层级、共享内存和屏障同步。开发者可以把问题拆分成可并行处理的子问题，再拆成更细粒度任务让线程协同计算。这样既保留表达能力，也支持自动扩展。</p>
+  <p>线程块可在 GPU 的任意多处理器上以任意顺序并发或串行调度，因此同一 CUDA 程序可在不同规模的 GPU 上运行，运行时系统只需感知实际硬件规模。</p>
+
+  <h2>5. 编程模型（Programming Model）</h2>
+  <p>本章介绍 CUDA 编程模型如何在 C++ 中体现，包括 Kernel、线程层级、内存层级、异构编程与计算能力（Compute Capability）等核心概念。</p>
+
+  <h3>5.1 Kernel</h3>
+  <p>CUDA C++ 通过 <code>__global__</code> 声明定义 Kernel。与普通函数只执行一次不同，Kernel 会被 N 个 CUDA 线程并行执行。调用配置通过 <code>&lt;&lt;&lt;...&gt;&gt;&gt;</code> 指定。</p>
+  <pre><code>// Kernel definition
+__global__ void VecAdd(float* A, float* B, float* C)
+{
+    int i = threadIdx.x;
+    C[i] = A[i] + B[i];
+}
+
+int main()
+{
+    ...
+    // Kernel invocation with N threads
+    VecAdd&lt;&lt;&lt;1, N&gt;&gt;&gt;(A, B, C);
+    ...
+}</code></pre>
+  <p>这里每个线程处理一个元素加法。</p>
+
+  <h3>5.2 线程层级（Thread Hierarchy）</h3>
+  <p><code>threadIdx</code> 是三维索引向量，因此线程块（thread block）可以是一维、二维或三维。线程块再组成网格（grid）。</p>
+  <p>单个线程块线程数受上限约束（当前 GPU 常见上限为 1024），但 Kernel 可通过多个线程块扩展总并行度。块与块之间要求独立执行，保证可扩展调度。</p>
+  <p>块内线程可通过共享内存协作，并通过 <code>__syncthreads()</code> 实现屏障同步。除此之外，也可使用 Cooperative Groups API 获得更丰富的同步原语。</p>
+
+  <h3>5.2.1 线程块簇（Thread Block Clusters）</h3>
+  <p>从计算能力 9.0 起，引入可选层级“线程块簇（Cluster）”。簇内线程块会在同一 GPC 上协同调度，支持更强的硬件协作与同步（如 <code>cluster.sync()</code>）。</p>
+  <p>簇可通过编译期属性 <code>__cluster_dims__(X,Y,Z)</code> 或运行时 API <code>cudaLaunchKernelEx</code> 配置。簇大小受硬件与配置影响，可使用 <code>cudaOccupancyMaxPotentialClusterSize</code> 查询可支持的规模。</p>
+
+  <h3>5.3 内存层级（Memory Hierarchy）</h3>
+  <p>CUDA 线程执行期间可访问多个内存空间：</p>
+  <ul>
+    <li>线程私有的 local memory；</li>
+    <li>线程块共享的 shared memory；</li>
+    <li>全线程可见的 global memory；</li>
+    <li>只读的 constant / texture memory。</li>
+  </ul>
+  <p>其中 global、constant、texture 空间在同一应用的多次 Kernel 启动之间保持持久。</p>
+
+  <h3>5.4 异构编程（Heterogeneous Programming）</h3>
+  <p>CUDA 假设主机（Host，通常是 CPU）与设备（Device，通常是 GPU）物理分离，各自拥有独立内存空间（host memory / device memory）。程序通常需通过 CUDA Runtime 进行设备内存分配与主机-设备数据传输。</p>
+  <p>Unified Memory 通过 managed memory 统一地址视图，允许 CPU 与 GPU 使用一致内存映像，从而简化数据管理与迁移。</p>
+
+  <h3>5.5 异步 SIMT 编程模型</h3>
+  <p>从 NVIDIA Ampere 架构开始，CUDA 强化了异步内存操作支持。异步操作由某个 CUDA 线程发起，但可视为由“异步执行实体”完成，再通过同步对象（如 <code>cuda::barrier</code>、<code>cuda::pipeline</code>）与线程协同。</p>
+  <p>线程作用域（thread scope）包括 thread / block / device / system，不同作用域决定哪些线程参与同步。</p>
+
+  <h3>5.6 计算能力（Compute Capability）</h3>
+  <p>计算能力用 X.Y 表示（也称 SM 版本），标识 GPU 支持的硬件特性与指令集。主版本对应核心架构（如 Hopper=9、Ampere=8、Volta=7），次版本表示增量更新。注意：计算能力版本与 CUDA 软件版本不是同一概念。</p>
+
+  <h2>6. 编程接口（Programming Interface）</h2>
+  <p>CUDA C++ 由两部分构成：</p>
+  <ul>
+    <li>C++ 最小语言扩展（用于定义与启动 Kernel）；</li>
+    <li>Runtime 库（用于内存管理、传输、多设备控制等）。</li>
+  </ul>
+  <p>底层还有 Driver API，提供更细粒度控制（上下文、模块等）。多数应用可优先使用 Runtime API，在需要时局部使用 Driver API。</p>
+
+  <h3>6.1 使用 NVCC 编译</h3>
+  <p><code>nvcc</code> 是 CUDA 编译驱动。它会将 host code 与 device code 分离，编译 device 代码为 PTX 或 cubin，并改写 host 侧 Kernel 启动逻辑为对应运行时调用。</p>
+  <h4>离线编译（Offline Compilation）</h4>
+  <p>可生成并链接主机目标文件，也可只保留 PTX/cubin 并通过 Driver API 在运行时加载执行。</p>
+  <h4>即时编译（JIT）</h4>
+  <p>运行时加载的 PTX 会由驱动继续编译为二进制代码。JIT 能提升新硬件适配能力，但会增加首次加载时间；驱动会缓存结果以减少重复开销。</p>
+  <h4>二进制兼容性（Binary Compatibility）</h4>
+  <p>cubin 二进制是架构相关的。通常同一主版本内“向上兼容”到更高次版本，但跨主版本不保证兼容。</p>
+  <h4>PTX 兼容性（PTX Compatibility）</h4>
+  <p>PTX 通常可前向编译到更高计算能力设备，但若 PTX 目标过旧，可能无法利用新硬件特性（例如 Tensor Core 指令）。另外，针对某些架构特定或家族特定特性的 PTX 目标会有更严格的适用范围。</p>
+  <h4>应用兼容性（Application Compatibility）</h4>
+  <p>建议同时嵌入多组二进制与 PTX（通过 <code>-gencode</code>），由运行时选择最优匹配代码路径；对于未来硬件可回退到 PTX JIT。</p>
+
+  <div class="note">
+    <strong>后续可继续翻译：</strong>当前文件为核心章节手动翻译节选。如你需要，我可以继续按同样风格把后续章节（如内存优化、同步机制、纹理/表面内存、多 GPU、错误处理等）逐章完整翻译到同一 HTML。
+  </div>
+</body>
+</html>
