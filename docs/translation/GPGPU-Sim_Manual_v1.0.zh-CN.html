@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GPGPU-Sim Manual v1.0 中文翻译</title>
+  <style>
+    body { max-width: 980px; margin: 2rem auto; padding: 0 1rem; font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","PingFang SC","Microsoft YaHei",sans-serif; line-height: 1.7; color: #1f2328; }
+    h1,h2,h3,h4 { line-height: 1.25; margin-top: 1.6em; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+    pre { background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px; padding: 12px; overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+    th, td { border: 1px solid #d0d7de; padding: 6px 10px; text-align: left; }
+    blockquote { border-left: 4px solid #d0d7de; margin: 1rem 0; padding: 0.2rem 1rem; color: #57606a; }
+  </style>
+</head>
+<body>
+<h1 id="gpgpu-sim-v10">GPGPU-Sim 手册（v1.0）中文人工译稿</h1>
+<blockquote>
+<p>说明：本文件基于官方文档 <strong>GPGPU-Sim Manual, Version 1.0</strong>（对应 GPGPU-Sim 2.1.1b）进行人工翻译整理。<br />
+原文下载文件：<code>docs/original/GPGPU-Sim_Manual_v1.0.html</code><br />
+原始链接：<a href="https://pages.cs.wisc.edu/~chen-han/doc/GPGPU-Sim_Manual.html">https://pages.cs.wisc.edu/~chen-han/doc/GPGPU-Sim_Manual.html</a></p>
+</blockquote>
+<hr />
+<h2 id="1">1. 作者与版本</h2>
+<ul>
+<li>作者：Wilson W. L. Fung、Ali Bakhoda、Tor M. Aamodt  </li>
+<li>本手册版本：1.0  </li>
+<li>对应模拟器版本：GPGPU-Sim 2.1.1b</li>
+</ul>
+<h2 id="2">2. 简介</h2>
+<p>本文档介绍 GPGPU-Sim：一个面向众核加速器（如 GPU）的<strong>周期级精确性能模拟器</strong>。<br />
+手册目标是指导用户完成 CUDA/OpenCL 程序在 GPGPU-Sim 上的搭建与运行，并说明如何扩展模拟器，主要包括：</p>
+<ul>
+<li>模拟配置项的说明</li>
+<li>模拟输出统计指标的解释</li>
+<li>软件架构概览（便于二次开发）</li>
+</ul>
+<p>原文也强调：本手册并非穷尽式参考，若文档无法覆盖你的问题，建议到 gpgpu-sim.org 相关社区继续讨论。</p>
+<h3 id="21">2.1 版权与引用</h3>
+<p>该版本仅用于非商业用途，版权信息见发布包中的 <code>COPYRIGHT</code> 文件。<br />
+若在研究中使用 GPGPU-Sim，请引用 ISPASS 2009 论文：</p>
+<p>Ali Bakhoda, George Yuan, Wilson W. L. Fung, Henry Wong, Tor M. Aamodt,<br />
+Analyzing CUDA Workloads Using a Detailed GPU Simulator, ISPASS 2009.</p>
+<h3 id="22">2.2 项目历史与贡献</h3>
+<ul>
+<li>GPGPU-Sim 由 UBC 团队发起，后续有多位研究者贡献。  </li>
+<li>AerialVision 可视化工具在 2.1.1b 中发布。  </li>
+<li>早期版本曾使用 SimpleScalar 的部分功能代码；在 2.1.1b 中已经移除。  </li>
+<li>为与真实 CUDA 程序输出兼容，部分 PTX 指令通过 CUDA Math 库实现。</li>
+</ul>
+<h2 id="3">3. 系统需求</h2>
+<ul>
+<li>模拟器本身不要求物理 GPU。  </li>
+<li>需要安装 CUDA Toolkit。  </li>
+<li>若使用 OpenCL，通常还需要 NVIDIA OpenCL 驱动（很多场景下依赖物理 GPU）。</li>
+</ul>
+<h2 id="4-cuda">4. 功能与 CUDA 版本支持</h2>
+<h3 id="41-gpgpu-sim-211b">4.1 GPGPU-Sim 2.1.1b（本手册对应）</h3>
+<p>主要特性（节选）：</p>
+<ul>
+<li>支持 CUDA 2.3（及更早）/ PTX 1.4</li>
+<li>新增 OpenCL 支持（依赖 NVIDIA OpenCL 驱动）</li>
+<li>新增性能可视化工具（AerialVision）</li>
+<li>改进共享内存 bank conflict 建模</li>
+<li>增加 Quadro FX5800 配置</li>
+<li>增加互连集中度（concentration）建模以近似 TPC 效应</li>
+<li>支持同一 GPU 的 GPU-to-GPU 内存拷贝（仅功能支持，不建模延迟）</li>
+</ul>
+<h3 id="42">4.2 其他版本简述</h3>
+<ul>
+<li>2.1.0b：支持 CUDA 2.2（及更早）  </li>
+<li>2.0：支持 CUDA 1.1（及更早）</li>
+</ul>
+<h3 id="43-aerialvision">4.3 AerialVision 性能可视化器</h3>
+<p>2.1.1b 内置 Python 可视化工具，有助于定位硬件/软件瓶颈。详见 <code>doc</code> 目录中相关说明。</p>
+<h3 id="44">4.4 内存拷贝支持</h3>
+<p><code>cudaMemcpy()</code> 的 H2D / D2H / D2D 功能可用，但默认<strong>不模拟这些操作的时间开销</strong>。</p>
+<h3 id="45-gpu">4.5 多 GPU</h3>
+<p>该版本不支持同时模拟多个 GPU。</p>
+<h2 id="5-gpgpu-sim">5. 构建 GPGPU-Sim</h2>
+<h3 id="51">5.1 软件依赖</h3>
+<ul>
+<li>GCC 4.0+  </li>
+<li>CUDA 2.x 推荐 GCC 4.3  </li>
+<li>CUDA 1.1 推荐 GCC 4.1</li>
+</ul>
+<h3 id="52">5.2 已测试平台（原文示例）</h3>
+<ul>
+<li>Ubuntu 8.10 / 9.04（社区测试）</li>
+<li>Mac OS X、Cygwin 在当时存在适配问题</li>
+</ul>
+<h3 id="53">5.3 编译前环境变量（核心）</h3>
+<p>需要设置（原文步骤 4）：</p>
+<ul>
+<li><code>GPGPUSIM_ROOT</code>：GPGPU-Sim 根目录</li>
+<li><code>CUDAHOME</code>：CUDA 安装目录</li>
+<li><code>NVIDIA_CUDA_SDK_LOCATION</code>：CUDA SDK 目录</li>
+<li>将 <code>$CUDAHOME/bin</code> 与 <code>$GPGPUSIM_ROOT/bin</code> 加入 <code>PATH</code></li>
+<li>将 <code>$GPGPUSIM_ROOT/lib</code> 加入 <code>LD_LIBRARY_PATH</code>，并从中移除 CUDA 原生运行库路径（避免链接到真实驱动库）</li>
+<li>OpenCL 场景设置 <code>NVOPENCL_LIBDIR</code></li>
+</ul>
+<h3 id="54">5.4 编译产物说明</h3>
+<p>动态链接场景：</p>
+<ul>
+<li><code>lib/libcudart.so</code>（CUDA）</li>
+<li><code>lib/libOpenCL.so</code>（OpenCL）</li>
+</ul>
+<p>静态链接场景常见库：</p>
+<ul>
+<li><code>src/libgpgpusim.a</code></li>
+<li><code>src/cuda-sim/libgpgpu_ptx_sim.a</code></li>
+<li><code>src/intersim/libintersim.a</code></li>
+<li><code>lib/libcuda.a</code></li>
+</ul>
+<h2 id="6-gpgpu-sim">6. 将应用迁移到 GPGPU-Sim</h2>
+<p>GPGPU-Sim 通过模拟 CUDA/OpenCL API 库接管程序执行：</p>
+<ul>
+<li>可静态链接 <code>libcuda.a</code></li>
+<li>可动态链接 <code>libcudart.so</code> / <code>libOpenCL.so</code></li>
+</ul>
+<p>并且运行目录需准备：</p>
+<ul>
+<li><code>gpgpusim.config</code></li>
+<li>互连配置文件（由 <code>-inter_config_file</code> 指定）</li>
+</ul>
+<h3 id="61">6.1 动态链接方式（推荐）</h3>
+<p>适用于 CUDA 2.1+ 预编译程序，关键做法是将 <code>&lt;GPGPU-Sim&gt;/lib</code> 放到 <code>LD_LIBRARY_PATH</code> 前面，再执行应用并用 <code>ldd</code> 验证链接目标。</p>
+<h3 id="62">6.2 静态链接方式</h3>
+<p>可继续沿用 <code>common/common.mk</code> 风格，也可手动改构建系统，添加 <code>nvcc</code> 编译选项与 g++ 链接参数（原文给出了完整示例）。</p>
+<h3 id="63-opencl">6.3 OpenCL 应用迁移</h3>
+<p>需在编译前正确设置 <code>NVOPENCL_LIBDIR</code>，并确保链接链路指向 NVIDIA 提供的 OpenCL 库目录。</p>
+<h2 id="7">7. 常见编译错误（手册要点）</h2>
+<ol>
+<li><strong>CUDAHOME 指错</strong>：路径层级缺少末尾 <code>cuda/</code> 目录。  </li>
+<li><strong>找不到 <code>-lcutil</code></strong>：<code>NVIDIA_CUDA_SDK_LOCATION</code> 不正确，或未先构建 <code>libcutil.a</code>。  </li>
+<li><strong>OpenCL 递归错误</strong>：<code>NVOPENCL_LIBDIR</code> 误指向 GPGPU-Sim 自己构建的 <code>libOpenCL.so</code>。</li>
+</ol>
+<h2 id="8-gpgpu-sim">8. 运行 GPGPU-Sim</h2>
+<ul>
+<li>程序成功迁移后，执行应用会触发 GPGPU-Sim，而非真实 CUDA 驱动。  </li>
+<li>默认使用二进制内嵌 PTX。若要使用当前目录 PTX，设置：</li>
+</ul>
+<pre><code class="language-bash">export PTX_SIM_USE_PTX_FILE=1
+</code></pre>
+<p>补充：</p>
+<ul>
+<li>OpenCL 要求 PTX 文件按 <code>_n.ptx</code> 命名（按 <code>clBuildProgram</code> 调用顺序编号）。  </li>
+<li>如手工生成 <code>.ptx</code>，建议对每个 PTX 跑 <code>scripts/gen_ptxinfo</code> 生成 <code>.ptxinfo</code>，用于告知寄存器等资源需求。  </li>
+<li>启动时会自动读取当前目录 <code>gpgpusim.config</code>。</li>
+</ul>
+<h2 id="9">9. 微架构模型（摘要）</h2>
+<p>本节对应 ISPASS 2009 论文中的模型，并在 2.1.1b 增加：</p>
+<ul>
+<li>GPU concentration（多 shader core 共享一个互连端口）</li>
+<li>更细粒度共享内存 bank conflict 检查（16-thread 分组）</li>
+</ul>
+<h2 id="10">10. 配置选项（中文说明摘译）</h2>
+<p>手册将选项分为：仿真运行、统计采集、着色器核心流水线、缓存/共享内存、DRAM 控制器、互连网络等类别。<br />
+下面给出高频参数的中文释义（完整参数表请对照原文）：</p>
+<ul>
+<li><code>-gpgpu_max_cycle</code>：最大仿真周期，超限提前停止  </li>
+<li><code>-gpgpu_max_insn</code>：最大指令数，超限提前停止  </li>
+<li><code>-gpgpu_ptx_sim_mode</code>：0 性能仿真，1 功能仿真  </li>
+<li><code>-gpgpu_deadlock_detect</code>：是否启用死锁检测  </li>
+<li><code>-visualizer_enabled</code>：是否输出可视化日志  </li>
+<li><code>-gpgpu_n_shader</code>：shader core 数量  </li>
+<li><code>-gpgpu_n_mem</code>：内存控制器（DRAM 通道）数量  </li>
+<li><code>-gpgpu_clock_domains</code>：核心/互连/L2/DRAM 时钟域频率  </li>
+<li><code>-gpgpu_no_dl1</code>：关闭 L1 data cache  </li>
+<li><code>-gpgpu_cache:dl1</code>：L1 数据缓存结构参数  </li>
+<li><code>-gpgpu_cache:dl2</code>：L2 缓存结构参数  </li>
+<li><code>-gpgpu_shmem_size</code>：每个 core 的共享内存大小  </li>
+<li><code>-gpgpu_shmem_bkconflict</code>：共享内存 bank conflict 建模开关  </li>
+<li><code>-gpgpu_dram_scheduler</code>：DRAM 调度策略（如 fifo / fr-fcfs）  </li>
+<li><code>-inter_config_file</code>：互连网络配置文件路径  </li>
+<li><code>-gpu_concentration</code>：每个互连端口共享的 shader core 数</li>
+</ul>
+<h3 id="101">10.1 拓扑配置说明</h3>
+<p>默认 mesh 拓扑会限制“核心数与内存通道数”的可组合关系。<br />
+如果你要更自由地调整规模，可以：</p>
+<ul>
+<li>改 mesh 尺寸（并同步映射），或  </li>
+<li>使用 <code>fly</code> 拓扑（近似交叉开关）以减少映射约束。</li>
+</ul>
+<h3 id="102">10.2 时钟域说明</h3>
+<p>手册解释了如何将 NVIDIA 规格里的 shader clock 映射到模拟器 core clock，并给出了“按流水线宽度比例缩放频率”的建模理由。</p>
+<h3 id="103-bank-conflict">10.3 共享内存 bank conflict</h3>
+<p>2.1.1b 按每 warp 两组（每组 16 线程）检查 bank conflict，更贴近 G80/GT200 行为。</p>
+<h2 id="11">11. 理解模拟输出（摘要）</h2>
+<p>每次 kernel 结束后会输出统计信息。重点指标包括：</p>
+<ul>
+<li><code>gpu_sim_cycle</code>：该 kernel 执行所需 core 周期  </li>
+<li><code>gpu_sim_insn</code>：执行指令数  </li>
+<li><code>gpu_ipc</code>：吞吐指标（指令/周期）  </li>
+<li>多类存储层级统计（访问量、命中/未命中、延迟）</li>
+<li>控制流统计（分支/发散相关）</li>
+<li>DRAM、缓存与互连统计</li>
+</ul>
+<p>这些指标可用于瓶颈分析，例如判断是算力受限、L1/L2/DRAM 受限还是互连受限。</p>
+<h2 id="12">12. 扩展与二次开发指引（摘要）</h2>
+<p>原文“Extension/Hacking Guideline”介绍了各模块职责边界，包括：</p>
+<ul>
+<li>核心模拟模块</li>
+<li>工具与辅助组件</li>
+<li>CUDA/OpenCL 接口层</li>
+<li>InterSim（源于 Booksim 的互连模拟）</li>
+</ul>
+<p>可作为阅读源码与扩展实验功能的入口。</p>
+<hr />
+<h2 id="_1">译者备注</h2>
+<ol>
+<li>本中文稿以“可实操”为目标，对原文做了人工精简与结构化转述。  </li>
+<li>参数细节与全部统计项请以原始 HTML 手册为准。  </li>
+<li>若你希望，我可以继续在此基础上做“逐段逐句对照版”（英文原句 + 中文逐句译文）的完整版。</li>
+</ol>
+</body>
+</html>
