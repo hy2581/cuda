@@ -1,0 +1,1034 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>4.4. Cooperative Groups &#8212; CUDA Programming Guide</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css%3Fdigest=8878045cc6db502f8baf.css" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css%3Fdigest=8878045cc6db502f8baf.css" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css%3Fv=8f2a1f02.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css%3Fv=933278ad.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css%3Fv=767de534.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css%3Fv=76b2166b.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css%3Fv=95c83b7e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tables.css%3Fv=0bf25c72.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js%3Fdigest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js%3Fdigest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js%3Fdigest=8878045cc6db502f8baf" />
+
+
+<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript"
+  data-document-language="true" charset="UTF-8" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5">
+</script>
+<script type="text/javascript">
+  function OptanonWrapper() {
+    var event = new Event('bannerLoaded');
+    window.dispatchEvent(event);
+  }
+</script>
+<script src="https://images.nvidia.com/aem-dam/Solutions/ot-js/ot-custom.js" type="text/javascript">
+</script>
+
+
+    <script rel="preload" src="../_static/modal-table.js"></script>
+    <script src="../_static/documentation_options.js%3Fv=d2f8c407"></script>
+    <script src="../_static/doctools.js%3Fv=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js%3Fv=dc90522c"></script>
+    <script src="../_static/scrollspy-patch.js%3Fv=edc4054a"></script>
+    <script src="../_static/clipboard.min.js%3Fv=a7894cd8"></script>
+    <script src="../_static/copybutton.js%3Fv=65e89d2a"></script>
+    <script src="../_static/design-tabs.js%3Fv=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '04-special-topics/cooperative-groups';</script>
+    <script src="../_static/version-patch.js%3Fv=3e13fdd2"></script>
+
+<script type="text/javascript" src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
+
+    <link rel="icon" href="../_static/favicon.ico"/>
+
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="4.5. Programmatic Dependent Launch and Synchronization" href="programmatic-dependent-launch.html" />
+    <link rel="prev" title="4.3. Stream-Ordered Memory Allocator" href="stream-ordered-memory-allocation.html" />
+
+<link rel="preload" as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png">
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+    <meta name="docbuild:last-update" content="Mar 04, 2026"/>
+
+
+  </head>
+
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="cooperative-groups.html#main-content">Skip to main content</a></div>
+
+<img src="https://www.nvidia.com/content/dam/1x1-00000000.png" width="1" height="1" style="display:none;" alt="country_code">
+
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../contents.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
+    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
+  
+  
+    <p class="title logo__title">CUDA Programming Guide</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+
+<div>
+  <ul class="bd-navbar-elements navbar-nav">
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>v13.2 |</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>|</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
+      
+    </li>
+  
+  </ul>
+</div>
+</div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../contents.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
+    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
+  
+  
+    <p class="title logo__title">CUDA Programming Guide</p>
+  
+</a>
+
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+
+<div>
+  <ul class="bd-navbar-elements navbar-nav">
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>v13.2 |</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>|</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
+      
+    </li>
+  
+  </ul>
+</div>
+</div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Table of Contents">
+  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA Programming Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. Introduction to CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/introduction.html">1.1. Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/programming-model.html">1.2. Programming Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/cuda-platform.html">1.3. The CUDA platform</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part2.html">2. Programming GPUs in CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html">2.1. Intro to CUDA C++</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/writing-cuda-kernels.html">2.2. Writing CUDA SIMT Kernels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/asynchronous-execution.html">2.3. Asynchronous Execution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/understanding-memory.html">2.4. Unified and System Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/nvcc.html">2.5. NVCC: The NVIDIA CUDA Compiler</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. Advanced CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. Advanced CUDA APIs and Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. Advanced Kernel Programming</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. The CUDA Driver API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. Programming Systems with Multiple GPUs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. A Tour of CUDA Features</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../part4.html">4. CUDA Features</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="unified-memory.html">4.1. Unified Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda-graphs.html">4.2. CUDA Graphs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stream-ordered-memory-allocation.html">4.3. Stream-Ordered Memory Allocator</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="cooperative-groups.html#">4.4. Cooperative Groups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="programmatic-dependent-launch.html">4.5. Programmatic Dependent Launch and Synchronization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="green-contexts.html">4.6. Green Contexts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lazy-loading.html">4.7. Lazy Loading</a></li>
+<li class="toctree-l3"><a class="reference internal" href="error-log-management.html">4.8. Error Log Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="async-barriers.html">4.9. Asynchronous Barriers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pipelines.html">4.10. Pipelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="async-copies.html">4.11. Asynchronous Data Copies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cluster-launch-control.html">4.12. Work Stealing with Cluster Launch Control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="l2-cache-control.html">4.13. L2 Cache Control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory-sync-domains.html">4.14. Memory Synchronization Domains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inter-process-communication.html">4.15. Interprocess Communication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="virtual-memory-management.html">4.16. Virtual Memory Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="extended-gpu-memory.html">4.17. Extended GPU Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamic-parallelism.html">4.18. CUDA Dynamic Parallelism</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graphics-interop.html">4.19. CUDA Interoperability with APIs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="driver-entry-point-access.html">4.20. Driver Entry Point Access</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part5.html">5. Technical Appendices</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/compute-capabilities.html">5.1. Compute Capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/environment-variables.html">5.2. CUDA Environment Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-support.html">5.3. C++ Language Support</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-extensions.html">5.4. C/C++ Language Extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/mathematical-functions.html">5.5. Floating-Point Computation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/device-callable-apis.html">5.6. Device-Callable APIs and Intrinsics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-memory-model.html">5.7. CUDA C++ Memory Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-execution-model.html">5.8. CUDA C++ Execution model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. Notices</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../contents.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">CUDA Programming Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../part4.html" class="nav-link"><span class="section-number">4. </span>CUDA Features</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">4.4. </span>Cooperative Groups</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+<div class="header-article-item">
+  <div class="d-flex justify-content-end w-100">
+    <a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">Is this page helpful?</a>
+  </div>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="cooperative-groups">
+<span id="id1"></span><h1><span class="section-number">4.4. </span>Cooperative Groups<a class="headerlink" href="cooperative-groups.html#cooperative-groups" title="Link to this heading">#</a></h1>
+<section id="introduction">
+<span id="cooperative-groups-introduction"></span><h2><span class="section-number">4.4.1. </span>Introduction<a class="headerlink" href="cooperative-groups.html#introduction" title="Link to this heading">#</a></h2>
+<p>Cooperative Groups are an extension to the CUDA programming model for organizing groups of collaborating threads.
+Cooperative Groups allow developers to control the granularity at which threads are collaborating, helping them to express richer, more efficient parallel decompositions.
+Cooperative Groups also provide implementations of common parallel primitives like scan and parallel reduce.</p>
+<p>Historically, the CUDA programming model has provided a single, simple construct for synchronizing cooperating threads: a barrier across all threads of a thread block, as implemented with the <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> intrinsic function.
+In an effort to express broader patterns of parallel interaction, many performance-oriented programmers have resorted to writing their own ad hoc and unsafe primitives for synchronizing threads within a single warp, or across sets of thread blocks running on a single GPU.
+Whilst the performance improvements achieved have often been valuable, this has resulted in an ever-growing collection of brittle code that is expensive to write, tune, and maintain over time and across GPU generations.
+Cooperative Groups provides a safe and future-proof mechanism for writing performant code.</p>
+<p>The full Cooperative Groups API is available in the <a class="reference internal" href="../05-appendices/device-callable-apis.html#cg-api-partition-header"><span class="std std-ref">Cooperative Groups API</span></a>.</p>
+</section>
+<section id="cooperative-group-handle-member-functions">
+<span id="cooperative-groups-member-functions"></span><span id="cooperative-groups-handle"></span><h2><span class="section-number">4.4.2. </span>Cooperative Group Handle &amp; Member Functions<a class="headerlink" href="cooperative-groups.html#cooperative-group-handle-member-functions" title="Link to this heading">#</a></h2>
+<p>Cooperative Groups are managed via a Cooperative Group Handle.
+The Cooperative Group handle allows participating threads to learn their position in the group, the group size, and other group information.
+Select group member functions are shown in the following table.</p>
+<div class="pst-scrollable-table-container"><table class="table-no-stripes longtable table" id="id2">
+<caption><span class="caption-number">Table 10 </span><span class="caption-text">Select Member Functions</span><a class="headerlink" href="cooperative-groups.html#id2" title="Link to this table">#</a></caption>
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 80.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Accessor</p></th>
+<th class="head"><p>Returns</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">thread_rank()</span></code></p></td>
+<td><p>The rank of the calling thread.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">num_threads()</span></code></p></td>
+<td><p>The total number of threads in the group  .</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">thread_index()</span></code></p></td>
+<td><p>A 3-Dimensional index of the thread within the launched block.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dim_threads()</span></code></p></td>
+<td><p>The 3D dimensions of the launched block in units of threads.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A complete list pf member functions is available in the <a class="reference internal" href="../05-appendices/device-callable-apis.html#cg-api-common-header"><span class="std std-ref">Cooperative Groups API</span></a>.</p>
+</section>
+<section id="default-behavior-groupless-execution">
+<span id="cooperative-groups-default-behavior"></span><h2><span class="section-number">4.4.3. </span>Default Behavior / Groupless Execution<a class="headerlink" href="cooperative-groups.html#default-behavior-groupless-execution" title="Link to this heading">#</a></h2>
+<p>Groups representing the grid and thread blocks are implicitly created based on the kernel launch configuration.
+These “implicit” groups provide a starting point that developers can explicitly decompose into finer grained groups.
+Implicit groups can be accessed using the following methods:</p>
+<div class="pst-scrollable-table-container"><table class="table-no-stripes longtable table" id="cooperative-groups-implicit-groups">
+<caption><span class="caption-number">Table 11 </span><span class="caption-text">Cooperative Groups Implicitly Created by CUDA Runtime</span><a class="headerlink" href="cooperative-groups.html#cooperative-groups-implicit-groups" title="Link to this table">#</a></caption>
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Accessor</p></th>
+<th class="head"><p>Group Scope</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">this_thread_block()</span></code></p></td>
+<td><p>Returns the handle to a group containing all threads in current thread block.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">this_grid()</span></code></p></td>
+<td><p>Returns the handle to a group containing all threads in the grid.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">coalesced_threads()</span></code> <a class="footnote-reference brackets" href="cooperative-groups.html#cgfn2" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p></td>
+<td><p>Returns the handle to a group of currently active threads in a warp.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">this_cluster()</span></code> <a class="footnote-reference brackets" href="cooperative-groups.html#cgfn3" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></p></td>
+<td><p>Returns the handle to a group of threads in the current cluster.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="cgfn2" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="cooperative-groups.html#id3">1</a><span class="fn-bracket">]</span></span>
+<p>The <code class="docutils literal notranslate"><span class="pre">coalesced_threads()</span></code> operator returns the set of active threads at that point in time, and makes no guarantee about which threads are returned (as long as they are active) or that they will stay coalesced throughout execution.</p>
+</aside>
+<aside class="footnote brackets" id="cgfn3" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="cooperative-groups.html#id4">2</a><span class="fn-bracket">]</span></span>
+<p>The <code class="docutils literal notranslate"><span class="pre">this_cluster()</span></code> assumes a 1x1x1 cluster when a non-cluster grid is launched. Requires Compute Capability 9.0 or greater.</p>
+</aside>
+</aside>
+<p>More information is available in the <a class="reference internal" href="../05-appendices/device-callable-apis.html#cg-api-common-header"><span class="std std-ref">Cooperative Groups API</span></a>.</p>
+<section id="create-implicit-group-handles-as-early-as-possible">
+<h3><span class="section-number">4.4.3.1. </span>Create Implicit Group Handles As Early As Possible<a class="headerlink" href="cooperative-groups.html#create-implicit-group-handles-as-early-as-possible" title="Link to this heading">#</a></h3>
+<p>For best performance it is recommended that you create a handle for the implicit group upfront (as early as possible, before any branching has occurred) and use that handle throughout the kernel.</p>
+</section>
+<section id="only-pass-group-handles-by-reference">
+<h3><span class="section-number">4.4.3.2. </span>Only Pass Group Handles by Reference<a class="headerlink" href="cooperative-groups.html#only-pass-group-handles-by-reference" title="Link to this heading">#</a></h3>
+<p>It is recommended that you pass group handles by reference to functions when passing a group handle into a function.
+Group handles must be initialized at declaration time, as there is no default constructor.
+Copy-constructing group handles is discouraged.</p>
+</section>
+</section>
+<section id="creating-cooperative-groups">
+<h2><span class="section-number">4.4.4. </span>Creating Cooperative Groups<a class="headerlink" href="cooperative-groups.html#creating-cooperative-groups" title="Link to this heading">#</a></h2>
+<p>Groups are created by partitioning a parent group into subgroups.
+When a group is partitioned, a group handle is created to manage the resulting subgroup.
+The following partitioning operations are available to developers:</p>
+<div class="pst-scrollable-table-container"><table class="table-no-stripes longtable table" id="cooperative-groups-partitioning-operations">
+<caption><span class="caption-number">Table 12 </span><span class="caption-text">Cooperative Group Partitioning Operations</span><a class="headerlink" href="cooperative-groups.html#cooperative-groups-partitioning-operations" title="Link to this table">#</a></caption>
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 80.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Partition Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>tiled_partition</p></td>
+<td><p>Divides parent group into a series of fixed-size subgroups arranged in a one-dimensional, row-major format.</p></td>
+</tr>
+<tr class="row-odd"><td><p>stride_partition</p></td>
+<td><p>Divides parent group into equally-sized subgroups where threads are assigned to subgroups in a round-robin manner.</p></td>
+</tr>
+<tr class="row-even"><td><p>labeled_partition</p></td>
+<td><p>Divides parent group into one-dimensional subgroups based on a conditional label, which can be any integral type.</p></td>
+</tr>
+<tr class="row-odd"><td><p>binary_partition</p></td>
+<td><p>Specialized form of labeled partitioning where label can only be “0” or “1”.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The following example shows how a tiled partition is created:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span><span class="w"> </span><span class="nn">cg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">cooperative_groups</span><span class="p">;</span>
+<span class="c1">// Obtain the current thread&#39;s cooperative group</span>
+<span class="n">cg</span><span class="o">::</span><span class="n">thread_block</span><span class="w"> </span><span class="n">my_group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cg</span><span class="o">::</span><span class="n">this_thread_block</span><span class="p">();</span>
+
+<span class="c1">// Partition the cooperative group into tiles of size 8</span>
+<span class="n">cg</span><span class="o">::</span><span class="n">thread_block_tile</span><span class="o">&lt;</span><span class="mi">8</span><span class="o">&gt;</span><span class="w"> </span><span class="n">my_subgroup</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cg</span><span class="o">::</span><span class="n">tiled_partition</span><span class="o">&lt;</span><span class="mi">8</span><span class="o">&gt;</span><span class="p">(</span><span class="n">cta</span><span class="p">);</span>
+
+<span class="c1">// do work as my_subgroup</span>
+</pre></div>
+</div>
+<p>The best partitioning strategy to use depends on the context. More information is available in the <a class="reference internal" href="../05-appendices/device-callable-apis.html#cg-api-partition-header"><span class="std std-ref">Cooperative Groups API</span></a>.</p>
+<section id="avoiding-group-creation-hazards">
+<h3><span class="section-number">4.4.4.1. </span>Avoiding Group Creation Hazards<a class="headerlink" href="cooperative-groups.html#avoiding-group-creation-hazards" title="Link to this heading">#</a></h3>
+<p>Partitioning a group is a collective operation and all threads in the group must participate.
+If the group was created in a conditional branch that not all threads reach, this can lead to deadlocks or data corruption.</p>
+</section>
+</section>
+<section id="synchronization">
+<span id="cooperative-groups-synchronization"></span><span id="collectives-cg-sync"></span><h2><span class="section-number">4.4.5. </span>Synchronization<a class="headerlink" href="cooperative-groups.html#synchronization" title="Link to this heading">#</a></h2>
+<p>Prior to the introduction of Cooperative Groups, the CUDA programming model only allowed synchronization between thread blocks at a kernel completion boundary.
+Cooperative groups allows developers to synchronize groups of cooperating threads at different granularities.</p>
+<section id="sync">
+<h3><span class="section-number">4.4.5.1. </span>Sync<a class="headerlink" href="cooperative-groups.html#sync" title="Link to this heading">#</a></h3>
+<p>You can synchronize a group by calling the collective <code class="docutils literal notranslate"><span class="pre">sync()</span></code> function. Like <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code>, the <code class="docutils literal notranslate"><span class="pre">sync()</span></code> function makes the following guarantees:
+- All memory accesses (e.g., reads and writes) made by threads in the group before the synchronization point are visible to all threads in the group after the synchronization point.
+- All threads in the group reach the synchronization point before any thread is allowed to proceed beyond it.</p>
+<p>The following example shows a <code class="docutils literal notranslate"><span class="pre">cooperative_groups::sync()</span></code> that is equivalent to <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code>.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span><span class="w"> </span><span class="nn">cg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">cooperative_groups</span><span class="p">;</span>
+
+<span class="n">cg</span><span class="o">::</span><span class="n">thread_block</span><span class="w"> </span><span class="n">my_group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cg</span><span class="o">::</span><span class="n">this_thread_block</span><span class="p">();</span>
+
+<span class="c1">// Synchronize threads in the block</span>
+<span class="n">cg</span><span class="o">::</span><span class="n">sync</span><span class="p">(</span><span class="n">my_group</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Cooperative groups can be used to synchronize the entire grid. As of CUDA 13, cooperative groups can no longer be used for multi-device synchronization.
+For details see the <a class="reference internal" href="cooperative-groups.html#cooperative-groups-large-scale-groups"><span class="std std-ref">Large Scale Groups</span></a> section.</p>
+<p>More information about synchronization is available in the <a class="reference internal" href="../05-appendices/device-callable-apis.html#cg-api-sync-header"><span class="std std-ref">Cooperative Groups API</span></a>.</p>
+</section>
+<section id="barriers">
+<h3><span class="section-number">4.4.5.2. </span>Barriers<a class="headerlink" href="cooperative-groups.html#barriers" title="Link to this heading">#</a></h3>
+<p>Cooperative Groups provides a barrier API similar to <code class="docutils literal notranslate"><span class="pre">cuda::barrier</span></code> that can be used for more advanced synchronization.
+Cooperative Groups barrier API differs from <code class="docutils literal notranslate"><span class="pre">cuda::barrier</span></code> in a few key ways:
+- Cooperative Groups barriers are automatically initialized
+- All threads in the group must arrive and wait at the barrier once per phase.
+- <code class="docutils literal notranslate"><span class="pre">barrier_arrive</span></code> returns an <code class="docutils literal notranslate"><span class="pre">arrival_token</span></code> object that must be passed into the corresponding <code class="docutils literal notranslate"><span class="pre">barrier_wait</span></code>, where it is consumed and cannot be used again.</p>
+<p>Programmers must take care to avoid hazards when using Cooperative Groups barriers:
+- No collective operations can be used by a group between after calling <code class="docutils literal notranslate"><span class="pre">barrier_arrive</span></code> and before calling <code class="docutils literal notranslate"><span class="pre">barrier_wait</span></code>.
+- <code class="docutils literal notranslate"><span class="pre">barrier_wait</span></code> only guarantees that all threads in the group have called <code class="docutils literal notranslate"><span class="pre">barrier_arrive</span></code>. <code class="docutils literal notranslate"><span class="pre">barrier_wait</span></code> does NOT guarantee that all threads have called <code class="docutils literal notranslate"><span class="pre">barrier_wait</span></code>.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span><span class="w"> </span><span class="nn">cg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">cooperative_groups</span><span class="p">;</span>
+
+<span class="n">cg</span><span class="o">::</span><span class="n">thread_block</span><span class="w"> </span><span class="n">my_group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this_block</span><span class="p">();</span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cluster</span><span class="p">.</span><span class="n">barrier_arrive</span><span class="p">();</span>
+
+<span class="c1">// Optional: Do some local processing to hide the synchronization latency</span>
+<span class="n">local_processing</span><span class="p">(</span><span class="n">block</span><span class="p">);</span>
+
+<span class="c1">// Make sure all other blocks in the cluster are running and initialized shared data before accessing dsmem</span>
+<span class="n">cluster</span><span class="p">.</span><span class="n">barrier_wait</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">token</span><span class="p">));</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="collective-operations">
+<span id="cooperative-groups-collective-operations"></span><h2><span class="section-number">4.4.6. </span>Collective Operations<a class="headerlink" href="cooperative-groups.html#collective-operations" title="Link to this heading">#</a></h2>
+<p>Cooperative Groups includes a set of collective operations that can be performed by a group of threads.
+These operations require participation of all threads in the specified group in order to complete the operation.</p>
+<p>All threads in the group must pass the same values for corresponding arguments to each collective call, unless different values are explicitly allowed in the <a class="reference internal" href="../05-appendices/device-callable-apis.html#cg-api-partition-header"><span class="std std-ref">Cooperative Groups API</span></a>.
+Otherwise the behavior of the call is undefined.</p>
+<section id="reduce">
+<h3><span class="section-number">4.4.6.1. </span>Reduce<a class="headerlink" href="cooperative-groups.html#reduce" title="Link to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">reduce</span></code> function is used to perform a parallel reduction on the data provided by each thread in the specified group.
+The type of reduction must be specified by providing one of the operators shown in the following table.</p>
+<div class="pst-scrollable-table-container"><table class="table-no-stripes longtable table" id="cooperative-groups-reduction-operators">
+<caption><span class="caption-number">Table 13 </span><span class="caption-text">Cooperative Groups Reduction Operators</span><a class="headerlink" href="cooperative-groups.html#cooperative-groups-reduction-operators" title="Link to this table">#</a></caption>
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 80.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Operator</p></th>
+<th class="head"><p>Returns</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>plus</p></td>
+<td><p>Sum of all values in group</p></td>
+</tr>
+<tr class="row-odd"><td><p>less</p></td>
+<td><p>Minimum value</p></td>
+</tr>
+<tr class="row-even"><td><p>greater</p></td>
+<td><p>Maximum value</p></td>
+</tr>
+<tr class="row-odd"><td><p>bit_and</p></td>
+<td><p>Bitwise AND reduction</p></td>
+</tr>
+<tr class="row-even"><td><p>bit_or</p></td>
+<td><p>Bitwise OR reduction</p></td>
+</tr>
+<tr class="row-odd"><td><p>bit_xor</p></td>
+<td><p>Bitwise XOR reduction</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Hardware acceleration is used for reductions when available (requires Compute Capability 8.0 or greater).
+A software fallback is available for older hardware where hardware acceleration is not available.
+Only 4B types are accelerated by hardware.</p>
+<p>More information about reductions is available in the <a class="reference internal" href="../05-appendices/device-callable-apis.html#cg-api-reduce-header"><span class="std std-ref">Cooperative Groups API</span></a>.</p>
+<p>The following example shows how to use <code class="docutils literal notranslate"><span class="pre">cooperative_groups::reduce()</span></code> to perform a block-wide sum reduction.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span><span class="w"> </span><span class="nn">cg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">cooperative_groups</span><span class="p">;</span>
+
+<span class="n">cg</span><span class="o">::</span><span class="n">thread_block</span><span class="w"> </span><span class="n">my_group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cg</span><span class="o">::</span><span class="n">this_thread_block</span><span class="p">();</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">];</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cg</span><span class="o">::</span><span class="n">reduce</span><span class="p">(</span><span class="n">cta</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">cg</span><span class="o">::</span><span class="n">plus</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">());</span>
+
+<span class="c1">// Store the result from the reduction</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">my_group</span><span class="p">.</span><span class="n">thread_rank</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">result</span><span class="p">[</span><span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sum</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="scans">
+<h3><span class="section-number">4.4.6.2. </span>Scans<a class="headerlink" href="cooperative-groups.html#scans" title="Link to this heading">#</a></h3>
+<p>Cooperative Groups includes implementations of <code class="docutils literal notranslate"><span class="pre">inclusive_scan</span></code> and <code class="docutils literal notranslate"><span class="pre">exclusive_scan</span></code> that can be used on arbitrary group sizes.
+The  functions perform a scan operation on the data provided by each thread named in the specified group.</p>
+<p>Programmers can optionally specify a reduction operator, as listed in <a class="reference internal" href="cooperative-groups.html#cooperative-groups-reduction-operators"><span class="std std-ref">Reduction Operators Table</span></a> above.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span><span class="w"> </span><span class="nn">cg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">cooperative_groups</span><span class="p">;</span>
+
+<span class="n">cg</span><span class="o">::</span><span class="n">thread_block</span><span class="w"> </span><span class="n">my_group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cg</span><span class="o">::</span><span class="n">this_thread_block</span><span class="p">();</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="n">my_group</span><span class="p">.</span><span class="n">thread_rank</span><span class="p">()];</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">exclusive_sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cg</span><span class="o">::</span><span class="n">exclusive_scan</span><span class="p">(</span><span class="n">my_group</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">cg</span><span class="o">::</span><span class="n">plus</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">());</span>
+
+<span class="n">result</span><span class="p">[</span><span class="n">my_group</span><span class="p">.</span><span class="n">thread_rank</span><span class="p">()]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">exclusive_sum</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>More information about scans is available in the <a class="reference internal" href="../05-appendices/device-callable-apis.html#cg-api-scan-header"><span class="std std-ref">Cooperative Groups Scan API</span></a>.</p>
+</section>
+<section id="invoke-one">
+<span id="cooperative-groups-invoke-one"></span><h3><span class="section-number">4.4.6.3. </span>Invoke One<a class="headerlink" href="cooperative-groups.html#invoke-one" title="Link to this heading">#</a></h3>
+<p>Cooperative Groups provides an <code class="docutils literal notranslate"><span class="pre">invoke_one</span></code> function for use when a single thread must perform a serial portion of work on behalf of a group.
+- <code class="docutils literal notranslate"><span class="pre">invoke_one</span></code> selects a single arbitrary thread from the calling group and uses that thread to call the supplied invocable function using the supplied arguments.
+- <code class="docutils literal notranslate"><span class="pre">invoke_one_broadcast</span></code> is the same as <code class="docutils literal notranslate"><span class="pre">invoke_one</span></code> except the result of the call is also broadcast to all threads in the group.</p>
+<p>The thread selection mechanism is not guaranteed to be deterministic.</p>
+<p>The following example shows basic <code class="docutils literal notranslate"><span class="pre">invoke_one</span></code> utilization.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span><span class="w"> </span><span class="nn">cg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">cooperative_groups</span><span class="p">;</span>
+<span class="n">cg</span><span class="o">::</span><span class="n">thread_block</span><span class="w"> </span><span class="n">my_group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cg</span><span class="o">::</span><span class="n">this_thread_block</span><span class="p">();</span>
+
+<span class="c1">// Ensure only one thread in the thread block prints the message</span>
+<span class="n">cg</span><span class="o">::</span><span class="n">invoke_one</span><span class="p">(</span><span class="n">my_group</span><span class="p">,</span><span class="w"> </span><span class="p">[]()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Hello from one thread in the block!&quot;</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="c1">// Synchronize to make sure all threads wait until the message is printed</span>
+<span class="n">cg</span><span class="o">::</span><span class="n">sync</span><span class="p">(</span><span class="n">my_group</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Communication or synchronization within the calling group is not allowed inside the invocable function.
+Communication with threads outside of the calling group is allowed.</p>
+</section>
+</section>
+<section id="asynchronous-data-movement">
+<span id="cooperative-groups-asynchronous-data-movement"></span><h2><span class="section-number">4.4.7. </span>Asynchronous Data Movement<a class="headerlink" href="cooperative-groups.html#asynchronous-data-movement" title="Link to this heading">#</a></h2>
+<p>Cooperative Groups <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> functionality in CUDA provides a way to perform asynchronous memory copies between global memory and shared memory.
+<code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> is particularly useful for optimizing memory transfers and overlapping computation with data transfer to improve performance.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> function is used to start an asynchronous load from global memory to shared memory.
+<code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> is intended to be used like a “prefetch” where data is loaded before it is needed.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">wait</span></code> function forces all threads in a group to wait until the asynchronous memory transfer is completed.
+<code class="docutils literal notranslate"><span class="pre">wait</span></code> must be called by all threads in the group before the data can be accessed in shared memory.</p>
+<p>The following example shows how to use <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> and <code class="docutils literal notranslate"><span class="pre">wait</span></code> to prefetch data.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span><span class="w"> </span><span class="nn">cg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">cooperative_groups</span><span class="p">;</span>
+
+<span class="n">cg</span><span class="o">::</span><span class="n">thread_group</span><span class="w"> </span><span class="n">my_group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cg</span><span class="o">::</span><span class="n">this_thread_block</span><span class="p">();</span>
+
+<span class="n">__shared__</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">shared_data</span><span class="p">[];</span>
+
+<span class="c1">// Perform an asynchronous copy from global memory to shared memory</span>
+<span class="n">cg</span><span class="o">::</span><span class="n">memcpy_async</span><span class="p">(</span><span class="n">my_group</span><span class="p">,</span><span class="w"> </span><span class="n">shared_data</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">my_group</span><span class="p">.</span><span class="n">rank</span><span class="p">(),</span><span class="w"> </span><span class="n">input</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">my_group</span><span class="p">.</span><span class="n">rank</span><span class="p">(),</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+
+<span class="c1">// Hide latency by doing work here. Cannot use shared_data</span>
+
+<span class="c1">// Wait for the asynchronous copy to complete</span>
+<span class="n">cg</span><span class="o">::</span><span class="n">wait</span><span class="p">(</span><span class="n">my_group</span><span class="p">);</span>
+
+<span class="c1">// Prefetched data is now available</span>
+</pre></div>
+</div>
+<p>See the <a class="reference internal" href="../05-appendices/device-callable-apis.html#cg-api-async-header"><span class="std std-ref">Cooperative Groups API</span></a> for more information.</p>
+<section id="memcpy-async-alignment-requirements">
+<h3><span class="section-number">4.4.7.1. </span>Memcpy Async Alignment Requirements<a class="headerlink" href="cooperative-groups.html#memcpy-async-alignment-requirements" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> is only asynchronous if the source is global memory and the destination is shared memory and both are at least 4-byte aligned.
+For achieving best performance: an alignment of 16 bytes for both shared memory and global memory is recommended.</p>
+</section>
+</section>
+<section id="large-scale-groups">
+<span id="cooperative-groups-large-scale-groups"></span><h2><span class="section-number">4.4.8. </span>Large Scale Groups<a class="headerlink" href="cooperative-groups.html#large-scale-groups" title="Link to this heading">#</a></h2>
+<p>Cooperative Groups allows for large groups that span the entire grid.
+All Cooperative Group functionality described previously is available to these large groups, with one notable exception:
+synchronizing the entire grid requires using the <code class="docutils literal notranslate"><span class="pre">cudaLaunchCooperativeKernel</span></code> runtime launch API.</p>
+<p>Multi-device launch APIs and related references for Cooperative Groups have been removed as of CUDA 13.</p>
+<section id="when-to-use-cudalaunchcooperativekernel">
+<h3><span class="section-number">4.4.8.1. </span>When to use <code class="docutils literal notranslate"><span class="pre">cudaLaunchCooperativeKernel</span></code><a class="headerlink" href="cooperative-groups.html#when-to-use-cudalaunchcooperativekernel" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">cudaLaunchCooperativeKernel</span></code> is a CUDA runtime API function used to launch a single-device kernel that employs cooperative groups, specifically designed for executing kernels that require inter-block synchronization.
+This function ensures that all threads in the kernel can synchronize and cooperate across the entire grid, which is not possible with traditional CUDA kernels that only allow synchronization within individual thread blocks.
+<code class="docutils literal notranslate"><span class="pre">cudaLaunchCooperativeKernel</span></code> ensures that the kernel launch is atomic, i.e. if the API call succeeds, then the provided number of thread blocks will launch on the specified device.</p>
+<p>It is good practice to first ensure the device supports cooperative launches by querying the device attribute <code class="docutils literal notranslate"><span class="pre">cudaDevAttrCooperativeLaunch</span></code>:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">dev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">supportsCoopLaunch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="n">cudaDeviceGetAttribute</span><span class="p">(</span><span class="o">&amp;</span><span class="n">supportsCoopLaunch</span><span class="p">,</span><span class="w"> </span><span class="n">cudaDevAttrCooperativeLaunch</span><span class="p">,</span><span class="w"> </span><span class="n">dev</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>which will set <code class="docutils literal notranslate"><span class="pre">supportsCoopLaunch</span></code> to 1 if the property is supported on device 0. Only devices with compute capability of 6.0 and higher are supported. In addition, you need to be running on either of these:</p>
+<ul class="simple">
+<li><p>The Linux platform without MPS</p></li>
+<li><p>The Linux platform with MPS and on a device with compute capability 7.0 or higher</p></li>
+<li><p>The latest Windows platform</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="stream-ordered-memory-allocation.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><span class="section-number">4.3. </span>Stream-Ordered Memory Allocator</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="programmatic-dependent-launch.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><span class="section-number">4.5. </span>Programmatic Dependent Launch and Synchronization</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+
+
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cooperative-groups.html#introduction">4.4.1. Introduction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cooperative-groups.html#cooperative-group-handle-member-functions">4.4.2. Cooperative Group Handle &amp; Member Functions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cooperative-groups.html#default-behavior-groupless-execution">4.4.3. Default Behavior / Groupless Execution</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cooperative-groups.html#create-implicit-group-handles-as-early-as-possible">4.4.3.1. Create Implicit Group Handles As Early As Possible</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cooperative-groups.html#only-pass-group-handles-by-reference">4.4.3.2. Only Pass Group Handles by Reference</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cooperative-groups.html#creating-cooperative-groups">4.4.4. Creating Cooperative Groups</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cooperative-groups.html#avoiding-group-creation-hazards">4.4.4.1. Avoiding Group Creation Hazards</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cooperative-groups.html#synchronization">4.4.5. Synchronization</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cooperative-groups.html#sync">4.4.5.1. Sync</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cooperative-groups.html#barriers">4.4.5.2. Barriers</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cooperative-groups.html#collective-operations">4.4.6. Collective Operations</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cooperative-groups.html#reduce">4.4.6.1. Reduce</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cooperative-groups.html#scans">4.4.6.2. Scans</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cooperative-groups.html#invoke-one">4.4.6.3. Invoke One</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cooperative-groups.html#asynchronous-data-movement">4.4.7. Asynchronous Data Movement</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cooperative-groups.html#memcpy-async-alignment-requirements">4.4.7.1. Memcpy Async Alignment Requirements</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cooperative-groups.html#large-scale-groups">4.4.8. Large Scale Groups</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cooperative-groups.html#when-to-use-cudalaunchcooperativekernel">4.4.8.1. When to use <code class="docutils literal notranslate"><span class="pre">cudaLaunchCooperativeKernel</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js%3Fdigest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js%3Fdigest=8878045cc6db502f8baf"></script>
+
+
+<script type="text/javascript">if (typeof _satellite !== "undefined") {_satellite.pageBottom();}</script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+<a class="footer-brand logo" href="https://www.nvidia.com">
+  <img src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
+  <img src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+</a></div>
+      
+        <div class="footer-item">
+
+<div class="footer-links">
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/accessibility/">Accessibility</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
+  
+  
+  
+</div>
+</div>
+      
+        <div class="footer-item">
+
+
+
+
+  <p class="copyright">
+    
+      Copyright © 2007-2026, NVIDIA Corporation &amp; affiliates. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item"><p class="last-updated">
+  Last updated on Mar 04, 2026.
+  <br/>
+</p></div>
+      
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+  </body>
+</html>

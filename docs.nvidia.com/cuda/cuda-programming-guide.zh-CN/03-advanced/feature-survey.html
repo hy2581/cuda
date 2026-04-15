@@ -1,0 +1,771 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>3.5. A Tour of CUDA Features &#8212; CUDA Programming Guide</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css%3Fdigest=8878045cc6db502f8baf.css" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css%3Fdigest=8878045cc6db502f8baf.css" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css%3Fv=8f2a1f02.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css%3Fv=933278ad.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css%3Fv=767de534.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css%3Fv=76b2166b.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css%3Fv=95c83b7e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tables.css%3Fv=0bf25c72.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js%3Fdigest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js%3Fdigest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js%3Fdigest=8878045cc6db502f8baf" />
+
+
+<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript"
+  data-document-language="true" charset="UTF-8" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5">
+</script>
+<script type="text/javascript">
+  function OptanonWrapper() {
+    var event = new Event('bannerLoaded');
+    window.dispatchEvent(event);
+  }
+</script>
+<script src="https://images.nvidia.com/aem-dam/Solutions/ot-js/ot-custom.js" type="text/javascript">
+</script>
+
+
+    <script rel="preload" src="../_static/modal-table.js"></script>
+    <script src="../_static/documentation_options.js%3Fv=d2f8c407"></script>
+    <script src="../_static/doctools.js%3Fv=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js%3Fv=dc90522c"></script>
+    <script src="../_static/scrollspy-patch.js%3Fv=edc4054a"></script>
+    <script src="../_static/clipboard.min.js%3Fv=a7894cd8"></script>
+    <script src="../_static/copybutton.js%3Fv=65e89d2a"></script>
+    <script src="../_static/design-tabs.js%3Fv=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '03-advanced/feature-survey';</script>
+    <script src="../_static/version-patch.js%3Fv=3e13fdd2"></script>
+
+<script type="text/javascript" src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
+
+    <link rel="icon" href="../_static/favicon.ico"/>
+
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="4. CUDA Features" href="../part4.html" />
+    <link rel="prev" title="3.4. Programming Systems with Multiple GPUs" href="multi-gpu-systems.html" />
+
+<link rel="preload" as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png">
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+    <meta name="docbuild:last-update" content="Mar 04, 2026"/>
+
+
+  </head>
+
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="feature-survey.html#main-content">Skip to main content</a></div>
+
+<img src="https://www.nvidia.com/content/dam/1x1-00000000.png" width="1" height="1" style="display:none;" alt="country_code">
+
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../contents.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
+    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
+  
+  
+    <p class="title logo__title">CUDA Programming Guide</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+
+<div>
+  <ul class="bd-navbar-elements navbar-nav">
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>v13.2 |</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>|</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
+      
+    </li>
+  
+  </ul>
+</div>
+</div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../contents.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
+    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
+  
+  
+    <p class="title logo__title">CUDA Programming Guide</p>
+  
+</a>
+
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+
+<div>
+  <ul class="bd-navbar-elements navbar-nav">
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>v13.2 |</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>|</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
+      
+    </li>
+  
+  </ul>
+</div>
+</div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Table of Contents">
+  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA Programming Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. Introduction to CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/introduction.html">1.1. Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/programming-model.html">1.2. Programming Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/cuda-platform.html">1.3. The CUDA platform</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part2.html">2. Programming GPUs in CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html">2.1. Intro to CUDA C++</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/writing-cuda-kernels.html">2.2. Writing CUDA SIMT Kernels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/asynchronous-execution.html">2.3. Asynchronous Execution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/understanding-memory.html">2.4. Unified and System Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/nvcc.html">2.5. NVCC: The NVIDIA CUDA Compiler</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../part3.html">3. Advanced CUDA</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="advanced-host-programming.html">3.1. Advanced CUDA APIs and Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="advanced-kernel-programming.html">3.2. Advanced Kernel Programming</a></li>
+<li class="toctree-l3"><a class="reference internal" href="driver-api.html">3.3. The CUDA Driver API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multi-gpu-systems.html">3.4. Programming Systems with Multiple GPUs</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="feature-survey.html#">3.5. A Tour of CUDA Features</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part4.html">4. CUDA Features</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/unified-memory.html">4.1. Unified Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cuda-graphs.html">4.2. CUDA Graphs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/stream-ordered-memory-allocation.html">4.3. Stream-Ordered Memory Allocator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cooperative-groups.html">4.4. Cooperative Groups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/programmatic-dependent-launch.html">4.5. Programmatic Dependent Launch and Synchronization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/green-contexts.html">4.6. Green Contexts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/lazy-loading.html">4.7. Lazy Loading</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/error-log-management.html">4.8. Error Log Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/async-barriers.html">4.9. Asynchronous Barriers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/pipelines.html">4.10. Pipelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/async-copies.html">4.11. Asynchronous Data Copies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cluster-launch-control.html">4.12. Work Stealing with Cluster Launch Control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/l2-cache-control.html">4.13. L2 Cache Control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/memory-sync-domains.html">4.14. Memory Synchronization Domains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/inter-process-communication.html">4.15. Interprocess Communication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/virtual-memory-management.html">4.16. Virtual Memory Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/extended-gpu-memory.html">4.17. Extended GPU Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/dynamic-parallelism.html">4.18. CUDA Dynamic Parallelism</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/graphics-interop.html">4.19. CUDA Interoperability with APIs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/driver-entry-point-access.html">4.20. Driver Entry Point Access</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part5.html">5. Technical Appendices</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/compute-capabilities.html">5.1. Compute Capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/environment-variables.html">5.2. CUDA Environment Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-support.html">5.3. C++ Language Support</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-extensions.html">5.4. C/C++ Language Extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/mathematical-functions.html">5.5. Floating-Point Computation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/device-callable-apis.html">5.6. Device-Callable APIs and Intrinsics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-memory-model.html">5.7. CUDA C++ Memory Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-execution-model.html">5.8. CUDA C++ Execution model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. Notices</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../contents.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">CUDA Programming Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../part3.html" class="nav-link"><span class="section-number">3. </span>Advanced CUDA</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">3.5. </span>A Tour of CUDA Features</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+<div class="header-article-item">
+  <div class="d-flex justify-content-end w-100">
+    <a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">Is this page helpful?</a>
+  </div>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="a-tour-of-cuda-features">
+<span id="tour-of-features"></span><h1><span class="section-number">3.5. </span>A Tour of CUDA Features<a class="headerlink" href="feature-survey.html#a-tour-of-cuda-features" title="Link to this heading">#</a></h1>
+<p>Sections 1-3 of this programming guide have introduced CUDA and GPU programming, covering foundational topics both conceptually and in simple code examples. The sections describing specific CUDA features in part 4 of this guide assume knowledge of the concepts covered in sections 1-3 of this guide.</p>
+<p>CUDA has many features which apply to different problems. Not all of them will be applicable to every use case. This chapter serves to introduce each of these features and describe its intended use and the problems it may help solve. Features are coarsely sorted into categories by the type of problem they are intended to solve. Some features, such as CUDA graphs, could fit into more than one category.</p>
+<p><a class="reference internal" href="../part4.html#cuda-features"><span class="std std-numref">Section 4</span></a> covers these CUDA features in more complete detail.</p>
+<section id="improving-kernel-performance">
+<h2><span class="section-number">3.5.1. </span>Improving Kernel Performance<a class="headerlink" href="feature-survey.html#improving-kernel-performance" title="Link to this heading">#</a></h2>
+<p>The features outlined in this section are all intended to aid kernel developers to maximize the performance of their kernels.</p>
+<section id="asynchronous-barriers">
+<h3><span class="section-number">3.5.1.1. </span>Asynchronous Barriers<a class="headerlink" href="feature-survey.html#asynchronous-barriers" title="Link to this heading">#</a></h3>
+<p><a class="reference internal" href="../04-special-topics/async-barriers.html#asynchronous-barriers"><span class="std std-ref">Asynchronous barriers</span></a> were introduced in <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-advanced-sync-primitives-barriers"><span class="std std-numref">Section 3.2.4.2</span></a> and allow for more nuanced control over synchronization between threads. Asynchronous barriers separate the arrival and the wait of a barrier. This allows applications to perform work that does not depend on the barrier while waiting for other threads to arrive. Asynchronous barriers can be specified for different <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-thread-scopes"><span class="std std-ref">thread scopes</span></a>.  Full details of asynchronous barriers are found in <a class="reference internal" href="../04-special-topics/async-barriers.html#asynchronous-barriers"><span class="std std-numref">Section 4.9</span></a>.</p>
+</section>
+<section id="asynchronous-data-copies-and-the-tensor-memory-accelerator-tma">
+<h3><span class="section-number">3.5.1.2. </span>Asynchronous Data Copies and the Tensor Memory Accelerator (TMA)<a class="headerlink" href="feature-survey.html#asynchronous-data-copies-and-the-tensor-memory-accelerator-tma" title="Link to this heading">#</a></h3>
+<p><a class="reference internal" href="../04-special-topics/async-copies.html#async-copies"><span class="std std-ref">Asynchronous data copies</span></a> in the context of CUDA kernel code refers to the ability to move data between shared memory and GPU DRAM while still carrying out computations. This should not be confused with asynchronous memory copies between the CPU and GPU. This feature makes used of asynchronous barriers. <a class="reference internal" href="../04-special-topics/async-copies.html#async-copies"><span class="std std-numref">Section 4.11</span></a> covers the use of asynchronous copies in detail.</p>
+</section>
+<section id="pipelines">
+<h3><span class="section-number">3.5.1.3. </span>Pipelines<a class="headerlink" href="feature-survey.html#pipelines" title="Link to this heading">#</a></h3>
+<p><a class="reference internal" href="../04-special-topics/pipelines.html#pipelines"><span class="std std-ref">Pipelines</span></a> are a mechanism for staging work and coordinating multi-buffer producer–consumer patterns, commonly used to overlap compute with <a class="reference internal" href="../04-special-topics/async-copies.html#async-copies"><span class="std std-ref">asynchronous data copies</span></a>. <a class="reference internal" href="../04-special-topics/pipelines.html#pipelines"><span class="std std-numref">Section 4.10</span></a> has details and examples of using pipelines in CUDA.</p>
+</section>
+<section id="work-stealing-with-cluster-launch-control">
+<h3><span class="section-number">3.5.1.4. </span>Work Stealing with Cluster Launch Control<a class="headerlink" href="feature-survey.html#work-stealing-with-cluster-launch-control" title="Link to this heading">#</a></h3>
+<p>Work stealing is a technique for maintaining utilization in uneven workloads where workers that have completed their work can ‘steal’ tasks from other workers. Cluster launch control, a feature introduced in compute capability 10.0 (Blackwell), gives kernels direct control over in-flight block scheduling so they can adapt to uneven workloads in real time. A thread block can cancel the launch of another thread block or cluster that has not yet started, claim its index, and immediately begin executing the stolen work. This work-stealing flow keeps SMs busy and cuts idle time under irregular data or runtime variation—delivering finer-grained load balancing without relying on the hardware scheduler alone.</p>
+<p><a class="reference internal" href="../04-special-topics/cluster-launch-control.html#cluster-launch-control"><span class="std std-numref">Section 4.12</span></a> provides details on how to use this feature.</p>
+</section>
+</section>
+<section id="improving-latencies">
+<h2><span class="section-number">3.5.2. </span>Improving Latencies<a class="headerlink" href="feature-survey.html#improving-latencies" title="Link to this heading">#</a></h2>
+<p>The features outlined in this section share a common theme of aiming to reduce some type of latency, though the type of latency being addressed differs between the different features. By and large they are focused on latencies at the kernel launch level or higher. GPU memory access latency within a kernel is not one of the latencies considered here.</p>
+<section id="green-contexts">
+<h3><span class="section-number">3.5.2.1. </span>Green Contexts<a class="headerlink" href="feature-survey.html#green-contexts" title="Link to this heading">#</a></h3>
+<p><a class="reference internal" href="../04-special-topics/green-contexts.html#green-contexts"><span class="std std-ref">Green contexts</span></a>, also called <em>execution contexts</em>,  is the name given to a CUDA feature which enables a program to create <a class="reference internal" href="driver-api.html#driver-api-context"><span class="std std-ref">CUDA contexts</span></a> which will execute work only on a subset of the SMs of a GPU. By default, the thread blocks of a kernel launch are dispatched to any SM within the GPU which can fulfill the resource requirements of the kernel. There are a large number of factors which can affect which SMs can execute a thread block, including but not necessarily limited to: shared memory use, register use, use of clusters, and total number of threads in the thread block.</p>
+<p>Execution contexts allow a kernel to be launched into a specially created context which further limits the number of SMs available to execute the kernel. Importantly, when a program creates a green context which uses some set of SMs, other contexts on the GPU will not schedule thread blocks onto the SMs allocated to the green context. This includes the primary context, which is the default context used by the CUDA runtime. This allows these SMs to be reserved for workloads which are high priority or latency-sensitive.</p>
+<p><a class="reference internal" href="../04-special-topics/green-contexts.html#green-contexts"><span class="std std-numref">Section 4.6</span></a> gives full details on the use of green contexts. Green contexts are available in the CUDA runtime in CUDA 13.1 and later.</p>
+</section>
+<section id="stream-ordered-memory-allocation">
+<h3><span class="section-number">3.5.2.2. </span>Stream-Ordered Memory Allocation<a class="headerlink" href="feature-survey.html#stream-ordered-memory-allocation" title="Link to this heading">#</a></h3>
+<p>The <a class="reference internal" href="../04-special-topics/stream-ordered-memory-allocation.html#stream-ordered-memory-allocator"><span class="std std-ref">stream-ordered memory allocator</span></a> allows programs to sequence allocation and freeing of GPU memory into a <a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-streams"><span class="std std-ref">CUDA stream</span></a>. Unlike <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code> and <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code> which execute immediately, <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> and <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code> inserts a memory allocation  or free operation into a CUDA stream. <a class="reference internal" href="../04-special-topics/stream-ordered-memory-allocation.html#stream-ordered-memory-allocator"><span class="std std-numref">Section 4.3</span></a> covers all the details of these APIs.</p>
+</section>
+<section id="cuda-graphs">
+<h3><span class="section-number">3.5.2.3. </span>CUDA Graphs<a class="headerlink" href="feature-survey.html#cuda-graphs" title="Link to this heading">#</a></h3>
+<p><a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs"><span class="std std-ref">CUDA graphs</span></a> enable an application to specify a sequence of CUDA operations such as kernel launches or memory copies and the dependencies between these operations so that they can be executed efficiently on the GPU. Similar behavior can be attained by using <a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-streams"><span class="std std-ref">CUDA streams</span></a>, and indeed one of the mechanisms for creating a graph is called <a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs-creating-a-graph-using-stream-capture"><span class="std std-ref">stream capture</span></a>, which enables the operations on a stream to be recorded into a CUDA graph. Graphs can also be created using the <a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs-creating-a-graph-using-graph-apis"><span class="std std-ref">CUDA graphs API</span></a>.</p>
+<p>Once a graph has been created, it can be instantiated and executed many times. This is useful for specifying workloads that will be repeated. Graphs offer some performance benefits in reducing CPU launch costs associated with invoking CUDA operations as well as enabling optimizations only available when the whole workload is specified in advance.</p>
+<p><a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs"><span class="std std-numref">Section 4.2</span></a> describes and demonstrates how to use CUDA graphs.</p>
+</section>
+<section id="programmatic-dependent-launch">
+<h3><span class="section-number">3.5.2.4. </span>Programmatic Dependent Launch<a class="headerlink" href="feature-survey.html#programmatic-dependent-launch" title="Link to this heading">#</a></h3>
+<p><a class="reference internal" href="../04-special-topics/programmatic-dependent-launch.html#programmatic-dependent-launch-and-synchronization"><span class="std std-ref">Programmatic dependent launch</span></a> is a CUDA feature which allows a dependent kernel, i.e. a kernel which depends on the output of a prior kernel, to begin execution before the primary kernel on which it depends has completed. The dependent kernel can execute setup code and unrelated work up until it requires data from the primary kernel and block there. The primary kernel can signal when the data required by the dependent kernel is ready, which will release the dependent kernel to continue executing. This enables some overlap between the kernels which can help keep GPU utilization high while minimizing the latency of the critical data path. <a class="reference internal" href="../04-special-topics/programmatic-dependent-launch.html#programmatic-dependent-launch-and-synchronization"><span class="std std-numref">Section 4.5</span></a> covers programmatic dependent launch.</p>
+</section>
+<section id="lazy-loading">
+<h3><span class="section-number">3.5.2.5. </span>Lazy Loading<a class="headerlink" href="feature-survey.html#lazy-loading" title="Link to this heading">#</a></h3>
+<p><a class="reference internal" href="../04-special-topics/lazy-loading.html#lazy-loading"><span class="std std-ref">Lazy loading</span></a> is a feature which allows control over how the JIT compiler operates at application startup. Applications which have many kernels which need to be JIT compiled from PTX to cubin may experience long startup times if all kernels are JIT compiled as part of application startup. The default behavior is that modules are not compiled until they are needed. This can be changed by the use of <a class="reference internal" href="../05-appendices/environment-variables.html#cuda-environment-variables"><span class="std std-ref">environment variables</span></a>, as detailed in <a class="reference internal" href="../04-special-topics/lazy-loading.html#lazy-loading"><span class="std std-numref">Section 4.7</span></a>.</p>
+</section>
+</section>
+<section id="functionality-features">
+<h2><span class="section-number">3.5.3. </span>Functionality Features<a class="headerlink" href="feature-survey.html#functionality-features" title="Link to this heading">#</a></h2>
+<p>The features described here share a common trait that they are meant to enable additional capabilities or functionality.</p>
+<section id="extended-gpu-memory">
+<h3><span class="section-number">3.5.3.1. </span>Extended GPU Memory<a class="headerlink" href="feature-survey.html#extended-gpu-memory" title="Link to this heading">#</a></h3>
+<p><a class="reference internal" href="../04-special-topics/extended-gpu-memory.html#extended-gpu-memory"><span class="std std-ref">Extended GPU memory</span></a> is a feature available in NVLink-C2C connected systems that enables efficient access to all memory within the system from within a GPU. EGM is covered in detail in <a class="reference internal" href="../04-special-topics/extended-gpu-memory.html#extended-gpu-memory"><span class="std std-numref">Section 4.17</span></a>.</p>
+</section>
+<section id="dynamic-parallelism">
+<h3><span class="section-number">3.5.3.2. </span>Dynamic Parallelism<a class="headerlink" href="feature-survey.html#dynamic-parallelism" title="Link to this heading">#</a></h3>
+<p>CUDA applications most commonly launch kernels from code running on the CPU. It is also possible to create new kernel invocations from a kernel running on the GPU. This feature is referred to as <a class="reference internal" href="../04-special-topics/dynamic-parallelism.html#cuda-dynamic-parallelism"><span class="std std-ref">CUDA dynamic parallelism</span></a>. <a class="reference internal" href="../04-special-topics/dynamic-parallelism.html#cuda-dynamic-parallelism"><span class="std std-numref">Section 4.18</span></a> covers the details of creating new GPU kernel launches from code running on the GPU.</p>
+</section>
+</section>
+<section id="cuda-interoperability">
+<h2><span class="section-number">3.5.4. </span>CUDA Interoperability<a class="headerlink" href="feature-survey.html#cuda-interoperability" title="Link to this heading">#</a></h2>
+<section id="cuda-interoperability-with-other-apis">
+<h3><span class="section-number">3.5.4.1. </span>CUDA Interoperability with other APIs<a class="headerlink" href="feature-survey.html#cuda-interoperability-with-other-apis" title="Link to this heading">#</a></h3>
+<p>There are other mechanisms than CUDA for running code on GPUs. The application GPUs were originally built to accelerate, computer graphics, uses its own set of APIs such as Direct3D and Vulkan. Applications may wish to use one of the graphics APIs for 3D rendering while performing computations in CUDA. CUDA provides mechanisms for exchanging data stored on the GPU between the CUDA contexts and the GPU contexts used by the 3D APIs. For example, an application may perform a simulation using CUDA, and then use a 3D API to create visualizations of the results. This is achieved by making some buffers readable and/or writeable from both CUDA and the graphics API.</p>
+<p>The same mechanisms which allow sharing of buffers with graphics APIs are also used to share buffers with communications mechanisms which can enable rapid, direct GPU-to-GPU communication within multi-node environments.</p>
+<p><a class="reference internal" href="../04-special-topics/graphics-interop.html#cuda-interoperability"><span class="std std-numref">Section 4.19</span></a> describes how CUDA interoperates with other GPU APIs and how to share data between CUDA and other APIs, providing specific examples for a number of different APIs.</p>
+</section>
+<section id="interprocess-communication">
+<h3><span class="section-number">3.5.4.2. </span>Interprocess Communication<a class="headerlink" href="feature-survey.html#interprocess-communication" title="Link to this heading">#</a></h3>
+<p>For very large computations, it is common to use multiple GPUs together to make use of more memory and more compute resources working together on a problem. Within a single system, or node in cluster computing terminology, multiple GPUs can be used in a single host process. This is described in <a class="reference internal" href="multi-gpu-systems.html#multi-gpu-introduction"><span class="std std-numref">Section 3.4</span></a>.</p>
+<p>It is also common to use separate host processes spanning either a single computer or multiple computers. When multiple processes are working together, communication between them is known as interprocess communication. CUDA interprocess communication (CUDA IPC) provides mechanisms to share GPU buffers between different processes. <a class="reference internal" href="../04-special-topics/inter-process-communication.html#interprocess-communication"><span class="std std-numref">Section 4.15</span></a> explains and demonstrates how CUDA IPC can be used to coordinate and communicate between different host processes.</p>
+</section>
+</section>
+<section id="fine-grained-control">
+<h2><span class="section-number">3.5.5. </span>Fine-Grained Control<a class="headerlink" href="feature-survey.html#fine-grained-control" title="Link to this heading">#</a></h2>
+<section id="virtual-memory-management">
+<h3><span class="section-number">3.5.5.1. </span>Virtual Memory Management<a class="headerlink" href="feature-survey.html#virtual-memory-management" title="Link to this heading">#</a></h3>
+<p>As mentioned in <a class="reference internal" href="../02-basics/understanding-memory.html#memory-unified-virtual-address-space"><span class="std std-numref">Section 2.4.1</span></a>, all GPUs in a system, along with the CPU memory, share a single unified virtual address space. Most applications can use the default memory management provided by CUDA without the need to change its behavior. However,  <a class="reference internal" href="driver-api.html#driver-api"><span class="std std-ref">the CUDA driver API</span></a> provides advanced and detailed controls over the layout of this virtual memory space for those that need it. This is mostly applicable for controlling the behavior of buffers when sharing between GPUs both within and across multiple systems.</p>
+<p><a class="reference internal" href="../04-special-topics/virtual-memory-management.html#virtual-memory-management"><span class="std std-numref">Section 4.16</span></a> covers the controls offered by the CUDA driver API, how they work and when a developer may find them advantageous.</p>
+</section>
+<section id="driver-entry-point-access">
+<h3><span class="section-number">3.5.5.2. </span>Driver Entry Point Access<a class="headerlink" href="feature-survey.html#driver-entry-point-access" title="Link to this heading">#</a></h3>
+<p><a class="reference internal" href="../04-special-topics/driver-entry-point-access.html#driver-entry-point-access"><span class="std std-ref">Driver entry point access</span></a> refers to the ability, starting in CUDA 11.3, to retrieve function pointers to the CUDA Driver and CUDA Runtime APIs. It also allows developers to retrieve function pointers for specific variants of driver functions, and to access driver functions from drivers newer than those available in the CUDA toolkit. <a class="reference internal" href="../04-special-topics/driver-entry-point-access.html#driver-entry-point-access"><span class="std std-numref">Section 4.20</span></a> covers driver entry point access.</p>
+</section>
+<section id="error-log-management">
+<h3><span class="section-number">3.5.5.3. </span>Error Log Management<a class="headerlink" href="feature-survey.html#error-log-management" title="Link to this heading">#</a></h3>
+<p><a class="reference internal" href="../04-special-topics/error-log-management.html#error-log-management"><span class="std std-ref">Error log management</span></a> provides utilities for handling and logging errors from CUDA APIs. Setting a single environment variable <code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code> enables capturing CUDA errors directly to stderr, stdout, or a file.  Error log management also enables applications to register a callback which is triggered when CUDA encounters an error. <a class="reference internal" href="../04-special-topics/error-log-management.html#error-log-management"><span class="std std-numref">Section 4.8</span></a> provides more details on error log management.</p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="multi-gpu-systems.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><span class="section-number">3.4. </span>Programming Systems with Multiple GPUs</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../part4.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><span class="section-number">4. </span>CUDA Features</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+
+
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#improving-kernel-performance">3.5.1. Improving Kernel Performance</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#asynchronous-barriers">3.5.1.1. Asynchronous Barriers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#asynchronous-data-copies-and-the-tensor-memory-accelerator-tma">3.5.1.2. Asynchronous Data Copies and the Tensor Memory Accelerator (TMA)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#pipelines">3.5.1.3. Pipelines</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#work-stealing-with-cluster-launch-control">3.5.1.4. Work Stealing with Cluster Launch Control</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#improving-latencies">3.5.2. Improving Latencies</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#green-contexts">3.5.2.1. Green Contexts</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#stream-ordered-memory-allocation">3.5.2.2. Stream-Ordered Memory Allocation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#cuda-graphs">3.5.2.3. CUDA Graphs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#programmatic-dependent-launch">3.5.2.4. Programmatic Dependent Launch</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#lazy-loading">3.5.2.5. Lazy Loading</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#functionality-features">3.5.3. Functionality Features</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#extended-gpu-memory">3.5.3.1. Extended GPU Memory</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#dynamic-parallelism">3.5.3.2. Dynamic Parallelism</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#cuda-interoperability">3.5.4. CUDA Interoperability</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#cuda-interoperability-with-other-apis">3.5.4.1. CUDA Interoperability with other APIs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#interprocess-communication">3.5.4.2. Interprocess Communication</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#fine-grained-control">3.5.5. Fine-Grained Control</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#virtual-memory-management">3.5.5.1. Virtual Memory Management</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#driver-entry-point-access">3.5.5.2. Driver Entry Point Access</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#error-log-management">3.5.5.3. Error Log Management</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js%3Fdigest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js%3Fdigest=8878045cc6db502f8baf"></script>
+
+
+<script type="text/javascript">if (typeof _satellite !== "undefined") {_satellite.pageBottom();}</script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+<a class="footer-brand logo" href="https://www.nvidia.com">
+  <img src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
+  <img src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+</a></div>
+      
+        <div class="footer-item">
+
+<div class="footer-links">
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/accessibility/">Accessibility</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
+  
+  
+  
+</div>
+</div>
+      
+        <div class="footer-item">
+
+
+
+
+  <p class="copyright">
+    
+      Copyright © 2007-2026, NVIDIA Corporation &amp; affiliates. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item"><p class="last-updated">
+  Last updated on Mar 04, 2026.
+  <br/>
+</p></div>
+      
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+  </body>
+</html>
