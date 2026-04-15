@@ -2133,7 +2133,7 @@ html
 <span id="c-cplusplus-compatibility"></span><h3>
 <span class="section-number">6.1.5. </span>C++ 兼容性<a class="headerlink" href="#c-compatibility" title="跳转到此标题"></a>
 </h3>
-<p>编译器前端根据C++语法规则处理CUDA源文件。主机代码支持完整的 C++。但是，设备代码仅完全支持 C++ 的一个子集，如中所述 <a class="reference internal" href="#c-cplusplus-language-support"><span class="std std-ref">C++ 语言支持</span></a>.</p>
+<p>编译器前端根据C++语法规则处理CUDA源文件。主机代码支持完整的 C++。但是，设备代码仅完全支持 C++ 的一个子集，如中所述 <a class="reference internal" href="#c-cplusplus-language-support"><span class="std std-ref">C++ 语言支持</span></a>。</p>
 </section>
 <section id="bit-compatibility">
 <span id="sixtyfour-bit-compatibility"></span><h3>
@@ -2162,7 +2162,7 @@ html
 <span class="section-number">6.2.1. </span>初始化<a class="headerlink" href="#initialization" title="跳转到此标题"></a>
 </h3>
 <p>从 CUDA 12.0 开始， <code class="docutils literal notranslate"><span class="pre">cudaInitDevice()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code> 调用初始化与指定设备关联的运行时和主要上下文。如果没有这些调用，运行时将隐式使用设备 0 并根据需要进行自初始化，以处理其他运行时 API 请求。在计时运行时函数调用以及解释第一次调用到运行时的错误代码时，需要牢记这一点。 12.0之前， <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code> 不会初始化运行时，应用程序通常会使用无操作运行时调用 <code class="docutils literal notranslate"><span class="pre">cudaFree(0)</span></code> 将运行时初始化与其他 api 活动隔离（都是为了计时和错误处理）。</p>
-<p>运行时为系统中的每个设备创建一个 CUDA 上下文（请参阅 <a class="reference internal" href="#context"><span class="std std-ref">上下文</span></a> 有关 CUDA 上下文的更多详细信息）。这个上下文是 <em>主要背景</em> 对于该设备，并在第一个运行时函数处初始化，该函数需要该设备上的活动上下文。它在应用程序的所有主机线程之间共享。作为此上下文创建的一部分，如有必要，设备代码会及时编译（请参阅 <a class="reference internal" href="#just-in-time-compilation"><span class="std std-ref">即时编译</span></a>）并加载到设备内存中。这一切都是透明发生的。如果需要，例如，为了驱动程序 API 互操作性，可以从驱动程序 API 访问设备的主要上下文，如下所述 <a class="reference internal" href="#interoperability-between-runtime-and-driver-apis"><span class="std std-ref">运行时和驱动程序 API 之间的互操作性</span></a>.</p>
+<p>运行时为系统中的每个设备创建一个 CUDA 上下文（请参阅 <a class="reference internal" href="#context"><span class="std std-ref">上下文</span></a> 有关 CUDA 上下文的更多详细信息）。该上下文是该设备的 <em>主上下文</em>，并会在首次调用需要该设备活动上下文的运行时函数时完成初始化。它在应用程序的所有主机线程之间共享。作为此上下文创建的一部分，如有必要，设备代码会及时编译（请参阅 <a class="reference internal" href="#just-in-time-compilation"><span class="std std-ref">即时编译</span></a>）并加载到设备内存中。以上过程对应用是透明的。如果需要，例如，为了驱动程序 API 互操作性，可以从驱动程序 API 访问设备的主要上下文，详见 <a class="reference internal" href="#interoperability-between-runtime-and-driver-apis"><span class="std std-ref">运行时和驱动程序 API 之间的互操作性</span></a>。</p>
 <p>当主机线程调用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceReset()</span></code>，这会破坏主机线程当前操作的设备的主要上下文（即，定义在 <a class="reference internal" href="#device-selection"><span class="std std-ref">设备选择</span></a>）。将此设备作为当前设备的任何主机线程进行的下一个运行时函数调用将为该设备创建一个新的主上下文。</p>
 <div class="admonition note">
 <p class="admonition-title">注意</p>
@@ -2177,7 +2177,7 @@ html
 </h3>
 <p>正如中提到的 <a class="reference internal" href="#heterogeneous-programming"><span class="std std-ref">异构编程</span></a>，CUDA 编程模型假设一个系统由主机和设备组成，每个主机和设备都有自己独立的内存。内核在设备内存之外运行，因此运行时提供了分配、释放和复制设备内存以及在主机内存和设备内存之间传输数据的函数。</p>
 <p>设备内存可以分配为 <em>线性记忆</em> 或作为 <em>CUDA 数组</em>.</p>
-<p>CUDA 数组是针对纹理获取而优化的不透明内存布局。它们的描述见 <a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理与表面内存</span></a>.</p>
+<p>CUDA 数组是针对纹理获取而优化的不透明内存布局。它们的描述见 <a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理与表面内存</span></a>。</p>
 <p>线性内存分配在单个统一地址空间中，这意味着单独分配的实体可以通过指针相互引用，例如在二叉树或链表中。地址空间的大小取决于主机系统（CPU）和所使用的 GPU 的计算能力：</p>
 <table class="table-no-stripes docutils align-default" id="id455">
 <caption>
@@ -2520,7 +2520,7 @@ html
 </h3>
 <p>详见 <a class="reference internal" href="#variable-memory-space-specifiers"><span class="std std-ref">可变内存空间说明符</span></a> 共享内存是使用分配的 <code class="docutils literal notranslate"><span class="pre">__shared__</span></code> 内存空间说明符。</p>
 <p>正如中提到的，共享内存预计将比全局内存快得多 <a class="reference internal" href="#thread-hierarchy"><span class="std std-ref">线程层次结构</span></a> 并详细介绍于 <a class="reference internal" href="#shared-memory"><span class="std std-ref">共享内存</span></a>。它可以用作暂存存储器（或软件管理的缓存），以最大限度地减少来自 CUDA 块的全局存储器访问，如以下矩阵乘法示例所示。</p>
-<p>以下代码示例是矩阵乘法的简单实现，不利用共享内存。每个线程读取一行 <em>一个</em> 和一列 <em>乙</em> 并计算相应的元素 <em>C</em> 如图所示 <a class="reference internal" href="#shared-memory-matrix-multiplication-no-shared-memory"><span class="std std-numref">图8</span></a>. <em>一个</em> 因此被读为 <em>B.宽度</em> 来自全局内存的时间和 <em>乙</em> 已读 <em>A.高度</em> 次。</p>
+<p>以下代码示例是矩阵乘法的简单实现，不利用共享内存。每个线程读取一行 <em>一个</em> 和一列 <em>乙</em> 并计算相应的元素 <em>C</em> 如图所示 <a class="reference internal" href="#shared-memory-matrix-multiplication-no-shared-memory"><span class="std std-numref">图8</span></a>。 <em>一个</em> 因此被读为 <em>B.宽度</em> 来自全局内存的时间和 <em>乙</em> 已读 <em>A.高度</em> 次。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="c1">// Matrices are stored in row-major order:</span>
 <span class="c1">// M(row, col) = *(M.elements + row * M.width + col)</span>
@@ -2839,9 +2839,9 @@ html
 </ul>
 <p>使用页锁定主机内存有几个好处：</p>
 <ul class="simple">
-<li><p>对于某些设备，页锁定主机内存和设备内存之间的复制可以与内核执行同时执行，如 <a class="reference internal" href="#asynchronous-concurrent-execution"><span class="std std-ref">异步并发执行</span></a>.</p></li>
-<li><p>在某些设备上，页锁定主机内存可以映射到设备的地址空间，从而无需将其复制到设备内存或从设备内存复制，详细信息请参见 <a class="reference internal" href="#mapped-memory"><span class="std std-ref">映射内存</span></a>.</p></li>
-<li><p>在具有前端总线的系统上，如果主机内存被分配为页锁定，则主机内存和设备内存之间的带宽会更高，如果此外它被分配为写组合，则主机内存和设备内存之间的带宽会更高，如 <a class="reference internal" href="#write-combining-memory"><span class="std std-ref">写组合存储器</span></a>.</p></li>
+<li><p>对于某些设备，页锁定主机内存和设备内存之间的复制可以与内核执行同时执行，如 <a class="reference internal" href="#asynchronous-concurrent-execution"><span class="std std-ref">异步并发执行</span></a>。</p></li>
+<li><p>在某些设备上，页锁定主机内存可以映射到设备的地址空间，从而无需将其复制到设备内存或从设备内存复制，详细信息请参见 <a class="reference internal" href="#mapped-memory"><span class="std std-ref">映射内存</span></a>。</p></li>
+<li><p>在具有前端总线的系统上，如果主机内存被分配为页锁定，则主机内存和设备内存之间的带宽会更高，如果此外它被分配为写组合，则主机内存和设备内存之间的带宽会更高，如 <a class="reference internal" href="#write-combining-memory"><span class="std std-ref">写组合存储器</span></a>。</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">注意</p>
@@ -2866,7 +2866,7 @@ html
 <span id="id28"></span><h4>
 <span class="section-number">6.2.6.3. </span>映射内存<a class="headerlink" href="#mapped-memory" title="跳转到此标题"></a>
 </h4>
-<p>页锁定主机内存块也可以通过传递标志映射到设备的地址空间 <code class="docutils literal notranslate"><span class="pre">cudaHostAllocMapped</span></code> 到 <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code> 或通过传递标志 <code class="docutils literal notranslate"><span class="pre">cudaHostRegisterMapped</span></code> 到 <code class="docutils literal notranslate"><span class="pre">cudaHostRegister()</span></code>。因此，这样的块通常有两个地址：一个位于主机内存中，由 <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">malloc()</span></code>，以及设备内存中的一个，可以使用 <code class="docutils literal notranslate"><span class="pre">cudaHostGetDevicePointer()</span></code> 然后用于从内核内部访问该块。唯一的例外是分配的指针 <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code> 当主机和设备使用统一的地址空间时，如 <a class="reference internal" href="#unified-virtual-address-space"><span class="std std-ref">统一虚拟地址空间</span></a>.</p>
+<p>页锁定主机内存块也可以通过传递标志映射到设备的地址空间 <code class="docutils literal notranslate"><span class="pre">cudaHostAllocMapped</span></code> 到 <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code> 或通过传递标志 <code class="docutils literal notranslate"><span class="pre">cudaHostRegisterMapped</span></code> 到 <code class="docutils literal notranslate"><span class="pre">cudaHostRegister()</span></code>。因此，这样的块通常有两个地址：一个位于主机内存中，由 <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">malloc()</span></code>，以及设备内存中的一个，可以使用 <code class="docutils literal notranslate"><span class="pre">cudaHostGetDevicePointer()</span></code> 然后用于从内核内部访问该块。唯一的例外是分配的指针 <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code> 当主机和设备使用统一的地址空间时，如 <a class="reference internal" href="#unified-virtual-address-space"><span class="std std-ref">统一虚拟地址空间</span></a>。</p>
 <p>直接从内核内部访问主机内存并不能提供与设备内存相同的带宽，但确实有一些优点：</p>
 <ul class="simple">
 <li><p>无需在设备内存中分配块并在该块与主机内存中的块之间复制数据；数据传输根据内核的需要隐式执行；</p></li>
@@ -3029,7 +3029,7 @@ html
 <span class="section-number">6.2.8.2. </span>并发内核执行<a class="headerlink" href="#concurrent-kernel-execution" title="跳转到此标题"></a>
 </h4>
 <p>某些计算能力为 2.x 及更高版本的设备可以同时执行多个内核。应用程序可以通过检查来查询此功能 <code class="docutils literal notranslate"><span class="pre">concurrentKernels</span></code> 设备属性（参见 <a class="reference internal" href="#device-enumeration"><span class="std std-ref">设备枚举</span></a>)，对于支持它的设备等于 1。</p>
-<p>设备可以同时执行的内核启动的最大数量取决于其计算能力，并列在 <a class="reference internal" href="#features-and-technical-specifications-technical-specifications-per-compute-capability"><span class="std std-numref">表27</span></a>.</p>
+<p>设备可以同时执行的内核启动的最大数量取决于其计算能力，并列在 <a class="reference internal" href="#features-and-technical-specifications-technical-specifications-per-compute-capability"><span class="std std-numref">表27</span></a>。</p>
 <p>来自一个 CUDA 上下文的内核无法与来自另一 CUDA 上下文的内核同时执行。 GPU 可以对每个上下文进行时间切片以提供前进进度。如果用户想要在 SM 上同时运行多个进程的内核，则必须启用 MPS。</p>
 <p>使用许多纹理或大量本地内存的内核不太可能与其他内核同时执行。</p>
 </section>
@@ -3095,7 +3095,7 @@ html
 <p class="admonition-title">注意</p>
 <p><code class="docutils literal notranslate"><span class="pre">#define</span><span class="pre">CUDA_API_PER_THREAD_DEFAULT_STREAM</span><span class="pre">1</span></code> 当代码编译时不能用于启用此行为 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 作为 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 隐含地包括 <code class="docutils literal notranslate"><span class="pre">cuda_runtime.h</span></code> 在翻译单元的顶部。在这种情况下 <code class="docutils literal notranslate"><span class="pre">--default-stream</span><span class="pre">per-thread</span></code> 需要使用编译标志或者 <code class="docutils literal notranslate"><span class="pre">CUDA_API_PER_THREAD_DEFAULT_STREAM</span></code> 宏需要定义为 <code class="docutils literal notranslate"><span class="pre">-DCUDA_API_PER_THREAD_DEFAULT_STREAM=1</span></code> 编译器标志。</p>
 </div>
-<p>对于使用编译的代码 <code class="docutils literal notranslate"><span class="pre">--default-stream</span><span class="pre">legacy</span></code> 编译标志，默认流是一个特殊的流，称为 <em>空流</em> 每个设备都有一个用于所有主机线程的 NULL 流。 NULL 流很特殊，因为它会导致隐式同步，如中所述 <a class="reference internal" href="#implicit-synchronization"><span class="std std-ref">隐式同步</span></a>.</p>
+<p>对于使用编译的代码 <code class="docutils literal notranslate"><span class="pre">--default-stream</span><span class="pre">legacy</span></code> 编译标志，默认流是一个特殊的流，称为 <em>空流</em> 每个设备都有一个用于所有主机线程的 NULL 流。 NULL 流很特殊，因为它会导致隐式同步，如中所述 <a class="reference internal" href="#implicit-synchronization"><span class="std std-ref">隐式同步</span></a>。</p>
 <p>对于未指定编译的代码 <code class="docutils literal notranslate"><span class="pre">--default-stream</span></code> 编译标志， <code class="docutils literal notranslate"><span class="pre">--default-stream</span><span class="pre">legacy</span></code> 被假定为默认值。</p>
 </section>
 <section id="explicit-synchronization">
@@ -3195,7 +3195,7 @@ html
 <h5>
 <span class="section-number">6.2.8.6.1. </span>背景<a class="headerlink" href="#background" title="跳转到此标题"></a>
 </h5>
-<p>CUDA 应用程序通过在 GPU 上启动和执行多个内核来利用 GPU。典型的 GPU 活动时间线如图所示 <a class="reference internal" href="#gpu-activity"><span class="std std-numref">图10</span></a>.</p>
+<p>CUDA 应用程序通过在 GPU 上启动和执行多个内核来利用 GPU。典型的 GPU 活动时间线如图所示 <a class="reference internal" href="#gpu-activity"><span class="std std-numref">图10</span></a>。</p>
 <figure class="align-default" id="gpu-activity">
 <a class="reference internal image-reference" href="_images/gpu-activity.png"><img alt="GPU activity timeline" src="_images/gpu-activity.png" style="width: 723.36px; height: 121.44000000000001px;"/></a>
 <figcaption>
@@ -3389,7 +3389,7 @@ html
 <p>CUDA 12.3 在 CUDA 图上引入了边缘数据。边缘数据修改边缘指定的依赖关系，由三部分组成：出端口、入端口和类型。传出端口指定何时触发关联边缘。传入端口指定节点的哪一部分依赖于关联的边。类型修改端点之间的关系。</p>
 <p>端口值特定于节点类型和方向，并且边缘类型可能仅限于特定节点类型。在所有情况下，零初始化的边缘数据代表默认行为。传出端口 0 等待整个任务，传入端口 0 阻塞整个任务，并且边缘类型 0 与内存同步行为的完全依赖性相关联。</p>
 <p>边缘数据可以通过关联节点的并行数组在各种图形 API 中选择性地指定。如果省略它作为输入参数，则使用零初始化数据。如果将其作为输出（查询）参数省略，并且被忽略的边缘数据全部为零初始化，则 API 会接受此参数，并返回 <code class="docutils literal notranslate"><span class="pre">cudaErrorLossyQuery</span></code> 如果调用会丢弃信息。</p>
-<p>边缘数据也可在某些流捕获 API 中使用： <code class="docutils literal notranslate"><span class="pre">cudaStreamBeginCaptureToGraph()</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaStreamGetCaptureInfo()</span></code>，以及 <code class="docutils literal notranslate"><span class="pre">cudaStreamUpdateCaptureDependencies()</span></code>。在这些情况下，尚不存在下游节点。数据与悬空边缘（半边缘）相关联，该悬空边缘将连接到未来捕获的节点或在流捕获终止时被丢弃。请注意，某些边缘类型不会等待上游节点完全完成。当考虑流捕获是否已完全重新加入原始流时，这些边缘将被忽略，并且在捕获结束时不能被丢弃。见 <a class="reference internal" href="#creating-a-graph-using-stream-capture"><span class="std std-ref">使用流捕获创建图形</span></a>.</p>
+<p>边缘数据也可在某些流捕获 API 中使用： <code class="docutils literal notranslate"><span class="pre">cudaStreamBeginCaptureToGraph()</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaStreamGetCaptureInfo()</span></code>，以及 <code class="docutils literal notranslate"><span class="pre">cudaStreamUpdateCaptureDependencies()</span></code>。在这些情况下，尚不存在下游节点。数据与悬空边缘（半边缘）相关联，该悬空边缘将连接到未来捕获的节点或在流捕获终止时被丢弃。请注意，某些边缘类型不会等待上游节点完全完成。当考虑流捕获是否已完全重新加入原始流时，这些边缘将被忽略，并且在捕获结束时不能被丢弃。见 <a class="reference internal" href="#creating-a-graph-using-stream-capture"><span class="std std-ref">使用流捕获创建图形</span></a>。</p>
 <p>目前，没有节点类型定义额外的传入端口，只有内核节点定义额外的传出端口。有一种非默认依赖类型， <code class="docutils literal notranslate"><span class="pre">cudaGraphDependencyTypeProgrammatic</span></code>，这使得 <a class="reference internal" href="#programmatic-dependent-launch-and-synchronization"><span class="std std-ref">程序化依赖启动</span></a> 两个内核节点之间。</p>
 </section>
 </section>
@@ -3445,7 +3445,7 @@ html
 </pre></div>
 </div>
 <p>致电 <code class="docutils literal notranslate"><span class="pre">cudaStreamBeginCapture()</span></code> 将流置于捕获模式。当捕获流时，启动到流中的工作不会排队执行。相反，它被附加到逐步构建的内部图表中。然后通过调用返回该图 <code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code>，这也结束了流的捕获模式。通过流捕获主动构建的图被称为 <em>捕获图。</em></p>
-<p>流捕获可用于任何 CUDA 流，除了 <code class="docutils literal notranslate"><span class="pre">cudaStreamLegacy</span></code> （“NULL 流”）。请注意，它 <em>能</em> 用在 <code class="docutils literal notranslate"><span class="pre">cudaStreamPerThread</span></code>。如果程序正在使用旧版流，则可以将流 0 重新定义为每线程流，而无需进行功能更改。见 <a class="reference internal" href="#default-stream"><span class="std std-ref">默认流</span></a>.</p>
+<p>流捕获可用于任何 CUDA 流，除了 <code class="docutils literal notranslate"><span class="pre">cudaStreamLegacy</span></code> （“NULL 流”）。请注意，它 <em>能</em> 用在 <code class="docutils literal notranslate"><span class="pre">cudaStreamPerThread</span></code>。如果程序正在使用旧版流，则可以将流 0 重新定义为每线程流，而无需进行功能更改。见 <a class="reference internal" href="#default-stream"><span class="std std-ref">默认流</span></a>。</p>
 <p>可以通过以下方式查询是否正在捕获流 <code class="docutils literal notranslate"><span class="pre">cudaStreamIsCapturing()</span></code>.</p>
 <p>可以使用以下方法将工作捕获到现有图表中 <code class="docutils literal notranslate"><span class="pre">cudaStreamBeginCaptureToGraph()</span></code>。工作不是捕获到内部图表，而是捕获到用户提供的图表。</p>
 <section id="cross-stream-dependencies-and-events">
@@ -3481,7 +3481,7 @@ html
 <span class="c1">// stream1 and stream2 no longer in capture mode</span>
 </pre></div>
 </div>
-<p>上述代码返回的图表如图所示 <a class="reference internal" href="#creating-a-graph-using-api-fig-creating-using-graph-apis"><span class="std std-numref">图14</span></a>.</p>
+<p>上述代码返回的图表如图所示 <a class="reference internal" href="#creating-a-graph-using-api-fig-creating-using-graph-apis"><span class="std std-numref">图14</span></a>。</p>
 <div class="admonition note">
 <p class="admonition-title">注意</p>
 <p>当流退出捕获模式时，流中的下一个非捕获项（如果有）仍将依赖于最近的先前非捕获项，尽管中间项已被删除。</p>
@@ -3512,7 +3512,7 @@ html
 <span id="id50"></span><h5>
 <span class="section-number">6.2.8.7.4. </span>CUDA 用户对象<a class="headerlink" href="#cuda-user-objects" title="跳转到此标题"></a>
 </h5>
-<p>CUDA 用户对象可用于帮助管理 CUDA 中异步工作所使用的资源的生命周期。该功能特别适用于 <a class="reference internal" href="#cuda-graphs"><span class="std std-ref">CUDA 图形</span></a> 和 <a class="reference internal" href="#creating-a-graph-using-stream-capture"><span class="std std-ref">流捕获</span></a>.</p>
+<p>CUDA 用户对象可用于帮助管理 CUDA 中异步工作所使用的资源的生命周期。该功能特别适用于 <a class="reference internal" href="#cuda-graphs"><span class="std std-ref">CUDA 图形</span></a> 和 <a class="reference internal" href="#creating-a-graph-using-stream-capture"><span class="std std-ref">流捕获</span></a>。</p>
 <p>各种资源管理方案与 CUDA 图不兼容。例如，考虑基于事件的池或同步创建、异步销毁方案。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="c1">// Library API with pool allocation</span>
@@ -3746,7 +3746,7 @@ html
 <span class="section-number">6.2.8.7.7. </span>设备图启动<a class="headerlink" href="#device-graph-launch" title="跳转到此标题"></a>
 </h5>
 <p>有许多工作流需要在运行时做出依赖于数据的决策，并根据这些决策执行不同的操作。用户可能更愿意在设备上执行此决策过程，而不是将此决策过程卸载到主机（这可能需要从设备进行往返）。为此，CUDA 提供了一种从设备启动图形的机制。</p>
-<p>设备图启动提供了一种从设备执行动态控制流的便捷方法，无论是简单的循环还是复杂的设备端工作调度程序。此功能仅在支持的系统上可用 <a class="reference internal" href="#unified-virtual-address-space"><span class="std std-ref">统一编址</span></a>.</p>
+<p>设备图启动提供了一种从设备执行动态控制流的便捷方法，无论是简单的循环还是复杂的设备端工作调度程序。此功能仅在支持的系统上可用 <a class="reference internal" href="#unified-virtual-address-space"><span class="std std-ref">统一编址</span></a>。</p>
 <p>可以从设备启动的图此后将被称为设备图，而不能从设备启动的图将被称为主机图。</p>
 <p>设备图可以从主机和设备启动，而主机图只能从主机启动。与主机启动不同，在先前启动的图正在运行时从设备启动设备图将导致错误，返回 <code class="docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code>;因此，设备图不能同时从设备启动两次。同时从主机和设备启动设备图将导致未定义的行为。</p>
 <section id="device-graph-creation">
@@ -4032,7 +4032,7 @@ html
 <li><p>有条件的 <a class="reference internal" href="#conditional-switch-nodes"><span class="std std-ref">切换节点</span></a> 如果条件值等于 n，则执行第 n 个主体图。如果条件值不对应于身体图，则不启动身体图。</p></li>
 </ul>
 <p>条件值由 <a class="reference internal" href="#conditional-handles"><span class="std std-ref">条件句柄</span></a> ，必须在节点之前创建。条件值可以通过设备代码设置 <code class="docutils literal notranslate"><span class="pre">cudaGraphSetConditional()</span></code>。还可以在创建句柄时指定应用于每次图形启动的默认值。</p>
-<p>创建条件节点时，将创建一个空图并将句柄返回给用户，以便可以填充该图。可以使用以下任一方式填充此条件身体图 <a class="reference internal" href="#creating-a-graph-using-graph-apis"><span class="std std-ref">图形 API</span></a> 或 <a class="reference internal" href="#creating-a-graph-using-stream-capture"><span class="std std-ref">cudaStreamBeginCaptureToGraph()</span></a>.</p>
+<p>创建条件节点时，将创建一个空图并将句柄返回给用户，以便可以填充该图。可以使用以下任一方式填充此条件身体图 <a class="reference internal" href="#creating-a-graph-using-graph-apis"><span class="std std-ref">图形 API</span></a> 或 <a class="reference internal" href="#creating-a-graph-using-stream-capture"><span class="std std-ref">cudaStreamBeginCaptureToGraph()</span></a>。</p>
 <p>条件节点可以嵌套。</p>
 <section id="conditional-handles">
 <span id="id64"></span><h6>
@@ -4041,7 +4041,7 @@ html
 <p>条件值表示为 <code class="docutils literal notranslate"><span class="pre">cudaGraphConditionalHandle</span></code> 并且是由创建的 <code class="docutils literal notranslate"><span class="pre">cudaGraphConditionalHandleCreate()</span></code>.</p>
 <p>该句柄必须与单个条件节点关联。手柄无法被破坏。</p>
 <p>如果 <code class="docutils literal notranslate"><span class="pre">cudaGraphCondAssignDefault</span></code> 在创建句柄时指定，条件值将在每次图形执行开始时初始化为指定的默认值。如果未提供此标志，则在每次图形执行开始时条件值未定义，并且代码不应假设条件值在执行过程中持续存在。</p>
-<p>与句柄关联的默认值和标志将在期间更新 <a class="reference internal" href="#whole-graph-update"><span class="std std-ref">整个图更新</span></a>.</p>
+<p>与句柄关联的默认值和标志将在期间更新 <a class="reference internal" href="#whole-graph-update"><span class="std std-ref">整个图更新</span></a>。</p>
 </section>
 <section id="conditional-node-body-graph-requirements">
 <span id="id65"></span><h6>
@@ -4075,7 +4075,7 @@ html
 <p><span class="caption-number">图23 </span><span class="caption-text">条件 IF 节点</span><a class="headerlink" href="#id465" title="跳转到此图片"></a></p>
 </figcaption>
 </figure>
-<p>以下代码说明了如何创建包含 IF 条件节点的图。条件的默认值是使用上游内核设置的。条件语句的主体使用以下方式填充 <a class="reference internal" href="#creating-a-graph-using-graph-apis"><span class="std std-ref">图形API</span></a>.</p>
+<p>以下代码说明了如何创建包含 IF 条件节点的图。条件的默认值是使用上游内核设置的。条件语句的主体使用以下方式填充 <a class="reference internal" href="#creating-a-graph-using-graph-apis"><span class="std std-ref">图形API</span></a>。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">setHandle</span><span class="p">(</span><span class="n">cudaGraphConditionalHandle</span><span class="w"> </span><span class="n">handle</span><span class="p">)</span><span class="w"></span>
 <span class="p">{</span><span class="w"></span>
@@ -4185,7 +4185,7 @@ html
 <p><span class="caption-number">图24 </span><span class="caption-text">条件 WHILE 节点</span><a class="headerlink" href="#id466" title="跳转到此图片"></a></p>
 </figcaption>
 </figure>
-<p>以下代码说明了如何创建包含 WHILE 条件节点的图。句柄是使用创建的 <em>cudaGraphCondAssignDefault</em> 以避免需要上游内核。条件语句的主体使用以下方式填充 <a class="reference internal" href="#creating-a-graph-using-graph-apis"><span class="std std-ref">图形API</span></a>.</p>
+<p>以下代码说明了如何创建包含 WHILE 条件节点的图。句柄是使用创建的 <em>cudaGraphCondAssignDefault</em> 以避免需要上游内核。条件语句的主体使用以下方式填充 <a class="reference internal" href="#creating-a-graph-using-graph-apis"><span class="std std-ref">图形API</span></a>。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">loopKernel</span><span class="p">(</span><span class="n">cudaGraphConditionalHandle</span><span class="w"> </span><span class="n">handle</span><span class="p">)</span><span class="w"></span>
 <span class="p">{</span><span class="w"></span>
@@ -4241,7 +4241,7 @@ html
 <p><span class="caption-number">图25 </span><span class="caption-text">条件 SWITCH 节点</span><a class="headerlink" href="#id467" title="跳转到此图片"></a></p>
 </figcaption>
 </figure>
-<p>以下代码说明了如何创建包含 SWITCH 条件节点的图。条件的值是使用上游内核设置的。条件语句的主体使用以下方式填充 <a class="reference internal" href="#creating-a-graph-using-graph-apis"><span class="std std-ref">图形API</span></a>.</p>
+<p>以下代码说明了如何创建包含 SWITCH 条件节点的图。条件的值是使用上游内核设置的。条件语句的主体使用以下方式填充 <a class="reference internal" href="#creating-a-graph-using-graph-apis"><span class="std std-ref">图形API</span></a>。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">setHandle</span><span class="p">(</span><span class="n">cudaGraphConditionalHandle</span><span class="w"> </span><span class="n">handle</span><span class="p">)</span><span class="w"></span>
 <span class="p">{</span><span class="w"></span>
@@ -4446,7 +4446,7 @@ html
 </h5>
 <p>仅在 Linux 上，CUDA 和显示驱动程序不支持启用 IOMMU 的裸机 PCIe 对等内存复制。但是，CUDA 和显示驱动程序确实通过 VM 直通支持 IOMMU。因此，Linux 用户在本机裸机系统上运行时应禁用 IOMMU。应启用 IOMMU 并将 VFIO 驱动程序用作虚拟机的 PCIe 直通。</p>
 <p>在 Windows 上，不存在上述限制。</p>
-<p>参见 <a class="reference external" href="https://download.nvidia.com/XFree86/Linux-x86_64/396.51/README/dma_issues.html">在 64 位平台上分配 DMA 缓冲区</a>.</p>
+<p>参见 <a class="reference external" href="https://download.nvidia.com/XFree86/Linux-x86_64/396.51/README/dma_issues.html">在 64 位平台上分配 DMA 缓冲区</a>。</p>
 </section>
 </section>
 <section id="peer-to-peer-memory-copy">
@@ -4454,7 +4454,7 @@ html
 <span class="section-number">6.2.9.5. </span>点对点内存复制<a class="headerlink" href="#peer-to-peer-memory-copy" title="跳转到此标题"></a>
 </h4>
 <p>可以在两个不同设备的存储器之间执行存储器复制。</p>
-<p>当两个设备使用统一的地址空间时（请参阅 <a class="reference internal" href="#unified-virtual-address-space"><span class="std std-ref">统一虚拟地址空间</span></a>），这是使用中提到的常规内存复制函数来完成的 <a class="reference internal" href="#device-memory"><span class="std std-ref">设备内存</span></a>.</p>
+<p>当两个设备使用统一的地址空间时（请参阅 <a class="reference internal" href="#unified-virtual-address-space"><span class="std std-ref">统一虚拟地址空间</span></a>），这是使用中提到的常规内存复制函数来完成的 <a class="reference internal" href="#device-memory"><span class="std std-ref">设备内存</span></a>。</p>
 <p>否则，这是使用完成的 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyPeer()</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaMemcpyPeerAsync()</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaMemcpy3DPeer()</span></code>， 或 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy3DPeerAsync()</span></code> 如以下代码示例所示。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">cudaSetDevice</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="c1">// Set device 0 as current</span>
@@ -4488,7 +4488,7 @@ html
 <ul class="simple">
 <li><p>通过 CUDA 分配的主机上的任何内存的位置，或使用统一地址空间的任何设备上的任何内存的位置，都可以通过使用指针的值来确定 <code class="docutils literal notranslate"><span class="pre">cudaPointerGetAttributes()</span></code>.</p></li>
 <li><p>在使用统一地址空间的任何设备的内存中进行复制时， <code class="docutils literal notranslate"><span class="pre">cudaMemcpyKind</span></code> 的参数 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy*()</span></code> 可以设置为 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyDefault</span></code> 从指针确定位置。只要当前设备使用统一寻址，这也适用于未通过 CUDA 分配的主机指针。</p></li>
-<li><p>分配方式： <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code> 自动便携（参见 <a class="reference internal" href="#portable-memory"><span class="std std-ref">便携式存储器</span></a>）跨越使用统一地址空间的所有设备，以及返回的指针 <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code> 可以直接在这些设备上运行的内核中使用（即不需要通过 <code class="docutils literal notranslate"><span class="pre">cudaHostGetDevicePointer()</span></code> 如中所述 <a class="reference internal" href="#mapped-memory"><span class="std std-ref">映射内存</span></a>.</p></li>
+<li><p>分配方式： <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code> 自动便携（参见 <a class="reference internal" href="#portable-memory"><span class="std std-ref">便携式存储器</span></a>）跨越使用统一地址空间的所有设备，以及返回的指针 <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code> 可以直接在这些设备上运行的内核中使用（即不需要通过 <code class="docutils literal notranslate"><span class="pre">cudaHostGetDevicePointer()</span></code> 如中所述 <a class="reference internal" href="#mapped-memory"><span class="std std-ref">映射内存</span></a>。</p></li>
 </ul>
 <p>应用程序可以通过检查统一地址空间是否用于特定设备来查询 <code class="docutils literal notranslate"><span class="pre">unifiedAddressing</span></code> 设备属性（参见 <a class="reference internal" href="#device-enumeration"><span class="std std-ref">设备枚举</span></a>) 等于 1。</p>
 </section>
@@ -4528,7 +4528,7 @@ html
 <span id="id83"></span><h3>
 <span class="section-number">6.2.14. </span>纹理与表面内存<a class="headerlink" href="#texture-and-surface-memory" title="跳转到此标题"></a>
 </h3>
-<p>CUDA 支持 GPU 用于图形访问纹理和表面内存的纹理硬件子集。从纹理或表面内存而不是全局内存读取数据可以具有多种性能优势，如中所述 <a class="reference internal" href="#device-memory-accesses"><span class="std std-ref">设备内存访问</span></a>.</p>
+<p>CUDA 支持 GPU 用于图形访问纹理和表面内存的纹理硬件子集。从纹理或表面内存而不是全局内存读取数据可以具有多种性能优势，如中所述 <a class="reference internal" href="#device-memory-accesses"><span class="std std-ref">设备内存访问</span></a>。</p>
 <section id="texture-memory">
 <span id="id84"></span><h4>
 <span class="section-number">6.2.14.1. </span>纹理内存<a class="headerlink" href="#texture-memory" title="跳转到此标题"></a>
@@ -4546,7 +4546,7 @@ html
 </ul>
 <p><a class="reference internal" href="#texture-object-api"><span class="std std-ref">纹理对象 API</span></a> 介绍纹理对象 API。</p>
 <p><a class="reference internal" href="#sixteen-bit-floating-point-textures"><span class="std std-ref">16 位浮点纹理</span></a> 解释如何处理 16 位浮点纹理。</p>
-<p>纹理也可以分层，如中所述 <a class="reference internal" href="#layered-textures"><span class="std std-ref">分层纹理</span></a>.</p>
+<p>纹理也可以分层，如中所述 <a class="reference internal" href="#layered-textures"><span class="std std-ref">分层纹理</span></a>。</p>
 <p><a class="reference internal" href="#cubemap-textures"><span class="std std-ref">立方体贴图纹理</span></a> 和 <a class="reference internal" href="#cubemap-layered-textures"><span class="std std-ref">立方体贴图分层纹理</span></a> 描述一种特殊类型的纹理，即立方体贴图纹理。</p>
 <p><a class="reference internal" href="#texture-gather"><span class="std std-ref">纹理聚集</span></a> 描述了一种特殊的纹理获取，纹理聚集。</p>
 <section id="texture-object-api">
@@ -4703,7 +4703,7 @@ html
 <p>一个 <em>立方体贴图</em> 纹理是一种特殊类型的二维分层纹理，有六层代表立方体的面：</p>
 <ul class="simple">
 <li><p>层的宽度等于其高度。</p></li>
-<li><p>立方体贴图使用三个纹理坐标进行寻址 <em>x</em>, <em>y</em>，以及 <em>z</em> 它们被解释为从立方体中心发出并指向立方体的一个面以及与该面对应的层内的纹素的方向向量。更具体地说，通过具有最大幅度的坐标来选择面部 <em>米</em> 并且使用坐标来寻址相应的层 <em>(秒/米+1)/2</em> 和 <em>(吨/米+1)/2</em> 在哪里 <em>s</em> 和 <em>t</em> 定义于 <a class="reference internal" href="#cubemap-textures-cubemap-fetch"><span class="std std-numref">表6</span></a>.</p></li>
+<li><p>立方体贴图使用三个纹理坐标进行寻址 <em>x</em>, <em>y</em>，以及 <em>z</em> 它们被解释为从立方体中心发出并指向立方体的一个面以及与该面对应的层内的纹素的方向向量。更具体地说，通过具有最大幅度的坐标来选择面部 <em>米</em> 并且使用坐标来寻址相应的层 <em>(秒/米+1)/2</em> 和 <em>(吨/米+1)/2</em> 在哪里 <em>s</em> 和 <em>t</em> 定义于 <a class="reference internal" href="#cubemap-textures-cubemap-fetch"><span class="std std-numref">表6</span></a>。</p></li>
 </ul>
 <table class="table-no-stripes docutils align-default" id="cubemap-textures-cubemap-fetch">
 <caption>
@@ -4775,7 +4775,7 @@ html
 </tbody>
 </table>
 <p>立方体贴图纹理只能是 CUDA 数组，通过调用 <code class="docutils literal notranslate"><span class="pre">cudaMalloc3DArray()</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaArrayCubemap</span></code> 旗帜。</p>
-<p>立方体贴图纹理是使用中描述的设备函数获取的 <a class="reference internal" href="#texcubemap-object"><span class="std std-ref">texCubemap()</span></a>.</p>
+<p>立方体贴图纹理是使用中描述的设备函数获取的 <a class="reference internal" href="#texcubemap-object"><span class="std std-ref">texCubemap()</span></a>。</p>
 <p>立方体贴图纹理仅在计算能力 2.0 及更高版本的设备上受支持。</p>
 </section>
 <section id="cubemap-layered-textures">
@@ -4802,7 +4802,7 @@ html
 <span id="id90"></span><h4>
 <span class="section-number">6.2.14.2. </span>表面内存<a class="headerlink" href="#surface-memory" title="跳转到此标题"></a>
 </h4>
-<p>对于计算能力 2.0 及更高的设备，CUDA 阵列（在 <a class="reference internal" href="#cubemap-surfaces"><span class="std std-ref">立方体贴图曲面</span></a>），用创建 <code class="docutils literal notranslate"><span class="pre">cudaArraySurfaceLoadStore</span></code> 标志，可以通过读取和写入 <em>表面物体</em> 使用中描述的功能 <a class="reference internal" href="#surface-functions"><span class="std std-ref">表面功能</span></a>.</p>
+<p>对于计算能力 2.0 及更高的设备，CUDA 阵列（在 <a class="reference internal" href="#cubemap-surfaces"><span class="std std-ref">立方体贴图曲面</span></a>），用创建 <code class="docutils literal notranslate"><span class="pre">cudaArraySurfaceLoadStore</span></code> 标志，可以通过读取和写入 <em>表面物体</em> 使用中描述的功能 <a class="reference internal" href="#surface-functions"><span class="std std-ref">表面功能</span></a>。</p>
 <p><a class="reference internal" href="#features-and-technical-specifications-technical-specifications-per-compute-capability"><span class="std std-numref">表27</span></a> 根据设备的计算能力列出最大表面宽度、高度和深度。</p>
 <section id="surface-object-api">
 <span id="id91"></span><h5>
@@ -4905,7 +4905,7 @@ html
 <span id="id92"></span><h5>
 <span class="section-number">6.2.14.2.2. </span>立方体贴图曲面<a class="headerlink" href="#cubemap-surfaces" title="跳转到此标题"></a>
 </h5>
-<p>立方体贴图表面可使用以下方式访问<code class="docutils literal notranslate"><span class="pre">surfCubemapread()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">surfCubemapwrite()</span></code> (<a class="reference internal" href="#surfcubemapread-object"><span class="std std-ref">surfCubemapread()</span></a> 和 <a class="reference internal" href="#surfcubemapwrite-object"><span class="std std-ref">surfCubemapwrite()</span></a>）作为二维分层表面，即使用表示面的整数索引和两个浮点纹理坐标来寻址与该面相对应的层内的纹素。面的顺序如下所示 <a class="reference internal" href="#cubemap-textures-cubemap-fetch"><span class="std std-numref">表6</span></a>.</p>
+<p>立方体贴图表面可使用以下方式访问<code class="docutils literal notranslate"><span class="pre">surfCubemapread()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">surfCubemapwrite()</span></code> (<a class="reference internal" href="#surfcubemapread-object"><span class="std std-ref">surfCubemapread()</span></a> 和 <a class="reference internal" href="#surfcubemapwrite-object"><span class="std std-ref">surfCubemapwrite()</span></a>）作为二维分层表面，即使用表示面的整数索引和两个浮点纹理坐标来寻址与该面相对应的层内的纹素。面的顺序如下所示 <a class="reference internal" href="#cubemap-textures-cubemap-fetch"><span class="std std-numref">表6</span></a>。</p>
 </section>
 <section id="cubemap-layered-surfaces">
 <span id="cubemap-layered-sufaces"></span><h5>
@@ -4918,7 +4918,7 @@ html
 <h4>
 <span class="section-number">6.2.14.3. </span>CUDA 阵列<a class="headerlink" href="#cuda-arrays" title="跳转到此标题"></a>
 </h4>
-<p>CUDA 数组是针对纹理获取而优化的不透明内存布局。它们是一维、二维或三维的，由元素组成，每个元素都有 1、2 或 4 个分量，这些分量可以是有符号或无符号的 8 位、16 位或 32 位整数、16 位浮点数或 32 位浮点数。 CUDA 数组只能由内核通过纹理获取来访问，如中所述 <a class="reference internal" href="#texture-memory"><span class="std std-ref">纹理内存</span></a> 或表面阅读和写作中所述 <a class="reference internal" href="#surface-memory"><span class="std std-ref">表面内存</span></a>.</p>
+<p>CUDA 数组是针对纹理获取而优化的不透明内存布局。它们是一维、二维或三维的，由元素组成，每个元素都有 1、2 或 4 个分量，这些分量可以是有符号或无符号的 8 位、16 位或 32 位整数、16 位浮点数或 32 位浮点数。 CUDA 数组只能由内核通过纹理获取来访问，如中所述 <a class="reference internal" href="#texture-memory"><span class="std std-ref">纹理内存</span></a> 或表面阅读和写作中所述 <a class="reference internal" href="#surface-memory"><span class="std std-ref">表面内存</span></a>。</p>
 </section>
 <section id="read-write-coherency">
 <span id="id93"></span><h4>
@@ -6520,7 +6520,7 @@ html
 <li><p>NvSciBuf：允许应用程序分配和交换内存中的缓冲区</p></li>
 <li><p>NvSciSync：允许应用程序在操作边界管理同步对象</p></li>
 </ul>
-<p>有关这些接口的更多详细信息，请访问： <a class="reference external" href="https://docs.nvidia.com/drive">https://docs.nvidia.com/drive</a>.</p>
+<p>有关这些接口的更多详细信息，请访问： <a class="reference external" href="https://docs.nvidia.com/drive">https://docs.nvidia.com/drive</a>。</p>
 <section id="importing-memory-objects-nvsci">
 <span id="id116"></span><h5>
 <span class="section-number">6.2.16.5.1. </span>导入内存对象<a class="headerlink" href="#importing-memory-objects-nvsci" title="跳转到此标题"></a>
@@ -6925,7 +6925,7 @@ html
 <span class="section-number">8.2.2. </span>设备级<a class="headerlink" href="#device-level" title="跳转到此标题"></a>
 </h3>
 <p>在较低级别，应用程序应最大化设备的多处理器之间的并行执行。</p>
-<p>多个内核可以在设备上同时执行，因此还可以通过使用流使足够的内核同时执行来实现最大利用率，如中所述 <a class="reference internal" href="#asynchronous-concurrent-execution"><span class="std std-ref">异步并发执行</span></a>.</p>
+<p>多个内核可以在设备上同时执行，因此还可以通过使用流使足够的内核同时执行来实现最大利用率，如中所述 <a class="reference internal" href="#asynchronous-concurrent-execution"><span class="std std-ref">异步并发执行</span></a>。</p>
 </section>
 <section id="multiprocessor-level">
 <span id="id133"></span><h3>
@@ -6934,7 +6934,7 @@ html
 <p>在更低的层面上，应用程序应该最大限度地提高多处理器内各个功能单元之间的并行执行。</p>
 <p>如中所述 <a class="reference internal" href="#hardware-multithreading"><span class="std std-ref">硬件多线程</span></a>，GPU 多处理器主要依靠线程级并行性来最大化其功能单元的利用率。因此，利用率与常驻 warp的数量直接相关。在每次指令发出时，warp 调度程序都会选择一条准备执行的指令。该指令可以是同一 warp的另一条独立指令，利用指令级并行性，或更常见的是另一条 warp的指令，利用线程级并行性。如果选择了准备执行指令，则将其发送到 <a class="reference internal" href="#simt-architecture-notes"><span class="std std-ref">活动</span></a> warp。 warp 准备好执行下一条指令所需的时钟周期数称为 <em>延迟</em>，并且当所有 warp 调度器在该延迟期间的每个时钟周期总是有一些指令为某些 warp发出一些指令时，或者换句话说，当延迟完全“隐藏”时，就可以实现充分利用。隐藏 L 个时钟周期的延迟所需的指令数量取决于这些指令各自的吞吐量（参见 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#arithmetic-instructions">CUDA C++ 最佳实践指南</a> 各种算术指令的吞吐量）。如果我们假设指令具有最大吞吐量，则它等于：</p>
 <ul class="simple">
-<li><p><em>4升</em> 对于计算能力为 5.x、6.1、6.2、7.x 和 8.x 的设备，因为对于这些设备，多处理器在一个时钟周期内为每个warp发出一条指令，一次发出四个warp，如 <a class="reference internal" href="#compute-capabilities"><span class="std std-ref">计算能力</span></a>.</p></li>
+<li><p><em>4升</em> 对于计算能力为 5.x、6.1、6.2、7.x 和 8.x 的设备，因为对于这些设备，多处理器在一个时钟周期内为每个warp发出一条指令，一次发出四个warp，如 <a class="reference internal" href="#compute-capabilities"><span class="std std-ref">计算能力</span></a>。</p></li>
 <li><p><em>2升</em> 对于计算能力 6.0 的设备，因为对于这些设备，每个周期发出的两条指令是针对两个不同warp的一条指令。</p></li>
 </ul>
 <p>warp 未准备好执行下一条指令的最常见原因是指令的输入操作数尚不可用。</p>
@@ -6944,7 +6944,7 @@ html
 <p>对于给定的内核调用，驻留在每个多处理器上的块和 warp 的数量取决于调用的执行配置（<a class="reference internal" href="#execution-configuration"><span class="std std-ref">执行配置</span></a>）、多处理器的内存资源以及内核的资源需求，如中所述 <a class="reference internal" href="#hardware-multithreading"><span class="std std-ref">硬件多线程</span></a>。编译器在使用以下命令进行编译时会报告寄存器和共享内存的使用情况 <code class="docutils literal notranslate"><span class="pre">--ptxas-options=-v</span></code> 选项。</p>
 <p>一个块所需的共享内存总量等于静态分配的共享内存量和动态分配的共享内存量之和。</p>
 <p>内核使用的寄存器数量会对常驻 warp数量产生重大影响。例如，对于计算能力 6.x 的设备，如果内核使用 64 个寄存器，每个块有 512 个线程，并且需要很少的共享内存，则两个块（即 32 个 warp）可以驻留在多处理器上，因为它们需要 2x512x64 个寄存器，这与多处理器上可用的寄存器数量完全匹配。但是，一旦内核多使用一个寄存器，就只能驻留一个块（即 16 个warp），因为两个块将需要 2x512x65 寄存器，这比多处理器上可用的寄存器还要多。因此，编译器尝试最小化寄存器使用，同时保持寄存器溢出（请参见 <a class="reference internal" href="#device-memory-accesses"><span class="std std-ref">设备内存访问</span></a>）并将指令数量降至最低。寄存器的使用可以使用控制 <code class="docutils literal notranslate"><span class="pre">maxrregcount</span></code> 编译器选项， <code class="docutils literal notranslate"><span class="pre">__launch_bounds__()</span></code> 限定符如中所述 <a class="reference internal" href="#launch-bounds"><span class="std std-ref">发射范围</span></a>，或 <code class="docutils literal notranslate"><span class="pre">__maxnreg__()</span></code>
-限定符如中所述 <a class="reference internal" href="#maximum-number-of-registers-per-thread"><span class="std std-ref">每个线程的最大寄存器数</span></a>.</p>
+限定符如中所述 <a class="reference internal" href="#maximum-number-of-registers-per-thread"><span class="std std-ref">每个线程的最大寄存器数</span></a>。</p>
 <p>寄存器文件被组织为 32 位寄存器。因此，寄存器中存储的每个变量至少需要一个32位寄存器，例如一个 <code class="docutils literal notranslate"><span class="pre">double</span></code> 变量使用两个 32 位寄存器。</p>
 <p>执行配置对给定内核调用性能的影响通常取决于内核代码。因此建议进行实验。应用程序还可以根据寄存器文件大小和共享内存大小对执行配置进行参数化，这取决于设备的计算能力，以及设备的多处理器数量和内存带宽，所有这些都可以使用运行时进行查询（请参阅参考手册）。</p>
 <p>每个块的线程数应选择为warp 大小的倍数，以避免尽可能避免因填充不足而浪费计算资源。</p>
@@ -7097,7 +7097,7 @@ html
 </h3>
 <p>应用程序应努力尽量减少主机和设备之间的数据传输。实现此目的的一种方法是将更多代码从主机移动到设备，即使这意味着运行的内核没有提供足够的并行性以在设备上高效执行。中间数据结构可以在设备存储器中创建，由设备操作，并且在不被主机映射或复制到主机存储器的情况下被销毁。</p>
 <p>此外，由于与每次传输相关的开销，将许多小传输批处理为单个大传输总是比单独进行每个传输性能更好。</p>
-<p>在具有前端总线的系统上，通过使用页面锁定主机内存来实现主机和设备之间数据传输的更高性能，如下所述 <a class="reference internal" href="#page-locked-host-memory"><span class="std std-ref">页锁定主机内存</span></a>.</p>
+<p>在具有前端总线的系统上，通过使用页面锁定主机内存来实现主机和设备之间数据传输的更高性能，如下所述 <a class="reference internal" href="#page-locked-host-memory"><span class="std std-ref">页锁定主机内存</span></a>。</p>
 <p>此外，当使用映射页锁定内存时（<a class="reference internal" href="#mapped-memory"><span class="std std-ref">映射内存</span></a>），不需要分配任何设备内存并在设备和主机内存之间显式复制数据。每次内核访问映射内存时都会隐式执行数据传输。为了获得最大性能，这些内存访问必须与对全局内存的访问一样合并（请参阅 <a class="reference internal" href="#device-memory-accesses"><span class="std std-ref">设备内存访问</span></a>）。假设它们是，并且映射内存仅读取或写入一次，则使用映射页锁定内存而不是设备和主机内存之间的显式副本可以提高性能。</p>
 <p>在设备内存和主机内存物理上相同的集成系统上，主机和设备内存之间的任何副本都是多余的，应使用映射的页锁定内存。应用程序可能会查询设备是否 <code class="docutils literal notranslate"><span class="pre">integrated</span></code> 通过检查集成设备属性（参见 <a class="reference internal" href="#device-enumeration"><span class="std std-ref">设备枚举</span></a>) 等于 1。</p>
 </section>
@@ -7112,14 +7112,14 @@ html
 <p>需要多少事务以及最终影响多少吞吐量取决于设备的计算能力。 <a class="reference internal" href="#compute-capability-5-x"><span class="std std-ref">计算能力5.x</span></a>, <a class="reference internal" href="#compute-capability-6-x"><span class="std std-ref">计算能力6.x</span></a>, <a class="reference internal" href="#compute-capability-7-x"><span class="std std-ref">计算能力7.x</span></a>, <a class="reference internal" href="#compute-capability-8-x"><span class="std std-ref">计算能力8.x</span></a>, <a class="reference internal" href="#compute-capability-9-0"><span class="std std-ref">计算能力 9.0</span></a>, <a class="reference internal" href="#compute-capability-10-0"><span class="std std-ref">计算能力10.0</span></a>，以及 <a class="reference internal" href="#compute-capability-12-0"><span class="std std-ref">计算能力12.0</span></a> 提供有关如何针对各种计算功能处理全局内存访问的更多详细信息。</p>
 <p>因此，为了最大化全局内存吞吐量，通过以下方式最大化合并非常重要：</p>
 <ul class="simple">
-<li><p>遵循基于的最佳访问模式 <a class="reference internal" href="#compute-capability-5-x"><span class="std std-ref">计算能力5.x</span></a>, <a class="reference internal" href="#compute-capability-6-x"><span class="std std-ref">计算能力6.x</span></a>, <a class="reference internal" href="#compute-capability-7-x"><span class="std std-ref">计算能力7.x</span></a>, <a class="reference internal" href="#compute-capability-8-x"><span class="std std-ref">计算能力8.x</span></a>, <a class="reference internal" href="#compute-capability-9-0"><span class="std std-ref">计算能力 9.0</span></a>, <a class="reference internal" href="#compute-capability-10-0"><span class="std std-ref">计算能力10.0</span></a>，以及 <a class="reference internal" href="#compute-capability-12-0"><span class="std std-ref">计算能力12.0</span></a>.</p></li>
+<li><p>遵循基于的最佳访问模式 <a class="reference internal" href="#compute-capability-5-x"><span class="std std-ref">计算能力5.x</span></a>, <a class="reference internal" href="#compute-capability-6-x"><span class="std std-ref">计算能力6.x</span></a>, <a class="reference internal" href="#compute-capability-7-x"><span class="std std-ref">计算能力7.x</span></a>, <a class="reference internal" href="#compute-capability-8-x"><span class="std std-ref">计算能力8.x</span></a>, <a class="reference internal" href="#compute-capability-9-0"><span class="std std-ref">计算能力 9.0</span></a>, <a class="reference internal" href="#compute-capability-10-0"><span class="std std-ref">计算能力10.0</span></a>，以及 <a class="reference internal" href="#compute-capability-12-0"><span class="std std-ref">计算能力12.0</span></a>。</p></li>
 <li><p>使用满足下面“大小和对齐要求”部分中详细介绍的大小和对齐要求的数据类型，</p></li>
 <li><p>在某些情况下填充数据，例如，当访问二维数组时，如下面的二维数组部分所述。</p></li>
 </ul>
 <p><strong>尺寸和对齐要求</strong></p>
 <p>全局内存指令支持读取或写入大小等于 1、2、4、8 或 16 字节的字。当且仅当数据类型的大小为 1、2、4、8 或 16 字节并且数据自然对齐（即，其地址是该大小的倍数）时，对驻留在全局内存中的数据的任何访问（通过变量或指针）都会编译为单个全局内存指令。</p>
 <p>如果未满足此大小和对齐要求，则访问会编译为具有交错访问模式的多条指令，从而阻止这些指令完全合并。因此，建议对驻留在全局内存中的数据使用满足此要求的类型。</p>
-<p>自动满足对齐要求 <a class="reference internal" href="#built-in-vector-types"><span class="std std-ref">内置向量类型</span></a>.</p>
+<p>自动满足对齐要求 <a class="reference internal" href="#built-in-vector-types"><span class="std std-ref">内置向量类型</span></a>。</p>
 <p>对于结构体，编译器可以使用对齐说明符强制执行大小和对齐要求<code class="docutils literal notranslate"><span class="pre">__align__(8)</span><span class="pre">or</span><span class="pre">__align__(16)</span></code>， 例如</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">__align__</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -7232,7 +7232,7 @@ html
 <li><p>对于计算能力 5.0 或更高的设备，可从设备调用（请参阅 <a class="reference internal" href="#cuda-dynamic-parallelism"><span class="std std-ref">CUDA 动态并行性</span></a> 了解更多详情）。</p></li>
 </ul>
 <p>一个 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 函数必须具有 void 返回类型，并且不能是类的成员。</p>
-<p>任何呼叫 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 函数必须指定其执行配置，如中所述 <a class="reference internal" href="#execution-configuration"><span class="std std-ref">执行配置</span></a>.</p>
+<p>任何呼叫 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 函数必须指定其执行配置，如中所述 <a class="reference internal" href="#execution-configuration"><span class="std std-ref">执行配置</span></a>。</p>
 <p>拨打电话至 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 函数是异步的，这意味着它在设备完成执行之前返回。</p>
 </section>
 <section id="device">
@@ -7308,7 +7308,7 @@ html
 <span class="section-number">10.2. </span>可变内存空间说明符<a class="headerlink" href="#variable-memory-space-specifiers" title="跳转到此标题"></a>
 </h2>
 <p>变量内存空间说明符表示变量在设备上的内存位置。</p>
-<p>在设备代码中声明的自动var,不带任何 <code class="docutils literal notranslate"><span class="pre">__device__</span></code>, <code class="docutils literal notranslate"><span class="pre">__shared__</span></code> 和 <code class="docutils literal notranslate"><span class="pre">__constant__</span></code> 本节中描述的内存空间说明符通常驻留在寄存器中。然而，在某些情况下，编译器可能会选择将其放置在本地内存中，这可能会产生不利的性能后果，详见 <a class="reference internal" href="#device-memory-accesses"><span class="std std-ref">设备内存访问</span></a>.</p>
+<p>在设备代码中声明的自动var,不带任何 <code class="docutils literal notranslate"><span class="pre">__device__</span></code>, <code class="docutils literal notranslate"><span class="pre">__shared__</span></code> 和 <code class="docutils literal notranslate"><span class="pre">__constant__</span></code> 本节中描述的内存空间说明符通常驻留在寄存器中。然而，在某些情况下，编译器可能会选择将其放置在本地内存中，这可能会产生不利的性能后果，详见 <a class="reference internal" href="#device-memory-accesses"><span class="std std-ref">设备内存访问</span></a>。</p>
 <section id="device-variable-specifier">
 <span id="id148"></span><h3>
 <span class="section-number">10.2.1. </span>__device__<a class="headerlink" href="#device-variable-specifier" title="跳转到此标题"></a>
@@ -7380,7 +7380,7 @@ html
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>内置向量类型的对齐要求列于 <a class="reference internal" href="#vector-types-alignment-requirements-in-device-code"><span class="std std-numref">表7</span></a>.</p>
+<p>内置向量类型的对齐要求列于 <a class="reference internal" href="#vector-types-alignment-requirements-in-device-code"><span class="std std-numref">表7</span></a>。</p>
 </section>
 <section id="grid-constant">
 <span id="id151"></span><h3>
@@ -7491,7 +7491,7 @@ html
 </pre></div>
 </div>
 <p>创建一个向量类型 <code class="docutils literal notranslate"><span class="pre">int2</span></code> 有价值<code class="docutils literal notranslate"><span class="pre">(x,</span><span class="pre">y)</span></code>.</p>
-<p>向量类型的对齐要求详述于 <a class="reference internal" href="#vector-types-alignment-requirements-in-device-code"><span class="std std-numref">表7</span></a>.</p>
+<p>向量类型的对齐要求详述于 <a class="reference internal" href="#vector-types-alignment-requirements-in-device-code"><span class="std std-numref">表7</span></a>。</p>
 <table class="table-no-stripes docutils align-default" id="vector-types-alignment-requirements-in-device-code">
 <caption>
 <span class="caption-number">表7 </span><span class="caption-text">对齐要求</span><a class="headerlink" href="#vector-types-alignment-requirements-in-device-code" title="跳转到此表格"></a>
@@ -7894,8 +7894,8 @@ html
 <span id="id164"></span><h2>
 <span class="section-number">10.8. </span>纹理函数<a class="headerlink" href="#texture-functions" title="跳转到此标题"></a>
 </h2>
-<p>纹理对象的描述见 <a class="reference internal" href="#texture-object-api"><span class="std std-ref">纹理对象 API</span></a>.</p>
-<p>纹理获取描述于 <a class="reference internal" href="#texture-fetching"><span class="std std-ref">纹理获取</span></a>.</p>
+<p>纹理对象的描述见 <a class="reference internal" href="#texture-object-api"><span class="std std-ref">纹理对象 API</span></a>。</p>
+<p>纹理获取描述于 <a class="reference internal" href="#texture-fetching"><span class="std std-ref">纹理获取</span></a>。</p>
 <section id="texture-object-api-appendix">
 <span id="id165"></span><h3>
 <span class="section-number">10.8.1. </span>纹理对象 API<a class="headerlink" href="#texture-object-api-appendix" title="跳转到此标题"></a>
@@ -7976,7 +7976,7 @@ html
 <span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">comp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
-<p>从 2D 纹理对象指定的 CUDA 数组中获取 <code class="docutils literal notranslate"><span class="pre">texObj</span></code> 使用纹理坐标 <code class="docutils literal notranslate"><span class="pre">x</span></code> 和 <code class="docutils literal notranslate"><span class="pre">y</span></code> 和 <code class="docutils literal notranslate"><span class="pre">comp</span></code> 参数如所述 <a class="reference internal" href="#texture-gather"><span class="std std-ref">纹理聚集</span></a>.</p>
+<p>从 2D 纹理对象指定的 CUDA 数组中获取 <code class="docutils literal notranslate"><span class="pre">texObj</span></code> 使用纹理坐标 <code class="docutils literal notranslate"><span class="pre">x</span></code> 和 <code class="docutils literal notranslate"><span class="pre">y</span></code> 和 <code class="docutils literal notranslate"><span class="pre">comp</span></code> 参数如所述 <a class="reference internal" href="#texture-gather"><span class="std std-ref">纹理聚集</span></a>。</p>
 </section>
 <section id="tex2dgather-for-sparse-cuda-arrays">
 <span id="tex2dgather-object-sparse"></span><h4>
@@ -8113,7 +8113,7 @@ html
 <span class="n">T</span><span class="w"> </span><span class="n">tex1DLayered</span><span class="p">(</span><span class="n">cudaTextureObject_t</span><span class="w"> </span><span class="n">texObj</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">layer</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
-<p>从一维纹理对象指定的 CUDA 数组中获取 <code class="docutils literal notranslate"><span class="pre">texObj</span></code> 使用纹理坐标 <code class="docutils literal notranslate"><span class="pre">x</span></code> 和索引 <code class="docutils literal notranslate"><span class="pre">layer</span></code>，如中所述 <a class="reference internal" href="#layered-textures"><span class="std std-ref">分层纹理</span></a>.</p>
+<p>从一维纹理对象指定的 CUDA 数组中获取 <code class="docutils literal notranslate"><span class="pre">texObj</span></code> 使用纹理坐标 <code class="docutils literal notranslate"><span class="pre">x</span></code> 和索引 <code class="docutils literal notranslate"><span class="pre">layer</span></code>，如中所述 <a class="reference internal" href="#layered-textures"><span class="std std-ref">分层纹理</span></a>。</p>
 </section>
 <section id="tex1dlayeredlod">
 <span id="tex1dlayeredlod-object"></span><h4>
@@ -8148,7 +8148,7 @@ html
 <span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">layer</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
-<p>从二维纹理对象指定的 CUDA 数组中获取 <code class="docutils literal notranslate"><span class="pre">texObj</span></code> 使用纹理坐标 <code class="docutils literal notranslate"><span class="pre">(x,y)</span></code> 和索引 <code class="docutils literal notranslate"><span class="pre">layer</span></code>，如中所述 <a class="reference internal" href="#layered-textures"><span class="std std-ref">分层纹理</span></a>.</p>
+<p>从二维纹理对象指定的 CUDA 数组中获取 <code class="docutils literal notranslate"><span class="pre">texObj</span></code> 使用纹理坐标 <code class="docutils literal notranslate"><span class="pre">(x,y)</span></code> 和索引 <code class="docutils literal notranslate"><span class="pre">layer</span></code>，如中所述 <a class="reference internal" href="#layered-textures"><span class="std std-ref">分层纹理</span></a>。</p>
 </section>
 <section id="tex2dlayered-for-sparse-cuda-arrays">
 <span id="tex2dlayered-object-sparse"></span><h4>
@@ -8219,7 +8219,7 @@ html
 <span class="n">T</span><span class="w"> </span><span class="n">texCubemap</span><span class="p">(</span><span class="n">cudaTextureObject_t</span><span class="w"> </span><span class="n">texObj</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">z</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
-<p>获取由立方体贴图纹理对象指定的 CUDA 数组 <code class="docutils literal notranslate"><span class="pre">texObj</span></code> 使用纹理坐标 <code class="docutils literal notranslate"><span class="pre">(x,y,z)</span></code>，如中所述 <a class="reference internal" href="#cubemap-textures"><span class="std std-ref">立方体贴图纹理</span></a>.</p>
+<p>获取由立方体贴图纹理对象指定的 CUDA 数组 <code class="docutils literal notranslate"><span class="pre">texObj</span></code> 使用纹理坐标 <code class="docutils literal notranslate"><span class="pre">(x,y,z)</span></code>，如中所述 <a class="reference internal" href="#cubemap-textures"><span class="std std-ref">立方体贴图纹理</span></a>。</p>
 </section>
 <section id="texcubemapgrad">
 <span id="texcubemapgrad-object"></span><h4>
@@ -8255,7 +8255,7 @@ html
 <span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">z</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">layer</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
-<p>从立方体贴图分层纹理对象指定的 CUDA 数组中获取 <code class="docutils literal notranslate"><span class="pre">texObj</span></code> 使用纹理坐标 <code class="docutils literal notranslate"><span class="pre">(x,y,z)</span></code>，和索引 <code class="docutils literal notranslate"><span class="pre">layer</span></code>，如中所述 <a class="reference internal" href="#cubemap-layered-textures"><span class="std std-ref">立方体贴图分层纹理</span></a>.</p>
+<p>从立方体贴图分层纹理对象指定的 CUDA 数组中获取 <code class="docutils literal notranslate"><span class="pre">texObj</span></code> 使用纹理坐标 <code class="docutils literal notranslate"><span class="pre">(x,y,z)</span></code>，和索引 <code class="docutils literal notranslate"><span class="pre">layer</span></code>，如中所述 <a class="reference internal" href="#cubemap-layered-textures"><span class="std std-ref">立方体贴图分层纹理</span></a>。</p>
 </section>
 <section id="texcubemaplayeredgrad">
 <span id="texcubemaplayeredgrad-object"></span><h4>
@@ -8288,7 +8288,7 @@ html
 <span class="section-number">10.9. </span>表面功能<a class="headerlink" href="#surface-functions" title="跳转到此标题"></a>
 </h2>
 <p>Surface 函数仅受计算能力 2.0 及更高版本的设备支持。</p>
-<p>表面对象的描述见 <a class="reference internal" href="#surface-object-api-appendix"><span class="std std-ref">表面对象API</span></a>.</p>
+<p>表面对象的描述见 <a class="reference internal" href="#surface-object-api-appendix"><span class="std std-ref">表面对象API</span></a>。</p>
 <p>在下面的部分中， <code class="docutils literal notranslate"><span class="pre">boundaryMode</span></code> 指定边界模式，即如何处理超出范围的表面坐标；它等于 <code class="docutils literal notranslate"><span class="pre">cudaBoundaryModeClamp</span></code>，在这种情况下，超出范围的坐标将被限制在有效范围内，或者 <code class="docutils literal notranslate"><span class="pre">cudaBoundaryModeZero</span></code>，在这种情况下，超出范围的读取返回零并且超出范围的写入被忽略，或者 <code class="docutils literal notranslate"><span class="pre">cudaBoundaryModeTrap</span></code>，在这种情况下，超出范围的访问会导致内核执行失败。</p>
 <section id="surface-object-api-appendix">
 <span id="id167"></span><h3>
@@ -8576,7 +8576,7 @@ html
 <p>原子函数对驻留在全局或共享内存中的一个 32 位、64 位或 128 位字执行读取-修改-写入原子操作。如果是 <code class="docutils literal notranslate"><span class="pre">float2</span></code> 或 <code class="docutils literal notranslate"><span class="pre">float4</span></code>，对驻留在全局内存中的向量的每个元素执行读取-修改-写入操作。例如， <code class="docutils literal notranslate"><span class="pre">atomicAdd()</span></code> 读取全局或共享内存中某个地址的字，向其添加一个数字，然后将结果写回同一地址。原子函数只能在设备函数中使用。</p>
 <p>本节中描述的原子函数具有顺序 <a class="reference external" href="https://en.cppreference.com/w/cpp/atomic/memory_order">cuda::memory_order_relaxed</a> 并且仅在特定的情况下是原子的 <a class="reference external" href="https://nvidia.github.io/libcudacxx/extended_api/memory_model.html#thread-scopes">范围</a>:</p>
 <ul class="simple">
-<li><p>原子 API 具有 <code class="docutils literal notranslate"><span class="pre">_system</span></code> 后缀（例如： <code class="docutils literal notranslate"><span class="pre">atomicAdd_system</span></code>) 在范围内是原子的 <code class="docutils literal notranslate"><span class="pre">cuda::thread_scope_system</span></code> 如果他们遇到特定的 <a class="reference external" href="https://nvidia.github.io/libcudacxx/extended_api/memory_model.html#atomicity">状况</a>.</p></li>
+<li><p>原子 API 具有 <code class="docutils literal notranslate"><span class="pre">_system</span></code> 后缀（例如： <code class="docutils literal notranslate"><span class="pre">atomicAdd_system</span></code>) 在范围内是原子的 <code class="docutils literal notranslate"><span class="pre">cuda::thread_scope_system</span></code> 如果他们遇到特定的 <a class="reference external" href="https://nvidia.github.io/libcudacxx/extended_api/memory_model.html#atomicity">状况</a>。</p></li>
 <li><p>不带后缀的原子 API（例如： <code class="docutils literal notranslate"><span class="pre">atomicAdd</span></code>) 在范围内是原子的 <code class="docutils literal notranslate"><span class="pre">cuda::thread_scope_device</span></code>.</p></li>
 <li><p>原子 API 具有 <code class="docutils literal notranslate"><span class="pre">_block</span></code> 后缀（例如： <code class="docutils literal notranslate"><span class="pre">atomicAdd_block</span></code>) 在范围内是原子的 <code class="docutils literal notranslate"><span class="pre">cuda::thread_scope_block</span></code>.</p></li>
 </ul>
@@ -8692,7 +8692,7 @@ html
 <span class="p">};</span><span class="w"></span>
 </pre></div>
 </div>
-<p>内存顺序对应 <a class="reference external" href="https://en.cppreference.com/w/cpp/atomic/memory_order">C++标准原子操作的内存顺序</a>。对于线程作用域，我们遵循 cuda::thread_scope 的 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_model.html#thread-scopes">定义</a>.</p>
+<p>内存顺序对应 <a class="reference external" href="https://en.cppreference.com/w/cpp/atomic/memory_order">C++标准原子操作的内存顺序</a>。对于线程作用域，我们遵循 cuda::thread_scope 的 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_model.html#thread-scopes">定义</a>。</p>
 <p><code class="docutils literal notranslate"><span class="pre">__NV_ATOMIC_CONSUME</span></code> 目前内存顺序是使用更强的实现的 <code class="docutils literal notranslate"><span class="pre">__NV_ATOMIC_ACQUIRE</span></code> 记忆顺序。</p>
 <p><code class="docutils literal notranslate"><span class="pre">__NV_THREAD_SCOPE_THREAD</span></code> 线程作用域目前使用更广泛的实现 <code class="docutils literal notranslate"><span class="pre">__NV_THREAD_SCOPE_BLOCK</span></code> 线程作用域。</p>
 <p>支持的数据类型请参考不同原子操作对应的章节。</p>
@@ -9482,7 +9482,7 @@ html
 <p><code class="docutils literal notranslate"><span class="pre">__assume()</span></code> 仅在使用时支持 <code class="docutils literal notranslate"><span class="pre">cl.exe</span></code> 主机编译器。其他功能在所有平台上均受支持，但受以下限制：</p>
 <ul class="simple">
 <li><p>如果主机编译器支持该函数，则可以从翻译单元中的任何位置调用该函数。</p></li>
-<li><p>否则，必须从 a 的主体内调用该函数 <code class="docutils literal notranslate"><span class="pre">__device__</span></code>/ <code class="docutils literal notranslate"><span class="pre">__global__</span></code>函数，或者仅当 <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH__</span></code> 宏已定义<a class="footnote-reference brackets" href="#fn12" id="id170">5</a>.</p></li>
+<li><p>否则，必须从 a 的主体内调用该函数 <code class="docutils literal notranslate"><span class="pre">__device__</span></code>/ <code class="docutils literal notranslate"><span class="pre">__global__</span></code>函数，或者仅当 <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH__</span></code> 宏已定义<a class="footnote-reference brackets" href="#fn12" id="id170">5</a>。</p></li>
 </ul>
 </section>
 </section>
@@ -9529,7 +9529,7 @@ html
 <span id="id172"></span><h2>
 <span class="section-number">10.20. </span>Warp Match Functions<a class="headerlink" href="#warp-match-functions" title="跳转到此标题"></a>
 </h2>
-<p><code class="docutils literal notranslate"><span class="pre">__match_any_sync</span></code> 和 <code class="docutils literal notranslate"><span class="pre">__match_all_sync</span></code> 在线程内的线程之间执行变量的广播和比较操作 <a class="reference internal" href="#simt-architecture"><span class="std std-ref">经</span></a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">__match_any_sync</span></code> 和 <code class="docutils literal notranslate"><span class="pre">__match_all_sync</span></code> 在线程内的线程之间执行变量的广播和比较操作 <a class="reference internal" href="#simt-architecture"><span class="std std-ref">经</span></a>。</p>
 <p>受计算能力 7.x 或更高版本的设备支持。</p>
 <section id="synopsis-match">
 <span id="id173"></span><h3>
@@ -9613,7 +9613,7 @@ html
 <span id="id177"></span><h2>
 <span class="section-number">10.22. </span>Warp Shuffle Functions<a class="headerlink" href="#warp-shuffle-functions" title="跳转到此标题"></a>
 </h2>
-<p><code class="docutils literal notranslate"><span class="pre">__shfl_sync</span></code>, <code class="docutils literal notranslate"><span class="pre">__shfl_up_sync</span></code>, <code class="docutils literal notranslate"><span class="pre">__shfl_down_sync</span></code>，以及 <code class="docutils literal notranslate"><span class="pre">__shfl_xor_sync</span></code> 在线程之间交换变量 <a class="reference internal" href="#simt-architecture"><span class="std std-ref">经</span></a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">__shfl_sync</span></code>, <code class="docutils literal notranslate"><span class="pre">__shfl_up_sync</span></code>, <code class="docutils literal notranslate"><span class="pre">__shfl_down_sync</span></code>，以及 <code class="docutils literal notranslate"><span class="pre">__shfl_xor_sync</span></code> 在线程之间交换变量 <a class="reference internal" href="#simt-architecture"><span class="std std-ref">经</span></a>。</p>
 <p>计算能力5.0或更高的设备支持。</p>
 <p>弃用通知： <code class="docutils literal notranslate"><span class="pre">__shfl</span></code>, <code class="docutils literal notranslate"><span class="pre">__shfl_up</span></code>, <code class="docutils literal notranslate"><span class="pre">__shfl_down</span></code>，以及 <code class="docutils literal notranslate"><span class="pre">__shfl_xor</span></code> 已在所有设备的 CUDA 9.0 中弃用。</p>
 <p>删除通知：当目标设备具有计算能力 7.x 或更高版本时， <code class="docutils literal notranslate"><span class="pre">__shfl</span></code>, <code class="docutils literal notranslate"><span class="pre">__shfl_up</span></code>, <code class="docutils literal notranslate"><span class="pre">__shfl_down</span></code>，以及 <code class="docutils literal notranslate"><span class="pre">__shfl_xor</span></code> 不再可用，应改用其同步变体。</p>
@@ -10236,7 +10236,7 @@ html
 <li><p>三个参数，使用 ReLU，将（第一个 + 第二个）与第三个和零进行比较： <code class="docutils literal notranslate"><span class="pre">__viaddmax_s32_relu</span></code>, <code class="docutils literal notranslate"><span class="pre">__viaddmax_s16x2_relu</span></code>, <code class="docutils literal notranslate"><span class="pre">__viaddmin_s32_relu</span></code>, <code class="docutils literal notranslate"><span class="pre">__viaddmin_s16x2_relu</span></code></p></li>
 </ul>
 <p>这些指令在计算能力为 9 及更高的设备上进行硬件加速，在较旧的设备上进行软件模拟。</p>
-<p>完整的 API 可以在以下位置找到 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-math-api/cuda_math_api/group__CUDA__MATH__INTRINSIC__SIMD.html">CUDA 数学 API 文档</a>.</p>
+<p>完整的 API 可以在以下位置找到 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-math-api/cuda_math_api/group__CUDA__MATH__INTRINSIC__SIMD.html">CUDA 数学 API 文档</a>。</p>
 <p>DPX 在实现动态规划算法时特别有用，例如基因组学中的 Smith-Waterman 或 Needleman-Wunsch 以及路线优化中的 Floyd-Warshall。</p>
 <section id="dpx-example">
 <span id="id186"></span><h3>
@@ -10291,7 +10291,7 @@ html
 <span id="split-arrive-then-wait"></span><h3>
 <span class="section-number">10.26.1. </span>简单的同步模式<a class="headerlink" href="#simple-synchronization-pattern" title="跳转到此标题"></a>
 </h3>
-<p>没有到达/等待障碍，可以使用以下方式实现同​​步 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> （同步块中的所有线程）或 <code class="docutils literal notranslate"><span class="pre">group.sync()</span></code> 使用时 <a class="reference internal" href="#cooperative-groups"><span class="std std-ref">Cooperative Groups（协作组）</span></a>.</p>
+<p>没有到达/等待障碍，可以使用以下方式实现同​​步 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> （同步块中的所有线程）或 <code class="docutils literal notranslate"><span class="pre">group.sync()</span></code> 使用时 <a class="reference internal" href="#cooperative-groups"><span class="std std-ref">Cooperative Groups（协作组）</span></a>。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cooperative_groups.h&gt;</span><span class="cp"></span>
 
@@ -11265,7 +11265,7 @@ html
 <li><p>至少具有 ISO C++ 2011 兼容性，例如，可使用 <code class="docutils literal notranslate"><span class="pre">-std=c++11</span></code>， 和</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">#include</span><span class="pre">&lt;cuda/pipeline&gt;</span></code>.</p></li>
 </ul>
-<p>对于类似 C 的接口，在不兼容 ISO C++ 2011 的情况下进行编译时，请参阅 <a class="reference internal" href="#pipeline-primitives-interface"><span class="std std-ref">管道原语接口</span></a>.</p>
+<p>对于类似 C 的接口，在不兼容 ISO C++ 2011 的情况下进行编译时，请参阅 <a class="reference internal" href="#pipeline-primitives-interface"><span class="std std-ref">管道原语接口</span></a>。</p>
 </section>
 <section id="pipeline-primitives-interface">
 <span id="id192"></span><h3>
@@ -11365,7 +11365,7 @@ html
 <code class="docutils literal notranslate"><span class="pre">sm_90a</span></code>.</p>
 <p><strong>异步</strong>。使用 TMA 的数据传输是 <a class="reference internal" href="#asynchronous-simt-programming-model"><span class="std std-ref">异步</span></a>。这允许发起线程继续计算，同时硬件异步复制数据。
 <strong>实际上数据传输是否异步发生取决于硬件实现，并且将来可能会改变</strong>。有几个 <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-asynchronous-copy-completion-mechanisms">完成机制</a>
-批量异步操作可以用来表示它们已完成。当操作从全局内存读取到共享内存时，块中的任何线程都可以通过等待 <a class="reference internal" href="#aw-barrier"><span class="std std-ref">共享内存屏障</span></a>。当批量异步操作将数据从共享内存写入全局或分布式共享内存时，只有发起线程可以等待操作完成。这是使用一个 <em>批量异步组</em> 基于完成机制。描述完成机制的表格可以在下面和中找到 <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk">PTX ISA</a>.</p>
+批量异步操作可以用来表示它们已完成。当操作从全局内存读取到共享内存时，块中的任何线程都可以通过等待 <a class="reference internal" href="#aw-barrier"><span class="std std-ref">共享内存屏障</span></a>。当批量异步操作将数据从共享内存写入全局或分布式共享内存时，只有发起线程可以等待操作完成。这是使用一个 <em>批量异步组</em> 基于完成机制。描述完成机制的表格可以在下面和中找到 <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-bulk">PTX ISA</a>。</p>
 <table class="small colwidths-auto docutils align-center" id="table-tma-source-dest-state-spaces">
 <caption>
 <span class="caption-number">表8 </span><span class="caption-text">具有可能的源和目标内存空间以及完成机制的异步副本。空单元格表示不支持源-目标对。</span><a class="headerlink" href="#table-tma-source-dest-state-spaces" title="跳转到此表格"></a>
@@ -11514,7 +11514,7 @@ html
 <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-mbarrier-tracking-async-operations">交易数量</a>
 完成读取后的共享内存屏障。一般来说，发出尽可能少的大容量副本可以获得最佳性能。由于复制可以由硬件异步执行，因此无需将复制分割成更小的块。</p>
 <p>启动批量异步复制操作的线程使用以下命令到达屏障 <code class="docutils literal notranslate"><span class="pre">mbarrier.expect_tx</span></code>。这是自动执行的 <code class="docutils literal notranslate"><span class="pre">cuda::memcpy_async</span></code>。这告诉屏障线程已经到达以及预计到达多少字节（tx/事务）。只有一个线程必须更新预期的事务计数。如果多个线程更新事务计数，则预期事务将是更新的总和。只有当所有线程都到达时，屏障才会翻转 <strong>和</strong>
-所有字节均已到达。一旦屏障翻转，字节就可以安全地从共享内存中读取，无论是通过线程还是通过后续的批量异步副本。有关障碍交易会计的更多信息，请参阅 <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-mbarrier-tracking-async-operations">PTX ISA</a>.</p>
+所有字节均已到达。一旦屏障翻转，字节就可以安全地从共享内存中读取，无论是通过线程还是通过后续的批量异步副本。有关障碍交易会计的更多信息，请参阅 <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-mbarrier-tracking-async-operations">PTX ISA</a>。</p>
 <p><strong>障碍等待</strong>。等待障碍物翻转是使用
 <code class="docutils literal notranslate"><span class="pre">mbarrier.try_wait</span></code>。它可以返回 true，表明等待结束，也可以返回 false，这可能意味着等待超时。 while 循环等待完成，并在超时时重试。</p>
 <p><strong>SMEM写入和同步</strong>。缓冲区值的增量读取和写入 共享内存。为了使写入对后续批量异步副本可见，
@@ -11565,7 +11565,7 @@ html
 <p>一维和多维情况之间的主要区别在于，必须在主机上创建张量图并将其传递到 CUDA 内核。本节介绍如何使用 CUDA 驱动程序 API 创建张量映射、如何将其传递到设备以及如何在设备上使用它。</p>
 <p><strong>驱动程序 API</strong>。使用以下命令创建张量图 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__TENSOR__MEMORY.html">cuTensorMapEncodeTiled</a>
 驱动程序 API。可以通过直接链接到驱动程序来访问此 API (<code class="docutils literal notranslate"><span class="pre">-lcuda</span></code>）或通过使用 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__DRIVER__ENTRY__POINT.html">cudaGetDriverEntryPointByVersion</a>
-API。下面，我们展示如何获取指向 <code class="docutils literal notranslate"><span class="pre">cuTensorMapEncodeTiled</span></code> API。欲了解更多信息，请参阅 <a class="reference internal" href="#driver-entry-point-access"><span class="std std-ref">驱动程序入口点访问</span></a>.</p>
+API。下面，我们展示如何获取指向 <code class="docutils literal notranslate"><span class="pre">cuTensorMapEncodeTiled</span></code> API。欲了解更多信息，请参阅 <a class="reference internal" href="#driver-entry-point-access"><span class="std std-ref">驱动程序入口点访问</span></a>。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cudaTypedefs.h&gt;</span><span class="c1"> // PFN_cuTensorMapEncodeTiled, CUtensorMap</span><span class="cp"></span>
 
@@ -11751,7 +11751,7 @@ API。下面，我们展示如何获取指向 <code class="docutils literal notr
 </div>
 <p><strong>负指数和越界</strong>。当正在使用的瓷砖的一部分
 <em>读</em> 从全局内存到 共享内存是越界的，越界区域对应的共享内存被补零。图块的左上角索引也可能为负。什么时候 <em>写作</em> 从共享内存到全局内存，图块的某些部分可能超出范围，但左上角不能有任何负索引。</p>
-<p><strong>尺寸和步幅</strong>。张量的大小是沿一维的元素数量。所有尺寸必须大于一。步长是相同维度的元素之间的字节数。例如，一个 <cite>4×4</cite> 整数矩阵的大小为 4 和 4。由于每个元素有 4 个字节，因此步幅为 4 和 16 个字节。由于对齐要求， <cite>4×3</cite> 行主整数矩阵的步长也必须为 4 和 16 字节。每行都填充 4 个额外字节，以确保下一行的开头与 16 字节对齐。有关对齐的更多信息，请参阅 <a class="reference internal" href="#table-alignment-multi-dim-tma"><span class="std std-numref">表10</span></a>.</p>
+<p><strong>尺寸和步幅</strong>。张量的大小是沿一维的元素数量。所有尺寸必须大于一。步长是相同维度的元素之间的字节数。例如，一个 <cite>4×4</cite> 整数矩阵的大小为 4 和 4。由于每个元素有 4 个字节，因此步幅为 4 和 16 个字节。由于对齐要求， <cite>4×3</cite> 行主整数矩阵的步长也必须为 4 和 16 字节。每行都填充 4 个额外字节，以确保下一行的开头与 16 字节对齐。有关对齐的更多信息，请参阅 <a class="reference internal" href="#table-alignment-multi-dim-tma"><span class="std std-numref">表10</span></a>。</p>
 <table class="docutils align-default" id="table-alignment-multi-dim-tma">
 <caption>
 <span class="caption-number">表10 </span><span class="caption-text">Compute Capability 9.0 中多维批量张量异步复制操作的对齐要求。</span><a class="headerlink" href="#table-alignment-multi-dim-tma" title="跳转到此表格"></a>
@@ -12203,7 +12203,7 @@ PTX 指令被标记为特定于 sm_90a。要使用它们，请使用以下命令
 </div>
 <div class="admonition note">
 <p class="admonition-title">注意</p>
-<p>仅支持平铺类型张量图的设备端修改；其他张量贴图类型无法在设备上修改。有关张量映射类型的更多信息，请参阅 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__TENSOR__MEMORY.html#group__CUDA__TENSOR__MEMORY">驱动程序API参考</a>.</p>
+<p>仅支持平铺类型张量图的设备端修改；其他张量贴图类型无法在设备上修改。有关张量映射类型的更多信息，请参阅 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__TENSOR__MEMORY.html#group__CUDA__TENSOR__MEMORY">驱动程序API参考</a>。</p>
 </div>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cuda/ptx&gt;</span><span class="cp"></span>
@@ -12862,7 +12862,7 @@ Hello thread 3, f=1.2345
 <p>如果每个块执行的线程数超过其启动限制，则内核将无法启动 <code class="docutils literal notranslate"><span class="pre">maxThreadsPerBlock</span></code>.</p>
 <p>如果每个集群的线程块数多于其启动限制，则内核将无法启动 <code class="docutils literal notranslate"><span class="pre">maxBlocksPerCluster</span></code>.</p>
 <p>CUDA 内核所需的每个线程资源可能会以不需要的方式限制最大块大小。为了保持对未来硬件和工具包的前向兼容性，并确保至少一个线程块可以在 SM 上运行，开发人员应包含单个参数 <code class="docutils literal notranslate"><span class="pre">__launch_bounds__(maxThreadsPerBlock)</span></code> 它指定内核启动时使用的最大块大小。否则可能会导致“启动时请求的资源过多”错误。提供两个参数版本 <code class="docutils literal notranslate"><span class="pre">__launch_bounds__(maxThreadsPerBlock,minBlocksPerMultiprocessor)</span></code> 在某些情况下可以提高性能。正确的值 <code class="docutils literal notranslate"><span class="pre">minBlocksPerMultiprocessor</span></code> 应使用详细的每个内核分析来确定。</p>
-<p>给定内核的最佳启动范围通常会因主要架构修订而异。下面的示例代码显示了通常如何在设备代码中使用 <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH__</span></code> 宏引入于 <a class="reference internal" href="#application-compatibility"><span class="std std-ref">应用兼容性</span></a>.</p>
+<p>给定内核的最佳启动范围通常会因主要架构修订而异。下面的示例代码显示了通常如何在设备代码中使用 <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH__</span></code> 宏引入于 <a class="reference internal" href="#application-compatibility"><span class="std std-ref">应用兼容性</span></a>。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="cp">#define THREADS_PER_BLOCK 256</span>
 <span class="cp">#if __CUDA_ARCH__ &gt;= 200</span>
@@ -13078,7 +13078,7 @@ Hello thread 3, f=1.2345
 <span class="section-number">10.43. </span>自定义 ABI 指令<a class="headerlink" href="#custom-abi-pragmas" title="跳转到此标题"></a>
 </h2>
 <p><code class="docutils literal notranslate"><span class="pre">#pragma</span><span class="pre">nv_abi</span></code> 指令使得以单独编译模式编译的应用程序能够获得类似于整个程序编译的性能。</p>
-<p>使用此编译指示的语法如下，其中 ICE 指任何整型const表达式 (ICE)： <a class="footnote-reference brackets" href="#fn13" id="id206">6</a>.</p>
+<p>使用此编译指示的语法如下，其中 ICE 指任何整型const表达式 (ICE)： <a class="footnote-reference brackets" href="#fn13" id="id206">6</a>。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="cp">#pragma nv_abi preserve_n_data(ICE) preserve_n_control(ICE)</span>
 </pre></div>
@@ -13135,13 +13135,13 @@ Hello thread 3, f=1.2345
 <span id="cuda-cpp-memory-model"></span><h2>
 <span class="section-number">10.44. </span>CUDA C++ 内存模型<a class="headerlink" href="#cuda-c-memory-model" title="跳转到此标题"></a>
 </h2>
-<p>CUDA C++ 内存模型扩展了 ISO C++ 内存模型，如 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_model.html">CUDA C++ 内存模型文档</a>.</p>
+<p>CUDA C++ 内存模型扩展了 ISO C++ 内存模型，如 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_model.html">CUDA C++ 内存模型文档</a>。</p>
 </section>
 <section id="cuda-c-execution-model">
 <span id="cuda-cpp-execution-model"></span><h2>
 <span class="section-number">10.45. </span>CUDA C++ 执行模型<a class="headerlink" href="#cuda-c-execution-model" title="跳转到此标题"></a>
 </h2>
-<p>CUDA C++ 执行模型扩展了 ISO C++ 执行模型，如 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/execution_model.html">CUDA C++ 执行模型文档</a>.</p>
+<p>CUDA C++ 执行模型扩展了 ISO C++ 执行模型，如 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/execution_model.html">CUDA C++ 执行模型文档</a>。</p>
 </section>
 </section>
 <section id="cooperative-groups">
@@ -13176,7 +13176,7 @@ Hello thread 3, f=1.2345
 <span class="section-number">11.2.2. </span>CUDA 12.2<a class="headerlink" href="#cuda-12-2" title="跳转到此标题"></a>
 </h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">barrier_arrive</span></code> 和 <code class="docutils literal notranslate"><span class="pre">barrier_wait</span></code> 添加了成员​​函数 <a class="reference internal" href="#grid-group-cg"><span class="std std-ref">网格组</span></a> 和 <a class="reference internal" href="#thread-block-group-cg"><span class="std std-ref">线程块</span></a>。 API 说明可用 <a class="reference internal" href="#collectives-cg-sync"><span class="std std-ref">这里</span></a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">barrier_arrive</span></code> 和 <code class="docutils literal notranslate"><span class="pre">barrier_wait</span></code> 添加了成员​​函数 <a class="reference internal" href="#grid-group-cg"><span class="std std-ref">网格组</span></a> 和 <a class="reference internal" href="#thread-block-group-cg"><span class="std std-ref">线程块</span></a>。 API 说明可用 <a class="reference internal" href="#collectives-cg-sync"><span class="std std-ref">这里</span></a>。</p></li>
 </ul>
 </section>
 <section id="cuda-12-1">
@@ -14256,7 +14256,7 @@ Hello thread 3, f=1.2345
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">invoke_one</span></code> 从调用中选择单个任意线程 <code class="docutils literal notranslate"><span class="pre">group</span></code> 并使用该线程调用提供的可调用项 <code class="docutils literal notranslate"><span class="pre">fn</span></code> 与提供的参数 <code class="docutils literal notranslate"><span class="pre">args</span></code>。如果出现以下情况 <code class="docutils literal notranslate"><span class="pre">invoke_one_broadcast</span></code> 调用的结果也会分发到组中的所有线程，并从该集合中返回。</p>
 <p>调用组可以在调用提供的调用之前和/或之后与所选线程同步。这意味着在提供的可调用主体内不允许调用组内的通信，否则无法保证转发进度。在所提供的调用体中允许与调用组之外的线程进行通信。线程选择机制是 <strong>不是</strong> 保证是确定性的。</p>
-<p>在具有计算能力 9.0 或更高版本的设备上，可以使用硬件加速在调用时选择线程 <a class="reference internal" href="#group-types-explicit-cg"><span class="std std-ref">显式组类型</span></a>.</p>
+<p>在具有计算能力 9.0 或更高版本的设备上，可以使用硬件加速在调用时选择线程 <a class="reference internal" href="#group-types-explicit-cg"><span class="std std-ref">显式组类型</span></a>。</p>
 <p><code class="docutils literal notranslate"><span class="pre">group</span></code>：所有团体类型均有效 <code class="docutils literal notranslate"><span class="pre">invoke_one</span></code>, <code class="docutils literal notranslate"><span class="pre">coalesced_group</span></code> 和 <code class="docutils literal notranslate"><span class="pre">thread_block_tile</span></code> 有效期为 <code class="docutils literal notranslate"><span class="pre">invoke_one_broadcast</span></code>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">fn</span></code>：可以使用调用的函数或对象 <code class="docutils literal notranslate"><span class="pre">operator()</span></code>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">args</span></code>：与所提供的调用的参数类型匹配的类型参数包 <code class="docutils literal notranslate"><span class="pre">fn</span></code>.</p>
@@ -14435,7 +14435,7 @@ Hello thread 3, f=1.2345
 <span id="api-details-clc"></span><h2>
 <span class="section-number">12.2. </span>集群启动控制 API 详细信息<a class="headerlink" href="#cluster-launch-control-api-details" title="跳转到此标题"></a>
 </h2>
-<p>通过集群启动控制 API 取消线程块是异步完成的，并使用内存屏障进行同步，遵循类似于以下的编程模式 <a class="reference internal" href="#memcpy-async-barrier"><span class="std std-ref">异步数据复制</span></a>.</p>
+<p>通过集群启动控制 API 取消线程块是异步完成的，并使用内存屏障进行同步，遵循类似于以下的编程模式 <a class="reference internal" href="#memcpy-async-barrier"><span class="std std-ref">异步数据复制</span></a>。</p>
 <p>该 API 目前可通过
 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/ptx.html">库++</a>，提供将编码的取消结果写入到的请求指令 <code class="docutils literal notranslate"><span class="pre">__shared__</span></code> var,以及将结果解码为 <em>成功</em>/<em>失败</em> 标志和已取消线程块的索引（在这种情况下） <em>成功</em>.</p>
 <section id="thread-block-cancellation-steps">
@@ -15756,7 +15756,7 @@ $ nvcc -arch=sm_75 -rdc=true hello_world.o -o hello -lcudadevrt
 </h5>
 <p>参见上文 <a class="reference internal" href="#scope-of-cuda-primitives-cdp2"><span class="std std-ref">CUDA 基元的范围</span></a>（CDP2 版本）。</p>
 <p>在主机和设备上，CUDA 运行时都提供了一个 API，用于启动内核、等待启动的工作完成以及通过流和事件跟踪启动之间的依赖关系。在主机系统上，启动状态以及引用流和事件的 CUDA 原语由进程内的所有线程共享；然而，进程独立执行，且不能共享 CUDA 对象。</p>
-<p>设备上存在类似的层次结构：启动的内核和 CUDA 对象对线程块中的所有线程可见，但在线程块之间是独立的。这意味着例如流可以由一个线程创建并由同一线程块中的任何其他线程使用，但不能与任何其他线程块中的线程共享。</p>
+<p>设备上存在类似的层次结构：启动的内核和 CUDA 对象对线程块中的所有线程可见，但在线程块之间是独立的。这意味着，例如流可以由一个线程创建，并由同一线程块中的其他线程使用，但不能与其他线程块中的线程共享。</p>
 </section>
 <section id="synchronization-cdp1">
 <span id="id259"></span><h5>
@@ -18021,7 +18021,7 @@ cudaGraphAddNode(&amp;parentNode, parent, NULL, NULL, 0, &amp;childNodeParams);
 <p>本文档已由新版 <a class="reference external" href="http://docs.nvidia.com/cuda/cuda-programming-guide">CUDA 编程指南</a> 取代。本文内容应视为遗留信息，自 CUDA 13.0 起不再更新。有关 CUDA 的最新信息，请参阅新版 <a class="reference external" href="http://docs.nvidia.com/cuda/cuda-programming-guide">CUDA 编程指南</a>。</p>
 </div>
 <p>参考手册列出了设备代码中支持的 C/C++ 标准库数学函数的所有函数及其说明，以及所有内部函数（仅在设备代码中受支持）。</p>
-<p>本节提供其中一些功能（如果适用）的准确性信息。它使用 ULP 进行量化。有关最后位置单位 (ULP) 定义的更多信息，请参阅 Jean-Michel Muller 的论文 <em>关于 ulp(x) 的定义</em>，RR-5504，LIP RR-2005-09，INRIA，LIP。 2005 年，第 16 页 <a class="reference external" href="https://hal.inria.fr/inria-00070503/document">https://hal.inria.fr/inria-00070503/document</a>.</p>
+<p>本节提供其中一些功能（如果适用）的准确性信息。它使用 ULP 进行量化。有关最后位置单位 (ULP) 定义的更多信息，请参阅 Jean-Michel Muller 的论文 <em>关于 ulp(x) 的定义</em>，RR-5504，LIP RR-2005-09，INRIA，LIP。 2005 年，第 16 页 <a class="reference external" href="https://hal.inria.fr/inria-00070503/document">https://hal.inria.fr/inria-00070503/document</a>。</p>
 <p>设备代码中支持的数学函数不会设置全局 <code class="docutils literal notranslate"><span class="pre">errno</span></code> var,也不报告任何浮点异常以指示错误；因此，如果需要错误诊断机制，用户应对功能的输入和输出进行额外的筛选。用户对指针参数的有效性负责。用户不得将未初始化的参数传递给数学函数，因为这可能会导致未定义的行为：函数内联在用户程序中，因此会受到编译器优化的影响。</p>
 <section id="standard-functions">
 <span id="mathematical-functions-appendix-standard-functions"></span><h2>
@@ -18761,7 +18761,7 @@ cudaGraphAddNode(&amp;parentNode, parent, NULL, NULL, 0, &amp;childNodeParams);
 </tbody>
 </table>
 <p><strong>四精度浮点函数</strong></p>
-<p>请注意，四精度数学函数目前仅适用于计算能力为 10.0 及更高版本的设备。由于实施的具体情况，支持 <code class="docutils literal notranslate"><span class="pre">__float128</span></code> 和 <code class="docutils literal notranslate"><span class="pre">_Float128</span></code> 设备代码中的类型也仅限于主机平台的选择组合，另请参见 <a class="reference internal" href="#host-compiler-extensions"><span class="std std-ref">主机编译器扩展</span></a>.</p>
+<p>请注意，四精度数学函数目前仅适用于计算能力为 10.0 及更高版本的设备。由于实施的具体情况，支持 <code class="docutils literal notranslate"><span class="pre">__float128</span></code> 和 <code class="docutils literal notranslate"><span class="pre">_Float128</span></code> 设备代码中的类型也仅限于主机平台的选择组合，另请参见 <a class="reference internal" href="#host-compiler-extensions"><span class="std std-ref">主机编译器扩展</span></a>。</p>
 <table class="table-no-stripes docutils align-default" id="id481">
 <caption>
 <span class="caption-number">表19 </span><span class="caption-text">具有最大 ULP 误差的四精度数学标准库函数。最大误差表示为 CUDA 库函数返回的结果与根据舍入到最接近偶数舍入模式获得的正确舍入的四精度结果之间的 ulps 差异的绝对值。</span><a class="headerlink" href="#id481" title="跳转到此表格"></a>
@@ -19647,13 +19647,13 @@ cudaGraphAddNode(&amp;parentNode, parent, NULL, NULL, 0, &amp;childNodeParams);
 <span id="cpp17-language-features"></span><h2>
 <span class="section-number">18.3. </span>C++17 语言特性<a class="headerlink" href="#c-17-language-features" title="跳转到此标题"></a>
 </h2>
-<p>nvcc 版本 11.0 及更高版本支持所有 C++17 语言功能，但受所述限制 <a class="reference internal" href="#cpp17"><span class="std std-ref">这里</span></a>.</p>
+<p>nvcc 版本 11.0 及更高版本支持所有 C++17 语言功能，但受所述限制 <a class="reference internal" href="#cpp17"><span class="std std-ref">这里</span></a>。</p>
 </section>
 <section id="c-20-language-features">
 <span id="cpp20-language-features"></span><h2>
 <span class="section-number">18.4. </span>C++20 语言特性<a class="headerlink" href="#c-20-language-features" title="跳转到此标题"></a>
 </h2>
-<p>nvcc 版本 12.0 及更高版本支持所有 C++20 语言功能，但须遵守所述限制 <a class="reference internal" href="#cpp20"><span class="std std-ref">这里</span></a>.</p>
+<p>nvcc 版本 12.0 及更高版本支持所有 C++20 语言功能，但须遵守所述限制 <a class="reference internal" href="#cpp20"><span class="std std-ref">这里</span></a>。</p>
 </section>
 <section id="language-restrictions">
 <span id="id323"></span><h2>
@@ -19730,7 +19730,7 @@ cudaGraphAddNode(&amp;parentNode, parent, NULL, NULL, 0, &amp;childNodeParams);
 </div>
 </li>
 <li>
-<p>在单独编译模式下，是否存在具有外部链接的函数或变量的定义不应取决于是否存在 <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH__</span></code> 被定义或在特定值上 <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH__</span></code><a class="footnote-reference brackets" href="#fn14" id="id326">7</a>.</p>
+<p>在单独编译模式下，是否存在具有外部链接的函数或变量的定义不应取决于是否存在 <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH__</span></code> 被定义或在特定值上 <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH__</span></code><a class="footnote-reference brackets" href="#fn14" id="id326">7</a>。</p>
 <p>例子：</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="cp">#if !defined(__CUDA_ARCH__)</span>
@@ -19801,7 +19801,7 @@ nvcc –arch=sm_80 a.o b.o
 <li><p>其类的所有基类的析构函数都可以认为是空的。</p></li>
 <li><p>对于其类的所有属于类类型（或其数组）的非静态数据成员，析构函数可以被认为是空的。</p></li>
 </ul>
-<p>在整个程序编译模式下编译时（该模式的说明参见nvcc用户手册）， <code class="docutils literal notranslate"><span class="pre">__device__</span></code>, <code class="docutils literal notranslate"><span class="pre">__shared__</span></code>, <code class="docutils literal notranslate"><span class="pre">__managed__</span></code> 和 <code class="docutils literal notranslate"><span class="pre">__constant__</span></code> 不能使用以下方法将变量定义为外部变量 <code class="docutils literal notranslate"><span class="pre">extern</span></code> 关键词。唯一的例外是动态分配 <code class="docutils literal notranslate"><span class="pre">__shared__</span></code> 中描述的变量 <a class="reference internal" href="#shared"><span class="std std-ref">__shared__</span></a>.</p>
+<p>在整个程序编译模式下编译时（该模式的说明参见nvcc用户手册）， <code class="docutils literal notranslate"><span class="pre">__device__</span></code>, <code class="docutils literal notranslate"><span class="pre">__shared__</span></code>, <code class="docutils literal notranslate"><span class="pre">__managed__</span></code> 和 <code class="docutils literal notranslate"><span class="pre">__constant__</span></code> 不能使用以下方法将变量定义为外部变量 <code class="docutils literal notranslate"><span class="pre">extern</span></code> 关键词。唯一的例外是动态分配 <code class="docutils literal notranslate"><span class="pre">__shared__</span></code> 中描述的变量 <a class="reference internal" href="#shared"><span class="std std-ref">__shared__</span></a>。</p>
 <p>在单独编译模式下编译时（该模式的说明参见nvcc用户手册）， <code class="docutils literal notranslate"><span class="pre">__device__</span></code>, <code class="docutils literal notranslate"><span class="pre">__shared__</span></code>, <code class="docutils literal notranslate"><span class="pre">__managed__</span></code> 和 <code class="docutils literal notranslate"><span class="pre">__constant__</span></code> 可以使用以下命令将变量定义为外部变量 <code class="docutils literal notranslate"><span class="pre">extern</span></code> 关键词。 <code class="docutils literal notranslate"><span class="pre">nvlink</span></code> 当找不到外部变量的定义时会生成错误（除非它是动态分配的） <code class="docutils literal notranslate"><span class="pre">__shared__</span></code> 多变的）。</p>
 </section>
 <section id="managed-memory-space-specifier">
@@ -20032,13 +20032,13 @@ CUDA::原子</label><div class="sd-tab-content docutils">
 </h4>
 <p><code class="docutils literal notranslate"><span class="pre">__constant__</span></code> 变量只能通过运行时函数从主机代码分配（<a class="reference internal" href="#device-memory"><span class="std std-ref">设备内存</span></a>）；它们不能从设备代码分配。</p>
 <p><code class="docutils literal notranslate"><span class="pre">__shared__</span></code> 变量不能将初始化作为其声明的一部分。</p>
-<p>不允许给定义的任何内置变量赋值 <a class="reference internal" href="#built-in-variables"><span class="std std-ref">内置变量</span></a>.</p>
+<p>不允许给定义的任何内置变量赋值 <a class="reference internal" href="#built-in-variables"><span class="std std-ref">内置变量</span></a>。</p>
 </section>
 <section id="address-operator">
 <span id="id332"></span><h4>
 <span class="section-number">18.5.5.2. </span>地址运算符<a class="headerlink" href="#address-operator" title="跳转到此标题"></a>
 </h4>
-<p>不允许获取定义在中的任何内置变量的地址 <a class="reference internal" href="#built-in-variables"><span class="std std-ref">内置变量</span></a>.</p>
+<p>不允许获取定义在中的任何内置变量的地址 <a class="reference internal" href="#built-in-variables"><span class="std std-ref">内置变量</span></a>。</p>
 </section>
 </section>
 <section id="run-time-type-information-rtti">
@@ -20322,7 +20322,7 @@ nvlink fatal : merge_elf failed
 <p>静态变量的声明中允许使用变量内存空间说明符 <code class="docutils literal notranslate"><span class="pre">V</span></code> 在函数的直接或嵌套块范围内 <code class="docutils literal notranslate"><span class="pre">F</span></code> 在哪里：</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">F</span></code> 是一个 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 或 <code class="docutils literal notranslate"><span class="pre">__device__</span></code>- 仅限功能。</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">F</span></code> 是一个 <code class="docutils literal notranslate"><span class="pre">__host__</span><span class="pre">__device__</span></code> 功能和 <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH__</span></code> 被定义 <a class="footnote-reference brackets" href="#fn17" id="id339">11</a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">F</span></code> 是一个 <code class="docutils literal notranslate"><span class="pre">__host__</span><span class="pre">__device__</span></code> 功能和 <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH__</span></code> 被定义 <a class="footnote-reference brackets" href="#fn17" id="id339">11</a>。</p></li>
 </ul>
 <p>如果声明中没有显式内存空间说明符 <code class="docutils literal notranslate"><span class="pre">V</span></code>，隐含的 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> 在设备编译期间假定说明符。</p>
 <p><code class="docutils literal notranslate"><span class="pre">V</span></code> 与在命名空间范围中声明的具有相同内存空间说明符的变量具有相同的初始化限制，例如 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> 变量不能有“非空”构造​​函数（请参阅 <a class="reference internal" href="#device-memory-specifiers"><span class="std std-ref">设备内存空间说明符</span></a>。</p>
@@ -20512,7 +20512,7 @@ nvlink fatal : merge_elf failed
 <p>只要类型 <code class="docutils literal notranslate"><span class="pre">C</span></code> 仅在主机或设备代码中使用，程序应该正常工作。</p>
 <p>传递类型的对象 <code class="docutils literal notranslate"><span class="pre">C</span></code> 主机和设备代码之间具有未定义的行为，例如，作为 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 函数或通过 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy*()</span></code> 来电。</p>
 <p>访问类型的对象 <code class="docutils literal notranslate"><span class="pre">C</span></code> 如果对象是在主机代码中创建的，或者设备代码中的任何子对象，或者调用设备代码中的成员函数，则具有未定义的行为。</p>
-<p>访问类型的对象 <code class="docutils literal notranslate"><span class="pre">C</span></code> 或主机代码中的任何子对象，或调用主机代码中的成员函数，如果该对象是在设备代码中创建的，则具有未定义的行为 <a class="footnote-reference brackets" href="#fn19" id="id349">12</a>.</p>
+<p>访问类型的对象 <code class="docutils literal notranslate"><span class="pre">C</span></code> 或主机代码中的任何子对象，或调用主机代码中的成员函数，如果该对象是在设备代码中创建的，则具有未定义的行为 <a class="footnote-reference brackets" href="#fn19" id="id349">12</a>。</p>
 </section>
 </section>
 <section id="templates">
@@ -20689,13 +20689,13 @@ nvlink fatal : merge_elf failed
 <span id="intel-compiler-specific"></span><h3>
 <span class="section-number">18.5.21. </span>Intel 主机编译器特定<a class="headerlink" href="#intel-host-compiler-specific" title="跳转到此标题"></a>
 </h3>
-<p>CUDA 前端编译器解析器无法识别 Intel 编译器支持的某些内部函数（例如 <code class="docutils literal notranslate"><span class="pre">icc</span></code>）。当使用Intel编译器作为主机编译器时， <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 因此将启用宏 <code class="docutils literal notranslate"><span class="pre">__INTEL_COMPILER_USE_INTRINSIC_PROTOTYPES</span></code> 在预处理期间。该宏允许在关联的头文件中显式声明英特尔编译器内部函数，从而允许 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 支持在主机代码中使用此类函数<a class="footnote-reference brackets" href="#fn20" id="id355">13</a>.</p>
+<p>CUDA 前端编译器解析器无法识别 Intel 编译器支持的某些内部函数（例如 <code class="docutils literal notranslate"><span class="pre">icc</span></code>）。当使用Intel编译器作为主机编译器时， <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 因此将启用宏 <code class="docutils literal notranslate"><span class="pre">__INTEL_COMPILER_USE_INTRINSIC_PROTOTYPES</span></code> 在预处理期间。该宏允许在关联的头文件中显式声明英特尔编译器内部函数，从而允许 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 支持在主机代码中使用此类函数<a class="footnote-reference brackets" href="#fn20" id="id355">13</a>。</p>
 </section>
 <section id="c-11-features">
 <span id="cpp11"></span><h3>
 <span class="section-number">18.5.22. </span>C++11 特性<a class="headerlink" href="#c-11-features" title="跳转到此标题"></a>
 </h3>
-<p>nvcc 也支持主机编译器默认启用的 C++11 功能，但须遵守本文档中描述的限制。此外，调用 nvcc <code class="docutils literal notranslate"><span class="pre">-std=c++11</span></code> flag 打开所有 C++11 功能，并使用相应的 C++11 方言选项调用主机预处理器、编译器和链接器 <a class="footnote-reference brackets" href="#fn21" id="id356">14</a>.</p>
+<p>nvcc 也支持主机编译器默认启用的 C++11 功能，但须遵守本文档中描述的限制。此外，调用 nvcc <code class="docutils literal notranslate"><span class="pre">-std=c++11</span></code> flag 打开所有 C++11 功能，并使用相应的 C++11 方言选项调用主机预处理器、编译器和链接器 <a class="footnote-reference brackets" href="#fn21" id="id356">14</a>。</p>
 <section id="lambda-expressions">
 <span id="id357"></span><h4>
 <span class="section-number">18.5.22.1. </span>拉姆达表达式<a class="headerlink" href="#lambda-expressions" title="跳转到此标题"></a>
@@ -20910,7 +20910,7 @@ nvlink fatal : merge_elf failed
 <span id="cpp11-global"></span><h4>
 <span class="section-number">18.5.22.8. </span>__global__ 函数和函数模板<a class="headerlink" href="#global-functions-and-function-templates" title="跳转到此标题"></a>
 </h4>
-<p>如果与 lambda 表达式关联的闭包类型用在 a 的模板参数中 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 函数模板实例化时，lambda 表达式必须在直接块作用域或嵌套块作用域中定义 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> 或 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 函数，或者必须是一个 <a class="reference internal" href="#extended-lambda"><span class="std std-ref">扩展的拉姆达</span></a>.</p>
+<p>如果与 lambda 表达式关联的闭包类型用在 a 的模板参数中 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 函数模板实例化时，lambda 表达式必须在直接块作用域或嵌套块作用域中定义 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> 或 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 函数，或者必须是一个 <a class="reference internal" href="#extended-lambda"><span class="std std-ref">扩展的拉姆达</span></a>。</p>
 <p>例子：</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span><span class="w"></span>
@@ -20989,7 +20989,7 @@ nvlink fatal : merge_elf failed
 <span id="cpp11-defaulted-function"></span><h4>
 <span class="section-number">18.5.22.10. </span>默认功能<a class="headerlink" href="#defaulted-functions" title="跳转到此标题"></a>
 </h4>
-<p>CUDA 编译器将忽略在第一个声明中显式默认的非虚拟函数的执行空间说明符。相反，CUDA 编译器将推断执行空间说明符，如中所述 <a class="reference internal" href="#compiler-generated-functions"><span class="std std-ref">隐式声明和非虚显式默认函数</span></a>.</p>
+<p>CUDA 编译器将忽略在第一个声明中显式默认的非虚拟函数的执行空间说明符。相反，CUDA 编译器将推断执行空间说明符，如中所述 <a class="reference internal" href="#compiler-generated-functions"><span class="std std-ref">隐式声明和非虚显式默认函数</span></a>。</p>
 <p>如果函数是以下任一情况，则不会忽略执行空间说明符：</p>
 <ul class="simple">
 <li><p>明确默认，但不在其第一次声明中。</p></li>
@@ -21379,7 +21379,7 @@ nvlink fatal : merge_elf failed
 <p>nvcc 旗帜 <code class="docutils literal notranslate"><span class="pre">'--extended-lambda'</span></code> 允许在 lambda 表达式中显式执行空间注释 <a class="footnote-reference brackets" href="#fn30" id="id375">23</a>。执行空间注释应出现在“lambda-introducer”之后和可选的“lambda-declarator”之前。 nvcc将定义宏 <code class="docutils literal notranslate"><span class="pre">__CUDACC_EXTENDED_LAMBDA__</span></code> 当 <code class="docutils literal notranslate"><span class="pre">'--extended-lambda'</span></code> 标志已被指定。</p>
 <p>一个‘扩展的 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> lambda’ 是一个 lambda 表达式，显式注释为 ‘<code class="docutils literal notranslate"><span class="pre">__device__</span></code>'，并在 a 的直接或嵌套块范围内定义 <code class="docutils literal notranslate"><span class="pre">__host__</span></code> 或 <code class="docutils literal notranslate"><span class="pre">__host__</span><span class="pre">__device__</span></code> 功能。</p>
 <p>一个‘扩展的 <code class="docutils literal notranslate"><span class="pre">__host__</span><span class="pre">__device__</span></code> lambda' 是一个 lambda 表达式，显式注释为“<code class="docutils literal notranslate"><span class="pre">__host__</span></code>' 和 '<code class="docutils literal notranslate"><span class="pre">__device__</span></code>'，并在 a 的直接或嵌套块范围内定义 <code class="docutils literal notranslate"><span class="pre">__host__</span></code> 或 <code class="docutils literal notranslate"><span class="pre">__host__</span><span class="pre">__device__</span></code> 功能。</p>
-<p>“扩展 lambda”表示扩展 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> lambda 或扩展 <code class="docutils literal notranslate"><span class="pre">__host__</span><span class="pre">__device__</span></code> 拉姆达。扩展 lambda 可以在类型参数中使用 <a class="reference internal" href="#cpp11-global"><span class="std std-ref">__global__ 函数模板实例化</span></a>.</p>
+<p>“扩展 lambda”表示扩展 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> lambda 或扩展 <code class="docutils literal notranslate"><span class="pre">__host__</span><span class="pre">__device__</span></code> 拉姆达。扩展 lambda 可以在类型参数中使用 <a class="reference internal" href="#cpp11-global"><span class="std std-ref">__global__ 函数模板实例化</span></a>。</p>
 <p>如果未显式指定执行空间注释，则会根据包含与 lambda 关联的闭包类的范围来计算它们，如 C++11 支持部分中所述。执行空间注释应用于与 lambda 关联的闭包类的所有方法。</p>
 <p>例子：</p>
 <div class="highlight-c++ notranslate">
@@ -21435,7 +21435,7 @@ nvlink fatal : merge_elf failed
 <p><code class="docutils literal notranslate"><span class="pre">__nv_is_extended_device_lambda_closure_type(type)</span></code>：如果“type”是为扩展创建的闭包类 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> lambda，则该特征为真，否则为假。</p>
 <p><code class="docutils literal notranslate"><span class="pre">__nv_is_extended_device_lambda_with_preserved_return_type(type)</span></code>：如果“type”是为扩展创建的闭包类 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> lambda 并且 lambda 是用尾随返回类型定义的（有限制），则该特征为 true，否则为 false。如果尾随返回类型定义引用任何 lambda 参数名称，则不会保留返回类型。</p>
 <p><code class="docutils literal notranslate"><span class="pre">__nv_is_extended_host_device_lambda_closure_type(type)</span></code>：如果“type”是为扩展创建的闭包类 <code class="docutils literal notranslate"><span class="pre">__host__</span><span class="pre">__device__</span></code> lambda，则该特征为真，否则为假。</p>
-<p>这些特征可以在所有编译模式下使用，无论是否启用 lambda 或扩展 lambda<a class="footnote-reference brackets" href="#fn31" id="id376">24</a>.</p>
+<p>这些特征可以在所有编译模式下使用，无论是否启用 lambda 或扩展 lambda<a class="footnote-reference brackets" href="#fn31" id="id376">24</a>。</p>
 <p>例子：</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="cp">#define IS_D_LAMBDA(X) __nv_is_extended_device_lambda_closure_type(X)</span>
@@ -21750,7 +21750,7 @@ nvlink fatal : merge_elf failed
 <li>
 <p>扩展 lambda 对捕获的变量有以下限制：</p>
 <ul class="simple">
-<li><p>在发送到主机编译器的代码中，变量可以按值传递到一系列辅助函数，然后用于直接初始化用于表示扩展 lambda 的闭包类型的类类型的字段<a class="footnote-reference brackets" href="#fn32" id="id378">25</a>.</p></li>
+<li><p>在发送到主机编译器的代码中，变量可以按值传递到一系列辅助函数，然后用于直接初始化用于表示扩展 lambda 的闭包类型的类类型的字段<a class="footnote-reference brackets" href="#fn32" id="id378">25</a>。</p></li>
 <li><p>变量只能通过值来捕获。</p></li>
 <li><p>如果数组维数大于 7，则无法捕获数组类型的变量。</p></li>
 <li><p>对于数组类型的var,在发送到主机编译器的代码中，首先默认初始化闭包类型的数组字段，然后从捕获的数组变量的相应元素复制分配数组字段的每个元素。因此，数组元素类型在主机代码中必须是可默认构造和复制分配的。</p></li>
@@ -21976,7 +21976,7 @@ nvlink fatal : merge_elf failed
 <span id="host-device-lambda-notes"></span><h3>
 <span class="section-number">18.7.3. </span>关于 __host__ __device__ lambda 的注释<a class="headerlink" href="#notes-on-host-device-lambdas" title="跳转到此标题"></a>
 </h3>
-<p>不像 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> 拉姆达表达式， <code class="docutils literal notranslate"><span class="pre">__host__</span><span class="pre">__device__</span></code> 可以从主机代码调用 lambda。如前所述，CUDA 编译器将主机代码中定义的扩展 lambda 表达式替换为命名占位符类型的实例。扩展的占位符类型 <code class="docutils literal notranslate"><span class="pre">__host__</span><span class="pre">__device__</span></code> lambda 调用原始 lambda <code class="docutils literal notranslate"><span class="pre">operator()</span></code> 通过间接函数调用 <a class="footnote-reference brackets" href="#fn31" id="id379">24</a>.</p>
+<p>不像 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> 拉姆达表达式， <code class="docutils literal notranslate"><span class="pre">__host__</span><span class="pre">__device__</span></code> 可以从主机代码调用 lambda。如前所述，CUDA 编译器将主机代码中定义的扩展 lambda 表达式替换为命名占位符类型的实例。扩展的占位符类型 <code class="docutils literal notranslate"><span class="pre">__host__</span><span class="pre">__device__</span></code> lambda 调用原始 lambda <code class="docutils literal notranslate"><span class="pre">operator()</span></code> 通过间接函数调用 <a class="footnote-reference brackets" href="#fn31" id="id379">24</a>。</p>
 <p>间接函数调用的存在可能会导致扩展 <code class="docutils literal notranslate"><span class="pre">__host__</span><span class="pre">__device__</span></code> 与隐式或显式的 lambda 相比，主机编译器对 lambda 的优化程度较低 <code class="docutils literal notranslate"><span class="pre">__host__</span></code> 仅有的。在后一种情况下，主机编译器可以轻松地将 lambda 正文内联到调用上下文中。但如果情况延长 <code class="docutils literal notranslate"><span class="pre">__host__</span><span class="pre">__device__</span></code> lambda，主机编译器遇到间接函数调用，可能无法轻松内联原始函数 <code class="docutils literal notranslate"><span class="pre">__host__</span><span class="pre">__device__</span></code> 拉姆达体。</p>
 </section>
 <section id="this-capture-by-value">
@@ -22696,7 +22696,7 @@ nvlink fatal : merge_elf failed
 <span class="section-number">20.1.3. </span>功能集编译器目标<a class="headerlink" href="#feature-set-compiler-targets" title="跳转到此标题"></a>
 </h3>
 <p>编译器可以针对三组计算功能：</p>
-<p><strong>基线功能集</strong>：主要的计算功能集，旨在供后续计算架构​​使用。这些功能及其可用性总结在 <a class="reference internal" href="#features-and-technical-specifications-feature-support-per-compute-capability"><span class="std std-numref">表26</span></a>.</p>
+<p><strong>基线功能集</strong>：主要的计算功能集，旨在供后续计算架构​​使用。这些功能及其可用性总结在 <a class="reference internal" href="#features-and-technical-specifications-feature-support-per-compute-capability"><span class="std std-numref">表26</span></a>。</p>
 <p><strong>特定于架构的功能集</strong>：一组小型且高度专业化的功能，称为特定于架构的功能，引入这些功能是为了加速专用操作，这些操作不能保证可用，或者可能在后续计算架构​​上发生重大变化。这些功能在相应的“计算能力#.#”小节中进行了总结。特定于体系结构的功能集是特定于系列的功能集的超集。特定于架构的编译器目标是随 Compute Capability 9.0 设备一起引入的，并通过使用 <strong>一个</strong> 编译目标中的后缀，例如通过指定 <code class="docutils literal notranslate"><span class="pre">compute_100a</span></code> 或 <code class="docutils literal notranslate"><span class="pre">compute_120a</span></code> 作为计算目标。</p>
 <p><strong>系列特定功能集</strong>：一些特定于架构的功能对于具有多种计算能力的 GPU 是通用的。这些功能在相应的“计算能力#.#”小节中进行了总结。除少数例外，具有相同主要计算能力的新一代设备都属于同一系列。 <a class="reference internal" href="#family-specific-compatibility"><span class="std std-numref">表25</span></a> 指示特定于系列的目标与设备计算功能的兼容性，包括例外。系列特定功能集是基线功能集的超集。特定于系列的编译器目标是随 Compute Capability 10.0 器件引入的，并通过使用 <strong>f</strong> 编译目标中的后缀，例如通过指定 <code class="docutils literal notranslate"><span class="pre">compute_100f</span></code> 或 <code class="docutils literal notranslate"><span class="pre">compute_120f</span></code> 作为计算目标。</p>
 <p>从计算能力 9.0 开始的所有设备都具有一组特定于体系结构的功能。要在特定 GPU 上利用完整的这些功能集，特定于体系结构的编译器目标带有后缀 <strong>一个</strong> 必须使用。此外，从计算能力 10.0 开始，在具有不同次要计算能力的多个设备中出现了一些功能集。这些指令集称为系列特定功能，共享这些功能的设备被称为同一系列的一部分。系列特定功能是该 GPU 系列所有成员共享的特定架构功能的子集。带有后缀的特定于系列的编译器目标 <strong>f</strong> 允许编译器生成使用特定于体系结构的功能的公共子集的代码。</p>
@@ -23127,7 +23127,7 @@ nvlink fatal : merge_elf failed
 <li><p>24 KB 的统一 L1/纹理缓存，用于缓存从全局内存读取的数据，</p></li>
 <li><p>对于计算能力 5.0 的设备，需要 64 KB 共享内存；对于计算能力 5.2 的设备，需要 96 KB 共享内存。</p></li>
 </ul>
-<p>统一的L1/纹理缓存也被纹理单元使用，实现了中提到的各种寻址模式和数据过滤。 <a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理与表面内存</span></a>.</p>
+<p>统一的L1/纹理缓存也被纹理单元使用，实现了中提到的各种寻址模式和数据过滤。 <a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理与表面内存</span></a>。</p>
 <p>还有一个由所有 SM 共享的 L2 缓存，用于缓存对本地或全局内存的访问，包括临时寄存器溢出。应用程序可以通过检查 L2 缓存大小来查询 <code class="docutils literal notranslate"><span class="pre">l2CacheSize</span></code> 设备属性（参见 <a class="reference internal" href="#device-enumeration"><span class="std std-ref">设备枚举</span></a>。</p>
 <p>缓存行为（例如，读取是否缓存在统一 L1/纹理缓存和 L2 中，还是仅缓存在 L2 中）可以使用加载指令的修饰符在每次访问的基础上进行部分配置。</p>
 </section>
@@ -23220,7 +23220,7 @@ nvlink fatal : merge_elf failed
 <li><p>统一的 L1/纹理缓存，用于从大小为 24 KB（6.0 和 6.2）或 48 KB（6.1）的全局内存读取，</p></li>
 <li><p>大小为 64 KB（6.0 和 6.2）或 96 KB（6.1）的共享内存。</p></li>
 </ul>
-<p>统一的L1/纹理缓存也被纹理单元使用，实现了中提到的各种寻址模式和数据过滤。 <a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理与表面内存</span></a>.</p>
+<p>统一的L1/纹理缓存也被纹理单元使用，实现了中提到的各种寻址模式和数据过滤。 <a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理与表面内存</span></a>。</p>
 <p>还有一个由所有 SM 共享的 L2 缓存，用于缓存对本地或全局内存的访问，包括临时寄存器溢出。应用程序可以通过检查 L2 缓存大小来查询 <code class="docutils literal notranslate"><span class="pre">l2CacheSize</span></code> 设备属性（参见 <a class="reference internal" href="#device-enumeration"><span class="std std-ref">设备枚举</span></a>。</p>
 <p>缓存行为（例如，读取是缓存在统一 L1/纹理缓存和 L2 中还是仅缓存在 L2 中）可以使用加载指令的修饰符在每次访问的基础上进行部分配置。</p>
 </section>
@@ -23260,7 +23260,7 @@ nvlink fatal : merge_elf failed
 <li><p>只读 const 缓存，由所有功能单元共享，并加速从驻留在设备内存中的const内存空间的读取，</p></li>
 <li><p>统一的数据缓存和共享内存，总大小为128 KB（<em>沃尔特</em>) 或 96 KB (<em>图灵</em>。</p></li>
 </ul>
-<p>共享内存从统一数据缓存中划分出来，并且可以配置为各种大小（请参见 <a class="reference internal" href="#shared-memory-7-x"><span class="std std-ref">共享内存</span></a>.) 剩余的数据缓存用作 L1 缓存，也由实现中提到的各种寻址和数据过滤模式的纹理单元使用。 <a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理与表面内存</span></a>.</p>
+<p>共享内存从统一数据缓存中划分出来，并且可以配置为各种大小（请参见 <a class="reference internal" href="#shared-memory-7-x"><span class="std std-ref">共享内存</span></a>。) 剩余的数据缓存用作 L1 缓存，也由实现中提到的各种寻址和数据过滤模式的纹理单元使用。 <a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理与表面内存</span></a>。</p>
 </section>
 <section id="independent-thread-scheduling">
 <span id="independent-thread-scheduling-7-x"></span><h3>
@@ -23447,7 +23447,7 @@ nvlink fatal : merge_elf failed
 <li><p>只读 const 缓存，由所有功能单元共享，并加速从驻留在设备内存中的const内存空间的读取，</p></li>
 <li><p>总大小为 192 KB 的统一数据缓存和共享内存，适用于计算能力 8.0 和 8.7 的设备（1.5 倍） <em>沃尔特</em>的 128 KB 容量），计算能力 8.6 和 8.9 的设备为 128 KB。</p></li>
 </ul>
-<p>共享内存从统一数据缓存中划分出来，并且可以配置为各种大小（请参阅 <a class="reference internal" href="#shared-memory-8-x"><span class="std std-ref">共享内存</span></a>）。剩余的数据缓存用作L1缓存，也被纹理单元使用，该纹理单元实现中提到的各种寻址和数据过滤模式。 <a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理与表面内存</span></a>.</p>
+<p>共享内存从统一数据缓存中划分出来，并且可以配置为各种大小（请参阅 <a class="reference internal" href="#shared-memory-8-x"><span class="std std-ref">共享内存</span></a>）。剩余的数据缓存用作L1缓存，也被纹理单元使用，该纹理单元实现中提到的各种寻址和数据过滤模式。 <a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理与表面内存</span></a>。</p>
 </section>
 <section id="global-memory-8-x">
 <span id="id415"></span><h3>
@@ -23493,7 +23493,7 @@ nvlink fatal : merge_elf failed
 <li><p>只读 const 缓存，由所有功能单元共享，并加速从驻留在设备内存中的const内存空间的读取，</p></li>
 <li><p>统一数据缓存和共享内存，总大小为 256 KB，适用于计算能力 9.0 的设备（1.33x <strong>NVIDIA Ampere GPU 架构</strong> 192 KB 容量）。</p></li>
 </ul>
-<p>共享内存从统一数据缓存中划分出来，并且可以配置为各种大小（请参阅 <a class="reference internal" href="#shared-memory-9-0"><span class="std std-ref">共享内存</span></a>）。剩余的数据缓存用作L1缓存，也被纹理单元使用，该纹理单元实现中提到的各种寻址和数据过滤模式。 <a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理与表面内存</span></a>.</p>
+<p>共享内存从统一数据缓存中划分出来，并且可以配置为各种大小（请参阅 <a class="reference internal" href="#shared-memory-9-0"><span class="std std-ref">共享内存</span></a>）。剩余的数据缓存用作L1缓存，也被纹理单元使用，该纹理单元实现中提到的各种寻址和数据过滤模式。 <a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理与表面内存</span></a>。</p>
 </section>
 <section id="global-memory-9-0">
 <span id="id419"></span><h3>
@@ -23549,7 +23549,7 @@ nvlink fatal : merge_elf failed
 <li><p>只读 const 缓存，由所有功能单元共享，并加速从驻留在设备内存中的const内存空间的读取，</p></li>
 <li><p>计算能力10.0设备的统一数据缓存和共享内存，总大小为256KB</p></li>
 </ul>
-<p>共享内存从统一数据缓存中划分出来，并且可以配置为各种大小（请参阅 <a class="reference internal" href="#shared-memory-10-0"><span class="std std-ref">共享内存</span></a>）。剩余的数据缓存用作L1缓存，也被纹理单元使用，该纹理单元实现中提到的各种寻址和数据过滤模式。 <a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理与表面内存</span></a>.</p>
+<p>共享内存从统一数据缓存中划分出来，并且可以配置为各种大小（请参阅 <a class="reference internal" href="#shared-memory-10-0"><span class="std std-ref">共享内存</span></a>）。剩余的数据缓存用作L1缓存，也被纹理单元使用，该纹理单元实现中提到的各种寻址和数据过滤模式。 <a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理与表面内存</span></a>。</p>
 </section>
 <section id="global-memory-10-0">
 <span id="id423"></span><h3>
@@ -23599,7 +23599,7 @@ nvlink fatal : merge_elf failed
 <li><p>只读 const 缓存，由所有功能单元共享，并加速从驻留在设备内存中的const内存空间的读取，</p></li>
 <li><p>计算能力12.0设备的统一数据缓存和共享内存，总大小为100KB</p></li>
 </ul>
-<p>共享内存从统一数据缓存中划分出来，并且可以配置为各种大小（请参阅 <a class="reference internal" href="#shared-memory-12-0"><span class="std std-ref">共享内存</span></a>）。剩余的数据缓存用作L1缓存，也被纹理单元使用，该纹理单元实现中提到的各种寻址和数据过滤模式。 <a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理与表面内存</span></a>.</p>
+<p>共享内存从统一数据缓存中划分出来，并且可以配置为各种大小（请参阅 <a class="reference internal" href="#shared-memory-12-0"><span class="std std-ref">共享内存</span></a>）。剩余的数据缓存用作L1缓存，也被纹理单元使用，该纹理单元实现中提到的各种寻址和数据过滤模式。 <a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理与表面内存</span></a>。</p>
 </section>
 <section id="global-memory-12-0">
 <span id="id428"></span><h3>
@@ -23645,10 +23645,10 @@ nvlink fatal : merge_elf failed
 <p class="admonition-title">警告</p>
 <p>本文档已由新版 <a class="reference external" href="http://docs.nvidia.com/cuda/cuda-programming-guide">CUDA 编程指南</a> 取代。本文内容应视为遗留信息，自 CUDA 13.0 起不再更新。有关 CUDA 的最新信息，请参阅新版 <a class="reference external" href="http://docs.nvidia.com/cuda/cuda-programming-guide">CUDA 编程指南</a>。</p>
 </div>
-<p>本节假定了解中描述的概念 <a class="reference internal" href="#cuda-c-runtime"><span class="std std-ref">CUDA 运行时</span></a>.</p>
+<p>本节假定了解中描述的概念 <a class="reference internal" href="#cuda-c-runtime"><span class="std std-ref">CUDA 运行时</span></a>。</p>
 <p>驱动程序API是在 <code class="docutils literal notranslate"><span class="pre">cuda</span></code> 动态库（<code class="docutils literal notranslate"><span class="pre">cuda.dll</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cuda.so</span></code>) 在安装设备驱动程序期间将其复制到系统上。它的所有入口点都以 cu 为前缀。</p>
 <p>它是一个基于句柄的命令式 API：大多数对象由不透明的句柄引用，这些句柄可以指定给函数来操作对象。</p>
-<p>驱动程序 API 中可用的对象总结如下 <a class="reference internal" href="#driver-api-objects-available-in-cuda-driver-api"><span class="std std-numref">表28</span></a>.</p>
+<p>驱动程序 API 中可用的对象总结如下 <a class="reference internal" href="#driver-api-objects-available-in-cuda-driver-api"><span class="std std-numref">表28</span></a>。</p>
 <table class="table-no-stripes docutils align-default" id="driver-api-objects-available-in-cuda-driver-api">
 <caption>
 <span class="caption-number">表28 </span><span class="caption-text">CUDA 驱动程序 API 中可用的对象</span><a class="headerlink" href="#driver-api-objects-available-in-cuda-driver-api" title="跳转到此表格"></a>
@@ -23718,8 +23718,8 @@ nvlink fatal : merge_elf failed
 </tr>
 </tbody>
 </table>
-<p>驱动程序 API 必须初始化 <code class="docutils literal notranslate"><span class="pre">cuInit()</span></code> 在调用驱动程序 API 中的任何函数之前。然后必须创建一个 CUDA 上下文，该上下文附加到特定设备并成为调用主机线程的当前上下文，详细信息请参见 <a class="reference internal" href="#context"><span class="std std-ref">上下文</span></a>.</p>
-<p>在 CUDA 上下文中，内核由主机代码显式加载为 PTX 或二进制对象，如中所述 <a class="reference internal" href="#module"><span class="std std-ref">模块</span></a>。因此，用 C++ 编写的内核必须单独编译为 <em>PTX</em> 或二进制对象。内核是使用 API 入口点启动的，如中所述 <a class="reference internal" href="#kernel-execution"><span class="std std-ref">内核执行</span></a>.</p>
+<p>驱动程序 API 必须初始化 <code class="docutils literal notranslate"><span class="pre">cuInit()</span></code> 在调用驱动程序 API 中的任何函数之前。然后必须创建一个 CUDA 上下文，该上下文附加到特定设备并成为调用主机线程的当前上下文，详细信息请参见 <a class="reference internal" href="#context"><span class="std std-ref">上下文</span></a>。</p>
+<p>在 CUDA 上下文中，内核由主机代码显式加载为 PTX 或二进制对象，如中所述 <a class="reference internal" href="#module"><span class="std std-ref">模块</span></a>。因此，用 C++ 编写的内核必须单独编译为 <em>PTX</em> 或二进制对象。内核是使用 API 入口点启动的，如中所述 <a class="reference internal" href="#kernel-execution"><span class="std std-ref">内核执行</span></a>。</p>
 <p>任何想要在未来设备架构上运行的应用程序都必须加载 <em>PTX</em>，不是二进制代码。这是因为二进制代码是特定于体系结构的，因此与未来的体系结构不兼容，而 <em>PTX</em> 代码在加载时由设备驱动程序编译为二进制代码。</p>
 <p>这是示例的主机代码 <a class="reference internal" href="#kernels"><span class="std std-ref">内核</span></a> 使用驱动程序API编写：</p>
 <div class="highlight-c++ notranslate">
@@ -23977,7 +23977,7 @@ nvlink fatal : merge_elf failed
 <ul class="simple">
 <li><p>使用以下命令检索驱动程序函数的地址 <code class="docutils literal notranslate"><span class="pre">CUDA</span><span class="pre">Driver</span><span class="pre">API.</span></code></p></li>
 <li><p>使用以下命令检索驱动程序函数的地址 <code class="docutils literal notranslate"><span class="pre">CUDA</span><span class="pre">Runtime</span><span class="pre">API.</span></code></p></li>
-<li><p>要求 <em>每个线程默认流</em> CUDA 驱动程序函数的版本。有关更多详细信息，请参阅 <a class="reference internal" href="#retrieve-per-thread-default-stream-versions"><span class="std std-ref">检索每线程默认流版本</span></a>.</p></li>
+<li><p>要求 <em>每个线程默认流</em> CUDA 驱动程序函数的版本。有关更多详细信息，请参阅 <a class="reference internal" href="#retrieve-per-thread-default-stream-versions"><span class="std std-ref">检索每线程默认流版本</span></a>。</p></li>
 <li><p>使用较旧的工具包但使用较新的驱动程序访问新的 CUDA 功能。</p></li>
 </ul>
 </section>
@@ -24117,7 +24117,7 @@ nvlink fatal : merge_elf failed
 <span id="id442"></span><h4>
 <span class="section-number">21.5.3.3. </span>检索每线程默认流版本<a class="headerlink" href="#retrieve-per-thread-default-stream-versions" title="跳转到此标题"></a>
 </h4>
-<p>一些 CUDA 驱动程序 API 可以配置为 <em>默认流</em> 或 <em>每个线程默认流</em> 语义。驱动程序 API 具有 <em>每个线程默认流</em> 语义后缀为 <em>_ptsz</em> 或 <em>_ptds</em> 以他们的名义。例如， <code class="docutils literal notranslate"><span class="pre">cuLaunchKernel</span></code> 有一个 <em>每个线程默认流</em> 变体命名为 <code class="docutils literal notranslate"><span class="pre">cuLaunchKernel_ptsz</span></code>。通过驱动程序入口点访问 API，用户可以请求 <em>每个线程默认流</em> 驱动程序 API 的版本 <code class="docutils literal notranslate"><span class="pre">cuLaunchKernel</span></code> 而不是 <em>默认流</em> 版本。配置 CUDA 驱动程序 API <em>默认流</em> 或 <em>每个线程默认流</em> 语义影响同步行为。可以找到更多详细信息 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-driver-api/stream-sync-behavior.html#stream-sync-behavior__default-stream">这里</a>.</p>
+<p>一些 CUDA 驱动程序 API 可以配置为 <em>默认流</em> 或 <em>每个线程默认流</em> 语义。驱动程序 API 具有 <em>每个线程默认流</em> 语义后缀为 <em>_ptsz</em> 或 <em>_ptds</em> 以他们的名义。例如， <code class="docutils literal notranslate"><span class="pre">cuLaunchKernel</span></code> 有一个 <em>每个线程默认流</em> 变体命名为 <code class="docutils literal notranslate"><span class="pre">cuLaunchKernel_ptsz</span></code>。通过驱动程序入口点访问 API，用户可以请求 <em>每个线程默认流</em> 驱动程序 API 的版本 <code class="docutils literal notranslate"><span class="pre">cuLaunchKernel</span></code> 而不是 <em>默认流</em> 版本。配置 CUDA 驱动程序 API <em>默认流</em> 或 <em>每个线程默认流</em> 语义影响同步行为。可以找到更多详细信息 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-driver-api/stream-sync-behavior.html#stream-sync-behavior__default-stream">这里</a>。</p>
 <p><em>默认流</em> 或 <em>每线程默认流</em> 可通过以下任一 Driver API 版本获取：</p>
 <ul class="simple">
 <li><p>使用编译标志 <code class="docutils literal notranslate"><span class="pre">--default-stream</span><span class="pre">per-thread</span></code> 或者定义宏 <code class="docutils literal notranslate"><span class="pre">CUDA_API_PER_THREAD_DEFAULT_STREAM</span></code> 要得到 <em>每个线程默认流</em> 行为。</p></li>
@@ -24280,7 +24280,7 @@ nvlink fatal : merge_elf failed
 <tr class="row-odd">
 <td><p>CUDA_VISIBLE_DEVICES</p></td>
 <td><p>MIG 支持的 GPU 标识符的逗号分隔序列： <code class="docutils literal notranslate"><span class="pre">MIG-&lt;GPU-UUID&gt;/&lt;GPU</span><span class="pre">instance</span><span class="pre">ID&gt;/&lt;compute</span><span class="pre">instance</span><span class="pre">ID&gt;</span></code></p></td>
-<td><p>GPU 标识符以整数索引或 UUID 字符串的形式给出。 GPU UUID 字符串应遵循与给出的格式相同的格式 <em>nvidia-smi</em>，例如GPU-8932f937-d72c-4106-c12f-20bd9faed9f6。然而，为了方便起见，允许使用缩写形式；只需从 GPU UUID 的开头指定足够的数字即可唯一标识目标系统中的该 GPU。例如，假设系统中没有其他 GPU 共享此前缀，则 CUDA_VISIBLE_DEVICES=GPU-8932f937 可能是引用上述 GPU UUID 的有效方法。只有索引存在于序列中的设备对 CUDA 应用程序可见，并且它们按序列的顺序进行枚举。如果索引之一无效，则只有索引在无效索引之前的设备对 CUDA 应用程序可见。例如，将 CUDA_VISIBLE_DEVICES 设置为 2,1 会导致设备 0 不可见，并且在设备 1 之前枚举设备 2。将 CUDA_VISIBLE_DEVICES 设置为 0,2,-1,1 会导致设备 0 和 2 可见，而设备 1 不可见。 MIG 格式以 MIG 关键字开头，GPU UUID 应遵循与给出的格式相同的格式 <em>nvidia-smi</em>。例如，MIG-GPU-8932f937-d72c-4106-c12f-20bd9faed9f6/1/2。仅支持单个 MIG 实例枚举。</p></td>
+<td><p>GPU 标识符以整数索引或 UUID 字符串的形式给出。 GPU UUID 字符串应遵循 <em>nvidia-smi</em> 输出中的格式，例如GPU-8932f937-d72c-4106-c12f-20bd9faed9f6。然而，为了方便起见，允许使用缩写形式；只需从 GPU UUID 的开头指定足够的数字即可唯一标识目标系统中的该 GPU。例如，若系统中没有其他 GPU 具有相同前缀，则 CUDA_VISIBLE_DEVICES=GPU-8932f937 可作为引用上述 GPU UUID 的有效方式。只有索引存在于序列中的设备对 CUDA 应用程序可见，并按该序列顺序进行枚举。如果索引之一无效，则只有索引在无效索引之前的设备对 CUDA 应用程序可见。例如，将 CUDA_VISIBLE_DEVICES 设置为 2,1 会导致设备 0 不可见，并且在设备 1 之前枚举设备 2。将 CUDA_VISIBLE_DEVICES 设置为 0,2,-1,1 会导致设备 0 和 2 可见，而设备 1 不可见。 MIG 格式以 MIG 关键字开头，GPU UUID 应遵循 <em>nvidia-smi</em> 输出格式。例如，MIG-GPU-8932f937-d72c-4106-c12f-20bd9faed9f6/1/2。仅支持单个 MIG 实例枚举。</p></td>
 </tr>
 <tr class="row-even">
 <td><p>CUDA_MANAGED_FORCE_DEVICE_ALLOC</p></td>
@@ -24659,11 +24659,11 @@ nvlink fatal : merge_elf failed
 <p><code class="docutils literal notranslate"><span class="pre">pageableMemoryAccess</span></code>：在支持 CUDA 统一内存的系统上，此属性设置为 1，其中所有线程都可以访问系统分配内存和 CUDA 托管内存。这些系统包括 NVIDIA Grace Hopper、IBM Power9 + Volta 以及启用了 HMM 的现代 Linux 系统（请参阅下一个项目符号）等。</p>
 <ul>
 <li><p>Linux HMM 需要 Linux 内核版本 6.1.24+、6.2.11+ 或 6.3+、计算能力为 7.5 或更高的设备以及安装的 CUDA 驱动程序版本 535+
-<a class="reference external" href="http://download.nvidia.com/XFree86/Linux-x86_64/515.43.04/README/kernel_open.html">开放内核模块</a>.</p></li>
+<a class="reference external" href="http://download.nvidia.com/XFree86/Linux-x86_64/515.43.04/README/kernel_open.html">开放内核模块</a>。</p></li>
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">concurrentManagedAccess</span></code>：在具有完整 CUDA 托管内存支持的系统上，此属性设置为 1。当此属性设置为 0 时，CUDA 托管内存中仅部分支持统一内存。有关统一内存的 Tegra 支持，请参阅
-<a class="reference external" href="https://docs.nvidia.com/cuda/cuda-for-tegra-appnote/index.html#memory-management">用于 Tegra 内存管理的 CUDA</a>.</p></li>
+<a class="reference external" href="https://docs.nvidia.com/cuda/cuda-for-tegra-appnote/index.html#memory-management">用于 Tegra 内存管理的 CUDA</a>。</p></li>
 </ul>
 <p>程序可以通过查询 CUDA 统一内存中的属性来查询 GPU 对 CUDA 统一内存的支持级别
 <a class="reference internal" href="#table-unified-memory-levels"><span class="std std-numref">表31</span></a> 使用 <code class="docutils literal notranslate"><span class="pre">cudaGetDeviceProperties()</span></code>.</p>
@@ -25053,7 +25053,7 @@ nvlink fatal : merge_elf failed
 <div class="admonition note">
 <p class="admonition-title">注意</p>
 <p>为了 <a class="reference internal" href="#um-requirements"><span class="std std-ref">具有 CUDA 托管内存但不完全支持的设备</span></a>, 可见度 <code class="docutils literal notranslate"><span class="pre">__managed__</span></code> 在 CUDA 流中执行的异步操作的变量将在以下部分讨论
-<a class="reference internal" href="#um-managing-data"><span class="std std-ref">使用流管理数据可见性和并发 CPU + GPU 访问</span></a>.</p>
+<a class="reference internal" href="#um-managing-data"><span class="std std-ref">使用流管理数据可见性和并发 CPU + GPU 访问</span></a>。</p>
 </div>
 </section>
 <section id="difference-between-unified-memory-and-mapped-memory">
@@ -25169,7 +25169,7 @@ nvlink fatal : merge_elf failed
 </div>
 <p>一个内存区域包含 <code class="docutils literal notranslate"><span class="pre">[devPtr,</span><span class="pre">devPtr</span><span class="pre">+</span><span class="pre">count)</span></code> 可以迁移到目标设备 <code class="docutils literal notranslate"><span class="pre">location.id</span></code> 如果 <code class="docutils literal notranslate"><span class="pre">location.type</span></code> 是 <code class="docutils literal notranslate"><span class="pre">cudaMemLocationTypeDevice</span></code>
 - 或CPU，如果 <code class="docutils literal notranslate"><span class="pre">location.type</span></code> 是 <code class="docutils literal notranslate"><span class="pre">cudaMemLocationTypeHost</span></code> - 当预取任务在给定的时间内执行时 <code class="docutils literal notranslate"><span class="pre">stream</span></code>。有关详细信息 <code class="docutils literal notranslate"><span class="pre">flags</span></code>，查看当前
-<a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html">CUDA 运行时 API 文档</a>.</p>
+<a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html">CUDA 运行时 API 文档</a>。</p>
 <p>考虑下面一个简单的代码示例：</p>
 <div class="sd-tab-set docutils">
 <input checked="" id="cc66045c-9f2a-4318-b84d-19c7830fc5e2" name="75aaab47-7c49-4787-98bb-93b2931fc595" type="radio"/>
@@ -25541,7 +25541,7 @@ nvlink fatal : merge_elf failed
 <p>自从 <a class="reference internal" href="#um-requirements"><span class="std std-ref">具有完整 CUDA 统一内存支持的系统</span></a>
 允许设备访问主机进程拥有的任何内存，它们可以直接访问文件支持的内存。</p>
 <p>在这里，我们展示了上一节中所示初始示例的修改版本，以使用文件支持的内存来从 GPU 打印字符串，直接从输入文件读取。在以下示例中，内存由物理文件支持，但该示例也适用于内存支持的文件，详细信息请参阅
-<a class="reference internal" href="#um-sam-ipc"><span class="std std-ref">具有统一内存的进程间通信 (IPC)</span></a>.</p>
+<a class="reference internal" href="#um-sam-ipc"><span class="std std-ref">具有统一内存的进程间通信 (IPC)</span></a>。</p>
 <div class="highlight-cuda notranslate">
 <div class="highlight"><pre><span></span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">kernel</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n_char</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span><span class="w"></span>
@@ -25580,7 +25580,7 @@ nvlink fatal : merge_elf failed
 <p>截至目前，将 IPC 与统一内存结合使用可能会对性能产生重大影响。</p>
 </div>
 <p>许多应用程序更喜欢每个进程管理一个 GPU，但仍然需要使用统一内存（例如超额订阅）并从多个 GPU 访问它。</p>
-<p>CUDA IPC（参见 <a class="reference internal" href="#interprocess-communication"><span class="std std-ref">进程间通信</span></a>）不支持托管内存：此类内存的句柄可能无法通过本节中讨论的任何机制共享。在 <a class="reference internal" href="#um-requirements"><span class="std std-ref">具有完整 CUDA 统一内存支持的系统</span></a>，系统分配的内存具有进程间通信（IPC）能力。一旦与其他进程共享对系统分配内存的访问，相同的 <a class="reference internal" href="#um-programming-model"><span class="std std-ref">编程模型</span></a> 适用，类似于 <a class="reference internal" href="#um-sam-file-backed"><span class="std std-ref">文件支持的统一内存</span></a>.</p>
+<p>CUDA IPC（参见 <a class="reference internal" href="#interprocess-communication"><span class="std std-ref">进程间通信</span></a>）不支持托管内存：此类内存的句柄可能无法通过本节中讨论的任何机制共享。在 <a class="reference internal" href="#um-requirements"><span class="std std-ref">具有完整 CUDA 统一内存支持的系统</span></a>，系统分配的内存具有进程间通信（IPC）能力。一旦与其他进程共享对系统分配内存的访问，相同的 <a class="reference internal" href="#um-programming-model"><span class="std std-ref">编程模型</span></a> 适用，类似于 <a class="reference internal" href="#um-sam-file-backed"><span class="std std-ref">文件支持的统一内存</span></a>。</p>
 <p>有关在 Linux 下创建支持 IPC 的系统分配内存的各种方法的更多信息，请参阅以下参考资料：</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://man7.org/linux/man-pages/man2/mmap.2.html">mmap 与 MAP_SHARED</a></p></li>
