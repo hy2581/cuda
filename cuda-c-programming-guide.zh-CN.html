@@ -1600,7 +1600,7 @@ html
 <dl class="footnote brackets">
 <dt class="label" id="fn1"><span class="brackets"><a class="fn-backref" href="#id2">1</a></span></dt>
 <dd>
-<p>这 <em>图形</em> 限定词来自这样一个事实：二十年前，当 GPU 最初创建时，它被设计为加速图形渲染的专用处理器。在市场对实时、高清、3D 图形永不满足的需求的推动下，它已发展成为一种通用处理器，可用于处理更多工作负载，而不仅仅是图形渲染。</p>
+<p>“图形（graphics）”这一限定词源于 GPU 的历史：二十多年前，GPU 最初是为加速图形渲染而设计的专用处理器。在实时高清 3D 图形需求推动下，它逐步演进为可处理更广泛负载的通用处理器，而不再仅限于图形渲染。</p>
 </dd>
 </dl>
 </section>
@@ -2068,7 +2068,7 @@ html
 <p>修改后的主机代码要么作为 C++ 代码输出，然后使用其他工具进行编译，要么直接作为目标代码输出，方法是让 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 在最后一个编译阶段调用主机编译器。</p>
 <p>随后应用可以：</p>
 <ul class="simple">
-<li><p>链接到已编译的主机代码（这是最常见的情况），</p></li>
+<li><p>链接到已编译的主机代码（这是最常见情况），</p></li>
 <li><p>或者忽略修改后的主机代码（如果有）并使用 CUDA 驱动程序 API（请参阅 <a class="reference internal" href="#driver-api"><span class="std std-ref">驱动程序 API</span></a>）加载并执行 <em>PTX</em> 代码或 <em>cubin</em> 对象。</p></li>
 </ul>
 </section>
@@ -2598,7 +2598,7 @@ html
 </figure>
 <p>以下代码示例是利用shared 内存的矩阵乘法的实现。在此实现中，每个线程块负责计算一个平方子矩阵 <em>子集</em> 的 <em>C</em> 块内的每个线程负责计算一个元素 <em>子集</em>。如图所示 <a class="reference internal" href="#shared-memory-matrix-multiplication-shared-memory"><span class="std std-numref">图9</span></a>, <em>子集</em> 等于两个矩形矩阵的乘积： 的子矩阵 <em>一个</em> 维数 (<em>A.宽度，块大小</em>) 具有相同的行索引 <em>子集</em>，以及子矩阵 <em>乙</em> 维数 (<em>块大小，A.宽度</em> ）具有相同的列索引 <em>子集</em>。为了适应设备的资源，这两个矩形矩阵被分成尽可能多的维度的方阵 <em>块大小</em> 必要时和 <em>子集</em> 计算为这些方阵的乘积之和。这些乘积中的每一个都是通过以下方式执行的：首先将两个相应的方阵从全局内存加载到shared 内存，并用一个线程加载每个矩阵的一个元素，然后让每个线程计算乘积的一个元素。每个线程将每个乘积的结果累积到寄存器中，完成后将结果写入全局内存。</p>
 <p>通过这种方式阻塞计算，我们可以利用快速shared 内存并节省大量全局内存带宽，因为 <em>一个</em> 只读（<em>B.宽度/块大小</em>）来自全局内存的时间和 <em>乙</em> 被读取（<em>A.高度/块大小</em>）次。</p>
-<p>这 <em>矩阵</em> 前面的代码示例中的类型增加了 <em>跨步</em> 字段，以便子矩阵可以用相同的类型有效地表示。 <a class="reference internal" href="#device-function-specifier"><span class="std std-ref">__device__</span></a> 函数用于获取和设置元素以及从矩阵构建任何子矩阵。</p>
+<p>前述代码示例中的 <em>Matrix</em> 类型新增了 <em>stride</em> 字段，以便用同一类型高效表示子矩阵。并通过 <a class="reference internal" href="#device-function-specifier"><span class="std std-ref">__device__</span></a> 函数实现元素读写与子矩阵构造。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="c1">// Matrices are stored in row-major order:</span>
 <span class="c1">// M(row, col) = *(M.elements + row * M.stride + col)</span>
@@ -3190,7 +3190,7 @@ html
 <p class="admonition-title">警告</p>
 <p>该文件已被新文件取代 <a class="reference external" href="http://docs.nvidia.com/cuda/cuda-programming-guide">CUDA 编程指南</a>。本文档中的信息应被视为遗留信息，并且自 CUDA 13.0 起不再更新本文档。请参阅 <a class="reference external" href="http://docs.nvidia.com/cuda/cuda-programming-guide">CUDA 编程指南</a> 有关 CUDA 的最新信息。</p>
 </div>
-<p>这 <em>程序化依赖启动</em> 机制允许依赖 <em>中学</em> 内核在之前启动 <em>基本的</em> 它所依赖的同一个 CUDA 流中的内核已完成执行。从计算能力 9.0 的设备开始可用，此技术可以在以下情况下提供性能优势： <em>中学</em> 内核可以完成不依赖于结果的重要工作 <em>基本的</em> 核心。</p>
+<p><em>Programmatic Dependent Launch</em> 机制允许依赖某个 <em>primary</em> 内核的 <em>secondary</em> 内核，在同一 CUDA 流中于 primary 完成前提前启动。该机制从计算能力 9.0 设备开始可用；当 secondary 内核能先做大量不依赖 primary 结果的工作时，可带来明显性能收益。</p>
 <section id="background">
 <h5>
 <span class="section-number">6.2.8.6.1. </span>背景<a class="headerlink" href="#background" title="跳转到此标题"></a>
@@ -4694,7 +4694,7 @@ html
 <p>一维分层纹理使用整数索引和浮点纹理坐标进行寻址；索引表示序列中的层，坐标寻址该层中的纹素。使用整数索引和两个浮点纹理坐标来寻址二维分层纹理；索引表示序列中的层，坐标地址表示该层中的纹素。</p>
 <p>分层纹理只能是 CUDA 数组，通过调用 <code class="docutils literal notranslate"><span class="pre">cudaMalloc3DArray()</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaArrayLayered</span></code> 标志（一维分层纹理的高度为零）。</p>
 <p>分层纹理是使用中描述的设备功能获取的 <a class="reference internal" href="#tex1dlayered-object"><span class="std std-ref">tex1D分层()</span></a> 和 <a class="reference internal" href="#tex2dlayered-object"><span class="std std-ref">tex2D分层()</span></a>。纹理过滤（参见 <a class="reference internal" href="#texture-fetching"><span class="std std-ref">纹理获取</span></a>）仅在层内完成，而不是跨层完成。</p>
-<p>仅计算能力 2.0 及更高版本的设备支持分层纹理。</p>
+<p>仅在计算能力 2.0 及更高版本的设备支持分层纹理。</p>
 </section>
 <section id="cubemap-textures">
 <span id="id87"></span><h5>
@@ -4786,7 +4786,7 @@ html
 <p>使用整数索引和三个浮点纹理坐标来寻址立方体贴图分层纹理；索引表示序列中的立方体贴图，坐标地址表示该立方体贴图中的纹理元素。</p>
 <p>立方体贴图分层纹理只能是 CUDA 数组，通过调用 <code class="docutils literal notranslate"><span class="pre">cudaMalloc3DArray()</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaArrayLayered</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaArrayCubemap</span></code> 旗帜。</p>
 <p>立方体贴图分层纹理是使用中描述的设备函数获取的 <a class="reference internal" href="#texcubemaplayered-object"><span class="std std-ref">texCubemapLayered()</span></a>。纹理过滤（参见 <a class="reference internal" href="#texture-fetching"><span class="std std-ref">纹理获取</span></a>）仅在层内完成，而不是跨层完成。</p>
-<p>仅计算能力 2.0 及更高版本的设备支持立方体贴图分层纹理。</p>
+<p>仅在计算能力 2.0 及更高版本的设备支持立方体贴图分层纹理。</p>
 </section>
 <section id="texture-gather">
 <span id="id89"></span><h5>
@@ -4795,7 +4795,7 @@ html
 <p>纹理收集是一种特殊的纹理获取，仅适用于二维纹理。它是由 <code class="docutils literal notranslate"><span class="pre">tex2Dgather()</span></code> 函数，其参数相同 <code class="docutils literal notranslate"><span class="pre">tex2D()</span></code>，加上一个额外的 <code class="docutils literal notranslate"><span class="pre">comp</span></code> 参数等于 0、1、2 或 3（请参阅 <a class="reference internal" href="#tex2dgather-object"><span class="std std-ref">tex2Dgather()</span></a>）。它返回对应于组件值的四个 32 位数字 <code class="docutils literal notranslate"><span class="pre">comp</span></code> 在常规纹理获取期间将用于双线性过滤的四个纹理像素中的每一个的像素。例如，如果这些纹理像素的值为 (253, 20, 31, 255)、(250、25、29、254)、(249、16、37、253)、(251、22、30、250) 和 <code class="docutils literal notranslate"><span class="pre">comp</span></code> 是 2， <code class="docutils literal notranslate"><span class="pre">tex2Dgather()</span></code> 返回 (31, 29, 37, 30)。</p>
 <p>请注意，纹理坐标仅使用 8 位小数精度进行计算。 <code class="docutils literal notranslate"><span class="pre">tex2Dgather()</span></code> 因此，在以下情况下可能会返回意外结果 <code class="docutils literal notranslate"><span class="pre">tex2D()</span></code> 将使用 1.0 作为其权重之一（α 或 β，请参阅 <a class="reference internal" href="#linear-filtering"><span class="std std-ref">线性滤波</span></a>）。例如，用 <em>x</em> 2.49805的纹理坐标： <em>xB=x-0.5=1.99805</em>，但是小数部分 <em>xB</em> 以 8 位定点格式存储。由于 0.99805 比 255.f/256.f 更接近 256.f/256.f， <em>xB</em> 值为 2.A <code class="docutils literal notranslate"><span class="pre">tex2Dgather()</span></code> 在这种情况下，因此将返回索引 2 和 3 <em>x</em>，而不是索引 1 和 2。</p>
 <p>仅使用创建的 CUDA 数组支持纹理收集 <code class="docutils literal notranslate"><span class="pre">cudaArrayTextureGather</span></code> 标志并且宽度和高度小于中指定的最大值 <a class="reference internal" href="#features-and-technical-specifications-technical-specifications-per-compute-capability"><span class="std std-numref">表27</span></a> 用于纹理收集，它比常规纹理获取要小。</p>
-<p>仅计算能力 2.0 及更高版本的设备支持纹理收集。</p>
+<p>仅在计算能力 2.0 及更高版本的设备支持纹理收集。</p>
 </section>
 </section>
 <section id="surface-memory">
@@ -7759,7 +7759,7 @@ html
 </pre></div>
 </div>
 <p>相当于 <a class="reference external" href="https://nvidia.github.io/libcudacxx/extended_api/synchronization_primitives/atomic/atomic_thread_fence.html">cuda::atomic_thread_fence（cuda::memory_order_seq_cst，cuda::thread_scope_system）</a> 并确保在调用之前调用线程对所有内存进行了所有写入 <code class="docutils literal notranslate"><span class="pre">__threadfence_system()</span></code> 设备中的所有线程、主机线程和对等设备中的所有线程都会观察到，在调用线程之后对所有内存进行所有写入之前发生 <code class="docutils literal notranslate"><span class="pre">__threadfence_system()</span></code>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">__threadfence_system()</span></code> 仅计算能力 2.x 及更高版本的设备支持。</p>
+<p><code class="docutils literal notranslate"><span class="pre">__threadfence_system()</span></code> 仅在计算能力 2.x 及更高版本的设备支持。</p>
 <p>在前面的代码示例中，我们可以在代码中插入栅栏，如下所示：</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">__device__</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">X</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">Y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"></span>
@@ -7876,7 +7876,7 @@ html
 <div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">__syncwarp</span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="n">mask</span><span class="o">=</span><span class="mh">0xffffffff</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
-<p>将导致执行线程等待，直到掩码中指定的所有扭曲通道都执行了 <code class="docutils literal notranslate"><span class="pre">__syncwarp()</span></code> （使用相同的掩码）在恢复执行之前。每个调用线程必须在掩码中设置自己的位，并且掩码中指定的所有非退出线程必须执行相应的 <code class="docutils literal notranslate"><span class="pre">__syncwarp()</span></code> 使用相同的掩码，否则结果是未定义的。</p>
+<p>将导致执行线程等待，直到掩码中指定的所有扭曲通道都执行了 <code class="docutils literal notranslate"><span class="pre">__syncwarp()</span></code> （使用相同的掩码）在恢复执行之前。每个调用线程必须在掩码中设置自己的位，并且掩码中指定的所有非退出线程必须执行相应的 <code class="docutils literal notranslate"><span class="pre">__syncwarp()</span></code> 使用相同的掩码，否则否则行为未定义。</p>
 <p>执行中 <code class="docutils literal notranslate"><span class="pre">__syncwarp()</span></code> 保证参与屏障的线程之间的内存排序。因此，warp 中希望通过内存进行通信的线程可以存储到内存、执行 <code class="docutils literal notranslate"><span class="pre">__syncwarp()</span></code>，然后安全地读取经线中其他线程存储的值。</p>
 <div class="admonition note">
 <p class="admonition-title">注意</p>
@@ -8522,7 +8522,7 @@ html
 <span id="ldg-function"></span><h2>
 <span class="section-number">10.10. </span>只读数据缓存加载功能<a class="headerlink" href="#read-only-data-cache-load-function" title="跳转到此标题"></a>
 </h2>
-<p>仅计算能力5.0及以上设备支持只读数据缓存加载功能。</p>
+<p>仅在计算能力5.0及以上设备支持只读数据缓存加载功能。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">T</span><span class="w"> </span><span class="nf">__ldg</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">T</span><span class="o">*</span><span class="w"> </span><span class="n">address</span><span class="p">);</span><span class="w"></span>
 </pre></div>
@@ -8721,13 +8721,13 @@ html
 </pre></div>
 </div>
 <p>读取16位、32位或64位 <code class="docutils literal notranslate"><span class="pre">old</span></code> 位于该地址 <code class="docutils literal notranslate"><span class="pre">address</span></code> 在全局或shared 内存中，计算 <code class="docutils literal notranslate"><span class="pre">(old</span><span class="pre">+</span><span class="pre">val)</span></code>，并将结果存储回内存中的同一地址。这三个操作在一个原子事务中执行。该函数返回 <code class="docutils literal notranslate"><span class="pre">old</span></code>.</p>
-<p>32 位浮点版本 <code class="docutils literal notranslate"><span class="pre">atomicAdd()</span></code> 仅计算能力 2.x 及更高版本的设备支持。</p>
-<p>64 位浮点版本 <code class="docutils literal notranslate"><span class="pre">atomicAdd()</span></code> 仅计算能力 6.x 及更高版本的设备支持。</p>
-<p>32 位 <code class="docutils literal notranslate"><span class="pre">__half2</span></code> 浮点版本 <code class="docutils literal notranslate"><span class="pre">atomicAdd()</span></code> 仅计算能力 6.x 及更高版本的设备支持。的原子性 <code class="docutils literal notranslate"><span class="pre">__half2</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">__nv_bfloat162</span></code> 两者的添加操作分别得到保证 <code class="docutils literal notranslate"><span class="pre">__half</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">__nv_bfloat16</span></code> 元素；整个 <code class="docutils literal notranslate"><span class="pre">__half2</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">__nv_bfloat162</span></code> 不保证作为单个 32 位访问是原子的。</p>
-<p>这 <code class="docutils literal notranslate"><span class="pre">float2</span></code> 和 <code class="docutils literal notranslate"><span class="pre">float4</span></code> 浮点向量版本 <code class="docutils literal notranslate"><span class="pre">atomicAdd()</span></code> 仅计算能力 9.x 及更高版本的设备支持。的原子性 <code class="docutils literal notranslate"><span class="pre">float2</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">float4</span></code> 添加操作分别保证两个或四个中的每一个 <code class="docutils literal notranslate"><span class="pre">float</span></code> 元素；整个 <code class="docutils literal notranslate"><span class="pre">float2</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">float4</span></code> 不保证作为单个 64 位或 128 位访问是原子的。</p>
-<p>16位 <code class="docutils literal notranslate"><span class="pre">__half</span></code> 浮点版本 <code class="docutils literal notranslate"><span class="pre">atomicAdd()</span></code> 仅计算能力 7.x 及更高版本的设备支持。</p>
-<p>16位 <code class="docutils literal notranslate"><span class="pre">__nv_bfloat16</span></code> 浮点版本 <code class="docutils literal notranslate"><span class="pre">atomicAdd()</span></code> 仅计算能力 8.x 及更高版本的设备支持。</p>
-<p>这 <code class="docutils literal notranslate"><span class="pre">float2</span></code> 和 <code class="docutils literal notranslate"><span class="pre">float4</span></code> 浮点向量版本 <code class="docutils literal notranslate"><span class="pre">atomicAdd()</span></code> 仅计算能力 9.x 及更高版本的设备支持。</p>
+<p>32 位浮点版本 <code class="docutils literal notranslate"><span class="pre">atomicAdd()</span></code> 仅在计算能力 2.x 及更高版本的设备支持。</p>
+<p>64 位浮点版本 <code class="docutils literal notranslate"><span class="pre">atomicAdd()</span></code> 仅在计算能力 6.x 及更高版本的设备支持。</p>
+<p>32 位 <code class="docutils literal notranslate"><span class="pre">__half2</span></code> 浮点版本 <code class="docutils literal notranslate"><span class="pre">atomicAdd()</span></code> 仅在计算能力 6.x 及更高版本的设备支持。的原子性 <code class="docutils literal notranslate"><span class="pre">__half2</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">__nv_bfloat162</span></code> 两者的添加操作分别得到保证 <code class="docutils literal notranslate"><span class="pre">__half</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">__nv_bfloat16</span></code> 元素；整个 <code class="docutils literal notranslate"><span class="pre">__half2</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">__nv_bfloat162</span></code> 不保证作为单个 32 位访问是原子的。</p>
+<p>这 <code class="docutils literal notranslate"><span class="pre">float2</span></code> 和 <code class="docutils literal notranslate"><span class="pre">float4</span></code> 浮点向量版本 <code class="docutils literal notranslate"><span class="pre">atomicAdd()</span></code> 仅在计算能力 9.x 及更高版本的设备支持。的原子性 <code class="docutils literal notranslate"><span class="pre">float2</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">float4</span></code> 添加操作分别保证两个或四个中的每一个 <code class="docutils literal notranslate"><span class="pre">float</span></code> 元素；整个 <code class="docutils literal notranslate"><span class="pre">float2</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">float4</span></code> 不保证作为单个 64 位或 128 位访问是原子的。</p>
+<p>16位 <code class="docutils literal notranslate"><span class="pre">__half</span></code> 浮点版本 <code class="docutils literal notranslate"><span class="pre">atomicAdd()</span></code> 仅在计算能力 7.x 及更高版本的设备支持。</p>
+<p>16位 <code class="docutils literal notranslate"><span class="pre">__nv_bfloat16</span></code> 浮点版本 <code class="docutils literal notranslate"><span class="pre">atomicAdd()</span></code> 仅在计算能力 8.x 及更高版本的设备支持。</p>
+<p>这 <code class="docutils literal notranslate"><span class="pre">float2</span></code> 和 <code class="docutils literal notranslate"><span class="pre">float4</span></code> 浮点向量版本 <code class="docutils literal notranslate"><span class="pre">atomicAdd()</span></code> 仅在计算能力 9.x 及更高版本的设备支持。</p>
 <p>这 <code class="docutils literal notranslate"><span class="pre">float2</span></code> 和 <code class="docutils literal notranslate"><span class="pre">float4</span></code> 浮点向量版本 <code class="docutils literal notranslate"><span class="pre">atomicAdd()</span></code> 仅支持全局内存地址。</p>
 </section>
 <section id="atomicsub">
@@ -8770,7 +8770,7 @@ html
 </pre></div>
 </div>
 <p>所以， <code class="docutils literal notranslate"><span class="pre">T</span></code> 必须是 128 位且正确对齐、可轻松复制，并且在 C++03 或更早版本上，它还必须是默认可构造的。</p>
-<p>128位 <code class="docutils literal notranslate"><span class="pre">atomicExch()</span></code> 仅计算能力 9.x 及更高版本的设备支持。</p>
+<p>128位 <code class="docutils literal notranslate"><span class="pre">atomicExch()</span></code> 仅在计算能力 9.x 及更高版本的设备支持。</p>
 </section>
 <section id="atomicmin">
 <h4>
@@ -8787,7 +8787,7 @@ html
 </pre></div>
 </div>
 <p>读取 32 位或 64 位字 <code class="docutils literal notranslate"><span class="pre">old</span></code> 位于该地址 <code class="docutils literal notranslate"><span class="pre">address</span></code> 在全局或shared 内存中，计算最小值 <code class="docutils literal notranslate"><span class="pre">old</span></code> 和 <code class="docutils literal notranslate"><span class="pre">val</span></code>，并将结果存储回内存中的同一地址。这三个操作在一个原子事务中执行。该函数返回 <code class="docutils literal notranslate"><span class="pre">old</span></code>.</p>
-<p>64 位版本 <code class="docutils literal notranslate"><span class="pre">atomicMin()</span></code> 仅计算能力 5.0 及更高版本的设备支持。</p>
+<p>64 位版本 <code class="docutils literal notranslate"><span class="pre">atomicMin()</span></code> 仅在计算能力 5.0 及更高版本的设备支持。</p>
 </section>
 <section id="atomicmax">
 <h4>
@@ -8804,7 +8804,7 @@ html
 </pre></div>
 </div>
 <p>读取 32 位或 64 位字 <code class="docutils literal notranslate"><span class="pre">old</span></code> 位于该地址 <code class="docutils literal notranslate"><span class="pre">address</span></code> 在全局或shared 内存中，计算最大值 <code class="docutils literal notranslate"><span class="pre">old</span></code> 和 <code class="docutils literal notranslate"><span class="pre">val</span></code>，并将结果存储回内存中的同一地址。这三个操作在一个原子事务中执行。该函数返回 <code class="docutils literal notranslate"><span class="pre">old</span></code>.</p>
-<p>64 位版本 <code class="docutils literal notranslate"><span class="pre">atomicMax()</span></code> 仅计算能力 5.0 及更高版本的设备支持。</p>
+<p>64 位版本 <code class="docutils literal notranslate"><span class="pre">atomicMax()</span></code> 仅在计算能力 5.0 及更高版本的设备支持。</p>
 </section>
 <section id="atomicinc">
 <h4>
@@ -8860,7 +8860,7 @@ html
 </pre></div>
 </div>
 <p>所以， <code class="docutils literal notranslate"><span class="pre">T</span></code> 必须是 128 位且正确对齐、可轻松复制，并且在 C++03 或更早版本上，它还必须是默认可构造的。</p>
-<p>128位 <code class="docutils literal notranslate"><span class="pre">atomicCAS()</span></code> 仅计算能力 9.x 及更高版本的设备支持。</p>
+<p>128位 <code class="docutils literal notranslate"><span class="pre">atomicCAS()</span></code> 仅在计算能力 9.x 及更高版本的设备支持。</p>
 </section>
 <section id="nv-atomic-exchange">
 <h4>
@@ -9002,7 +9002,7 @@ html
 </pre></div>
 </div>
 <p>读取 32 位或 64 位字 <code class="docutils literal notranslate"><span class="pre">old</span></code> 位于该地址 <code class="docutils literal notranslate"><span class="pre">address</span></code> 在全局或shared 内存中，计算 <code class="docutils literal notranslate"><span class="pre">(old</span><span class="pre">&amp;</span><span class="pre">val</span></code>），并将结果存储回内存中的同一地址。这三个操作在一个原子事务中执行。该函数返回 <code class="docutils literal notranslate"><span class="pre">old</span></code>.</p>
-<p>64 位版本 <code class="docutils literal notranslate"><span class="pre">atomicAnd()</span></code> 仅计算能力 5.0 及更高版本的设备支持。</p>
+<p>64 位版本 <code class="docutils literal notranslate"><span class="pre">atomicAnd()</span></code> 仅在计算能力 5.0 及更高版本的设备支持。</p>
 </section>
 <section id="atomicor">
 <h4>
@@ -9017,7 +9017,7 @@ html
 </pre></div>
 </div>
 <p>读取 32 位或 64 位字 <code class="docutils literal notranslate"><span class="pre">old</span></code> 位于该地址 <code class="docutils literal notranslate"><span class="pre">address</span></code> 在全局或shared 内存中，计算 <code class="docutils literal notranslate"><span class="pre">(old</span><span class="pre">|</span><span class="pre">val)</span></code>，并将结果存储回内存中的同一地址。这三个操作在一个原子事务中执行。该函数返回 <code class="docutils literal notranslate"><span class="pre">old</span></code>.</p>
-<p>64 位版本 <code class="docutils literal notranslate"><span class="pre">atomicOr()</span></code> 仅计算能力 5.0 及更高版本的设备支持。</p>
+<p>64 位版本 <code class="docutils literal notranslate"><span class="pre">atomicOr()</span></code> 仅在计算能力 5.0 及更高版本的设备支持。</p>
 </section>
 <section id="atomicxor">
 <h4>
@@ -9032,7 +9032,7 @@ html
 </pre></div>
 </div>
 <p>读取 32 位或 64 位字 <code class="docutils literal notranslate"><span class="pre">old</span></code> 位于该地址 <code class="docutils literal notranslate"><span class="pre">address</span></code> 在全局或shared 内存中，计算 <code class="docutils literal notranslate"><span class="pre">(old</span><span class="pre">^</span><span class="pre">val)</span></code>，并将结果存储回内存中的同一地址。这三个操作在一个原子事务中执行。该函数返回 <code class="docutils literal notranslate"><span class="pre">old</span></code>.</p>
-<p>64 位版本 <code class="docutils literal notranslate"><span class="pre">atomicXor()</span></code> 仅计算能力 5.0 及更高版本的设备支持。</p>
+<p>64 位版本 <code class="docutils literal notranslate"><span class="pre">atomicXor()</span></code> 仅在计算能力 5.0 及更高版本的设备支持。</p>
 </section>
 <section id="nv-atomic-fetch-or-and-nv-atomic-or">
 <h4>
@@ -9522,7 +9522,7 @@ html
 <p>返回调用该函数的 warp 中当前所有活动线程的 32 位掩码。若第 N 个 lane 处于活动状态，则返回值第 N 位为 1。<a class="reference internal" href="#simt-architecture-notes"><span class="std std-ref">非活动</span></a>线程在返回掩码中对应为 0；已退出线程始终视为非活动。注意：在 <code class="docutils literal notranslate"><span class="pre">__activemask()</span></code> 处收敛并不保证后续指令仍保持收敛，除非后续指令是同步型 warp 内建函数。</p>
 </dd>
 </dl>
-<p>为了 <code class="docutils literal notranslate"><span class="pre">__all_sync</span></code>, <code class="docutils literal notranslate"><span class="pre">__any_sync</span></code>， 和 <code class="docutils literal notranslate"><span class="pre">__ballot_sync</span></code>，必须传递一个掩码来指定参与调用的线程。必须为每个参与线程设置一个表示线程通道 ID 的位，以确保它们在硬件执行内在函数之前正确收敛。每个调用线程必须在掩码中设置自己的位，并且掩码中指定的所有非退出线程必须使用相同的掩码执行相同的内部函数，否则结果是未定义的。</p>
+<p>为了 <code class="docutils literal notranslate"><span class="pre">__all_sync</span></code>, <code class="docutils literal notranslate"><span class="pre">__any_sync</span></code>， 和 <code class="docutils literal notranslate"><span class="pre">__ballot_sync</span></code>，必须传递一个掩码来指定参与调用的线程。必须为每个参与线程设置一个表示线程通道 ID 的位，以确保它们在硬件执行内在函数之前正确收敛。每个调用线程必须在掩码中设置自己的位，并且掩码中指定的所有非退出线程必须使用相同的掩码执行相同的内部函数，否则否则行为未定义。</p>
 <p>这些内建函数不隐含内存栅栏，也不保证任何内存顺序。</p>
 </section>
 <section id="warp-match-functions">
@@ -9557,7 +9557,7 @@ html
 <p>退货 <code class="docutils literal notranslate"><span class="pre">mask</span></code> 如果所有线程都在 <code class="docutils literal notranslate"><span class="pre">mask</span></code> 具有相同的值 <code class="docutils literal notranslate"><span class="pre">value</span></code>;否则返回 0。谓词 <code class="docutils literal notranslate"><span class="pre">pred</span></code> 如果所有线程都设置为 true <code class="docutils literal notranslate"><span class="pre">mask</span></code> 具有相同的值 <code class="docutils literal notranslate"><span class="pre">value</span></code>;否则谓词设置为 false。</p>
 </dd>
 </dl>
-<p>新的 <code class="docutils literal notranslate"><span class="pre">*_sync</span></code> 匹配内在函数采用一个掩码来指示参与调用的线程。必须为每个参与线程设置一个表示线程通道 ID 的位，以确保它们在硬件执行内在函数之前正确收敛。每个调用线程必须在掩码中设置自己的位，并且掩码中指定的所有非退出线程必须使用相同的掩码执行相同的内部函数，否则结果是未定义的。</p>
+<p>新的 <code class="docutils literal notranslate"><span class="pre">*_sync</span></code> 匹配内在函数采用一个掩码来指示参与调用的线程。必须为每个参与线程设置一个表示线程通道 ID 的位，以确保它们在硬件执行内在函数之前正确收敛。每个调用线程必须在掩码中设置自己的位，并且掩码中指定的所有非退出线程必须使用相同的掩码执行相同的内部函数，否则否则行为未定义。</p>
 <p>这些内建函数不隐含内存栅栏，也不保证任何内存顺序。</p>
 </section>
 </section>
@@ -9605,7 +9605,7 @@ html
 <p>返回对中提供的值应用逻辑 AND、OR 或 XOR 归约运算的结果 <code class="docutils literal notranslate"><span class="pre">value</span></code> 由每个命名的线程 <code class="docutils literal notranslate"><span class="pre">mask</span></code>.</p>
 </dd>
 </dl>
-<p>这 <code class="docutils literal notranslate"><span class="pre">mask</span></code> 表示参与调用的线程。必须为每个参与线程设置一个表示线程通道 ID 的位，以确保它们在硬件执行内在函数之前正确收敛。每个调用线程必须在掩码中设置自己的位，并且掩码中指定的所有非退出线程必须使用相同的掩码执行相同的内部函数，否则结果是未定义的。</p>
+<p>这 <code class="docutils literal notranslate"><span class="pre">mask</span></code> 表示参与调用的线程。必须为每个参与线程设置一个表示线程通道 ID 的位，以确保它们在硬件执行内在函数之前正确收敛。每个调用线程必须在掩码中设置自己的位，并且掩码中指定的所有非退出线程必须使用相同的掩码执行相同的内部函数，否则否则行为未定义。</p>
 <p>这些内建函数不隐含内存栅栏，也不保证任何内存顺序。</p>
 </section>
 </section>
@@ -9660,7 +9660,7 @@ html
 <p><code class="docutils literal notranslate"><span class="pre">__shfl_up_sync()</span></code> 通过减去来计算源通道 ID <code class="docutils literal notranslate"><span class="pre">delta</span></code> 来自呼叫者的通道 ID。的价值 <code class="docutils literal notranslate"><span class="pre">var</span></code> 返回结果车道 ID 所持有的内容：实际上， <code class="docutils literal notranslate"><span class="pre">var</span></code> 经线向上移动 <code class="docutils literal notranslate"><span class="pre">delta</span></code> 车道。如果宽度小于 <code class="docutils literal notranslate"><span class="pre">warpSize</span></code> 那么 warp 的每个子部分都表现为一个单独的实体，其起始逻辑通道 ID 为 0。源通道索引不会环绕该值 <code class="docutils literal notranslate"><span class="pre">width</span></code>，因此有效地降低了 <code class="docutils literal notranslate"><span class="pre">delta</span></code> 车道将保持不变。</p>
 <p><code class="docutils literal notranslate"><span class="pre">__shfl_down_sync()</span></code> 通过添加来计算源通道 ID <code class="docutils literal notranslate"><span class="pre">delta</span></code> 到呼叫者的通道 ID。的价值 <code class="docutils literal notranslate"><span class="pre">var</span></code> 返回结果车道 ID 所持有的内容：这具有移位的效果 <code class="docutils literal notranslate"><span class="pre">var</span></code> 经线向下 <code class="docutils literal notranslate"><span class="pre">delta</span></code> 车道。如果宽度小于 <code class="docutils literal notranslate"><span class="pre">warpSize</span></code> 那么扭曲的每个子部分都表现为一个单独的实体，其起始逻辑通道 ID 为 0。至于 <code class="docutils literal notranslate"><span class="pre">__shfl_up_sync()</span></code>，源通道的 ID 号不会环绕宽度值，因此上部 <code class="docutils literal notranslate"><span class="pre">delta</span></code> 车道将保持不变。</p>
 <p><code class="docutils literal notranslate"><span class="pre">__shfl_xor_sync()</span></code> 通过对调用者的通道 ID 执行按位异或来计算源线路 ID <code class="docutils literal notranslate"><span class="pre">laneMask</span></code>： 的值 <code class="docutils literal notranslate"><span class="pre">var</span></code> 返回结果车道 ID 所保存的内容。如果 <code class="docutils literal notranslate"><span class="pre">width</span></code> 小于 <code class="docutils literal notranslate"><span class="pre">warpSize</span></code> 然后每组 <code class="docutils literal notranslate"><span class="pre">width</span></code> 连续的线程能够访问较早线程组中的元素，但是，如果它们尝试访问较晚线程组中的元素，则它们自己的值 <code class="docutils literal notranslate"><span class="pre">var</span></code> 将被退回。该模式实现了蝶形寻址模式，例如在树缩减和广播中使用的模式。</p>
-<p>新的 <code class="docutils literal notranslate"><span class="pre">*_sync</span></code> shfl 内在函数采用一个掩码来指示参与调用的线程。必须为每个参与线程设置一个表示线程通道 ID 的位，以确保它们在硬件执行内在函数之前正确收敛。每个调用线程必须在掩码中设置自己的位，并且掩码中指定的所有非退出线程必须使用相同的掩码执行相同的内部函数，否则结果是未定义的。</p>
+<p>新的 <code class="docutils literal notranslate"><span class="pre">*_sync</span></code> shfl 内在函数采用一个掩码来指示参与调用的线程。必须为每个参与线程设置一个表示线程通道 ID 的位，以确保它们在硬件执行内在函数之前正确收敛。每个调用线程必须在掩码中设置自己的位，并且掩码中指定的所有非退出线程必须使用相同的掩码执行相同的内部函数，否则否则行为未定义。</p>
 <p>线程只能从积极参与的另一个线程读取数据 <code class="docutils literal notranslate"><span class="pre">__shfl_sync()</span></code> 命令。如果目标线程处于非活动状态，则检索到的值未定义。</p>
 <p>这些内建函数不隐含内存栅栏，也不保证任何内存顺序。</p>
 </section>
@@ -9844,7 +9844,7 @@ html
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">load_matrix_sync</span></code></dt>
 <dd>
-<p>等待所有扭曲通道到达 load_matrix_sync，然后从内存加载矩阵片段 a。 <code class="docutils literal notranslate"><span class="pre">mptr</span></code> 必须是指向内存中矩阵第一个元素的 256 位对齐指针。 <code class="docutils literal notranslate"><span class="pre">ldm</span></code> 描述连续行（对于行主要布局）或列（对于列主要布局）之间元素的跨度，并且必须是 8 的倍数 <code class="docutils literal notranslate"><span class="pre">__half</span></code> 元素类型或 4 的倍数 <code class="docutils literal notranslate"><span class="pre">float</span></code> 元素类型。 （即，两种情况都是 16 字节的倍数）。如果片段是一个 <code class="docutils literal notranslate"><span class="pre">accumulator</span></code>， 这 <code class="docutils literal notranslate"><span class="pre">layout</span></code> 参数必须指定为 <code class="docutils literal notranslate"><span class="pre">mem_row_major</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">mem_col_major</span></code>。为了 <code class="docutils literal notranslate"><span class="pre">matrix_a</span></code> 和 <code class="docutils literal notranslate"><span class="pre">matrix_b</span></code> 片段，布局是从片段推断出来的 <code class="docutils literal notranslate"><span class="pre">layout</span></code> 范围。的价值观 <code class="docutils literal notranslate"><span class="pre">mptr</span></code>, <code class="docutils literal notranslate"><span class="pre">ldm</span></code>, <code class="docutils literal notranslate"><span class="pre">layout</span></code> 以及所有模板参数 <code class="docutils literal notranslate"><span class="pre">a</span></code> 经线中的所有线程必须相同。该函数必须由 warp 中的所有线程调用，否则结果是未定义的。</p>
+<p>等待所有扭曲通道到达 load_matrix_sync，然后从内存加载矩阵片段 a。 <code class="docutils literal notranslate"><span class="pre">mptr</span></code> 必须是指向内存中矩阵第一个元素的 256 位对齐指针。 <code class="docutils literal notranslate"><span class="pre">ldm</span></code> 描述连续行（对于行主要布局）或列（对于列主要布局）之间元素的跨度，并且必须是 8 的倍数 <code class="docutils literal notranslate"><span class="pre">__half</span></code> 元素类型或 4 的倍数 <code class="docutils literal notranslate"><span class="pre">float</span></code> 元素类型。 （即，两种情况都是 16 字节的倍数）。如果片段是一个 <code class="docutils literal notranslate"><span class="pre">accumulator</span></code>， 这 <code class="docutils literal notranslate"><span class="pre">layout</span></code> 参数必须指定为 <code class="docutils literal notranslate"><span class="pre">mem_row_major</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">mem_col_major</span></code>。为了 <code class="docutils literal notranslate"><span class="pre">matrix_a</span></code> 和 <code class="docutils literal notranslate"><span class="pre">matrix_b</span></code> 片段，布局是从片段推断出来的 <code class="docutils literal notranslate"><span class="pre">layout</span></code> 范围。的价值观 <code class="docutils literal notranslate"><span class="pre">mptr</span></code>, <code class="docutils literal notranslate"><span class="pre">ldm</span></code>, <code class="docutils literal notranslate"><span class="pre">layout</span></code> 以及所有模板参数 <code class="docutils literal notranslate"><span class="pre">a</span></code> 经线中的所有线程必须相同。该函数必须由 warp 中的所有线程调用，否则否则行为未定义。</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">store_matrix_sync</span></code></dt>
 <dd>
@@ -9856,7 +9856,7 @@ html
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">mma_sync</span></code></dt>
 <dd>
-<p>等待所有warp Lane到达mma_sync，然后执行warp同步矩阵乘法累加操作 <code class="docutils literal notranslate"><span class="pre">D=A*B+C</span></code>。就地操作， <code class="docutils literal notranslate"><span class="pre">C=A*B+C</span></code>，也支持。的价值 <code class="docutils literal notranslate"><span class="pre">satf</span></code> 对于扭曲中的所有线程，每个矩阵片段的模板参数必须相同。另外，模板参数 <code class="docutils literal notranslate"><span class="pre">m</span></code>, <code class="docutils literal notranslate"><span class="pre">n</span></code> 和 <code class="docutils literal notranslate"><span class="pre">k</span></code> 片段之间必须匹配 <code class="docutils literal notranslate"><span class="pre">A</span></code>, <code class="docutils literal notranslate"><span class="pre">B</span></code>, <code class="docutils literal notranslate"><span class="pre">C</span></code> 和 <code class="docutils literal notranslate"><span class="pre">D</span></code>。该函数必须由 warp 中的所有线程调用，否则结果是未定义的。</p>
+<p>等待所有warp Lane到达mma_sync，然后执行warp同步矩阵乘法累加操作 <code class="docutils literal notranslate"><span class="pre">D=A*B+C</span></code>。就地操作， <code class="docutils literal notranslate"><span class="pre">C=A*B+C</span></code>，也支持。的价值 <code class="docutils literal notranslate"><span class="pre">satf</span></code> 对于扭曲中的所有线程，每个矩阵片段的模板参数必须相同。另外，模板参数 <code class="docutils literal notranslate"><span class="pre">m</span></code>, <code class="docutils literal notranslate"><span class="pre">n</span></code> 和 <code class="docutils literal notranslate"><span class="pre">k</span></code> 片段之间必须匹配 <code class="docutils literal notranslate"><span class="pre">A</span></code>, <code class="docutils literal notranslate"><span class="pre">B</span></code>, <code class="docutils literal notranslate"><span class="pre">C</span></code> 和 <code class="docutils literal notranslate"><span class="pre">D</span></code>。该函数必须由 warp 中的所有线程调用，否则否则行为未定义。</p>
 </dd>
 </dl>
 <p>如果 <code class="docutils literal notranslate"><span class="pre">satf</span></code> （饱和到有限值）模式是 <code class="docutils literal notranslate"><span class="pre">true</span></code>，以下附加数值属性适用于目标累加器：</p>
@@ -10346,7 +10346,7 @@ html
 </pre></div>
 </div>
 <p>在此模式中，同步点 (<code class="docutils literal notranslate"><span class="pre">block.sync()</span></code>) 被分割成到达点 (<code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code>）和一个等待点（<code class="docutils literal notranslate"><span class="pre">bar.wait(std::move(token))</span></code>）。一个线程开始参与一个 <code class="docutils literal notranslate"><span class="pre">cuda::barrier</span></code> 第一次致电 <code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code>。当一个线程调用 <code class="docutils literal notranslate"><span class="pre">bar.wait(std::move(token))</span></code> 它将被阻塞，直到参与线程完成 <code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code> 由传递给的预期到达计数参数指定的预期次数 <code class="docutils literal notranslate"><span class="pre">init()</span></code>。在参与线程调用之前发生的内存更新 <code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code> 保证在调用后对参与线程可见 <code class="docutils literal notranslate"><span class="pre">bar.wait(std::move(token))</span></code>。请注意，调用 <code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code> 不会阻塞线程，它可以继续执行其他工作，这些工作不依赖于其他参与线程调用之前发生的内存更新 <code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code>.</p>
-<p>这 <em>到达然后等待</em> 模式有五个可以迭代重复的阶段：</p>
+<p><em>arrive-and-wait</em> 模式包含以下五个可迭代阶段：</p>
 <ul class="simple">
 <li><p>代码 <strong>前</strong> 到达执行将被读取的内存更新 <strong>后</strong> 等待。</p></li>
 <li><p>到达具有隐式内存栅栏的点（即，相当于 <code class="docutils literal notranslate"><span class="pre">atomic_thread_fence(memory_order_seq_cst,</span><span class="pre">thread_scope_block)</span></code>).</p></li>
@@ -10677,7 +10677,7 @@ html
 <p>这些 API 的语义非常相近：数据会从 <code class="docutils literal notranslate"><span class="pre">src</span></code> 异步复制到 <code class="docutils literal notranslate"><span class="pre">dst</span></code>，其执行可视作由另一线程完成；复制完成后可通过 <code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code>、<code class="docutils literal notranslate"><span class="pre">cuda::barrier</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cooperative_groups::wait</span></code> 同步。</p>
 <p>完整的API文档 <code class="docutils literal notranslate"><span class="pre">cuda::memcpy_async</span></code> 重载为 <code class="docutils literal notranslate"><span class="pre">cuda::barrier</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code> 中提供了 <a class="reference external" href="https://nvidia.github.io/libcudacxx">libcudacxx API</a> 文档以及一些示例。</p>
 <p>API 文档 <a class="reference internal" href="#collectives-cg-memcpy-async"><span class="std std-ref">cooperative_groups::memcpy_async</span></a> 中提供了 <a class="reference internal" href="#cooperative-groups"><span class="std std-ref">Cooperative Groups（协作组）</span></a> 部分。</p>
-<p>这 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 使用的 API <a class="reference internal" href="#aw-barrier"><span class="std std-ref">cuda::barrier</span></a> 和 <code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code> 需要计算能力 7.0 或更高。在计算能力8.0或更高的设备上， <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 从全局内存到shared 内存的操作都可以受益于硬件加速。</p>
+<p>这 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 使用的 API <a class="reference internal" href="#aw-barrier"><span class="std std-ref">cuda::barrier</span></a> 和 <code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code> 需要计算能力 7.0 或更高。在计算能力 8.0 及以上设备上，<code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 的“全局内存到 shared 内存”传输可受益于硬件加速。</p>
 </section>
 <section id="copy-and-compute-pattern-staging-data-through-shared-memory">
 <span id="copy-and-compute-pattern"></span><h3>
@@ -10751,7 +10751,7 @@ html
 </pre></div>
 </div>
 <p>这 <a class="reference internal" href="#collectives-cg-memcpy-async"><span class="std std-ref">cooperative_groups::memcpy_async</span></a> API 副本 <code class="docutils literal notranslate"><span class="pre">sizeof(int)</span><span class="pre">*</span><span class="pre">block.size()</span></code> 全局内存中的字节起始于 <code class="docutils literal notranslate"><span class="pre">global_in</span><span class="pre">+</span><span class="pre">batch_idx</span></code> 到 <code class="docutils literal notranslate"><span class="pre">shared</span></code> 数据。此操作的发生就像由另一个线程执行一样，该线程与当前线程的调用同步 <a class="reference internal" href="#collectives-cg-wait"><span class="std std-ref">cooperative_groups::wait</span></a> 复制完成后。在复制操作完成之前，修改全局数据或读取或写入shared数据会引入数据竞争。</p>
-<p>在计算能力8.0或更高的设备上， <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 从全局内存到shared 内存的传输可以受益于硬件加速，从而避免通过中间寄存器传输数据。</p>
+<p>在计算能力 8.0或更高的设备上， <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 从全局内存到 shared 内存的传输可以受益于硬件加速，从而避免通过中间寄存器传输数据。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cooperative_groups.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cooperative_groups/memcpy_async.h&gt;</span><span class="cp"></span>
@@ -10828,7 +10828,7 @@ html
 <span id="aligned-size-t"></span><h4>
 <span class="section-number">10.27.6.1. </span>结盟<a class="headerlink" href="#alignment" title="跳转到此标题"></a>
 </h4>
-<p>在计算能力8.0的设备上， <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async">cp.async 系列指令</a> 允许将数据从全局异步复制到shared 内存。这些指令支持一次复制 4、8 和 16 个字节。如果提供的尺寸为 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 是 4、8 或 16 的倍数，并且两个指针都传递给 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 对齐到 4、8 或 16 对齐边界，然后 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 可以专门使用异步内存操作来实现。</p>
+<p>在计算能力 8.0的设备上， <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async">cp.async 系列指令</a> 允许将数据从全局异步复制到shared 内存。这些指令支持一次复制 4、8 和 16 个字节。如果提供的尺寸为 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 是 4、8 或 16 的倍数，并且两个指针都传递给 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 对齐到 4、8 或 16 对齐边界，然后 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 可以专门使用异步内存操作来实现。</p>
 <p>此外，为了在使用时实现最佳性能 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> API，shared 内存和全局内存都需要 128 字节对齐。</p>
 <p>对于指向对齐要求为 1 或 2 的类型值的指针，通常无法证明指针始终对齐到更高的对齐边界。确定是否 <code class="docutils literal notranslate"><span class="pre">cp.async</span></code> 指令可以或不可以使用必须延迟到运行时。执行此类运行时对齐检查会增加代码大小并增加运行时开销。</p>
 <p>这 <a class="reference external" href="https://nvidia.github.io/libcudacxx">cuda::aligned_size_t&lt;size_t 对齐&gt;(size_t 大小)</a><a class="reference external" href="https://nvidia.github.io/libcudacxx">形状</a> 可用于提供两个指针都传递给的证明 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 对齐到 <code class="docutils literal notranslate"><span class="pre">Align</span></code> 对齐边界和 <code class="docutils literal notranslate"><span class="pre">size</span></code> 是的倍数 <code class="docutils literal notranslate"><span class="pre">Align</span></code>，通过将其作为参数传递，其中 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> API 期望 <code class="docutils literal notranslate"><span class="pre">Shape</span></code>:</p>
@@ -10842,7 +10842,7 @@ html
 <h4>
 <span class="section-number">10.27.6.2. </span>简单可复制<a class="headerlink" href="#trivially-copyable" title="跳转到此标题"></a>
 </h4>
-<p>在计算能力8.0的设备上， <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async">cp.async 系列指令</a> 允许将数据从全局异步复制到shared 内存。如果指针类型传递给 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 不要指向 <a class="reference external" href="https://en.cppreference.com/w/cpp/named_req/TriviallyCopyable">简单可复制</a> 类型，需要调用每个输出元素的复制构造函数，并且这些指令不能用于加速 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code>.</p>
+<p>在计算能力 8.0的设备上， <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async">cp.async 系列指令</a> 允许将数据从全局异步复制到shared 内存。如果指针类型传递给 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 不要指向 <a class="reference external" href="https://en.cppreference.com/w/cpp/named_req/TriviallyCopyable">简单可复制</a> 类型，需要调用每个输出元素的复制构造函数，并且这些指令不能用于加速 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code>.</p>
 </section>
 <section id="warp-entanglement-commit">
 <h4>
@@ -11357,7 +11357,7 @@ html
 <span id="tensor-memory-access"></span><h2>
 <span class="section-number">10.29. </span>使用张量内存加速器 (TMA) 进行异步数据复制<a class="headerlink" href="#asynchronous-data-copies-using-the-tensor-memory-accelerator-tma" title="跳转到此标题"></a>
 </h2>
-<p>许多应用程序需要在全局内存之间移动大量数据。通常，数据作为具有非顺序数据访问模式的多维数组布置在全局存储器中。为了减少全局内存使用，此类数组的子图块在用于计算之前会被复制到shared 内存。加载和存储涉及容易出错且重复的地址计算。为了卸载这些计算，计算能力 9.0 引入了张量内存加速器 (TMA)。 TMA 的主要目标是为多维数组提供从全局内存到shared 内存的高效数据传输机制。</p>
+<p>许多应用程序需要在全局内存之间移动大量数据。通常，数据作为具有非顺序数据访问模式的多维数组布置在全局存储器中。为了减少全局内存使用，此类数组的子图块在用于计算之前会被复制到shared 内存。加载和存储涉及容易出错且重复的地址计算。为了卸载这些计算，计算能力 9.0 引入了张量内存加速器 (TMA)。 TMA 的主要目标是为多维数组提供从全局内存到 shared 内存的高效数据传输机制。</p>
 <p><strong>命名</strong>。张量内存加速器 (TMA) 是一个广义术语，用于指代本节中描述的功能。为了向前兼容并减少与 PTX ISA 的差异，本节中的文本将 TMA 操作称为批量异步副本或批量张量异步副本，具体取决于所使用的具体副本类型。术语“批量”用于将这些操作与前面部分中描述的异步内存操作进行对比。</p>
 <p><strong>方面</strong>。 TMA 支持复制一维和多维数组（最多 5 维）。编程模型为 <strong>批量异步复制</strong> 一维连续数组的编程模型不同于 <strong>批量张量异步副本</strong> 的多维数组。要执行多维数组的批量张量异步复制，硬件需要 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-driver-api/structCUtensorMap.html#structCUtensorMap">张量图</a>。该对象描述了多维数组在全局和shared 内存中的布局。张量图通常是使用以下命令在主机上创建的 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__TENSOR__MEMORY.html#group__CUDA__TENSOR__MEMORY">cuTensorMapEncode API</a>
 然后从主机传输到设备 <code class="docutils literal notranslate"><span class="pre">const</span></code> 内核参数注释为 <code class="docutils literal notranslate"><span class="pre">__grid_constant__</span></code>。张量图作为 <code class="docutils literal notranslate"><span class="pre">const</span></code> 内核参数注释为 <code class="docutils literal notranslate"><span class="pre">__grid_constant__</span></code>，并且可以在设备上用于在shared 内存和全局内存之间复制数据块。相反，执行连续一维数组的批量异步复制不需要张量映射：它可以使用指针和大小参数在设备上执行。</p>
@@ -11436,7 +11436,7 @@ html
 <p>内核经历以下阶段：</p>
 <ol class="arabic simple">
 <li><p>初始化shared 内存屏障。</p></li>
-<li><p>启动内存块从全局内存到shared 内存的批量异步复制。</p></li>
+<li><p>启动内存块从全局内存到 shared 内存的批量异步复制。</p></li>
 <li><p>到达并等待shared 内存屏障。</p></li>
 <li><p>增加shared 内存缓冲区值。</p></li>
 <li><p>等待shared 内存写入对后续批量异步复制可见，即按顺序将shared 内存写入 <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#async-proxy">异步代理</a> 在进行下一步之前。</p></li>
@@ -11750,7 +11750,7 @@ API。下面，我们展示如何获取指向 <code class="docutils literal notr
 </pre></div>
 </div>
 <p><strong>负指数和越界</strong>。当正在使用的瓷砖的一部分
-<em>读</em> 从全局内存到shared 内存是越界的，越界区域对应的shared 内存被补零。图块的左上角索引也可能为负。什么时候 <em>写作</em> 从shared 内存到全局内存，图块的某些部分可能超出范围，但左上角不能有任何负索引。</p>
+<em>读</em> 从全局内存到 shared 内存是越界的，越界区域对应的shared 内存被补零。图块的左上角索引也可能为负。什么时候 <em>写作</em> 从shared 内存到全局内存，图块的某些部分可能超出范围，但左上角不能有任何负索引。</p>
 <p><strong>尺寸和步幅</strong>。张量的大小是沿一维的元素数量。所有尺寸必须大于一。步长是相同维度的元素之间的字节数。例如，一个 <cite>4×4</cite> 整数矩阵的大小为 4 和 4。由于每个元素有 4 个字节，因此步幅为 4 和 16 个字节。由于对齐要求， <cite>4×3</cite> 行主整数矩阵的步长也必须为 4 和 16 字节。每行都填充 4 个额外字节，以确保下一行的开头与 16 字节对齐。有关对齐的更多信息，请参阅 <a class="reference internal" href="#table-alignment-multi-dim-tma"><span class="std std-numref">表10</span></a>.</p>
 <table class="docutils align-default" id="table-alignment-multi-dim-tma">
 <caption>
@@ -12371,7 +12371,7 @@ PTX 指令被标记为特定于 sm_90a。要使用它们，请使用以下命令
 <h2>
 <span class="section-number">10.32. </span>断言<a class="headerlink" href="#assertion" title="跳转到此标题"></a>
 </h2>
-<p>仅计算能力 2.x 及更高版本的设备支持断言。</p>
+<p>仅在计算能力 2.x 及更高版本的设备支持断言。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">assert</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">expression</span><span class="p">);</span><span class="w"></span>
 </pre></div>
@@ -12443,7 +12443,7 @@ Assertion `&lt;expression&gt;` failed.
 <span id="id196"></span><h2>
 <span class="section-number">10.35. </span>格式化输出<a class="headerlink" href="#formatted-output" title="跳转到此标题"></a>
 </h2>
-<p>仅计算能力 2.x 及更高版本的设备支持格式化输出。</p>
+<p>仅在计算能力 2.x 及更高版本的设备支持格式化输出。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">printf</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">format</span><span class="p">[,</span><span class="w"> </span><span class="n">arg</span><span class="p">,</span><span class="w"> </span><span class="p">...]);</span><span class="w"></span>
 </pre></div>
@@ -12559,7 +12559,7 @@ Hello thread 3, f=1.2345
 <h2>
 <span class="section-number">10.36. </span>动态全局内存分配和操作<a class="headerlink" href="#dynamic-global-memory-allocation-and-operations" title="跳转到此标题"></a>
 </h2>
-<p>仅计算能力 2.x 及更高版本的设备支持动态全局内存分配和操作。</p>
+<p>仅在计算能力 2.x 及更高版本的设备支持动态全局内存分配和操作。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">__host__</span><span class="w"> </span><span class="n">__device__</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">malloc</span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">);</span><span class="w"></span>
 <span class="n">__device__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">__nv_aligned_device_malloc</span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">align</span><span class="p">);</span><span class="w"></span>
@@ -13784,7 +13784,7 @@ Hello thread 3, f=1.2345
 <span id="collectives-cg-memcpy-async"></span><h4>
 <span class="section-number">11.6.2.1. </span><code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code><a class="headerlink" href="#memcpy-async" title="跳转到此标题"></a>
 </h4>
-<p><code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 是一个组范围的集体 memcpy，它利用硬件加速支持从全局内存到shared 内存的非阻塞内存事务。给定一组在组中命名的线程， <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 将通过单个管道阶段移动指定数量的字节或输入类型的元素。此外，为了在使用时获得最佳性能 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> API，shared 内存和全局内存都需要 16 字节对齐。需要注意的是，虽然在一般情况下这是一个 memcpy，但只有当源是全局内存并且目标是shared 内存并且两者都可以通过 16、8 或 4 字节对齐来寻址时，它才是异步的。异步复制的数据只能在调用 wait 或 wait_prior 之后读取，这表明相应的阶段已完成将数据移动到shared 内存。</p>
+<p><code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 是一个组范围的集体 memcpy，它利用硬件加速支持从全局内存到 shared 内存的非阻塞内存事务。给定一组在组中命名的线程， <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 将通过单个管道阶段移动指定数量的字节或输入类型的元素。此外，为了在使用时获得最佳性能 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> API，shared 内存和全局内存都需要 16 字节对齐。需要注意的是，虽然在一般情况下这是一个 memcpy，但只有当源是全局内存并且目标是shared 内存并且两者都可以通过 16、8 或 4 字节对齐来寻址时，它才是异步的。异步复制的数据只能在调用 wait 或 wait_prior 之后读取，这表明相应的阶段已完成将数据移动到shared 内存。</p>
 <p>必须等待所有未完成的请求可能会失去一些灵活性（但会变得简单）。为了有效地重叠数据传输和执行，能够启动一个 <strong>N+1</strong><code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 等待并根据请求进行操作时请求 <strong>氮</strong>。为此，请使用 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 并使用基于集体阶段的等待 <code class="docutils literal notranslate"><span class="pre">wait_prior</span></code> API。见 <a class="reference internal" href="#collectives-cg-wait"><span class="std std-ref">等待和 wait_prior</span></a> 了解更多详情。</p>
 <p>用法1</p>
 <div class="highlight-c++ notranslate">
@@ -14857,7 +14857,7 @@ Hello thread 3, f=1.2345
 <span id="streams-and-events-cdp2"></span><h4>
 <span class="section-number">13.2.1.4. </span>流和事件<a class="headerlink" href="#streams-and-events" title="跳转到此标题"></a>
 </h4>
-<p>CUDA <em>流</em> 和 <em>活动</em> 允许控制网格启动之间的依赖关系：启动到同一流中的网格按顺序执行，并且事件可用于创建流之间的依赖关系。在设备上创建的流和事件具有完全相同的目的。</p>
+<p>CUDA <em>流</em> 和 <em>活动</em> 允许控制网格启动之间的依赖关系：启动到同一流中的网格按顺序执行，并且可通过事件建立流之间的依赖关系。在设备侧创建的流与事件用途相同。</p>
 <p>在网格内创建的流和事件存在于网格范围内，但在创建它们的网格之外使用时具有未定义的行为。如上所述，当网格退出时，网格启动的所有工作都会隐式同步；启动到流中的工作包含在其中，所有依赖项都得到了适当的解决。在网格范围之外修改的流上的操作的行为是未定义的。</p>
 <p>在主机上创建的流和事件在任何内核中使用时都具有未定义的行为，就像父网格创建的流和事件在子网格中使用时具有未定义的行为一样。</p>
 </section>
@@ -15721,12 +15721,12 @@ $ nvcc -arch=sm_75 -rdc=true hello_world.o -o hello -lcudadevrt
 <span id="id255"></span><h3>
 <span class="section-number">13.6.1. </span>执行环境和内存模型 (CDP1)<a class="headerlink" href="#execution-environment-and-memory-model-cdp1" title="跳转到此标题"></a>
 </h3>
-<p>见 <a class="reference internal" href="#execution-environment-and-memory-model-cdp2"><span class="std std-ref">执行环境和内存模型</span></a>，上面，针对文档的 CDP2 版本。</p>
+<p>参见上文 <a class="reference internal" href="#execution-environment-and-memory-model-cdp2"><span class="std std-ref">执行环境和内存模型</span></a>（CDP2 版本）。</p>
 <section id="execution-environment-cdp1">
 <span id="id256"></span><h4>
 <span class="section-number">13.6.1.1. </span>执行环境（CDP1）<a class="headerlink" href="#execution-environment-cdp1" title="跳转到此标题"></a>
 </h4>
-<p>见 <a class="reference internal" href="#execution-environment-cdp2"><span class="std std-ref">执行环境</span></a>，上面，针对文档的 CDP2 版本。</p>
+<p>参见上文 <a class="reference internal" href="#execution-environment-cdp2"><span class="std std-ref">执行环境</span></a>（CDP2 版本）。</p>
 <p>CUDA 执行模型基于线程、线程块和网格的原语，其中内核函数定义由线程块和网格内的各个线程执行的程序。当调用内核函数时，网格的属性由执行配置描述，该执行配置在 CUDA 中具有特殊语法。 CUDA 中对动态并行性的支持扩展了在新网格上配置、启动和同步设备上运行的线程的能力。</p>
 <div class="admonition warning">
 <p class="admonition-title">警告</p>
@@ -15736,7 +15736,7 @@ $ nvcc -arch=sm_75 -rdc=true hello_world.o -o hello -lcudadevrt
 <span id="id257"></span><h5>
 <span class="section-number">13.6.1.1.1. </span>父子网格 (CDP1)<a class="headerlink" href="#parent-and-child-grids-cdp1" title="跳转到此标题"></a>
 </h5>
-<p>见 <a class="reference internal" href="#parent-and-child-grids-cdp2"><span class="std std-ref">父子网格</span></a>，上面，针对文档的 CDP2 版本。</p>
+<p>参见上文 <a class="reference internal" href="#parent-and-child-grids-cdp2"><span class="std std-ref">父子网格</span></a>（CDP2 版本）。</p>
 <p>配置和启动新网格的设备线程属于父网格，调用创建的网格是子网格。</p>
 <p>子网格的调用和完成是正确嵌套的，这意味着在其线程创建的所有子网格完成之前，父网格不会被视为完成。即使调用线程没有在启动的子网格上显式同步，运行时也会保证父网格和子网格之间的隐式同步。</p>
 <div class="admonition warning">
@@ -15754,7 +15754,7 @@ $ nvcc -arch=sm_75 -rdc=true hello_world.o -o hello -lcudadevrt
 <span id="id258"></span><h5>
 <span class="section-number">13.6.1.1.2. </span>CUDA 基元的范围 (CDP1)<a class="headerlink" href="#scope-of-cuda-primitives-cdp1" title="跳转到此标题"></a>
 </h5>
-<p>见 <a class="reference internal" href="#scope-of-cuda-primitives-cdp2"><span class="std std-ref">CUDA 基元的范围</span></a>，上面，针对文档的 CDP2 版本。</p>
+<p>参见上文 <a class="reference internal" href="#scope-of-cuda-primitives-cdp2"><span class="std std-ref">CUDA 基元的范围</span></a>（CDP2 版本）。</p>
 <p>在主机和设备上，CUDA 运行时都提供了一个 API，用于启动内核、等待启动的工作完成以及通过流和事件跟踪启动之间的依赖关系。在主机系统上，启动状态以及引用流和事件的 CUDA 原语由进程内的所有线程shared；然而进程独立执行并且不能shared CUDA 对象。</p>
 <p>设备上存在类似的层次结构：启动的内核和 CUDA 对象对线程块中的所有线程可见，但在线程块之间是独立的。这意味着例如流可以由一个线程创建并由同一线程块中的任何其他线程使用，但不能与任何其他线程块中的线程shared。</p>
 </section>
@@ -15773,8 +15773,8 @@ $ nvcc -arch=sm_75 -rdc=true hello_world.o -o hello -lcudadevrt
 <span id="id260"></span><h5>
 <span class="section-number">13.6.1.1.4. </span>流和事件 (CDP1)<a class="headerlink" href="#streams-and-events-cdp1" title="跳转到此标题"></a>
 </h5>
-<p>见 <a class="reference internal" href="#streams-and-events-cdp2"><span class="std std-ref">流和事件</span></a>，上面，针对文档的 CDP2 版本。</p>
-<p>CUDA <em>流</em> 和 <em>活动</em> 允许控制网格启动之间的依赖关系：启动到同一流中的网格按顺序执行，并且事件可用于创建流之间的依赖关系。在设备上创建的流和事件具有完全相同的目的。</p>
+<p>参见上文 <a class="reference internal" href="#streams-and-events-cdp2"><span class="std std-ref">流和事件</span></a>（CDP2 版本）。</p>
+<p>CUDA <em>流</em> 和 <em>活动</em> 允许控制网格启动之间的依赖关系：启动到同一流中的网格按顺序执行，并且可通过事件建立流之间的依赖关系。在设备侧创建的流与事件用途相同。</p>
 <p>在网格内创建的流和事件存在于线程块范围内，但在创建它们的线程块之外使用时具有未定义的行为。如上所述，当线程块退出时，由线程块启动的所有工作都会隐式同步；启动到流中的工作包含在其中，所有依赖项都得到了适当的解决。在线程块范围之外修改的流上的操作的行为是未定义的。</p>
 <p>在主机上创建的流和事件在任何内核中使用时都具有未定义的行为，就像父网格创建的流和事件在子网格中使用时具有未定义的行为一样。</p>
 </section>
