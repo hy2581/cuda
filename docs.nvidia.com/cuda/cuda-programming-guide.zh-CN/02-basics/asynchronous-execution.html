@@ -488,7 +488,7 @@
                 <article class="bd-article">
                   
   <section id="asynchronous-execution">
-<span id="id1"></span><h1><span class="section-number">2.3. </span>Asynchronous Execution<a class="headerlink" href="asynchronous-execution.html#asynchronous-execution" title="Link to this heading">#</a></h1>
+<span id="id1"></span><h1><span class="section-number">2.3. </span>异步执行<a class="headerlink" href="asynchronous-execution.html#asynchronous-execution" title="跳转到此标题">#</a></h1>
 <section id="what-is-asynchronous-concurrent-execution">
 <h2><span class="section-number">2.3.1. </span>什么是异步并发执行？<a class="headerlink" href="asynchronous-execution.html#what-is-asynchronous-concurrent-execution" title="跳转到此标题">#</a></h2>
 <p>CUDA 允许多个任务并发（即重叠）执行，具体包括：</p>
@@ -500,7 +500,7 @@
 <li><p>同一设备内存空间内的数据传输</p></li>
 <li><p>设备之间的数据传输</p></li>
 </ul>
-<p>The concurrency is expressed via an asynchronous interface, where a dispatching function call or kernel launch returns immediately. Asynchronous calls usually return before the dispatched operation has completed and may return before the asynchronous operation has started. The application is then free to perform other tasks at the same time as the originally dispatched operation. When the final results of the initially dispatched operation are needed, the application must perform some form of synchronization to ensure that the operation in question has completed.  A typical example of a concurrent execution pattern is the overlapping of host and device memory transfers with computation and thus reducing or eliminating their overhead.</p>
+<p>这种并发性通过异步接口来表达：调度函数调用或内核启动会立即返回。异步调用通常会在所派发操作完成前返回，甚至可能在异步操作真正开始前就返回。应用程序因此可以在原始操作执行期间并行处理其他任务。当需要最初派发操作的最终结果时，应用必须通过某种同步手段确保该操作已经完成。一个典型的并发执行模式是将主机与设备之间的数据传输和计算重叠，从而降低或消除传输开销。</p>
 <figure class="align-center" id="asynchronous-concurrent-execution-with-cuda-streams">
 <a class="reference internal image-reference" href="../_images/cuda_streams.png"><img alt="Asynchronous Concurrent Execution with CUDA streams" src="../_images/cuda_streams.png" style="width: 1000px;" />
 </a>
@@ -508,30 +508,27 @@
 <p><span class="caption-number">图 17 </span><span class="caption-text">基于 CUDA 流的异步并发执行</span><a class="headerlink" href="asynchronous-execution.html#asynchronous-concurrent-execution-with-cuda-streams" title="跳转到此图片">#</a></p>
 </figcaption>
 </figure>
-<p>In general, asynchronous interfaces typically provide three main ways to synchronize with the dispatched operation</p>
+<p>通常，异步接口一般提供三种与已派发操作同步的主要方式：</p>
 <ul class="simple">
-<li><p>a <strong>blocking approach</strong>, where the application calls a function that blocks, or waits until the operation has completed</p></li>
-<li><p>a <strong>non-blocking approach</strong>, or polling approach where the application calls a function that returns immediately and supplies information about the status of the operation</p></li>
-<li><p>a <strong>callback approach</strong>, where a pre-registered function is executed when the operation has completed.</p></li>
+<li><p><strong>阻塞方式</strong>：应用调用会阻塞（等待）直到操作完成的函数</p></li>
+<li><p><strong>非阻塞方式</strong>（轮询方式）：应用调用立即返回的函数，并获取操作状态信息</p></li>
+<li><p><strong>回调方式</strong>：当操作完成时执行预先注册的函数。</p></li>
 </ul>
-<p>While the programming interfaces are asynchronous, the actual ability to carry out various  operations concurrently will depend on the version of CUDA and the compute capability of the hardware being used – these details will be left to a later section of this guide (see <a class="reference internal" href="../05-appendices/compute-capabilities.html#compute-capabilities"><span class="std std-ref">Compute Capabilities</span></a>).</p>
-<p>In <a class="reference internal" href="intro-to-cuda-cpp.html#intro-synchronizing-the-gpu"><span class="std std-ref">Synchronizing CPU and GPU</span></a>, the CUDA runtime function <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code> was introduced, which is a blocking call which waits for all previously issued work to complete. The reason the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code> call was needed is because the kernel launch is asynchronous and returns immediately. CUDA provides an API for both blocking and non-blocking approaches to synchronization and even supports the use of host-side callback functions.</p>
+<p>虽然编程接口是异步的，但硬件能否真正并发执行各类操作还取决于 CUDA 版本和所用硬件的计算能力。相关细节将在本指南后续章节说明（见 <a class="reference internal" href="../05-appendices/compute-capabilities.html#compute-capabilities"><span class="std std-ref">计算能力</span></a>）。</p>
+<p>在 <a class="reference internal" href="intro-to-cuda-cpp.html#intro-synchronizing-the-gpu"><span class="std std-ref">CPU 与 GPU 同步</span></a> 一节中，我们介绍了 CUDA 运行时函数 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code>。这是一个阻塞调用，会等待此前发出的所有工作完成。之所以需要调用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code>，是因为内核启动本身是异步且立即返回的。CUDA 提供了阻塞和非阻塞两类同步 API，并支持主机侧回调函数。</p>
 <p>CUDA 中异步执行的核心 API 组件是 <strong>CUDA 流</strong> 与 <strong>CUDA 事件</strong>。
 在本节其余部分中，我们将说明如何利用这些机制来表达 CUDA 异步执行。</p>
-<p>A related topic is that of <strong>CUDA Graphs</strong>, which allow a graph of asynchronous operations to be defined up front, which
-can then be executed repeatedly with minimal overhead. We cover CUDA Graphs in a very introductory level in section
-<a class="reference internal" href="asynchronous-execution.html#async-execution-cuda-graphs"><span class="std std-ref">2.4.9.2 Introduction to CUDA Graphs with Stream Capture</span></a>, and a
-more comprehensive discussion is provided in section <a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs"><span class="std std-ref">4.1 CUDA Graphs</span></a>.</p>
+<p>另一个相关主题是 <strong>CUDA 图（CUDA Graphs）</strong>。它允许预先定义异步操作图，并以很小开销重复执行。我们会在 <a class="reference internal" href="asynchronous-execution.html#async-execution-cuda-graphs"><span class="std std-ref">2.4.9.2 使用流捕获入门 CUDA 图</span></a> 中做入门介绍，更完整的讨论见 <a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs"><span class="std std-ref">4.1 CUDA 图</span></a>。</p>
 </section>
 <section id="cuda-streams">
 <span id="id2"></span><h2><span class="section-number">2.3.2. </span>CUDA 流<a class="headerlink" href="asynchronous-execution.html#cuda-streams" title="跳转到此标题">#</a></h2>
 <p>在最基础层面，CUDA 流是一种抽象，用于让程序员表达一串按序操作。 A stream operates like a work-queue into which programs can add operations, such as memory copies or kernel launches, to be executed in order. Operations at the front of the queue for a given stream are executed and then dequeued allowing the next queued operation to come to the front and to be considered for execution. The order of execution of operations in a stream is sequential and the operations are executed in the order they are enqueued into the stream.</p>
-<p>An application may use multiple streams simultaneously. In such cases, the runtime will select a task to execute from the streams that have work available depending on the state of the GPU resources. Streams may be assigned a priority which acts as a hint to the runtime to influence the scheduling, but does not guarantee a specific order of execution.</p>
+<p>应用程序可以同时使用多个流。在这种情况下，运行时会根据 GPU 资源状态，从有待执行任务的流中选择任务执行。流可设置优先级，用作影响调度的提示，但不保证严格的执行顺序。</p>
 <p>在某个流中执行的 API 调用与内核启动相对主机线程都是异步的。 Applications can synchronize with a stream by waiting for it to be empty of tasks, or they can also synchronize at the device level.</p>
-<p>CUDA has a default stream, and operations and kernel launches without a specific stream are queued into this default stream. Code examples which do not specify a stream are using this default stream implicitly. The default stream has some specific semantics which are discussed in subsection <a class="reference internal" href="asynchronous-execution.html#async-execution-blocking-non-blocking-default-stream"><span class="std std-ref">Blocking and non-blocking streams and the default stream</span></a>.</p>
+<p>CUDA 有一个默认流。未显式指定流的操作和内核启动都会进入默认流。未注明流的示例代码都隐式使用该默认流。默认流具有一些特殊语义，详见子节 <a class="reference internal" href="asynchronous-execution.html#async-execution-blocking-non-blocking-default-stream"><span class="std std-ref">阻塞与非阻塞流及默认流</span></a>。</p>
 <section id="creating-and-destroying-cuda-streams">
 <h3><span class="section-number">2.3.2.1. </span>创建与销毁 CUDA 流<a class="headerlink" href="asynchronous-execution.html#creating-and-destroying-cuda-streams" title="跳转到此标题">#</a></h3>
-<p>CUDA streams can be created using the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamCreate()</span></code> function. The function call initializes the stream handle which can be used to identify the stream in subsequent function calls.</p>
+<p>可使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamCreate()</span></code> 创建 CUDA 流。该调用会初始化流句柄，供后续函数调用中标识此流。</p>
 <div class="highlight-c notranslate" id="stream-creation-example"><div class="highlight"><pre><span></span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">;</span><span class="w">        </span><span class="c1">// Stream handle</span>
 <span class="n">cudaStreamCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream</span><span class="p">);</span><span class="w">  </span><span class="c1">// Create a new stream</span>
 
@@ -540,7 +537,7 @@ more comprehensive discussion is provided in section <a class="reference interna
 <span class="n">cudaStreamDestroy</span><span class="p">(</span><span class="n">stream</span><span class="p">);</span><span class="w">  </span><span class="c1">// Destroy the stream</span>
 </pre></div>
 </div>
-<p>If the device is still doing work in stream <code class="docutils literal notranslate"><span class="pre">stream</span></code> when the application calls <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamDestroy()</span></code>, the stream will complete all the work in the stream before being destroyed.</p>
+<p>如果应用调用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamDestroy()</span></code> 时，设备仍在流 <code class="docutils literal notranslate"><span class="pre">stream</span></code> 中执行任务，则该流会先完成其中所有任务，再被销毁。</p>
 </section>
 <section id="launching-kernels-in-cuda-streams">
 <h3><span class="section-number">2.3.2.2. </span>在 CUDA 流中启动内核<a class="headerlink" href="asynchronous-execution.html#launching-kernels-in-cuda-streams" title="跳转到此标题">#</a></h3>
@@ -566,7 +563,7 @@ more comprehensive discussion is provided in section <a class="reference interna
 </section>
 <section id="stream-synchronization">
 <span id="async-execution-stream-synchronization"></span><h3><span class="section-number">2.3.2.4. </span>流同步<a class="headerlink" href="asynchronous-execution.html#stream-synchronization" title="跳转到此标题">#</a></h3>
-<p>与流同步最简单的方法，是等待该流中的任务全部清空。 This can be done in two ways, using the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code> function or the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamQuery()</span></code> function.</p>
+<p>与流同步最简单的方法，是等待该流中的任务全部清空。这可以通过两种方式完成：<code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code> 或 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamQuery()</span></code>。</p>
 <p>The <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code> function will block until all the work in the stream has completed.</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// Wait for the stream to be empty of tasks</span>
 <span class="n">cudaStreamSynchronize</span><span class="p">(</span><span class="n">stream</span><span class="p">);</span>
@@ -600,9 +597,9 @@ more comprehensive discussion is provided in section <a class="reference interna
 </section>
 <section id="cuda-events">
 <span id="id3"></span><h2><span class="section-number">2.3.3. </span>CUDA 事件<a class="headerlink" href="asynchronous-execution.html#cuda-events" title="跳转到此标题">#</a></h2>
-<p>CUDA 事件是一种向 CUDA 流中插入标记点的机制。 They are essentially like tracer particles that can be used to track the progress of tasks in a stream. Imagine launching two kernels into a stream. Without such tracking events, we would only be able to determine whether the stream is empty or not. If we had an operation that was dependent on the output of the first kernel, we would not be able to start that operation safely until we knew the stream was empty by which time both kernels would have completed.</p>
-<p>Using CUDA Events we can do better. By enqueuing an event into a stream directly after the first kernel, but before the second kernel, we can wait for this event to come to the front of the stream. Then, we can safely start our dependent operation knowing that the first kernel has completed, but before the second kernel has started. Using CUDA events in this way can build up a graph of dependencies between operations and streams. This graph analogy translates directly into the later discussion of <a class="reference internal" href="asynchronous-execution.html#async-execution-cuda-graphs"><span class="std std-ref">CUDA graphs</span></a>.</p>
-<p>CUDA streams also keep time information which can be used to time kernel launches and memory transfers.</p>
+<p>CUDA 事件是一种向 CUDA 流中插入标记点的机制。它本质上类似“示踪粒子”，可用于跟踪流中任务进度。设想向一个流中启动两个内核；若没有这类跟踪事件，我们只能判断流是否为空。若某个操作依赖第一个内核输出，那么在确认流为空之前无法安全启动该操作，而此时两个内核往往都已完成。</p>
+<p>使用 CUDA 事件可以做得更好。若在第一个内核之后、第二个内核之前向流中插入一个事件，我们可以等待该事件到达流前端。这样就能在确认第一个内核完成、但第二个内核尚未开始时，安全启动依赖操作。按此方式使用事件，可构建操作与流之间的依赖图，这与后文讨论的 <a class="reference internal" href="asynchronous-execution.html#async-execution-cuda-graphs"><span class="std std-ref">CUDA 图</span></a> 直接对应。</p>
+<p>CUDA 流还会保留时间信息，可用于测量内核启动和内存传输耗时。</p>
 <section id="creating-and-destroying-cuda-events">
 <h3><span class="section-number">2.3.3.1. </span>创建与销毁 CUDA 事件<a class="headerlink" href="asynchronous-execution.html#creating-and-destroying-cuda-events" title="跳转到此标题">#</a></h3>
 <p>CUDA Events can be created and destroyed using the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaEventCreate()</span></code> and <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaEventDestroy()</span></code> functions.</p>
