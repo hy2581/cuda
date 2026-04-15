@@ -1608,7 +1608,7 @@ html
 <span id="cuda-general-purpose-parallel-computing-architecture"></span><h2>
 <span class="section-number">3.2. </span>CUDA®：通用并行计算平台与编程模型<a class="headerlink" href="#cuda-a-general-purpose-parallel-computing-platform-and-programming-model" title="跳转到此标题"></a>
 </h2>
-<p>2006 年 11 月，NVIDIA<sup>®</sup> 引入CUDA<sup>®</sup>，一种通用并行计算平台和编程模型，利用 NVIDIA GPU 中的并行计算引擎以比 CPU 更高效的方式解决许多复杂的计算问题。</p>
+<p>2006 年 11 月，NVIDIA<sup>®</sup> 引入 CUDA<sup>®</sup>，一种通用并行计算平台和编程模型，利用 NVIDIA GPU 中的并行计算引擎以比 CPU 更高效的方式解决许多复杂的计算问题。</p>
 <p>CUDA 附带一个软件环境，允许开发人员使用 C++ 作为高级编程语言。如图所示 <a class="reference internal" href="#cuda-general-purpose-parallel-computing-architecture-cuda-is-designed-to-support-various-languages-and-application-programming-interfaces"><span class="std std-numref">图2</span></a>，支持其他语言、应用程序编程接口或基于指令的方法，例如 FORTRAN、DirectCompute、OpenACC。</p>
 <figure class="align-center" id="cuda-general-purpose-parallel-computing-architecture-cuda-is-designed-to-support-various-languages-and-application-programming-interfaces">
 <a class="reference internal image-reference" href="_images/gpu-computing-applications.png"><img alt="GPU Computing Applications. CUDA is designed to support various languages and application programming interfaces." src="_images/gpu-computing-applications.png" style="width: 800px;"/></a>
@@ -1681,16 +1681,16 @@ html
 <p class="admonition-title">警告</p>
 <p>该文件已被新文件取代 <a class="reference external" href="http://docs.nvidia.com/cuda/cuda-programming-guide">CUDA 编程指南</a>。本文档中的信息应被视为遗留信息，并且自 CUDA 13.0 起不再更新本文档。请参阅 <a class="reference external" href="http://docs.nvidia.com/cuda/cuda-programming-guide">CUDA 编程指南</a> 有关 CUDA 的最新信息。</p>
 </div>
-<p>本章通过概述 CUDA 编程模型背后的主要概念如何在 C++ 中公开来介绍它们。</p>
-<p>CUDA C++ 的详细描述参见 <a class="reference internal" href="#programming-interface"><span class="std std-ref">编程接口</span></a>.</p>
-<p>本章和下一章中使用的向量加法示例的完整代码可以在 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-samples/index.html#vector-addition">矢量添加 CUDA 示例</a>.</p>
+<p>本章将通过 C++ 中的表达方式，介绍 CUDA 编程模型背后的核心概念。</p>
+<p>CUDA C++ 的完整说明请参见 <a class="reference internal" href="#programming-interface"><span class="std std-ref">编程接口</span></a>。</p>
+<p>本章及下一章使用的向量加法示例完整代码可见 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-samples/index.html#vector-addition">vectorAdd CUDA 示例</a>。</p>
 <section id="kernels">
 <span id="id5"></span><h2>
 <span class="section-number">5.1. </span>内核<a class="headerlink" href="#kernels" title="跳转到此标题"></a>
 </h2>
-<p>CUDA C++ 通过允许程序员定义 C++ 函数来扩展 C++，称为 <em>内核</em>，当调用时，由 N 个不同的并行执行 N 次 <em>CUDA 线程</em>，而不是像常规 C++ 函数那样只执行一次。</p>
-<p>内核是使用以下方式定义的 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 声明说明符和为给定内核调用执行该内核的 CUDA 线程数使用新的指定 <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;...&gt;&gt;&gt;</span></code><em>执行配置</em> 语法（参见 <a class="reference external" href="index.html#execution-configuration">执行配置</a>）。每个执行内核的线程都被赋予一个唯一的 <em>线程ID</em> 可以通过内置变量在内核中访问。</p>
-<p>作为说明，以下示例代码使用内置变量 <code class="docutils literal notranslate"><span class="pre">线程Idx</span></code>，将两个向量相加 <em>一个</em> 和 <em>乙</em> 尺寸的 <em>氮</em> 并将结果存储到向量中 <em>C</em>.</p>
+<p>CUDA C++ 对 C++ 的扩展之一，是允许程序员定义称为 <em>kernel（内核）</em> 的函数。与普通 C++ 函数只执行一次不同，内核在一次调用中会由 N 个不同的 <em>CUDA 线程</em>并行执行 N 次。</p>
+<p>内核通过 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 声明说明符定义；某次内核调用中要启动多少 CUDA 线程，则通过 <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;...&gt;&gt;&gt;</span></code> <em>执行配置</em> 语法指定（参见 <a class="reference external" href="index.html#execution-configuration">执行配置</a>）。每个执行内核的线程都有唯一的 <em>线程 ID</em>，可通过内置变量在内核中访问。</p>
+<p>下面以一个示例说明：通过内置变量 <code class="docutils literal notranslate"><span class="pre">threadIdx</span></code>，将长度为 <em>N</em> 的两个向量 <em>A</em> 和 <em>B</em> 相加，并把结果写入向量 <em>C</em>。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="c1">// Kernel definition</span>
 <span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">VecAdd</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">C</span><span class="p">)</span><span class="w"></span>
@@ -1708,15 +1708,15 @@ html
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>在这里，每一个 <em>氮</em> 执行的线程 <code class="docutils literal notranslate"><span class="pre">向量添加()</span></code> 执行一对一加法。</p>
+<p>这里，执行 <code class="docutils literal notranslate"><span class="pre">VecAdd()</span></code> 的 <em>N</em> 个线程中，每个线程完成一组对应元素的加法。</p>
 </section>
 <section id="thread-hierarchy">
 <span id="id6"></span><h2>
 <span class="section-number">5.2. </span>线程层次结构<a class="headerlink" href="#thread-hierarchy" title="跳转到此标题"></a>
 </h2>
-<p>为了方便起见， <code class="docutils literal notranslate"><span class="pre">线程Idx</span></code> 是一个三分量向量，因此可以使用一维、二维或三维向量来识别线程 <em>线程索引</em>，形成一维、二维或三维线程块，称为线程 <em>线程块</em>。这提供了一种自然的方式来调用域中元素（例如向量、矩阵或体积）的计算。</p>
-<p>线程的索引和线程 ID 之间的关系非常简单：对于一维块，它们是相同的；对于一维块，它们是相同的；对于一维块，它们是相同的。对于大小为二维的块 <em>（Dx，Dy）</em>，索引线程的线程ID <em>（x，y）</em> 是 <em>(x + y dx)</em>;对于尺寸为三维的块 <em>（Dx、Dy、Dz）</em>，索引线程的线程ID <em>（x、y、z）</em> 是 <em>(x + y Dx + z Dx Dy)</em>.</p>
-<p>作为示例，以下代码将两个矩阵相加 <em>一个</em> 和 <em>乙</em> 尺寸的 <em>N×N</em> 并将结果存储到矩阵中 <em>C</em>.</p>
+<p>为便于使用，<code class="docutils literal notranslate"><span class="pre">threadIdx</span></code> 是一个三分量向量，因此线程可使用一维、二维或三维 <em>线程索引</em> 标识，并组织成一维、二维或三维的 <em>线程块（thread block）</em>。这使得在向量、矩阵、体数据等数据域上组织计算更加自然。</p>
+<p>线程索引与线程 ID 的关系很直接：在一维线程块中二者相同；在尺寸为 <em>(Dx, Dy)</em> 的二维线程块中，索引为 <em>(x, y)</em> 的线程，其线程 ID 为 <em>(x + y*Dx)</em>；在尺寸为 <em>(Dx, Dy, Dz)</em> 的三维线程块中，索引为 <em>(x, y, z)</em> 的线程，其线程 ID 为 <em>(x + y*Dx + z*Dx*Dy)</em>。</p>
+<p>例如，下面的代码将两个 <em>NxN</em> 矩阵 <em>A</em> 与 <em>B</em> 相加，并把结果存入矩阵 <em>C</em>。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="c1">// Kernel definition</span>
 <span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">MatAdd</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">A</span><span class="p">[</span><span class="n">N</span><span class="p">][</span><span class="n">N</span><span class="p">],</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">B</span><span class="p">[</span><span class="n">N</span><span class="p">][</span><span class="n">N</span><span class="p">],</span><span class="w"></span>
@@ -1740,15 +1740,15 @@ html
 </div>
 <p>每个块的线程数量是有限的，因为块中的所有线程都应驻留在同一个流式多处理器核心上，并且必须共享该核心的有限内存资源。在当前的 GPU 上，一个线程块最多可以包含 1024 个线程。</p>
 <p>然而，一个内核可以由多个形状相同的线程块来执行，因此线程总数等于每个块的线程数乘以块数。</p>
-<p>块被组织成一维、二维或三维 <em>网格</em> 线程块的数量，如下所示 <a class="reference internal" href="#thread-hierarchy-grid-of-thread-blocks"><span class="std std-numref">图4</span></a>。网格中线程块的数量通常由正在处理的数据的大小决定，该数据通常超过系统中处理器的数量。</p>
+<p>线程块会组织成一维、二维或三维的 <em>网格（grid）</em>（见 <a class="reference internal" href="#thread-hierarchy-grid-of-thread-blocks"><span class="std std-numref">图4</span></a>）。网格中线程块的数量通常由待处理数据规模决定，而该规模通常大于系统中的处理器数量。</p>
 <figure class="align-center" id="thread-hierarchy-grid-of-thread-blocks">
 <a class="reference internal image-reference" href="_images/grid-of-thread-blocks.png"><img alt="Grid of Thread Blocks" src="_images/grid-of-thread-blocks.png" style="width: 454px;"/></a>
 <figcaption>
 <p><span class="caption-number">图4 </span><span class="caption-text">线程块网格</span><a class="headerlink" href="#thread-hierarchy-grid-of-thread-blocks" title="跳转到此图片"></a></p>
 </figcaption>
 </figure>
-<p>每个块的线程数和每个网格的块数在 <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;...&gt;&gt;&gt;</span></code> 语法可以是类型 <code class="docutils literal notranslate"><span class="pre">整数</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">暗淡3</span></code>。可以如上例所示指定二维块或网格。</p>
-<p>网格内的每个块都可以通过一维、二维或三维唯一索引来标识，该索引可通过内核中的内置访问 <code class="docutils literal notranslate"><span class="pre">区块IDx</span></code> 多变的。线程块的维度可以通过内置的内核访问 <code class="docutils literal notranslate"><span class="pre">块尺寸</span></code> 多变的。</p>
+<p>在 <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;...&gt;&gt;&gt;</span></code> 语法中，每块线程数与每个网格的块数可用 <code class="docutils literal notranslate"><span class="pre">int</span></code> 或 <code class="docutils literal notranslate"><span class="pre">dim3</span></code> 指定。正如上例所示，可以定义二维线程块或二维网格。</p>
+<p>网格中的每个线程块都有唯一的一维、二维或三维索引，可在内核中通过内置变量 <code class="docutils literal notranslate"><span class="pre">blockIdx</span></code> 获取；线程块维度可通过内置变量 <code class="docutils literal notranslate"><span class="pre">blockDim</span></code> 获取。</p>
 <p>延续之前的 <code class="docutils literal notranslate"><span class="pre">MatAdd()</span></code> 处理多个块的例子，代码变成如下。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="c1">// Kernel definition</span>
@@ -1772,16 +1772,16 @@ html
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>16x16（256 个线程）的线程块大小虽然在本例中是任意的，但却是常见的选择。网格是用足够的块创建的，以便像以前一样每个矩阵元素有一个线程。为简单起见，此示例假设每个维度中每个网格的线程数可被该维度中每个块的线程数整除，但情况不一定如此。</p>
-<p>线程块需要独立执行。必须能够以任何顺序（并行或串行）执行块。这种独立性要求允许线程块以任何顺序并跨任意数量的内核进行调度，如下所示 <a class="reference internal" href="#scalable-programming-model-automatic-scalability"><span class="std std-numref">图3</span></a>，使程序员能够编写随内核数量扩展的代码。</p>
-<p>块内的线程可以通过某些方式共享数据来进行协作 <em>共享内存</em> 并通过同步它们的执行来协调内存访问。更准确地说，可以通过调用以下命令来指定内核中的同步点： <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 内在功能； <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 充当屏障，块中的所有线程必须等待才能继续进行。 <a class="reference internal" href="#shared-memory"><span class="std std-ref">共享内存</span></a> 给出了使用共享内存的示例。此外 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code>， 这 <a class="reference internal" href="#cooperative-groups"><span class="std std-ref">合作组API</span></a> 提供了一组丰富的线程同步原语。</p>
-<p>为了高效合作，共享内存预计是每个处理器核心附近的低延迟内存（很像 L1 缓存），并且 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 预计会轻量化。</p>
+<p>这里选择 16x16（256 线程）的线程块大小虽属示例，但也是实践中常见配置。网格会创建足够多的线程块，以保证与前例一样每个矩阵元素对应一个线程。为简化说明，示例假设每个维度上网格总线程数都可被每块线程数整除；实际并不强制如此。</p>
+<p>线程块必须能够彼此独立执行：无论按何种顺序、并行还是串行执行都应正确。这一独立性使线程块可以在任意数量的核心上按任意顺序调度（见 <a class="reference internal" href="#scalable-programming-model-automatic-scalability"><span class="std std-numref">图3</span></a>），从而让程序天然具备随核心数扩展的能力。</p>
+<p>同一线程块内的线程可通过 <em>共享内存</em> 交换数据，并通过执行同步来协调内存访问。更具体地说，可在内核中调用 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 设置同步点；它是一个屏障，要求该线程块内所有线程都到达后才能继续。<a class="reference internal" href="#shared-memory"><span class="std std-ref">共享内存</span></a> 一节给出了相关示例。除 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 外，<a class="reference internal" href="#cooperative-groups"><span class="std std-ref">Cooperative Groups API</span></a> 还提供了更丰富的线程同步原语。</p>
+<p>为了高效协作，共享内存被设计为靠近处理器核心的低延迟存储（类似 L1 缓存），而 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 也应是轻量级操作。</p>
 <section id="thread-block-clusters">
 <span id="id7"></span><h3>
 <span class="section-number">5.2.1. </span>线程块簇<a class="headerlink" href="#thread-block-clusters" title="跳转到此标题"></a>
 </h3>
-<p>随着NVIDIA的推出 <a class="reference internal" href="#compute-capability-9-0"><span class="std std-ref">计算能力 9.0</span></a>，CUDA 编程模型引入了一个可选的层次结构级别，称为由线程块组成的线程块簇。与如何保证线程块中的线程在流式多处理器上共同调度类似，集群中的线程块也保证在 GPU 中的 GPU 处理集群 (GPC) 上共同调度。</p>
-<p>与线程块类似，簇也被组织成线程块簇的一维、二维或三维网格，如下所示 <a class="reference internal" href="#thread-block-clusters-grid-of-clusters"><span class="std std-numref">图5</span></a>。簇中线程块的数量可以由用户定义，并且簇中最多支持 8 个线程块作为 CUDA 中的可移植簇大小。请注意，在 GPU 硬件或 MIG 配置上太小而无法支持 8 个多处理器时，最大集群大小将相应减小。这些较小配置以及支持超过 8 的线程块簇大小的较大配置的标识是特定于体系结构的，可以使用以下命令进行查询 <code class="docutils literal notranslate"><span class="pre">cudaOccupancyMaxPotentialClusterSize</span></code> API。</p>
+<p>随着 NVIDIA <a class="reference internal" href="#compute-capability-9-0"><span class="std std-ref">计算能力 9.0</span></a> 的引入，CUDA 编程模型新增了可选层级：线程块簇（Thread Block Cluster）。类似于同一线程块内线程会在同一 SM 上协同调度，簇内线程块也保证会在同一 GPU Processing Cluster（GPC）上协同调度。</p>
+<p>与线程块类似，簇也可以组织成一维、二维或三维网格（见 <a class="reference internal" href="#thread-block-clusters-grid-of-clusters"><span class="std std-numref">图5</span></a>）。每个簇包含的线程块数量可由用户指定；在 CUDA 中，可移植的簇大小上限为 8 个线程块。需要注意的是，在过小的 GPU 硬件或 MIG 配置上，若无法容纳 8 个多处理器，该上限会相应降低。如何识别这类较小配置，以及识别支持超过 8 个线程块簇的更大配置，属于架构相关能力，可通过 <code class="docutils literal notranslate"><span class="pre">cudaOccupancyMaxPotentialClusterSize</span></code> API 查询。</p>
 <figure class="align-center" id="thread-block-clusters-grid-of-clusters">
 <a class="reference internal image-reference" href="_images/grid-of-clusters.png"><img alt="Grid of Thread Block Clusters" src="_images/grid-of-clusters.png" style="width: 454px;"/></a>
 <figcaption>
@@ -1790,9 +1790,9 @@ html
 </figure>
 <div class="admonition note">
 <p class="admonition-title">注意</p>
-<p>在使用集群支持启动的内核中，出于兼容性目的，gridDim 变量仍然表示线程块数量的大小。可以使用以下命令找到集群中块的排名 <a class="reference internal" href="#cluster-group-cg"><span class="std std-ref">集群组</span></a> API。</p>
+<p>在启用簇支持的内核启动中，为了兼容性，<code class="docutils literal notranslate"><span class="pre">gridDim</span></code> 仍表示线程块数量而不是簇数量。块在簇内的 rank 可通过 <a class="reference internal" href="#cluster-group-cg"><span class="std std-ref">Cluster Group</span></a> API 获取。</p>
 </div>
-<p>可以使用编译时内核属性在内核中启用线程块集群 <code class="docutils literal notranslate"><span class="pre">__cluster_dims__(X,Y,Z)</span></code> 或使用 CUDA 内核启动 API <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code>。下面的示例展示了如何使用编译时内核属性启动集群。使用内核属性的簇大小在编译时固定，然后可以使用经典的启动内核 <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;</span> <span class="pre">,</span> <span class="pre">&gt;&gt;&gt;</span></code>。如果内核使用编译时簇大小，则在启动内核时无法修改簇大小。</p>
+<p>线程块簇可通过编译期内核属性 <code class="docutils literal notranslate"><span class="pre">__cluster_dims__(X,Y,Z)</span></code> 启用，也可通过 CUDA 内核启动 API <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code> 启用。下面示例展示了使用编译期属性启动簇：当簇大小在编译期确定后，可继续使用经典的 <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt; , &gt;&gt;&gt;</span></code> 语法启动内核；但该簇大小在运行时不可再修改。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="c1">// Kernel definition</span>
 <span class="c1">// Compile time cluster size 2 in X-dimension and 1 in Y and Z dimension</span>
@@ -1815,7 +1815,7 @@ html
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>线程块簇大小也可以在运行时设置，并且可以使用 CUDA 内核启动 API 来启动内核 <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code>。下面的代码示例展示了如何使用可扩展 API 启动集群内核。</p>
+<p>线程块簇大小也可在运行时设置，此时通过 <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code> 启动内核。下面示例展示了如何使用该可扩展 API 启动簇内核。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="c1">// Kernel definition</span>
 <span class="c1">// No compile time attribute attached to the kernel</span>
@@ -1852,14 +1852,14 @@ html
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>在计算能力为 9.0 的 GPU 中，集群中的所有线程块都保证在单个 GPU 处理集群 (GPC) 上共同调度，并允许集群中的线程块使用以下命令执行硬件支持的同步： <a class="reference internal" href="#cluster-group-cg"><span class="std std-ref">集群组</span></a> 应用程序编程接口 <code class="docutils literal notranslate"><span class="pre">集群.sync()</span></code>。集群组还提供成员函数来查询集群组的大小（线程数或块数），使用 <code class="docutils literal notranslate"><span class="pre">线程数()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">num_blocks()</span></code> 分别是API。可以使用以下命令查询集群组中线程或块的排名 <code class="docutils literal notranslate"><span class="pre">暗淡线程（）</span></code> 和 <code class="docutils literal notranslate"><span class="pre">暗淡的块（）</span></code> 分别是API。</p>
+<p>在计算能力 9.0 的 GPU 上，簇内所有线程块都保证被共同调度到同一个 GPC 上，并可借助 <a class="reference internal" href="#cluster-group-cg"><span class="std std-ref">Cluster Group</span></a> API 的 <code class="docutils literal notranslate"><span class="pre">cluster.sync()</span></code> 进行硬件支持的同步。Cluster Group 还提供了查询簇规模的成员函数（按线程数或块数）：<code class="docutils literal notranslate"><span class="pre">num_threads()</span></code> 与 <code class="docutils literal notranslate"><span class="pre">num_blocks()</span></code>；并可通过 <code class="docutils literal notranslate"><span class="pre">dim_threads()</span></code> 与 <code class="docutils literal notranslate"><span class="pre">dim_blocks()</span></code> 查询线程或线程块在簇中的 rank。</p>
 <p>属于集群的线程块可以访问分布式共享内存。集群中的线程块能够对分布式共享内存中的任何地址进行读取、写入和执行原子操作。 <a class="reference internal" href="#distributed-shared-memory"><span class="std std-ref">分布式共享内存</span></a> 给出了在分布式共享内存中执行直方图的示例。</p>
 </section>
 <section id="blocks-as-clusters">
 <span id="block-as-cluster"></span><h3>
 <span class="section-number">5.2.2. </span>将块视为簇<a class="headerlink" href="#blocks-as-clusters" title="跳转到此标题"></a>
 </h3>
-<p>和 <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code>，启动的集群数量是隐式的，只能手动计算。</p>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code> 时，启动的簇数量是隐式的，只能手工推导。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">__cluster_dims__</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">))</span><span class="w"> </span><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">foo</span><span class="p">();</span><span class="w"></span>
 
@@ -1877,8 +1877,8 @@ html
 <span class="n">foo</span><span class="o">&lt;&lt;&lt;</span><span class="n">dim3</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span><span class="w"></span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> 需要两个字段，每个字段都是 3 个元素的元组。第一个元组表示块维度和第二个簇大小。第二个元组假设为 <code class="docutils literal notranslate"><span class="pre">(1,1,1)</span></code> 如果没有通过。要指定流，必须通过 <code class="docutils literal notranslate"><span class="pre">1</span></code> 和 <code class="docutils literal notranslate"><span class="pre">0</span></code> 作为第二个和第三个参数 <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;&gt;&gt;&gt;</span></code> 最后是流。传递其他值将导致未定义的行为。</p>
-<p>请注意，第二个元组是非法的 <code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> 和 <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code> 同时指定。使用也是违法的 <code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> 与一个空的 <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code>。当第二个元组 <code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> 被指定，这意味着“将块视为簇”被启用，并且编译器将识别其中的第一个参数 <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;&gt;&gt;&gt;</span></code> 作为簇的数量而不是线程块的数量。</p>
+<p><code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> 需要两个字段，且每个字段都是 3 元素元组：第一个元组表示 block 维度，第二个表示 cluster 大小；若未提供第二个元组，则默认为 <code class="docutils literal notranslate"><span class="pre">(1,1,1)</span></code>。若要指定 stream，需在 <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;&gt;&gt;&gt;</span></code> 中将第二、第三个参数设为 <code class="docutils literal notranslate"><span class="pre">1</span></code> 与 <code class="docutils literal notranslate"><span class="pre">0</span></code>，最后再传入 stream；其他取值会导致未定义行为。</p>
+<p>需要注意：不能同时指定 <code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> 的第二个元组与 <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code>；也不能将 <code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> 与空的 <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code> 组合使用。当 <code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> 的第二个元组被指定时，即启用“将块视为簇”模式，编译器会将 <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;&gt;&gt;&gt;</span></code> 中的第一个参数解释为簇数量而非线程块数量。</p>
 </section>
 </section>
 <section id="memory-hierarchy">
@@ -1886,7 +1886,7 @@ html
 <span class="section-number">5.3. </span>内存层次结构<a class="headerlink" href="#memory-hierarchy" title="跳转到此标题"></a>
 </h2>
 <p>CUDA 线程在执行期间可以访问多个内存空间中的数据，如下所示 <a class="reference internal" href="#memory-hierarchy-memory-hierarchy-figure"><span class="std std-numref">图6</span></a>。每个线程都有私有本地内存。每个线程块都有对该块的所有线程可见的共享内存，并且与该块具有相同的生命周期。线程块簇中的线程块可以对彼此的共享内存执行读、写和原子操作。所有线程都可以访问相同的全局内存。</p>
-<p>还有两个可供所有线程访问的附加只读内存空间：常量内存空间和纹理内存空间。全局、常量和纹理内存空间针对不同的内存使用情况进行了优化（请参阅 <a class="reference internal" href="#device-memory-accesses"><span class="std std-ref">设备内存访问</span></a>）。纹理内存还为某些特定的数据格式提供不同的寻址模式以及数据过滤（请参见 <a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理和表面记忆</span></a>).</p>
+<p>此外，还有两个对所有线程可见的只读内存空间：常量内存与纹理内存。全局/常量/纹理内存分别针对不同访问模式优化（见 <a class="reference internal" href="#device-memory-accesses"><span class="std std-ref">设备内存访问</span></a>）。其中纹理内存还为特定数据格式提供了多种寻址模式与数据过滤能力（见 <a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理与表面内存</span></a>）。</p>
 <p>全局、常量和纹理内存空间在同一应用程序的内核启动过程中是持久的。</p>
 <figure class="align-center" id="memory-hierarchy-memory-hierarchy-figure">
 <img alt="Memory Hierarchy" src="_images/memory-hierarchy.png"/>
@@ -1899,9 +1899,9 @@ html
 <span id="id9"></span><h2>
 <span class="section-number">5.4. </span>异构编程<a class="headerlink" href="#heterogeneous-programming" title="跳转到此标题"></a>
 </h2>
-<p>如图所示 <a class="reference internal" href="#heterogeneous-programming-heterogeneous-programming"><span class="std std-numref">图7</span></a>，CUDA 编程模型假设 CUDA 线程在物理上独立的线程上执行 <em>设备</em> 作为协处理器运行 <em>主持人</em> 运行 C++ 程序。例如，当内核在 GPU 上执行而 C++ 程序的其余部分在 CPU 上执行时，就会出现这种情况。</p>
+<p>如 <a class="reference internal" href="#heterogeneous-programming-heterogeneous-programming"><span class="std std-numref">图7</span></a> 所示，CUDA 编程模型假设 CUDA 线程运行在物理上独立的 <em>设备（device）</em> 上，该设备作为 <em>主机（host）</em> C++ 程序的协处理器工作。例如，内核在 GPU 上执行，而其余 C++ 代码在 CPU 上执行。</p>
 <p>CUDA 编程模型还假设主机和设备都在 DRAM 中维护自己独立的内存空间，称为 <em>主机内存</em> 和 <em>设备内存</em>， 分别。因此，程序通过调用 CUDA 运行时来管理内核可见的全局、常量和纹理内存空间（在 <a class="reference internal" href="#programming-interface"><span class="std std-ref">编程接口</span></a>）。这包括设备内存分配和释放以及主机和设备内存之间的数据传输。</p>
-<p>统一内存提供 <em>管理内存</em> 桥接主机和设备内存空间。托管内存可作为具有公共地址空间的单个一致内存映像从系统中的所有 CPU 和 GPU 进行访问。此功能可实现设备内存的超额订阅，并且无需在主机和设备上显式镜像数据，从而大大简化移植应用程序的任务。看 <a class="reference internal" href="#um-unified-memory-programming-hd"><span class="std std-ref">统一内存编程</span></a> 了解统一内存的介绍。</p>
+<p>统一内存（Unified Memory）通过 <em>托管内存（managed memory）</em> 打通了主机与设备内存空间。托管内存在系统中所有 CPU 与 GPU 看来都是同一份一致的地址空间映像。该能力支持设备内存超额订阅，并能避免在主机和设备两侧显式维护数据镜像，从而显著简化应用迁移。参见 <a class="reference internal" href="#um-unified-memory-programming-hd"><span class="std std-ref">统一内存编程</span></a>。</p>
 <figure class="align-center" id="heterogeneous-programming-heterogeneous-programming">
 <img alt="Heterogeneous Programming" src="_images/heterogeneous-programming.png"/>
 <figcaption>
@@ -1919,14 +1919,14 @@ html
 <span id="id10"></span><h2>
 <span class="section-number">5.5. </span>异步 SIMT 编程模型<a class="headerlink" href="#asynchronous-simt-programming-model" title="跳转到此标题"></a>
 </h2>
-<p>在 CUDA 编程模型中，线程是执行计算或内存操作的最低抽象级别。从基于的设备开始 <strong>NVIDIA Ampere GPU 架构</strong>，CUDA 编程模型通过异步编程模型提供对内存操作的加速。异步编程模型定义了与 CUDA 线程相关的异步操作的行为。</p>
-<p>异步编程模型定义了以下行为 <a class="reference internal" href="#aw-barrier"><span class="std std-ref">异步屏障</span></a> 用于 CUDA 线程之间的同步。该模型还解释并定义了如何 <a class="reference internal" href="#asynchronous-data-copies"><span class="std std-ref">cuda::memcpy_async</span></a> 可用于在 GPU 中计算时从全局内存异步移动数据。</p>
+<p>在 CUDA 编程模型中，线程是执行计算与内存操作的最小抽象单元。从 <strong>NVIDIA Ampere GPU 架构</strong> 开始，CUDA 通过异步编程模型加速内存相关操作；该模型定义了异步操作与 CUDA 线程之间的语义关系。</p>
+<p>异步编程模型定义了 <a class="reference internal" href="#aw-barrier"><span class="std std-ref">异步屏障</span></a> 在 CUDA 线程间同步时的语义；同时也解释并规定了如何使用 <a class="reference internal" href="#asynchronous-data-copies"><span class="std std-ref">cuda::memcpy_async</span></a> 在 GPU 计算过程中异步搬运全局内存数据。</p>
 <section id="asynchronous-operations">
 <span id="id11"></span><h3>
 <span class="section-number">5.5.1. </span>异步操作<a class="headerlink" href="#asynchronous-operations" title="跳转到此标题"></a>
 </h3>
-<p>异步操作被定义为由 CUDA 线程发起并像由另一个线程一样异步执行的操作。在格式良好的程序中，一个或多个 CUDA 线程与异步操作同步。启动异步操作的 CUDA 线程不需要位于同步线程中。</p>
-<p>这样的异步线程（as-if 线程）始终与启动异步操作的 CUDA 线程相关联。异步操作使用同步对象来同步操作的完成。这样的同步对象可以由用户显式管理（例如， <code class="docutils literal notranslate"><span class="pre">cuda::memcpy_async</span></code>）或在库中隐式管理（例如， <code class="docutils literal notranslate"><span class="pre">合作组::memcpy_async</span></code>).</p>
+<p>异步操作是指：由某个 CUDA 线程发起，但其执行行为可视作由“另一个线程”异步完成。在结构正确的程序中，会有一个或多个 CUDA 线程与该异步操作进行同步；发起线程本身不要求必须参与同步。</p>
+<p>该异步线程（as-if thread）总是与发起该异步操作的 CUDA 线程关联。异步操作通过同步对象来确认完成；同步对象可以由用户显式管理（如 <code class="docutils literal notranslate"><span class="pre">cuda::memcpy_async</span></code>），也可以由库隐式管理（如 <code class="docutils literal notranslate"><span class="pre">cooperative_groups::memcpy_async</span></code>）。</p>
 <p>同步对象可以是 <code class="docutils literal notranslate"><span class="pre">cuda::barrier</span></code> 或一个 <code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code>。这些对象的详细解释见 <a class="reference internal" href="#aw-barrier"><span class="std std-ref">异步屏障</span></a> 和 <a class="reference internal" href="#asynchronous-data-copies"><span class="std std-ref">使用 cuda::pipeline 异步数据复制</span></a>。这些同步对象可以在不同的线程作用域内使用。范围定义了可以使用同步对象来与异步操作同步的线程集。下表定义了 CUDA C++ 中可用的线程作用域以及可以与每个线程同步的线程。</p>
 <table class="table-no-stripes colwidths-given docutils align-default">
 <colgroup>
@@ -1958,16 +1958,16 @@ html
 </tr>
 </tbody>
 </table>
-<p>这些线程作用域是作为标准 C++ 的扩展来实现的 <a class="reference external" href="https://nvidia.github.io/libcudacxx/extended_api/memory_model.html#thread-scopes">CUDA 标准 C++</a> 库。</p>
+<p>这些线程作用域作为标准 C++ 的扩展，实现在 <a class="reference external" href="https://nvidia.github.io/libcudacxx/extended_api/memory_model.html#thread-scopes">CUDA Standard C++</a> 库中。</p>
 </section>
 </section>
 <section id="compute-capability">
 <span id="id12"></span><h2>
 <span class="section-number">5.6. </span>计算能力<a class="headerlink" href="#compute-capability" title="跳转到此标题"></a>
 </h2>
-<p>这 <em>计算能力</em> 设备的版本号由版本号表示，有时也称为“SM 版本”。该版本号标识 GPU 硬件支持的功能，并由应用程序在运行时使用来确定当前 GPU 上可用的硬件功能和/或指令。</p>
-<p>计算能力包括主要修订号 <em>X</em> 和一个次要修订号 <em>是</em> 并表示为 <em>XY</em>.</p>
-<p>主要修订号表示设备的核心 GPU 架构。具有相同主修订号的设备共享相同的基本架构。下表列出了每个 NVIDIA GPU 架构对应的主要版本号。</p>
+<p>设备的 <em>计算能力（compute capability）</em> 以版本号表示，也常称为“SM 版本”。该版本号用于标识 GPU 硬件支持的能力，应用程序可在运行时据此判断当前 GPU 可用的硬件特性和/或指令。</p>
+<p>计算能力由主版本号 <em>X</em> 与次版本号 <em>Y</em> 构成，记作 <em>X.Y</em>。</p>
+<p>主版本号表示设备所属的核心 GPU 架构；主版本号相同的设备共享相同的基础架构。下表列出了各 NVIDIA GPU 架构对应的主版本号。</p>
 <table class="colwidths-auto docutils align-default" id="id453">
 <caption>
 <span class="caption-number">表2 </span><span class="caption-text">GPU 架构和主要修订号</span><a class="headerlink" href="#id453" title="跳转到此表格"></a>
@@ -2025,12 +2025,12 @@ html
 </tr>
 </tbody>
 </table>
-<p><a class="reference internal" href="#cuda-enabled-gpus"><span class="std std-ref">支持 CUDA 的 GPU</span></a> 所有支持 CUDA 的设备及其计算能力的列表。 <a class="reference internal" href="#compute-capabilities"><span class="std std-ref">计算能力</span></a> 给出了每种计算能力的技术规格。</p>
+<p><a class="reference internal" href="#cuda-enabled-gpus"><span class="std std-ref">支持 CUDA 的 GPU</span></a> 一节列出了所有支持 CUDA 的设备及其计算能力；<a class="reference internal" href="#compute-capabilities"><span class="std std-ref">计算能力</span></a> 一节给出了各计算能力的技术规格。</p>
 <div class="admonition note">
 <p class="admonition-title">注意</p>
 <p>特定 GPU 的计算能力版本不应与 CUDA 版本（例如 CUDA 7.5、CUDA 8、CUDA 9）混淆，后者是 CUDA 的版本 <em>软件平台</em>。应用程序开发人员使用 CUDA 平台来创建在多代 GPU 架构上运行的应用程序，包括尚未发明的未来 GPU 架构。虽然 CUDA 平台的新版本通常通过支持新 GPU 架构的计算能力版本来添加对该架构的本机支持，但 CUDA 平台的新版本通常还包括独立于硬件生成的软件功能。</p>
 </div>
-<p>这 <em>特斯拉</em> 和 <em>费米</em> 从 CUDA 7.0 和 CUDA 9.0 开始分别不再支持架构。</p>
+<p><em>Tesla</em> 与 <em>Fermi</em> 架构分别从 CUDA 7.0 与 CUDA 9.0 起不再受支持。</p>
 </section>
 </section>
 <section id="programming-interface">
