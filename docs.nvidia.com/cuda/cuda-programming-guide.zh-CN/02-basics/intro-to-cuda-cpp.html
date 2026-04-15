@@ -3,13 +3,13 @@
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="../" >
+<html lang="zh-CN" data-content_root="../" >
 
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>2.1. Intro to CUDA C++ &#8212; CUDA Programming Guide</title>
+    <title>2.1. CUDA C++ 入门 &#8212; CUDA 编程指南</title>
   
   
   
@@ -75,7 +75,7 @@
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="2.2. Writing CUDA SIMT Kernels" href="writing-cuda-kernels.html" />
+    <link rel="next" title="2.2. 编写 CUDA SIMT 内核" href="writing-cuda-kernels.html" />
     <link rel="prev" title="2. Programming GPUs in CUDA" href="../part2.html" />
 
 <link rel="preload" as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png">
@@ -357,7 +357,7 @@
 
 <nav class="bd-docs-nav bd-links"
      aria-label="Table of Contents">
-  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
+  <p class="bd-links__title" role="heading" aria-level="1">目录</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA Programming Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. Introduction to CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -367,11 +367,11 @@
 </ul>
 </details></li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../part2.html">2. Programming GPUs in CUDA</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l3 current active"><a class="current reference internal" href="intro-to-cuda-cpp.html#">2.1. Intro to CUDA C++</a></li>
-<li class="toctree-l3"><a class="reference internal" href="writing-cuda-kernels.html">2.2. Writing CUDA SIMT Kernels</a></li>
-<li class="toctree-l3"><a class="reference internal" href="asynchronous-execution.html">2.3. Asynchronous Execution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="understanding-memory.html">2.4. Unified and System Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="nvcc.html">2.5. NVCC: The NVIDIA CUDA Compiler</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="intro-to-cuda-cpp.html#">2.1. CUDA C++ 入门</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writing-cuda-kernels.html">2.2. 编写 CUDA SIMT 内核</a></li>
+<li class="toctree-l3"><a class="reference internal" href="asynchronous-execution.html">2.3. 异步执行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-memory.html">2.4. 统一内存与系统内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nvcc.html">2.5. NVCC：NVIDIA CUDA 编译器</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. Advanced CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -488,21 +488,21 @@
                 <article class="bd-article">
                   
   <section id="intro-to-cuda-c">
-<span id="intro-applications-cpp"></span><h1><span class="section-number">2.1. </span>Intro to CUDA C++<a class="headerlink" href="intro-to-cuda-cpp.html#intro-to-cuda-c" title="Link to this heading">#</a></h1>
-<p>This chapter introduces some of the basic concepts of the CUDA programming model by illustrating how they are exposed in C++.</p>
-<p>This programming guide focuses on the CUDA runtime API. The CUDA runtime API is the most commonly used way of using CUDA in C++ and is built on top of the lower level CUDA driver API.</p>
+<span id="intro-applications-cpp"></span><h1><span class="section-number">2.1. </span>CUDA C++ 入门<a class="headerlink" href="intro-to-cuda-cpp.html#intro-to-cuda-c" title="跳转到此标题">#</a></h1>
+<p>本章通过 C++ 示例介绍 CUDA 编程模型中的一些基础概念。</p>
+<p>本编程指南聚焦 CUDA Runtime API。它是 C++ 中最常用的 CUDA 使用方式，并构建在更底层的 CUDA Driver API 之上。</p>
 <p><a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-driver-and-runtime"><span class="std std-ref">CUDA Runtime API and CUDA Driver API</span></a> discusses the difference between the APIs and <a class="reference internal" href="../03-advanced/driver-api.html#driver-api"><span class="std std-ref">CUDA driver API</span></a> discusses writing code that mixes the APIs.</p>
 <p>This guide assumes the CUDA Toolkit and NVIDIA Driver are installed and that a supported NVIDIA GPU is present. See <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-quick-start-guide/index.html">The CUDA Quickstart Guide</a> for instructions on installing the necessary CUDA components.</p>
 <section id="compilation-with-nvcc">
-<span id="id1"></span><h2><span class="section-number">2.1.1. </span>Compilation with NVCC<a class="headerlink" href="intro-to-cuda-cpp.html#compilation-with-nvcc" title="Link to this heading">#</a></h2>
-<p>GPU code written in C++ is compiled using the NVIDIA Cuda Compiler, <code class="docutils literal notranslate"><span class="pre">nvcc</span></code>. <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> is a compiler driver that simplifies the process of compiling C++ or PTX code: It provides simple and familiar command line options and executes them by invoking the collection of tools that implement the different compilation stages.</p>
+<span id="id1"></span><h2><span class="section-number">2.1.1. </span>使用 NVCC 编译<a class="headerlink" href="intro-to-cuda-cpp.html#compilation-with-nvcc" title="跳转到此标题">#</a></h2>
+<p>使用 C++ 编写的 GPU 代码通过 NVIDIA CUDA 编译器 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 进行编译。 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> is a compiler driver that simplifies the process of compiling C++ or PTX code: It provides simple and familiar command line options and executes them by invoking the collection of tools that implement the different compilation stages.</p>
 <p>This guide will show <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> command lines which can be used on any Linux system with the CUDA Toolkit installed, at a Windows command line or power shell, or on Windows Subsystem for Linux with the CUDA Toolkit.  The <a class="reference internal" href="nvcc.html#nvcc"><span class="std std-ref">nvcc chapter</span></a> of this guide covers common use cases of <code class="docutils literal notranslate"><span class="pre">nvcc</span></code>, and complete documentation is provided by <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html">the nvcc user manual</a>.</p>
 </section>
 <section id="kernels">
-<span id="id2"></span><h2><span class="section-number">2.1.2. </span>Kernels<a class="headerlink" href="intro-to-cuda-cpp.html#kernels" title="Link to this heading">#</a></h2>
-<p>As mentioned in the introduction to the <a class="reference internal" href="../01-introduction/programming-model.html#programming-model"><span class="std std-ref">CUDA Programming Model</span></a>, functions which execute on the GPU which can be invoked from the host are called kernels. Kernels are written to be run by many parallel threads simultaneously.</p>
+<span id="id2"></span><h2><span class="section-number">2.1.2. </span>内核（Kernel）<a class="headerlink" href="intro-to-cuda-cpp.html#kernels" title="跳转到此标题">#</a></h2>
+<p>正如 <a class="reference internal" href="../01-introduction/programming-model.html#programming-model"><span class="std std-ref">CUDA 编程模型</span></a> 一章所述，可由主机端调用并在 GPU 上执行的函数称为内核（kernel）。 Kernels are written to be run by many parallel threads simultaneously.</p>
 <section id="specifying-kernels">
-<span id="intro-cpp-specifying-kernels"></span><h3><span class="section-number">2.1.2.1. </span>Specifying Kernels<a class="headerlink" href="intro-to-cuda-cpp.html#specifying-kernels" title="Link to this heading">#</a></h3>
+<span id="intro-cpp-specifying-kernels"></span><h3><span class="section-number">2.1.2.1. </span>定义内核<a class="headerlink" href="intro-to-cuda-cpp.html#specifying-kernels" title="跳转到此标题">#</a></h3>
 <p>The code for a kernel is specified using the <code class="docutils literal notranslate"><span class="pre">__global__</span></code> declaration specifier. This indicates to the compiler that this function will be compiled for the GPU in a way that allows it to be invoked from a kernel launch. A kernel launch is an operation which starts a kernel running, usually from the CPU. Kernels are functions with a <code class="docutils literal notranslate"><span class="pre">void</span></code> return type.</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// Kernel definition</span>
 <span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">vecAdd</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">C</span><span class="p">)</span>
@@ -513,11 +513,11 @@
 </div>
 </section>
 <section id="launching-kernels">
-<span id="intro-cpp-launching-kernels"></span><h3><span class="section-number">2.1.2.2. </span>Launching Kernels<a class="headerlink" href="intro-to-cuda-cpp.html#launching-kernels" title="Link to this heading">#</a></h3>
-<p>The number of threads that will execute the kernel in parallel is specified as part of the kernel launch. This is called the execution configuration. Different invocations of the same kernel may use different execution configurations, such as a different number of threads or thread blocks.</p>
+<span id="intro-cpp-launching-kernels"></span><h3><span class="section-number">2.1.2.2. </span>启动内核<a class="headerlink" href="intro-to-cuda-cpp.html#launching-kernels" title="跳转到此标题">#</a></h3>
+<p>内核并行执行的线程数量在内核启动时进行指定，这称为执行配置（execution configuration）。 Different invocations of the same kernel may use different execution configurations, such as a different number of threads or thread blocks.</p>
 <p>There are two ways of launching kernels from CPU code, <a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-launching-kernels-triple-chevron"><span class="std std-ref">triple chevron notation</span></a> and <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code>. Triple chevron notation, the most common way of launching kernels, is introduced here. An example of launching a kernel using <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code> is shown and discussed in detail in in section <a class="reference internal" href="../03-advanced/advanced-host-programming.html#advanced-host-cudalaunchkernelex"><span class="std std-numref">Section 3.1.1</span></a>.</p>
 <section id="triple-chevron-notation">
-<span id="intro-cpp-launching-kernels-triple-chevron"></span><h4><span class="section-number">2.1.2.2.1. </span>Triple Chevron Notation<a class="headerlink" href="intro-to-cuda-cpp.html#triple-chevron-notation" title="Link to this heading">#</a></h4>
+<span id="intro-cpp-launching-kernels-triple-chevron"></span><h4><span class="section-number">2.1.2.2.1. </span>三尖括号语法<a class="headerlink" href="intro-to-cuda-cpp.html#triple-chevron-notation" title="跳转到此标题">#</a></h4>
 <p>Triple chevron notation is a <a class="reference internal" href="../05-appendices/cpp-language-extensions.html#execution-configuration"><span class="std std-ref">CUDA C++ Language Extension</span></a> which is used to launch kernels. It is called triple chevron because it uses three chevron characters to encapsulate the execution configuration for the kernel launch, i.e. <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;</span> <span class="pre">&gt;&gt;&gt;</span></code>. Execution configuration parameters are specified as a comma separated list inside the chevrons, similar to parameters to a function call. The syntax for a kernel launch of the <code class="docutils literal notranslate"><span class="pre">vecAdd</span></code> kernel is shown below.</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="w"> </span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">vecAdd</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">C</span><span class="p">)</span>
 <span class="w"> </span><span class="p">{</span>
@@ -551,8 +551,8 @@
 </section>
 </section>
 <section id="thread-and-grid-index-intrinsics">
-<span id="intro-cpp-thread-indexing"></span><h3><span class="section-number">2.1.2.3. </span>Thread and Grid Index Intrinsics<a class="headerlink" href="intro-to-cuda-cpp.html#thread-and-grid-index-intrinsics" title="Link to this heading">#</a></h3>
-<p>Within kernel code, CUDA provides intrinsics to access parameters of the execution configuration and the index of a thread or block.</p>
+<span id="intro-cpp-thread-indexing"></span><h3><span class="section-number">2.1.2.3. </span>线程与网格索引内建变量<a class="headerlink" href="intro-to-cuda-cpp.html#thread-and-grid-index-intrinsics" title="跳转到此标题">#</a></h3>
+<p>在内核代码中，CUDA 提供了一组内建变量，可访问执行配置参数以及线程/线程块索引。</p>
 <blockquote>
 <div><ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">threadIdx</span></code> gives the index of a thread within its thread block. Each thread in a thread block will have a different index.</p></li>
@@ -621,10 +621,10 @@
 </section>
 </section>
 <section id="memory-in-gpu-computing">
-<span id="intro-cpp-allocating-memory"></span><h2><span class="section-number">2.1.3. </span>Memory in GPU Computing<a class="headerlink" href="intro-to-cuda-cpp.html#memory-in-gpu-computing" title="Link to this heading">#</a></h2>
-<p>In order to use the <code class="docutils literal notranslate"><span class="pre">vecAdd</span></code> kernel shown above, the arrays <code class="docutils literal notranslate"><span class="pre">A</span></code>, <code class="docutils literal notranslate"><span class="pre">B</span></code>, and <code class="docutils literal notranslate"><span class="pre">C</span></code> must be in memory accessible to the GPU. There are several different ways to do this, two of which will be illustrated here. Other methods will be covered in later sections on <a class="reference internal" href="understanding-memory.html#memory-unified-memory"><span class="std std-ref">unified memory</span></a>. The memory spaces available to code running on the GPU were introduced in <a class="reference internal" href="../01-introduction/programming-model.html#programming-model-memory"><span class="std std-ref">GPU Memory</span></a> and are covered in more detail in <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-gpu-device-memory-spaces"><span class="std std-ref">GPU Device Memory Spaces</span></a>.</p>
+<span id="intro-cpp-allocating-memory"></span><h2><span class="section-number">2.1.3. </span>GPU 计算中的内存<a class="headerlink" href="intro-to-cuda-cpp.html#memory-in-gpu-computing" title="跳转到此标题">#</a></h2>
+<p>要使用上文的 <code class="docutils literal notranslate"><span class="pre">vecAdd</span></code> 内核，数组 <code class="docutils literal notranslate"><span class="pre">A</span></code>、<code class="docutils literal notranslate"><span class="pre">B</span></code>、<code class="docutils literal notranslate"><span class="pre">C</span></code> 必须位于 GPU 可访问的内存中。 There are several different ways to do this, two of which will be illustrated here. Other methods will be covered in later sections on <a class="reference internal" href="understanding-memory.html#memory-unified-memory"><span class="std std-ref">unified memory</span></a>. The memory spaces available to code running on the GPU were introduced in <a class="reference internal" href="../01-introduction/programming-model.html#programming-model-memory"><span class="std std-ref">GPU Memory</span></a> and are covered in more detail in <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-gpu-device-memory-spaces"><span class="std std-ref">GPU Device Memory Spaces</span></a>.</p>
 <section id="unified-memory">
-<span id="intro-cpp-unified-memory"></span><h3><span class="section-number">2.1.3.1. </span>Unified Memory<a class="headerlink" href="intro-to-cuda-cpp.html#unified-memory" title="Link to this heading">#</a></h3>
+<span id="intro-cpp-unified-memory"></span><h3><span class="section-number">2.1.3.1. </span>统一内存<a class="headerlink" href="intro-to-cuda-cpp.html#unified-memory" title="跳转到此标题">#</a></h3>
 <p>Unified memory is a feature of the CUDA runtime which lets the NVIDIA Driver manage movement of data between host and device(s). Memory is allocated using the <code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code> API or by declaring a variable with the <code class="docutils literal notranslate"><span class="pre">__managed__</span></code> specifier. The NVIDIA Driver will make sure that the memory is accessible to the GPU or CPU whenever either tries to access it.</p>
 <p>The code below shows a complete function to launch the <code class="docutils literal notranslate"><span class="pre">vecAdd</span></code> kernel which uses unified memory for the input and output vectors that will be used on the GPU. <code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code> allocates buffers which can be accessed from either the CPU or the GPU. These buffers are released using <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code>.</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">unifiedMemExample</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">)</span>
@@ -677,7 +677,7 @@
 <p>Unified memory is supported on all operating systems and GPUs supported by CUDA, though the underlying mechanism and performance may differ based on system architecture. <a class="reference internal" href="understanding-memory.html#memory-unified-memory"><span class="std std-ref">Unified Memory</span></a> provides more details. On some Linux systems, (e.g. those with <a class="reference internal" href="understanding-memory.html#memory-unified-address-translation-services"><span class="std std-ref">address translation services</span></a> or <a class="reference internal" href="understanding-memory.html#memory-heterogeneous-memory-management"><span class="std std-ref">heterogeneous memory management</span></a>) all system memory is automatically unified memory, and there is no need to use <code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code> or the <code class="docutils literal notranslate"><span class="pre">__managed__</span></code> specifier.</p>
 </section>
 <section id="explicit-memory-management">
-<span id="intro-cpp-explicit-memory-management"></span><h3><span class="section-number">2.1.3.2. </span>Explicit Memory Management<a class="headerlink" href="intro-to-cuda-cpp.html#explicit-memory-management" title="Link to this heading">#</a></h3>
+<span id="intro-cpp-explicit-memory-management"></span><h3><span class="section-number">2.1.3.2. </span>显式内存管理<a class="headerlink" href="intro-to-cuda-cpp.html#explicit-memory-management" title="跳转到此标题">#</a></h3>
 <p>Explicitly managing memory allocation and data migration between memory spaces can help improve application performance, though it does make for more verbose code. The code below explicitly allocates memory on the GPU using <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code>. Memory on the GPU is freed using the same <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code> API as was used for unified memory in the previous example.</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">explicitMemExample</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">)</span>
 <span class="p">{</span>
@@ -754,18 +754,18 @@
 <p>The code uses <code class="docutils literal notranslate"><span class="pre">cudaMallocHost</span></code> to allocate memory on the CPU. This allocates <a class="reference internal" href="understanding-memory.html#memory-page-locked-host-memory"><span class="std std-ref">page-locked memory</span></a> on the host, which can improve copy performance and is necessary for  <a class="reference internal" href="asynchronous-execution.html#async-execution-memory-transfers"><span class="std std-ref">asynchronous</span></a> memory transfers. In general, it is good practice to use page-locked memory for CPU buffers that will be used in data transfers to and from GPUs. Performance can degrade on some systems if too much host memory is page-locked. Best practice is to page-lock only buffers which will be used for sending or receiving data from the GPU.</p>
 </section>
 <section id="memory-management-and-application-performance">
-<h3><span class="section-number">2.1.3.3. </span>Memory Management and Application Performance<a class="headerlink" href="intro-to-cuda-cpp.html#memory-management-and-application-performance" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">2.1.3.3. </span>内存管理与应用性能<a class="headerlink" href="intro-to-cuda-cpp.html#memory-management-and-application-performance" title="跳转到此标题">#</a></h3>
 <p>As can be seen in the above example, explicit memory management is more verbose, requiring the programmer to specify copies between the host and device. This is the advantage and disadvantage of explicit memory management: it affords more control of when data is copied between host and devices, where memory is resident, and exactly what memory is allocated where. Explicit memory management can provide performance opportunities controlling memory transfers and overlapping them with other computations.</p>
 <p>When using unified memory, there are CUDA APIs (which will be covered in <a class="reference internal" href="understanding-memory.html#memory-mem-advise-prefetch"><span class="std std-ref">Memory Advise and Prefetch</span></a>), which provide hints to the NVIDIA driver managing the memory, which can enable some of the performance benefits of using explicit memory management when using unified memory.</p>
 </section>
 </section>
 <section id="synchronizing-cpu-and-gpu">
-<span id="intro-synchronizing-the-gpu"></span><h2><span class="section-number">2.1.4. </span>Synchronizing CPU and GPU<a class="headerlink" href="intro-to-cuda-cpp.html#synchronizing-cpu-and-gpu" title="Link to this heading">#</a></h2>
-<p>As mentioned in <a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-launching-kernels"><span class="std std-ref">Launching Kernels</span></a>, kernel launches are asynchronous with respect to the CPU thread which called them. This means the control flow of the CPU thread will continue executing before the kernel has completed, and possibly even before it has launched. In order to guarantee that a kernel has completed execution before proceeding in host code, some synchronization mechanism is necessary.</p>
+<span id="intro-synchronizing-the-gpu"></span><h2><span class="section-number">2.1.4. </span>CPU 与 GPU 同步<a class="headerlink" href="intro-to-cuda-cpp.html#synchronizing-cpu-and-gpu" title="跳转到此标题">#</a></h2>
+<p>如 <a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-launching-kernels"><span class="std std-ref">启动内核</span></a> 一节所述，内核启动相对于发起调用的 CPU 线程是异步的。这意味着 CPU 线程的控制流会在内核完成之前继续向前执行，甚至可能在内核尚未真正启动前就继续执行。若要保证主机端后续代码执行前内核已经完成，就必须使用某种同步机制。</p>
 <p>The simplest way to synchronize the GPU and a host thread is with the use of <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize</span></code>, which blocks the host thread until all previously issued work on the GPU has completed. In the examples of this chapter this is sufficient because only single operations are being executed on the GPU. In larger applications, there may be multiple <a class="reference internal" href="asynchronous-execution.html#cuda-streams"><span class="std std-ref">streams</span></a> executing work on the GPU and <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize</span></code> will wait for work in all streams to complete. In these applications, using <a class="reference internal" href="asynchronous-execution.html#async-execution-stream-synchronization"><span class="std std-ref">Stream Synchronization</span></a> APIs to synchronize only with a specific stream or <a class="reference internal" href="asynchronous-execution.html#cuda-events"><span class="std std-ref">CUDA Events</span></a> is recommended. These will be covered in detail in the <a class="reference internal" href="asynchronous-execution.html#asynchronous-execution"><span class="std std-ref">Asynchronous Execution</span></a> chapter.</p>
 </section>
 <section id="putting-it-all-together">
-<span id="intro-cuda-cpp-all-together"></span><h2><span class="section-number">2.1.5. </span>Putting it All Together<a class="headerlink" href="intro-to-cuda-cpp.html#putting-it-all-together" title="Link to this heading">#</a></h2>
+<span id="intro-cuda-cpp-all-together"></span><h2><span class="section-number">2.1.5. </span>整合示例<a class="headerlink" href="intro-to-cuda-cpp.html#putting-it-all-together" title="跳转到此标题">#</a></h2>
 <p>The following listings show the entire code for the simple vector addition kernel introduced in this chapter along with all host code and utility functions for checking to verify that the answer obtained is correct. These examples default to using a vector length of 1024, but accept a different vector length as a command line argument to the executable.</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
@@ -1204,16 +1204,16 @@ Note that on GPU hardware or MIG configurations which are too small to support 8
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><span class="section-number">2. </span>Programming GPUs in CUDA</p>
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title"><span class="section-number">2. </span>使用 CUDA 进行 GPU 编程</p>
       </div>
     </a>
     <a class="right-next"
        href="writing-cuda-kernels.html"
        title="next page">
       <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><span class="section-number">2.2. </span>Writing CUDA SIMT Kernels</p>
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title"><span class="section-number">2.2. </span>编写 CUDA SIMT 内核</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -1234,7 +1234,7 @@ Note that on GPU hardware or MIG configurations which are too small to support 8
 <div
     id="pst-page-navigation-heading-2"
     class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
+    <i class="fa-solid fa-list"></i> 本页内容
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
