@@ -3,13 +3,13 @@
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="../" >
+<html lang="zh-CN" data-content_root="../" >
 
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>2.3. Asynchronous Execution &#8212; CUDA Programming Guide</title>
+    <title>2.3. 异步执行 &#8212; CUDA 编程指南</title>
   
   
   
@@ -357,7 +357,7 @@
 
 <nav class="bd-docs-nav bd-links"
      aria-label="Table of Contents">
-  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
+  <p class="bd-links__title" role="heading" aria-level="1">目录</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA Programming Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. Introduction to CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -369,7 +369,7 @@
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../part2.html">2. Programming GPUs in CUDA</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="intro-to-cuda-cpp.html">2.1. Intro to CUDA C++</a></li>
 <li class="toctree-l3"><a class="reference internal" href="writing-cuda-kernels.html">2.2. Writing CUDA SIMT Kernels</a></li>
-<li class="toctree-l3 current active"><a class="current reference internal" href="asynchronous-execution.html#">2.3. Asynchronous Execution</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="asynchronous-execution.html#">2.3. 异步执行</a></li>
 <li class="toctree-l3"><a class="reference internal" href="understanding-memory.html">2.4. Unified and System Memory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="nvcc.html">2.5. NVCC: The NVIDIA CUDA Compiler</a></li>
 </ul>
@@ -490,22 +490,22 @@
   <section id="asynchronous-execution">
 <span id="id1"></span><h1><span class="section-number">2.3. </span>Asynchronous Execution<a class="headerlink" href="asynchronous-execution.html#asynchronous-execution" title="Link to this heading">#</a></h1>
 <section id="what-is-asynchronous-concurrent-execution">
-<h2><span class="section-number">2.3.1. </span>What is Asynchronous Concurrent Execution?<a class="headerlink" href="asynchronous-execution.html#what-is-asynchronous-concurrent-execution" title="Link to this heading">#</a></h2>
-<p>CUDA allows concurrent, or overlapping, execution of multiple tasks, specifically:</p>
+<h2><span class="section-number">2.3.1. </span>什么是异步并发执行？<a class="headerlink" href="asynchronous-execution.html#what-is-asynchronous-concurrent-execution" title="跳转到此标题">#</a></h2>
+<p>CUDA 允许多个任务并发（即重叠）执行，具体包括：</p>
 <ul class="simple">
-<li><p>computation on the host</p></li>
-<li><p>computation on the device</p></li>
-<li><p>memory transfers from the host to the device</p></li>
-<li><p>memory transfers from the device to the host</p></li>
-<li><p>memory transfers within the memory of a given device</p></li>
-<li><p>memory transfers among devices</p></li>
+<li><p>主机端计算</p></li>
+<li><p>设备端计算</p></li>
+<li><p>从主机到设备的内存传输</p></li>
+<li><p>从设备到主机的内存传输</p></li>
+<li><p>同一设备内存空间内的数据传输</p></li>
+<li><p>设备之间的数据传输</p></li>
 </ul>
 <p>The concurrency is expressed via an asynchronous interface, where a dispatching function call or kernel launch returns immediately. Asynchronous calls usually return before the dispatched operation has completed and may return before the asynchronous operation has started. The application is then free to perform other tasks at the same time as the originally dispatched operation. When the final results of the initially dispatched operation are needed, the application must perform some form of synchronization to ensure that the operation in question has completed.  A typical example of a concurrent execution pattern is the overlapping of host and device memory transfers with computation and thus reducing or eliminating their overhead.</p>
 <figure class="align-center" id="asynchronous-concurrent-execution-with-cuda-streams">
 <a class="reference internal image-reference" href="../_images/cuda_streams.png"><img alt="Asynchronous Concurrent Execution with CUDA streams" src="../_images/cuda_streams.png" style="width: 1000px;" />
 </a>
 <figcaption>
-<p><span class="caption-number">Figure 17 </span><span class="caption-text">Asynchronous COncurrent Execution with CUDA streams</span><a class="headerlink" href="asynchronous-execution.html#asynchronous-concurrent-execution-with-cuda-streams" title="Link to this image">#</a></p>
+<p><span class="caption-number">图 17 </span><span class="caption-text">基于 CUDA 流的异步并发执行</span><a class="headerlink" href="asynchronous-execution.html#asynchronous-concurrent-execution-with-cuda-streams" title="跳转到此图片">#</a></p>
 </figcaption>
 </figure>
 <p>In general, asynchronous interfaces typically provide three main ways to synchronize with the dispatched operation</p>
@@ -516,22 +516,21 @@
 </ul>
 <p>While the programming interfaces are asynchronous, the actual ability to carry out various  operations concurrently will depend on the version of CUDA and the compute capability of the hardware being used – these details will be left to a later section of this guide (see <a class="reference internal" href="../05-appendices/compute-capabilities.html#compute-capabilities"><span class="std std-ref">Compute Capabilities</span></a>).</p>
 <p>In <a class="reference internal" href="intro-to-cuda-cpp.html#intro-synchronizing-the-gpu"><span class="std std-ref">Synchronizing CPU and GPU</span></a>, the CUDA runtime function <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code> was introduced, which is a blocking call which waits for all previously issued work to complete. The reason the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code> call was needed is because the kernel launch is asynchronous and returns immediately. CUDA provides an API for both blocking and non-blocking approaches to synchronization and even supports the use of host-side callback functions.</p>
-<p>The core API components for asynchronous execution in CUDA are <strong>CUDA Streams</strong> and <strong>CUDA Events</strong>.
-In the rest of this section we will explain how these elements can be used to express asynchronous execution
-in CUDA.</p>
+<p>CUDA 中异步执行的核心 API 组件是 <strong>CUDA 流</strong> 与 <strong>CUDA 事件</strong>。
+在本节其余部分中，我们将说明如何利用这些机制来表达 CUDA 异步执行。</p>
 <p>A related topic is that of <strong>CUDA Graphs</strong>, which allow a graph of asynchronous operations to be defined up front, which
 can then be executed repeatedly with minimal overhead. We cover CUDA Graphs in a very introductory level in section
 <a class="reference internal" href="asynchronous-execution.html#async-execution-cuda-graphs"><span class="std std-ref">2.4.9.2 Introduction to CUDA Graphs with Stream Capture</span></a>, and a
 more comprehensive discussion is provided in section <a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs"><span class="std std-ref">4.1 CUDA Graphs</span></a>.</p>
 </section>
 <section id="cuda-streams">
-<span id="id2"></span><h2><span class="section-number">2.3.2. </span>CUDA Streams<a class="headerlink" href="asynchronous-execution.html#cuda-streams" title="Link to this heading">#</a></h2>
-<p>At the most basic level, a CUDA stream is an abstraction which allows the programmer to express a sequence of operations. A stream operates like a work-queue into which programs can add operations, such as memory copies or kernel launches, to be executed in order. Operations at the front of the queue for a given stream are executed and then dequeued allowing the next queued operation to come to the front and to be considered for execution. The order of execution of operations in a stream is sequential and the operations are executed in the order they are enqueued into the stream.</p>
+<span id="id2"></span><h2><span class="section-number">2.3.2. </span>CUDA 流<a class="headerlink" href="asynchronous-execution.html#cuda-streams" title="跳转到此标题">#</a></h2>
+<p>在最基础层面，CUDA 流是一种抽象，用于让程序员表达一串按序操作。 A stream operates like a work-queue into which programs can add operations, such as memory copies or kernel launches, to be executed in order. Operations at the front of the queue for a given stream are executed and then dequeued allowing the next queued operation to come to the front and to be considered for execution. The order of execution of operations in a stream is sequential and the operations are executed in the order they are enqueued into the stream.</p>
 <p>An application may use multiple streams simultaneously. In such cases, the runtime will select a task to execute from the streams that have work available depending on the state of the GPU resources. Streams may be assigned a priority which acts as a hint to the runtime to influence the scheduling, but does not guarantee a specific order of execution.</p>
-<p>The API function calls and kernel-launches operating in a stream are asynchronous with respect to the host thread. Applications can synchronize with a stream by waiting for it to be empty of tasks, or they can also synchronize at the device level.</p>
+<p>在某个流中执行的 API 调用与内核启动相对主机线程都是异步的。 Applications can synchronize with a stream by waiting for it to be empty of tasks, or they can also synchronize at the device level.</p>
 <p>CUDA has a default stream, and operations and kernel launches without a specific stream are queued into this default stream. Code examples which do not specify a stream are using this default stream implicitly. The default stream has some specific semantics which are discussed in subsection <a class="reference internal" href="asynchronous-execution.html#async-execution-blocking-non-blocking-default-stream"><span class="std std-ref">Blocking and non-blocking streams and the default stream</span></a>.</p>
 <section id="creating-and-destroying-cuda-streams">
-<h3><span class="section-number">2.3.2.1. </span>Creating and Destroying CUDA Streams<a class="headerlink" href="asynchronous-execution.html#creating-and-destroying-cuda-streams" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">2.3.2.1. </span>创建与销毁 CUDA 流<a class="headerlink" href="asynchronous-execution.html#creating-and-destroying-cuda-streams" title="跳转到此标题">#</a></h3>
 <p>CUDA streams can be created using the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamCreate()</span></code> function. The function call initializes the stream handle which can be used to identify the stream in subsequent function calls.</p>
 <div class="highlight-c notranslate" id="stream-creation-example"><div class="highlight"><pre><span></span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">;</span><span class="w">        </span><span class="c1">// Stream handle</span>
 <span class="n">cudaStreamCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream</span><span class="p">);</span><span class="w">  </span><span class="c1">// Create a new stream</span>
@@ -544,7 +543,7 @@ more comprehensive discussion is provided in section <a class="reference interna
 <p>If the device is still doing work in stream <code class="docutils literal notranslate"><span class="pre">stream</span></code> when the application calls <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamDestroy()</span></code>, the stream will complete all the work in the stream before being destroyed.</p>
 </section>
 <section id="launching-kernels-in-cuda-streams">
-<h3><span class="section-number">2.3.2.2. </span>Launching Kernels in CUDA Streams<a class="headerlink" href="asynchronous-execution.html#launching-kernels-in-cuda-streams" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">2.3.2.2. </span>在 CUDA 流中启动内核<a class="headerlink" href="asynchronous-execution.html#launching-kernels-in-cuda-streams" title="跳转到此标题">#</a></h3>
 <p>The usual triple-chevron syntax for launching a kernel can also be used to launch a kernel into a specific stream. The stream is specified as an extra parameter to the kernel launch. In the following example the kernel named <code class="docutils literal notranslate"><span class="pre">kernel</span></code> is launched into the stream with handle <code class="docutils literal notranslate"><span class="pre">stream</span></code>, which is of type <code class="docutils literal notranslate"><span class="pre">cudaStream_t</span></code> and has been assumed to have been created previously:</p>
 <div class="highlight-c notranslate" id="kernel-launch-stream"><div class="highlight"><pre><span></span><span class="n">kernel</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="p">,</span><span class="w"> </span><span class="n">shared_mem_size</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(...);</span>
 </pre></div>
@@ -552,7 +551,7 @@ more comprehensive discussion is provided in section <a class="reference interna
 <p>The kernel launch is asynchronous and the function call returns immediately. Assuming that the kernel launch is successful, the kernel will execute in the stream <code class="docutils literal notranslate"><span class="pre">stream</span></code> and the application is free to perform other tasks on the CPU or in other streams on the GPU while the kernel is executing.</p>
 </section>
 <section id="launching-memory-transfers-in-cuda-streams">
-<span id="async-execution-memory-transfers"></span><h3><span class="section-number">2.3.2.3. </span>Launching Memory Transfers in CUDA Streams<a class="headerlink" href="asynchronous-execution.html#launching-memory-transfers-in-cuda-streams" title="Link to this heading">#</a></h3>
+<span id="async-execution-memory-transfers"></span><h3><span class="section-number">2.3.2.3. </span>在 CUDA 流中发起内存传输<a class="headerlink" href="asynchronous-execution.html#launching-memory-transfers-in-cuda-streams" title="跳转到此标题">#</a></h3>
 <p>To launch a memory transfer into a stream, we can use the function <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyAsync()</span></code>. This function is similar to the  <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code> function, but it takes an additional parameter specifying the stream to use for the memory transfer. The function call in the code block below copies <code class="docutils literal notranslate"><span class="pre">size</span></code> bytes from the host memory pointed to by <code class="docutils literal notranslate"><span class="pre">src</span></code> to the device memory pointed to by <code class="docutils literal notranslate"><span class="pre">dst</span></code> in the stream <code class="docutils literal notranslate"><span class="pre">stream</span></code>.</p>
 <div class="highlight-c notranslate" id="async-memory-transfer"><div class="highlight"><pre><span></span><span class="c1">// Copy `size` bytes from `src` to `dst` in stream `stream`</span>
 <span class="n">cudaMemcpyAsync</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span><span class="w"> </span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">cudaMemcpyHostToDevice</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
@@ -561,13 +560,13 @@ more comprehensive discussion is provided in section <a class="reference interna
 <p>Like other asynchronous function calls, this function call returns immediately, whereas the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code> function blocks until the memory transfer is complete. In order to access the results of the transfer safely, the application must determine that the operation has completed using some form of synchronization.</p>
 <p>Other CUDA memory transfer functions such as <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpy2D()</span></code> also have asynchronous variants.</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
+<p class="admonition-title">注意</p>
 <p>In order for memory copies involving CPU memory to be carried out asynchronously, the host buffers must be pinned and page-locked. <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyAsync()</span></code> will function correctly if host memory which is not pinned and page-locked is used, but it will revert to a synchronous behavior which will not overlap with other work. This can inhibit the performance benefits of using asynchronous memory transfers. It is recommended programs use <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMallocHost()</span></code> to allocate buffers which will be used to send or receive data from GPUs.</p>
 </div>
 </section>
 <section id="stream-synchronization">
-<span id="async-execution-stream-synchronization"></span><h3><span class="section-number">2.3.2.4. </span>Stream Synchronization<a class="headerlink" href="asynchronous-execution.html#stream-synchronization" title="Link to this heading">#</a></h3>
-<p>The simplest way to synchronize with a stream is to wait for the stream to be empty of tasks. This can be done in two ways, using the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code> function or the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamQuery()</span></code> function.</p>
+<span id="async-execution-stream-synchronization"></span><h3><span class="section-number">2.3.2.4. </span>流同步<a class="headerlink" href="asynchronous-execution.html#stream-synchronization" title="跳转到此标题">#</a></h3>
+<p>与流同步最简单的方法，是等待该流中的任务全部清空。 This can be done in two ways, using the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code> function or the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamQuery()</span></code> function.</p>
 <p>The <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code> function will block until all the work in the stream has completed.</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// Wait for the stream to be empty of tasks</span>
 <span class="n">cudaStreamSynchronize</span><span class="p">(</span><span class="n">stream</span><span class="p">);</span>
@@ -600,12 +599,12 @@ more comprehensive discussion is provided in section <a class="reference interna
 </section>
 </section>
 <section id="cuda-events">
-<span id="id3"></span><h2><span class="section-number">2.3.3. </span>CUDA Events<a class="headerlink" href="asynchronous-execution.html#cuda-events" title="Link to this heading">#</a></h2>
-<p>CUDA events are a mechanism for inserting markers into a CUDA stream. They are essentially like tracer particles that can be used to track the progress of tasks in a stream. Imagine launching two kernels into a stream. Without such tracking events, we would only be able to determine whether the stream is empty or not. If we had an operation that was dependent on the output of the first kernel, we would not be able to start that operation safely until we knew the stream was empty by which time both kernels would have completed.</p>
+<span id="id3"></span><h2><span class="section-number">2.3.3. </span>CUDA 事件<a class="headerlink" href="asynchronous-execution.html#cuda-events" title="跳转到此标题">#</a></h2>
+<p>CUDA 事件是一种向 CUDA 流中插入标记点的机制。 They are essentially like tracer particles that can be used to track the progress of tasks in a stream. Imagine launching two kernels into a stream. Without such tracking events, we would only be able to determine whether the stream is empty or not. If we had an operation that was dependent on the output of the first kernel, we would not be able to start that operation safely until we knew the stream was empty by which time both kernels would have completed.</p>
 <p>Using CUDA Events we can do better. By enqueuing an event into a stream directly after the first kernel, but before the second kernel, we can wait for this event to come to the front of the stream. Then, we can safely start our dependent operation knowing that the first kernel has completed, but before the second kernel has started. Using CUDA events in this way can build up a graph of dependencies between operations and streams. This graph analogy translates directly into the later discussion of <a class="reference internal" href="asynchronous-execution.html#async-execution-cuda-graphs"><span class="std std-ref">CUDA graphs</span></a>.</p>
 <p>CUDA streams also keep time information which can be used to time kernel launches and memory transfers.</p>
 <section id="creating-and-destroying-cuda-events">
-<h3><span class="section-number">2.3.3.1. </span>Creating and Destroying CUDA Events<a class="headerlink" href="asynchronous-execution.html#creating-and-destroying-cuda-events" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">2.3.3.1. </span>创建与销毁 CUDA 事件<a class="headerlink" href="asynchronous-execution.html#creating-and-destroying-cuda-events" title="跳转到此标题">#</a></h3>
 <p>CUDA Events can be created and destroyed using the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaEventCreate()</span></code> and <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaEventDestroy()</span></code> functions.</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">cudaEvent_t</span><span class="w"> </span><span class="n">event</span><span class="p">;</span>
 
@@ -622,7 +621,7 @@ more comprehensive discussion is provided in section <a class="reference interna
 <p>The application is responsible for destroying events when they are no longer needed.</p>
 </section>
 <section id="inserting-events-into-cuda-streams">
-<h3><span class="section-number">2.3.3.2. </span>Inserting Events into CUDA Streams<a class="headerlink" href="asynchronous-execution.html#inserting-events-into-cuda-streams" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">2.3.3.2. </span>向 CUDA 流中插入事件<a class="headerlink" href="asynchronous-execution.html#inserting-events-into-cuda-streams" title="跳转到此标题">#</a></h3>
 <p>CUDA Events can be inserted into a stream using the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaEventRecord()</span></code> function.</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">cudaEvent_t</span><span class="w"> </span><span class="n">event</span><span class="p">;</span>
 <span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">;</span>
@@ -636,7 +635,7 @@ more comprehensive discussion is provided in section <a class="reference interna
 </div>
 </section>
 <section id="timing-operations-in-cuda-streams">
-<h3><span class="section-number">2.3.3.3. </span>Timing Operations in CUDA Streams<a class="headerlink" href="asynchronous-execution.html#timing-operations-in-cuda-streams" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">2.3.3.3. </span>对 CUDA 流中的操作计时<a class="headerlink" href="asynchronous-execution.html#timing-operations-in-cuda-streams" title="跳转到此标题">#</a></h3>
 <p>CUDA events can be used to time the execution of various stream operations including kernels. When an event reaches the front of a stream it records a timestamp. By surrounding a kernel in a stream with two events we can get an accurate timing of the duration of the kernel execution as is shown in the code snippet below:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">;</span>
 <span class="n">cudaStreamCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream</span><span class="p">);</span>
@@ -674,7 +673,7 @@ more comprehensive discussion is provided in section <a class="reference interna
 </div>
 </section>
 <section id="checking-the-status-of-cuda-events">
-<h3><span class="section-number">2.3.3.4. </span>Checking the Status of CUDA Events<a class="headerlink" href="asynchronous-execution.html#checking-the-status-of-cuda-events" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">2.3.3.4. </span>检查 CUDA 事件状态<a class="headerlink" href="asynchronous-execution.html#checking-the-status-of-cuda-events" title="跳转到此标题">#</a></h3>
 <p>Like in the case of checking the status of streams, we can check the status of events in either a blocking or a non-blocking way.</p>
 <p>The <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaEventSynchronize()</span></code> function will block until the event has completed. In the code snippet below we launch a kernel into a stream, followed by an event and then by a second kernel. We can use the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaEventSynchronize()</span></code> function to wait for the event after the first kernel to complete and in principle launch a dependent task immediately, potentially before <cite>kernel2</cite> finishes.</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">cudaEvent_t</span><span class="w"> </span><span class="n">event</span><span class="p">;</span>
@@ -773,7 +772,7 @@ more comprehensive discussion is provided in section <a class="reference interna
 </section>
 </section>
 <section id="callback-functions-from-streams">
-<h2><span class="section-number">2.3.4. </span>Callback Functions from Streams<a class="headerlink" href="asynchronous-execution.html#callback-functions-from-streams" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">2.3.4. </span>来自流的回调函数<a class="headerlink" href="asynchronous-execution.html#callback-functions-from-streams" title="跳转到此标题">#</a></h2>
 <p>CUDA provides a mechanism for launching functions on the host from within a stream. There are currently two functions available for this purpose: <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaLaunchHostFunc()</span></code> and <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaAddCallback()</span></code>. However, <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaAddCallback()</span></code> is slated for deprecation, so applications should use <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaLaunchHostFunc()</span></code>.</p>
 <p>Using <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaLaunchHostFunc()</span></code></p>
 <p>The signature of the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaLaunchHostFunc()</span></code> function is as follows:</p>
@@ -800,7 +799,7 @@ function may not call any CUDA APIs.</p>
 <section id="using-cudastreamaddcallback">
 <h3><span class="section-number">2.3.4.1. </span>Using <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamAddCallback()</span></code><a class="headerlink" href="asynchronous-execution.html#using-cudastreamaddcallback" title="Link to this heading">#</a></h3>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
+<p class="admonition-title">注意</p>
 <p>The <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamAddCallback()</span></code> function is slated for deprecation and removal and is discussed here for completeness and because it may still appear in existing code. Applications should use or switch to using <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaLaunchHostFunc()</span></code>.</p>
 </div>
 <p>The signature of the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamAddCallback()</span></code> function is as follows:</p>
@@ -829,7 +828,7 @@ In this case the callback function is a C function with the signature:</p>
 Similarly to the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaLaunchHostFunc()</span></code> func case, the stream will not be active and advance to tasks until the host-function has completed, and no CUDA functions may be called from within the callback function.</p>
 </section>
 <section id="asynchronous-error-handling">
-<span id="asynchronous-execution-error-handling"></span><h3><span class="section-number">2.3.4.2. </span>Asynchronous Error Handling<a class="headerlink" href="asynchronous-execution.html#asynchronous-error-handling" title="Link to this heading">#</a></h3>
+<span id="asynchronous-execution-error-handling"></span><h3><span class="section-number">2.3.4.2. </span>异步错误处理<a class="headerlink" href="asynchronous-execution.html#asynchronous-error-handling" title="跳转到此标题">#</a></h3>
 <p>In a cuda stream, errors may originate from any operation in the stream, including for kernel launches and memory transfers. These errors may not be propagated back to the user at run-time until the stream is synchronized, for example, by waiting for an event or calling <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code>. There are two ways to find out about errors which may have occurred in a stream.</p>
 <ul class="simple">
 <li><p>Using the function <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaGetLastError()</span></code>  - this function returns and clears the last error encountered in any stream in the current context. An immediate second call to cudaGetLastError() would return <code class="docutils literal notranslate"><span class="pre">cudaSuccess</span></code> if no other error occurred between the two calls.</p></li>
@@ -1078,7 +1077,7 @@ can be queried using the <code class="xref cpp cpp-func docutils literal notrans
 <div
     id="pst-page-navigation-heading-2"
     class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
+    <i class="fa-solid fa-list"></i> 本页内容
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
