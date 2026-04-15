@@ -2041,17 +2041,17 @@ html
 <p class="admonition-title">警告</p>
 <p>该文件已被新文件取代 <a class="reference external" href="http://docs.nvidia.com/cuda/cuda-programming-guide">CUDA 编程指南</a>。本文档中的信息应被视为遗留信息，并且自 CUDA 13.0 起不再更新本文档。请参阅 <a class="reference external" href="http://docs.nvidia.com/cuda/cuda-programming-guide">CUDA 编程指南</a> 有关 CUDA 的最新信息。</p>
 </div>
-<p>CUDA C++ 为熟悉 C++ 编程语言的用户提供了一条简单的途径，可以轻松编写供设备执行的程序。</p>
-<p>它由 C++ 语言的最小扩展集和运行时库组成。</p>
-<p>核心语言扩展已在 <a class="reference internal" href="#programming-model"><span class="std std-ref">编程模型</span></a>。它们允许程序员将内核定义为 C++ 函数，并在每次调用函数时使用一些新语法来指定网格和块维度。所有扩展的完整描述可以在 <a class="reference internal" href="#c-language-extensions"><span class="std std-ref">C++ 语言扩展</span></a>。任何包含这些扩展名的源文件都必须使用以下命令进行编译 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 如 <a class="reference internal" href="#compilation-with-nvcc"><span class="std std-ref">使用 nvcc 编译</span></a> 所述。</p>
+<p>CUDA C++ 为熟悉 C++ 的开发者提供了直观路径，使其能够较容易地编写在设备端执行的程序。</p>
+<p>CUDA C++ 由一组最小化的 C++ 语言扩展和一个运行时库组成。</p>
+<p>核心语言扩展已在 <a class="reference internal" href="#programming-model"><span class="std std-ref">编程模型</span></a> 一章介绍。借助这些扩展，开发者可以把内核定义为 C++ 函数，并在每次调用时使用新语法指定网格与线程块维度。全部扩展说明见 <a class="reference internal" href="#c-language-extensions"><span class="std std-ref">C++ 语言扩展</span></a>。任何包含这些扩展的源文件都必须用 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 编译（见 <a class="reference internal" href="#compilation-with-nvcc"><span class="std std-ref">使用 nvcc 编译</span></a>）。</p>
 <p>运行时在 <a class="reference internal" href="#cuda-c-runtime"><span class="std std-ref">CUDA 运行时</span></a> 一节中介绍。它提供在主机上执行的 C 和 C++ 函数，以分配和释放设备内存、在主机内存和设备内存之间传输数据、管理具有多个设备的系统等。运行时的完整描述可以在 CUDA 参考手册中找到。</p>
 <p>运行时构建在较低级别的 C API（CUDA 驱动程序 API）之上，应用程序也可以访问该 API。驱动程序 API 通过公开较低级别的概念（例如 CUDA 上下文（设备的主机进程的模拟）和 CUDA 模块（设备的动态加载库的模拟））来提供额外的控制级别。大多数应用程序不使用驱动程序 API，因为它们不需要这种额外的控制级别，并且在使用运行时时，上下文和模块管理是隐式的，从而产生更简洁的代码。由于运行时可与驱动程序 API 互操作，因此大多数需要某些驱动程序 API 功能的应用程序可以默认使用运行时 API，并且仅在需要时使用驱动程序 API。驱动程序API介绍于 <a class="reference internal" href="#driver-api"><span class="std std-ref">驱动程序接口</span></a> 并在参考手册中进行了完整描述。</p>
 <section id="compilation-with-nvcc">
 <span id="id14"></span><h2>
 <span class="section-number">6.1. </span>使用 nvcc 编译<a class="headerlink" href="#compilation-with-nvcc" title="跳转到此标题"></a>
 </h2>
-<p>可以使用 CUDA 指令集架构编写内核，称为 <em>PTX</em>，这在 PTX 参考手册中进行了描述。然而，使用高级编程语言（例如 C++）通常更有效。在这两种情况下，内核必须通过以下方式编译成二进制代码： <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 在设备上执行。</p>
-<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 是一个编译器驱动程序，可以简化编译过程 <em>C++</em> 或者 <em>PTX</em> code：它提供简单且熟悉的命令行选项，并通过调用实现不同编译阶段的工具集合来执行它们。本节概述了 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 工作流程和命令选项。完整的描述可以在 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 用户手册。</p>
+<p>内核也可以用 CUDA 指令集架构（<em>PTX</em>）编写，相关内容见 PTX 参考手册；但通常使用 C++ 这类高级语言效率更高。无论使用哪种方式，内核都需要通过 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 编译为设备可执行的二进制代码。</p>
+<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 是一个编译驱动程序，用于简化 <em>C++</em> 或 <em>PTX</em> 代码的编译流程：它提供熟悉的命令行选项，并在内部调用不同工具完成各编译阶段。这里仅概述 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 的工作流和常用选项，完整说明请见 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 用户手册。</p>
 <section id="compilation-workflow">
 <span id="id15"></span><h3>
 <span class="section-number">6.1.1. </span>编译工作流程<a class="headerlink" href="#compilation-workflow" title="跳转到此标题"></a>
@@ -2060,10 +2060,10 @@ html
 <span id="id16"></span><h4>
 <span class="section-number">6.1.1.1. </span>离线编译<a class="headerlink" href="#offline-compilation" title="跳转到此标题"></a>
 </h4>
-<p>编译的源文件 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 可以包括主机代码（即，在主机上执行的代码）和设备代码（即，在设备上执行的代码）的混合。 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code>的基本工作流程包括将设备代码与主机代码分离，然后：</p>
+<p>用 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 编译的源文件可以同时包含主机代码（在 host 上执行）和设备代码（在 device 上执行）。<code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 的基本流程是先将两者分离，然后：</p>
 <ul class="simple">
-<li><p>将设备代码编译成汇编形式（<em>PTX</em> 代码）和/或二进制形式（<em>库宾</em> 目的），</p></li>
-<li><p>并通过替换修改主机代码 <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;...&gt;&gt;&gt;</span></code> 中引入的语法 <a class="reference internal" href="#kernels"><span class="std std-ref">内核</span></a> （并在中详细描述 <a class="reference internal" href="#execution-configuration"><span class="std std-ref">执行配置</span></a>）通过必要的 CUDA 运行时函数调用来加载和启动每个已编译的内核 <em>PTX</em> 代码和/或 <em>库宾</em> 目的。</p></li>
+<li><p>将设备代码编译为汇编形式（<em>PTX</em>）和/或二进制形式（<em>cubin</em> 对象）；</p></li>
+<li><p>修改主机代码：把在 <a class="reference internal" href="#kernels"><span class="std std-ref">内核</span></a> 一节引入的 <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;...&gt;&gt;&gt;</span></code>（详见 <a class="reference internal" href="#execution-configuration"><span class="std std-ref">执行配置</span></a>）替换为必要的 CUDA 运行时调用，以加载并启动编译出的 <em>PTX</em> 代码和/或 <em>cubin</em> 对象。</p></li>
 </ul>
 <p>修改后的主机代码要么作为 C++ 代码输出，然后使用其他工具进行编译，要么直接作为目标代码输出，方法是让 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 在最后一个编译阶段调用主机编译器。</p>
 <p>然后应用程序可以：</p>
@@ -2076,37 +2076,37 @@ html
 <span id="id17"></span><h4>
 <span class="section-number">6.1.1.2. </span>即时编译<a class="headerlink" href="#just-in-time-compilation" title="跳转到此标题"></a>
 </h4>
-<p>任何 <em>PTX</em> 应用程序在运行时加载的代码由设备驱动程序进一步编译为二进制代码。这就是所谓的 <em>即时编译</em>。即时编译增加了应用程序加载时间，但允许应用程序从每个新设备驱动程序附带的任何新编译器改进中受益。这也是应用程序在编译应用程序时不存在的设备上运行的唯一方法，详细信息请参见 <a class="reference internal" href="#application-compatibility"><span class="std std-ref">应用兼容性</span></a>.</p>
-<p>当设备驱动程序及时编译一些 <em>PTX</em> 对于某些应用程序的代码，它会自动缓存生成的二进制代码的副本，以避免在应用程序的后续调用中重复编译。缓存 - 简称为 <em>计算缓存</em> - 当设备驱动程序升级时自动失效，以便应用程序可以从设备驱动程序内置的新即时编译器的改进中受益。</p>
-<p>环境变量可用于控制即时编译，如中所述 <a class="reference internal" href="#env-vars"><span class="std std-ref">CUDA 环境变量</span></a></p>
-<p>作为使用的替代方案 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 要编译 CUDA C++ 设备代码，NVRTC 可用于在运行时将 CUDA C++ 设备代码编译为 PTX。 NVRTC是CUDA C++的运行时编译库；更多信息可在 NVRTC 用户指南中找到。</p>
+<p>应用在运行时加载的任何 <em>PTX</em> 代码，都会由设备驱动进一步编译为二进制代码，这称为 <em>即时编译（JIT）</em>。JIT 会增加应用加载时间，但也让应用能够受益于新驱动中编译器改进；同时，这也是让应用运行在“编译时尚不存在的新设备”上的关键机制。详见 <a class="reference internal" href="#application-compatibility"><span class="std std-ref">应用兼容性</span></a>。</p>
+<p>当驱动为某应用 JIT 编译 <em>PTX</em> 代码时，会自动缓存生成的二进制副本，以避免后续运行重复编译。该缓存称为 <em>compute cache</em>，并会在驱动升级时自动失效，从而使应用可受益于新版驱动内置 JIT 编译器的改进。</p>
+<p>可通过环境变量控制 JIT 行为，见 <a class="reference internal" href="#env-vars"><span class="std std-ref">CUDA 环境变量</span></a>。</p>
+<p>作为 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 之外的方案，也可以使用 NVRTC 在运行时把 CUDA C++ 设备代码编译为 PTX。NVRTC 是 CUDA C++ 的运行时编译库，更多信息见 NVRTC 用户指南。</p>
 </section>
 </section>
 <section id="binary-compatibility">
 <span id="id18"></span><h3>
 <span class="section-number">6.1.2. </span>二进制兼容性<a class="headerlink" href="#binary-compatibility" title="跳转到此标题"></a>
 </h3>
-<p>二进制代码是特定于体系结构的。一个 <em>库宾</em> 使用编译器选项生成对象 <code class="docutils literal notranslate"><span class="pre">-代码</span></code> 指定目标架构：例如，使用 <code class="docutils literal notranslate"><span class="pre">-代码=sm_80</span></code> 为以下设备生成二进制代码 <a class="reference internal" href="#compute-capability"><span class="std std-ref">计算能力</span></a> 8.0。从一个次要修订版到下一个修订版可以保证二进制兼容性，但不能从一个次要修订版到前一个修订版或跨主要修订版保证二进制兼容性。换句话说，一个 <em>库宾</em> 为计算能力生成的对象 <em>XY</em> 只会在具有计算能力的设备上执行 <em>坐标系</em> 在哪里 <em>z≥y</em>.</p>
+<p>二进制代码与架构强相关。<em>cubin</em> 对象由编译选项 <code class="docutils literal notranslate"><span class="pre">-code</span></code> 指定目标架构生成：例如 <code class="docutils literal notranslate"><span class="pre">-code=sm_80</span></code> 会生成面向 <a class="reference internal" href="#compute-capability"><span class="std std-ref">计算能力</span></a> 8.0 设备的二进制。二进制兼容性在同一主版本内仅保证“向上兼容”到更高次版本，不保证向下兼容，也不保证跨主版本兼容。即：为 <em>X.y</em> 生成的 <em>cubin</em> 仅可在 <em>X.z</em>（<em>z≥y</em>）设备上运行。</p>
 <div class="admonition note">
 <p class="admonition-title">注意</p>
-<p>仅桌面支持二进制兼容性。 Tegra 不支持它。此外，不支持桌面和 Tegra 之间的二进制兼容性。</p>
+<p>二进制兼容性仅支持桌面平台，不支持 Tegra；桌面与 Tegra 之间也不存在二进制兼容性。</p>
 </div>
 </section>
 <section id="ptx-compatibility">
 <span id="id19"></span><h3>
 <span class="section-number">6.1.3. </span>PTX 兼容性<a class="headerlink" href="#ptx-compatibility" title="跳转到此标题"></a>
 </h3>
-<p>一些 <em>PTX</em> 仅具有较高计算能力的设备支持指令。例如， <a class="reference internal" href="#warp-shuffle-functions"><span class="std std-ref">扭曲随机播放功能</span></a> 仅计算能力 5.0 及以上的设备支持。这 <code class="docutils literal notranslate"><span class="pre">-拱</span></code> 编译器选项指定将 C++ 编译为时假定的计算能力 <em>PTX</em> 代码。因此，例如，包含 warp shuffle 的代码必须使用以下命令进行编译 <code class="docutils literal notranslate"><span class="pre">-arch=compute_50</span></code> （或更高）。</p>
+<p>一些 <em>PTX</em> 仅具有较高计算能力的设备支持指令。例如， <a class="reference internal" href="#warp-shuffle-functions"><span class="std std-ref">扭曲随机播放功能</span></a> 仅计算能力 5.0 及以上的设备支持。这 <code class="docutils literal notranslate"><span class="pre">-arch</span></code> 编译器选项指定将 C++ 编译为时假定的计算能力 <em>PTX</em> 代码。因此，例如，包含 warp shuffle 的代码必须使用以下命令进行编译 <code class="docutils literal notranslate"><span class="pre">-arch=compute_50</span></code> （或更高）。</p>
 <p><em>PTX</em> 为某些特定计算能力生成的代码始终可以编译为具有更大或相同计算能力的二进制代码。请注意，从早期 PTX 版本编译的二进制文件可能无法使用某些硬件功能。例如，从为计算能力 6.0 (Pascal) 生成的 PTX 编译的计算能力 7.0 (Volta) 的二进制目标设备将不会使用 Tensor Core 指令，因为这些指令在 Pascal 上不可用。因此，最终的二进制文件的性能可能比使用最新版本的 PTX 生成的二进制文件的性能更差。</p>
-<p><em>PTX</em> 编译到目标的代码 <a class="reference internal" href="#architecture-specific-features"><span class="std std-ref">特定于架构的功能</span></a> 只在完全相同的物理架构上运行，而不在其他地方运行。特定于架构的 <em>PTX</em> 代码不向前和向后兼容。编译示例代码 <code class="docutils literal notranslate"><span class="pre">sm_90a</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">计算_90a</span></code> 仅在计算能力为 9.0 的设备上运行，并且不向后或向前兼容。</p>
-<p><em>PTX</em> 编译到目标的代码 <a class="reference internal" href="#family-specific-features"><span class="std std-ref">系列特定功能</span></a> 仅在完全相同的物理架构和同一系列中的其他架构上运行。家庭特定 <em>PTX</em> 代码与同系列中的其他设备向前兼容，但不向后兼容。编译示例代码 <code class="docutils literal notranslate"><span class="pre">sm_100f</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">计算_100f</span></code> 仅在计算能力为 10.0 和 10.3 的设备上运行。  <a class="reference internal" href="#family-specific-compatibility"><span class="std std-numref">表25</span></a> 显示特定系列目标与计算能力的兼容性。</p>
+<p><em>PTX</em> 编译到目标的代码 <a class="reference internal" href="#architecture-specific-features"><span class="std std-ref">特定于架构的功能</span></a> 只在完全相同的物理架构上运行，而不在其他地方运行。特定于架构的 <em>PTX</em> 代码不向前和向后兼容。编译示例代码 <code class="docutils literal notranslate"><span class="pre">sm_90a</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">compute_90a</span></code> 仅在计算能力为 9.0 的设备上运行，并且不向后或向前兼容。</p>
+<p><em>PTX</em> 编译到目标的代码 <a class="reference internal" href="#family-specific-features"><span class="std std-ref">系列特定功能</span></a> 仅在完全相同的物理架构和同一系列中的其他架构上运行。家庭特定 <em>PTX</em> 代码与同系列中的其他设备向前兼容，但不向后兼容。编译示例代码 <code class="docutils literal notranslate"><span class="pre">sm_100f</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">compute_100f</span></code> 仅在计算能力为 10.0 和 10.3 的设备上运行。  <a class="reference internal" href="#family-specific-compatibility"><span class="std std-numref">表25</span></a> 显示特定系列目标与计算能力的兼容性。</p>
 </section>
 <section id="application-compatibility">
 <span id="id20"></span><h3>
 <span class="section-number">6.1.4. </span>应用兼容性<a class="headerlink" href="#application-compatibility" title="跳转到此标题"></a>
 </h3>
 <p>要在具有特定计算能力的设备上执行代码，应用程序必须加载二进制或 <em>PTX</em> 与此计算功能兼容的代码，如中所述 <a class="reference internal" href="#binary-compatibility"><span class="std std-ref">二进制兼容性</span></a> 和 <a class="reference internal" href="#ptx-compatibility"><span class="std std-ref">PTX 兼容性</span></a>。特别是，为了能够在具有更高计算能力的未来架构上执行代码（尚无法生成二进制代码），应用程序必须加载 <em>PTX</em> 将为这些设备即时编译的代码（请参阅 <a class="reference internal" href="#just-in-time-compilation"><span class="std std-ref">即时编译</span></a>).</p>
-<p>哪个 <em>PTX</em> 嵌入到 CUDA C++ 应用程序中的二进制代码由 <code class="docutils literal notranslate"><span class="pre">-拱</span></code> 和 <code class="docutils literal notranslate"><span class="pre">-代码</span></code> 编译器选项或 <code class="docutils literal notranslate"><span class="pre">-基因代码</span></code> 编译器选项详见 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 用户手册。例如，</p>
+<p>哪个 <em>PTX</em> 嵌入到 CUDA C++ 应用程序中的二进制代码由 <code class="docutils literal notranslate"><span class="pre">-arch</span></code> 和 <code class="docutils literal notranslate"><span class="pre">-code</span></code> 编译器选项或 <code class="docutils literal notranslate"><span class="pre">-gencode</span></code> 编译器选项详见 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 用户手册。例如，</p>
 <div class="highlight-text notranslate">
 <div class="highlight"><pre><span></span>nvcc x.cu
         -gencode arch=compute_50,code=sm_50
@@ -2114,7 +2114,7 @@ html
         -gencode arch=compute_70,code=\"compute_70,sm_70\"
 </pre></div>
 </div>
-<p>嵌入与计算能力 5.0 和 6.0 兼容的二进制代码（第一和第二 <code class="docutils literal notranslate"><span class="pre">-基因代码</span></code> 选项）和 <em>PTX</em> 和与计算能力7.0兼容的二进制代码（第三 <code class="docutils literal notranslate"><span class="pre">-基因代码</span></code> 选项）。</p>
+<p>嵌入与计算能力 5.0 和 6.0 兼容的二进制代码（第一和第二 <code class="docutils literal notranslate"><span class="pre">-gencode</span></code> 选项）和 <em>PTX</em> 和与计算能力7.0兼容的二进制代码（第三 <code class="docutils literal notranslate"><span class="pre">-gencode</span></code> 选项）。</p>
 <p>生成主机代码以在运行时自动选择要加载和执行的最合适的代码，在上面的示例中，该代码将是：</p>
 <ul class="simple">
 <li><p>5.0 二进制代码，适用于计算能力 5.0 和 5.2 的设备，</p></li>
@@ -2123,11 +2123,11 @@ html
 <li><p><em>PTX</em> 对于计算能力高于 7.5 的设备，在运行时编译为二进制代码的代码</p></li>
 </ul>
 <p><code class="docutils literal notranslate"><span class="pre">铜</span></code> 例如，可以拥有使用扭曲减少操作的优化代码路径，这些操作仅在计算能力 8.0 及更高版本的设备中受支持。这 <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH__</span></code> 宏可用于根据计算能力区分各种代码路径。它仅为设备代码定义。编译时使用 <code class="docutils literal notranslate"><span class="pre">-arch=compute_80</span></code> 例如， <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH__</span></code> 等于 <code class="docutils literal notranslate"><span class="pre">800</span></code>.</p>
-<p>如果 <code class="docutils literal notranslate"><span class="pre">铜</span></code> 被编译为 <a class="reference internal" href="#family-specific-features"><span class="std std-ref">系列特定功能</span></a> 和 <code class="docutils literal notranslate"><span class="pre">sm_100f</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">计算_100f</span></code>，代码只能在该特定系列的设备上运行，即计算能力为 10.0 和 10.3 的设备。对于特定于系列的代码目标，需要附加宏 <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH_FAMILY_SPECIFIC__</span></code> 被定义。在这个例子中， <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH_FAMILY_SPECIFIC__</span></code> 等于 <code class="docutils literal notranslate"><span class="pre">1000</span></code>.</p>
+<p>如果 <code class="docutils literal notranslate"><span class="pre">铜</span></code> 被编译为 <a class="reference internal" href="#family-specific-features"><span class="std std-ref">系列特定功能</span></a> 和 <code class="docutils literal notranslate"><span class="pre">sm_100f</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">compute_100f</span></code>，代码只能在该特定系列的设备上运行，即计算能力为 10.0 和 10.3 的设备。对于特定于系列的代码目标，需要附加宏 <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH_FAMILY_SPECIFIC__</span></code> 被定义。在这个例子中， <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH_FAMILY_SPECIFIC__</span></code> 等于 <code class="docutils literal notranslate"><span class="pre">1000</span></code>.</p>
 <p>如果 <code class="docutils literal notranslate"><span class="pre">铜</span></code> 被编译为 <a class="reference internal" href="#architecture-specific-features"><span class="std std-ref">特定于架构的功能</span></a> 和 <code class="docutils literal notranslate"><span class="pre">sm_100a</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">计算_100a</span></code>，代码只能在计算能力10.0.0的设备上运行。对于特定于体系结构的代码目标，需要一个附加宏 <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH_SPECIFIC__</span></code> 被定义。在这个例子中， <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH_SPECIFIC__</span></code> 等于 <code class="docutils literal notranslate"><span class="pre">1000</span></code>。由于特定于体系结构的功能是特定于系列的功能的超集，因此特定于系列的宏 <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH_FAMILY_SPECIFIC__</span></code> 也被定义并且等于 <code class="docutils literal notranslate"><span class="pre">1000</span></code>.</p>
 <p>使用驱动程序 API 的应用程序必须编译代码以分隔文件，并在运行时显式加载和执行最合适的文件。</p>
-<p>Volta架构介绍 <em>独立线程调度</em> 这改变了 GPU 上线程的调度方式。对于依赖于特定行为的代码 <a class="reference internal" href="#simt-architecture"><span class="std std-ref">SIMT调度</span></a> 在以前的架构中，独立线程调度可能会改变参与线程的集合，从而导致不正确的结果。为了帮助迁移，同时实施详细的纠正措施 <a class="reference internal" href="#independent-thread-scheduling-7-x"><span class="std std-ref">独立线程调度</span></a>，Volta 开发人员可以通过编译器选项组合选择 Pascal 的线程调度 <code class="docutils literal notranslate"><span class="pre">-arch=compute_60</span> <span class="pre">-代码=sm_70</span></code>.</p>
-<p>这 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 用户手册列出了各种简写 <code class="docutils literal notranslate"><span class="pre">-拱</span></code>, <code class="docutils literal notranslate"><span class="pre">-代码</span></code>， 和 <code class="docutils literal notranslate"><span class="pre">-基因代码</span></code> 编译器选项。例如， <code class="docutils literal notranslate"><span class="pre">-拱=sm_70</span></code> 是一个简写 <code class="docutils literal notranslate"><span class="pre">-arch=compute_70</span> <span class="pre">-代码=compute_70,sm_70</span></code> （这与 <code class="docutils literal notranslate"><span class="pre">-基因代码</span> <span class="pre">arch=compute_70,code=\"compute_70,sm_70\"</span></code>).</p>
+<p>Volta架构介绍 <em>独立线程调度</em> 这改变了 GPU 上线程的调度方式。对于依赖于特定行为的代码 <a class="reference internal" href="#simt-architecture"><span class="std std-ref">SIMT调度</span></a> 在以前的架构中，独立线程调度可能会改变参与线程的集合，从而导致不正确的结果。为了帮助迁移，同时实施详细的纠正措施 <a class="reference internal" href="#independent-thread-scheduling-7-x"><span class="std std-ref">独立线程调度</span></a>，Volta 开发人员可以通过编译器选项组合选择 Pascal 的线程调度 <code class="docutils literal notranslate"><span class="pre">-arch=compute_60</span> <span class="pre">-code=sm_70</span></code>.</p>
+<p>这 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 用户手册列出了各种简写 <code class="docutils literal notranslate"><span class="pre">-arch</span></code>, <code class="docutils literal notranslate"><span class="pre">-code</span></code>， 和 <code class="docutils literal notranslate"><span class="pre">-gencode</span></code> 编译器选项。例如， <code class="docutils literal notranslate"><span class="pre">-arch=sm_70</span></code> 是一个简写 <code class="docutils literal notranslate"><span class="pre">-arch=compute_70</span> <span class="pre">-code=compute_70,sm_70</span></code> （这与 <code class="docutils literal notranslate"><span class="pre">-gencode</span> <span class="pre">arch=compute_70,code=\"compute_70,sm_70\"</span></code>).</p>
 </section>
 <section id="c-compatibility">
 <span id="c-cplusplus-compatibility"></span><h3>
@@ -12196,7 +12196,7 @@ PTX指令，可用于修改平铺型张量图的任意字段，包括基址、�
 <p class="admonition-title">注意</p>
 <p>张量图的格式可能会随着时间而改变。因此， <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/ptx/instructions/tensormap.replace.html">cuda::ptx::tensormap_replace</a>
 功能及对应 <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-tensormap-replace">张量图.替换.tile</a>
-PTX 指令被标记为特定于 sm_90a。要使用它们，请使用以下命令进行编译 <code class="docutils literal notranslate"><span class="pre">nvcc</span> <span class="pre">-拱</span> <span class="pre">sm_90a</span> <span class="pre">....</span></code>.</p>
+PTX 指令被标记为特定于 sm_90a。要使用它们，请使用以下命令进行编译 <code class="docutils literal notranslate"><span class="pre">nvcc</span> <span class="pre">-arch</span> <span class="pre">sm_90a</span> <span class="pre">....</span></code>.</p>
 </div>
 <div class="admonition tip">
 <p class="admonition-title">提示</p>
@@ -22699,13 +22699,13 @@ nvlink fatal   : merge_elf failed
 <p>编译器可以针对三组计算功能：</p>
 <p><strong>基线功能集</strong>：主要的计算功能集，旨在供后续计算架构​​使用。这些功能及其可用性总结在 <a class="reference internal" href="#features-and-technical-specifications-feature-support-per-compute-capability"><span class="std std-numref">表26</span></a>.</p>
 <p><strong>特定于架构的功能集</strong>：一组小型且高度专业化的功能，称为特定于架构的功能，引入这些功能是为了加速专用操作，这些操作不能保证可用，或者可能在后续计算架构​​上发生重大变化。这些功能在相应的“计算能力#.#”小节中进行了总结。特定于体系结构的功能集是特定于系列的功能集的超集。特定于架构的编译器目标是随 Compute Capability 9.0 设备一起引入的，并通过使用 <strong>一个</strong> 编译目标中的后缀，例如通过指定 <code class="docutils literal notranslate"><span class="pre">计算_100a</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">计算_120a</span></code> 作为计算目标。</p>
-<p><strong>系列特定功能集</strong>：一些特定于架构的功能对于具有多种计算能力的 GPU 是通用的。这些功能在相应的“计算能力#.#”小节中进行了总结。除少数例外，具有相同主要计算能力的新一代设备都属于同一系列。 <a class="reference internal" href="#family-specific-compatibility"><span class="std std-numref">表25</span></a> 指示特定于系列的目标与设备计算功能的兼容性，包括例外。系列特定功能集是基线功能集的超集。特定于系列的编译器目标是随 Compute Capability 10.0 器件引入的，并通过使用 <strong>f</strong> 编译目标中的后缀，例如通过指定 <code class="docutils literal notranslate"><span class="pre">计算_100f</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">计算_120f</span></code> 作为计算目标。</p>
+<p><strong>系列特定功能集</strong>：一些特定于架构的功能对于具有多种计算能力的 GPU 是通用的。这些功能在相应的“计算能力#.#”小节中进行了总结。除少数例外，具有相同主要计算能力的新一代设备都属于同一系列。 <a class="reference internal" href="#family-specific-compatibility"><span class="std std-numref">表25</span></a> 指示特定于系列的目标与设备计算功能的兼容性，包括例外。系列特定功能集是基线功能集的超集。特定于系列的编译器目标是随 Compute Capability 10.0 器件引入的，并通过使用 <strong>f</strong> 编译目标中的后缀，例如通过指定 <code class="docutils literal notranslate"><span class="pre">compute_100f</span></code> 或者 <code class="docutils literal notranslate"><span class="pre">计算_120f</span></code> 作为计算目标。</p>
 <p>从计算能力 9.0 开始的所有设备都具有一组特定于体系结构的功能。要在特定 GPU 上利用完整的这些功能集，特定于体系结构的编译器目标带有后缀 <strong>一个</strong> 必须使用。此外，从计算能力 10.0 开始，在具有不同次要计算能力的多个设备中出现了一些功能集。这些指令集称为系列特定功能，共享这些功能的设备被称为同一系列的一部分。系列特定功能是该 GPU 系列所有成员共享的特定架构功能的子集。带有后缀的特定于系列的编译器目标 <strong>f</strong> 允许编译器生成使用特定于体系结构的功能的公共子集的代码。</p>
 <p>例如：</p>
 <ul class="simple">
 <li><p>这 <code class="docutils literal notranslate"><span class="pre">计算_100</span></code> 编译目标不允许使用特定于体系结构的功能。该目标将与计算能力 10.0 及更高版本的所有设备兼容。</p></li>
-<li><p>这 <code class="docutils literal notranslate"><span class="pre">计算_100f</span></code> <em>家庭特定的</em> 编译目标允许使用 GPU 系列中常见的架构特定功能的子集。该目标仅与属于 GPU 系列的设备兼容。在此示例中，它与计算能力 10.0 和计算能力 10.3 的设备兼容。系列特定的可用功能 <code class="docutils literal notranslate"><span class="pre">计算_100f</span></code> 目标是基线中可用功能的超集 <code class="docutils literal notranslate"><span class="pre">计算_100</span></code> 目标。</p></li>
-<li><p>这 <code class="docutils literal notranslate"><span class="pre">计算_100a</span></code> <em>特定于架构的</em> 编译目标允许在 Compute Capability 10.0 设备中使用整套特定于架构的功能。该目标仅与计算能力 10.0 的设备兼容，不与其他设备兼容。中可用的功能 <code class="docutils literal notranslate"><span class="pre">计算_100a</span></code> 目标形成了可用功能的超集 <code class="docutils literal notranslate"><span class="pre">计算_100f</span></code> 目标。</p></li>
+<li><p>这 <code class="docutils literal notranslate"><span class="pre">compute_100f</span></code> <em>家庭特定的</em> 编译目标允许使用 GPU 系列中常见的架构特定功能的子集。该目标仅与属于 GPU 系列的设备兼容。在此示例中，它与计算能力 10.0 和计算能力 10.3 的设备兼容。系列特定的可用功能 <code class="docutils literal notranslate"><span class="pre">compute_100f</span></code> 目标是基线中可用功能的超集 <code class="docutils literal notranslate"><span class="pre">计算_100</span></code> 目标。</p></li>
+<li><p>这 <code class="docutils literal notranslate"><span class="pre">计算_100a</span></code> <em>特定于架构的</em> 编译目标允许在 Compute Capability 10.0 设备中使用整套特定于架构的功能。该目标仅与计算能力 10.0 的设备兼容，不与其他设备兼容。中可用的功能 <code class="docutils literal notranslate"><span class="pre">计算_100a</span></code> 目标形成了可用功能的超集 <code class="docutils literal notranslate"><span class="pre">compute_100f</span></code> 目标。</p></li>
 </ul>
 <table class="table-no-stripes docutils align-default" id="family-specific-compatibility">
 <caption>
@@ -22724,7 +22724,7 @@ nvlink fatal   : merge_elf failed
 </thead>
 <tbody>
 <tr class="row-even">
-<td><p><code class="docutils literal notranslate"><span class="pre">计算_100f</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">compute_100f</span></code></p></td>
 <td><p>10.0</p></td>
 <td><p>10.3</p></td>
 </tr>
