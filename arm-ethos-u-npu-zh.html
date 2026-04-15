@@ -1,0 +1,32 @@
+<html>
+ <head></head>
+ <body>
+  <div>
+   <h3 class="documents-underline">Arm Ethos-U NPU</h3>
+   <div>
+    <p>大多数机器学习（ML）应用都会执行神经网络（NN）推理操作。虽然运行在处理器上的软件也可以执行 NN 推理操作，但使用硬件加速器能够显著提升性能。使用硬件加速器执行 NN 推理通常还能提高能效，并让处理器拥有更高带宽去处理其他任务。</p>
+    <div class="documents-section">
+     <p>NN 推理硬件加速器有很多类型。例如，Arm Ethos-U 是一系列面向微控制器和片上系统（SoC）设计的硬件加速器，也就是神经处理单元（NPU）。</p>
+     <p>Ethos-U NPU 是小型、低功耗的处理器，可同时降低运行 ML 神经网络所需的推理时间和内存需求。Ethos-U 产品系列包含以下设计：</p>
+     <ul>
+      <li><a href="https://developer.arm.com/Processors/Ethos-U55" target="_blank">Ethos-U55</a></li>
+      <li><a href="https://developer.arm.com/Processors/Ethos-U65" target="_blank">Ethos-U65</a></li>
+      <li><a href="https://developer.arm.com/Processors/Ethos-U85" target="_blank">Ethos-U85</a></li>
+     </ul>
+     <p>这些 NPU 已经用于商用产品。例如：</p>
+     <ul>
+      <li><p>Ethos-U55 用于：</p>
+       <ul>
+        <li>Alif Semiconductor 的 <a href="https://alifsemi.com/ensemble/" target="_blank">Alif Ensemble</a> 系列。</li>
+        <li>Infineon 的 <a href="https://www.infineon.com/cms/en/product/microcontroller/32-bit-psoc-arm-cortex-microcontroller/32-bit-psoc-edge-arm/" target="_blank">PSoC Edge</a>。</li>
+        <li>Himax Technologies 的 <a href="https://www.himax.com.tw/products/intelligent-sensing/always-on-smart-sensing/wiseeye2-ai-processor/" target="_blank">WiseEye2 AL Processor</a>（以及 Seeed Studio 提供的<a href="https://www.seeedstudio.com/Grove-Vision-AI-Module-V2-p-5851.html" target="_blank">低成本开发板</a>）。</li>
+       </ul> </li>
+      <li><p>Ethos-U65 用于 NXP 的 <a href="https://www.nxp.com/products/processors-and-microcontrollers/arm-processors/i-mx-applications-processors/i-mx-9-processors/i-mx-93-applications-processor-family-arm-cortex-a55-ml-acceleration-power-efficient-mpu:i.MX93" target="_blank">i.MX 93</a> 系列。</p> </li>
+     </ul>
+     <p>你也可以在不使用真实硬件的情况下评估 Ethos-U55/U65。例如，可使用仿真环境，如 <a href="/documentation/109267/0103/Tool-support-for-the-Arm-Ethos-U-NPU/Arm-Virtual-Hardware?lang=en" title="关于 Arm Virtual Hardware（AVH）的详细信息、能力及有效使用方法，请参阅 AVH 解决方案概览。该文档全面介绍了配置流程、解释了 AVH 平台的导航结构，并提供关键技术细节以帮助你更好地使用系统。" class="document-topic" document-topic-path="/109267/0103/Tool-support-for-the-Arm-Ethos-U-NPU/Arm-Virtual-Hardware?lang=en">Arm Virtual Hardware (AVH)</a> 或 <a href="https://developer.arm.com/downloads/-/arm-ecosystem-fvps" target="_blank">Fixed Virtual Platform (FVP)</a>。关于这些工具的更多信息，请参见 <a href="/documentation/109267/0103/Tool-support-for-the-Arm-Ethos-U-NPU?lang=en" title="有多种工具可为 Arm Ethos-U NPU 提供支持：" class="document-topic" document-topic-path="/109267/0103/Tool-support-for-the-Arm-Ethos-U-NPU?lang=en">Tool support for the Arm Ethos-U NPU</a>。</p>
+     <p>Ethos-U85 是 Ethos-U 产品家族中的最新成员。它最多提供 2048 个 MAC 单元，并支持包括 Transformer 网络在内的广泛 NN 模型。同时，其能效相比此前的 Ethos-U 设计最高可提升约 20%。Ethos-U85 建立在前几代产品基础之上，并提供同样一致的工具链，因此开发者可以复用以往在 Arm ML 软件上的投入。有关 Ethos-U85 的更多技术细节将在今年稍晚发布。本文档其余内容主要聚焦 Ethos-U55 和 Ethos-U65。</p>
+    </div>
+   </div>
+  </div>
+ </body>
+</html>
