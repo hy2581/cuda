@@ -3,13 +3,13 @@
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="../" >
+<html lang="zh-CN" data-content_root="../" >
 
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>2.2. Writing CUDA SIMT Kernels &#8212; CUDA Programming Guide</title>
+    <title>2.2. 编写 CUDA SIMT 内核 &#8212; CUDA 编程指南</title>
   
   
   
@@ -357,7 +357,7 @@
 
 <nav class="bd-docs-nav bd-links"
      aria-label="Table of Contents">
-  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
+  <p class="bd-links__title" role="heading" aria-level="1">目录</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA Programming Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. Introduction to CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -368,7 +368,7 @@
 </details></li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../part2.html">2. Programming GPUs in CUDA</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="intro-to-cuda-cpp.html">2.1. Intro to CUDA C++</a></li>
-<li class="toctree-l3 current active"><a class="current reference internal" href="writing-cuda-kernels.html#">2.2. Writing CUDA SIMT Kernels</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="writing-cuda-kernels.html#">2.2. 编写 CUDA SIMT 内核</a></li>
 <li class="toctree-l3"><a class="reference internal" href="asynchronous-execution.html">2.3. Asynchronous Execution</a></li>
 <li class="toctree-l3"><a class="reference internal" href="understanding-memory.html">2.4. Unified and System Memory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="nvcc.html">2.5. NVCC: The NVIDIA CUDA Compiler</a></li>
@@ -488,15 +488,15 @@
                 <article class="bd-article">
                   
   <section id="writing-cuda-simt-kernels">
-<span id="writing-cuda-kernels"></span><h1><span class="section-number">2.2. </span>Writing CUDA SIMT Kernels<a class="headerlink" href="writing-cuda-kernels.html#writing-cuda-simt-kernels" title="Link to this heading">#</a></h1>
-<p>CUDA C++ kernels can largely be written in the same way that traditional CPU code would be written for a given problem. However, there are some unique features of the GPU that can be used to improve performance. Additionally, some understanding of how threads on the GPU are scheduled, how they access memory, and how their execution proceeds can help developers write kernels that maximize utilization of the available computing resources.</p>
+<span id="writing-cuda-kernels"></span><h1><span class="section-number">2.2. </span>编写 CUDA SIMT 内核<a class="headerlink" href="writing-cuda-kernels.html#writing-cuda-simt-kernels" title="跳转到此标题">#</a></h1>
+<p>对于给定问题，CUDA C++ 内核在编写方式上与传统 CPU 代码总体相似。但 GPU 具备一些独有特性，可用于提升性能。 Additionally, some understanding of how threads on the GPU are scheduled, how they access memory, and how their execution proceeds can help developers write kernels that maximize utilization of the available computing resources.</p>
 <section id="basics-of-simt">
-<span id="writing-cuda-kernels-basics-of-simt"></span><h2><span class="section-number">2.2.1. </span>Basics of SIMT<a class="headerlink" href="writing-cuda-kernels.html#basics-of-simt" title="Link to this heading">#</a></h2>
-<p>From the developer’s perspective, the CUDA thread is the fundamental unit of parallelism.  <a class="reference internal" href="../01-introduction/programming-model.html#programming-model-warps-simt"><span class="std std-ref">Warps and SIMT</span></a> describes the basic SIMT model of GPU execution and <a class="reference internal" href="../03-advanced/advanced-kernel-programming.html#advanced-kernels-hardware-implementation-simt-architecture"><span class="std std-ref">SIMT Execution Model</span></a> provides additional details of the SIMT model.  The SIMT model allows each thread to maintain its own state and control flow. From a functional perspective, each thread can execute a separate code path.  However, substantial performance improvements can be realized by taking care that kernel code minimizes the situations where threads in the same warp take divergent code paths.</p>
+<span id="writing-cuda-kernels-basics-of-simt"></span><h2><span class="section-number">2.2.1. </span>SIMT 基础<a class="headerlink" href="writing-cuda-kernels.html#basics-of-simt" title="跳转到此标题">#</a></h2>
+<p>从开发者视角看，CUDA 线程是并行执行的基本单位。  <a class="reference internal" href="../01-introduction/programming-model.html#programming-model-warps-simt"><span class="std std-ref">Warps and SIMT</span></a> describes the basic SIMT model of GPU execution and <a class="reference internal" href="../03-advanced/advanced-kernel-programming.html#advanced-kernels-hardware-implementation-simt-architecture"><span class="std std-ref">SIMT Execution Model</span></a> provides additional details of the SIMT model.  The SIMT model allows each thread to maintain its own state and control flow. From a functional perspective, each thread can execute a separate code path.  However, substantial performance improvements can be realized by taking care that kernel code minimizes the situations where threads in the same warp take divergent code paths.</p>
 </section>
 <section id="thread-hierarchy">
-<span id="writing-cuda-kernels-thread-hierarchy-review"></span><h2><span class="section-number">2.2.2. </span>Thread Hierarchy<a class="headerlink" href="writing-cuda-kernels.html#thread-hierarchy" title="Link to this heading">#</a></h2>
-<p>Threads are organized into thread blocks, which are then organized into a grid.  Grids may be 1, 2, or 3 dimensional and the size of the grid can be queried inside a kernel with the <code class="docutils literal notranslate"><span class="pre">gridDim</span></code> built-in variable.  Thread blocks may also be 1, 2, or 3 dimensional. The size of the thread block can be queried inside a kernel with the <code class="docutils literal notranslate"><span class="pre">blockDim</span></code> built-in variable. The index of the thread block can be queried with the <code class="docutils literal notranslate"><span class="pre">blockIdx</span></code> built-in variable.  Within a thread block, the index of the thread is obtained using the <code class="docutils literal notranslate"><span class="pre">threadIdx</span></code> built-in variable.  These built-in variables are used to compute a unique global thread index for each thread, thereby enabling each thread to load/store specific data from global memory and execute a unique code path as needed.</p>
+<span id="writing-cuda-kernels-thread-hierarchy-review"></span><h2><span class="section-number">2.2.2. </span>线程层次结构<a class="headerlink" href="writing-cuda-kernels.html#thread-hierarchy" title="跳转到此标题">#</a></h2>
+<p>线程先组织为线程块，再组织为网格。  Grids may be 1, 2, or 3 dimensional and the size of the grid can be queried inside a kernel with the <code class="docutils literal notranslate"><span class="pre">gridDim</span></code> built-in variable.  Thread blocks may also be 1, 2, or 3 dimensional. The size of the thread block can be queried inside a kernel with the <code class="docutils literal notranslate"><span class="pre">blockDim</span></code> built-in variable. The index of the thread block can be queried with the <code class="docutils literal notranslate"><span class="pre">blockIdx</span></code> built-in variable.  Within a thread block, the index of the thread is obtained using the <code class="docutils literal notranslate"><span class="pre">threadIdx</span></code> built-in variable.  These built-in variables are used to compute a unique global thread index for each thread, thereby enabling each thread to load/store specific data from global memory and execute a unique code path as needed.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">gridDim.[x|y|z]</span></code>: Size of the grid in the <code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code> and <code class="docutils literal notranslate"><span class="pre">z</span></code> dimension respectively.  These values are set at kernel launch.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">blockDim.[x|y|z]</span></code>: Size of the block in the <code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code> and <code class="docutils literal notranslate"><span class="pre">z</span></code> dimension respectively.  These values are set at kernel launch.</p></li>
@@ -509,54 +509,54 @@
 <a class="reference internal image-reference" href="../_images/grid-of-thread-blocks.png"><img alt="Grid of Thread Blocks" src="../_images/grid-of-thread-blocks.png" style="width: 454px;" />
 </a>
 <figcaption>
-<p><span class="caption-number">Figure 9 </span><span class="caption-text">Grid of Thread Blocks</span><a class="headerlink" href="writing-cuda-kernels.html#writing-cuda-kernels-thread-hierarchy-review-grid-of-thread-blocks" title="Link to this image">#</a></p>
+<p><span class="caption-number">图 9 </span><span class="caption-text">线程块网格</span><a class="headerlink" href="writing-cuda-kernels.html#writing-cuda-kernels-thread-hierarchy-review-grid-of-thread-blocks" title="跳转到此图片">#</a></p>
 </figcaption>
 </figure>
 </section>
 <section id="gpu-device-memory-spaces">
-<span id="writing-cuda-kernels-gpu-device-memory-spaces"></span><h2><span class="section-number">2.2.3. </span>GPU Device Memory Spaces<a class="headerlink" href="writing-cuda-kernels.html#gpu-device-memory-spaces" title="Link to this heading">#</a></h2>
-<p>CUDA devices have several memory spaces that can be accessed by CUDA threads within kernels.  <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-memory-types-scopes-lifetimes"><span class="std std-numref">Table 1</span></a> shows a summary of the common memory types, their thread scopes, and their lifetimes.  The following sections explain each of these memory types in more detail.</p>
+<span id="writing-cuda-kernels-gpu-device-memory-spaces"></span><h2><span class="section-number">2.2.3. </span>GPU 设备内存空间<a class="headerlink" href="writing-cuda-kernels.html#gpu-device-memory-spaces" title="跳转到此标题">#</a></h2>
+<p>CUDA 设备包含多种可在内核中被线程访问的内存空间。  <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-memory-types-scopes-lifetimes"><span class="std std-numref">Table 1</span></a> shows a summary of the common memory types, their thread scopes, and their lifetimes.  The following sections explain each of these memory types in more detail.</p>
 <div class="pst-scrollable-table-container"><table class="table-no-stripes table" id="writing-cuda-kernels-memory-types-scopes-lifetimes">
-<caption><span class="caption-number">Table 1 </span><span class="caption-text">Memory Types, Scopes and Lifetimes</span><a class="headerlink" href="writing-cuda-kernels.html#writing-cuda-kernels-memory-types-scopes-lifetimes" title="Link to this table">#</a></caption>
+<caption><span class="caption-number">表 1 </span><span class="caption-text">内存类型、作用域与生命周期</span><a class="headerlink" href="writing-cuda-kernels.html#writing-cuda-kernels-memory-types-scopes-lifetimes" title="跳转到此表格">#</a></caption>
 <thead>
-<tr class="row-odd"><th class="head"><p>Memory Type</p></th>
-<th class="head"><p>Scope</p></th>
-<th class="head"><p>Lifetime</p></th>
-<th class="head"><p>Location</p></th>
+<tr class="row-odd"><th class="head"><p>内存类型</p></th>
+<th class="head"><p>作用域</p></th>
+<th class="head"><p>生命周期</p></th>
+<th class="head"><p>位置</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>Global</p></td>
-<td><p>Grid</p></td>
-<td><p>Application</p></td>
-<td><p>Device</p></td>
+<tr class="row-even"><td><p>全局</p></td>
+<td><p>网格</p></td>
+<td><p>应用</p></td>
+<td><p>设备</p></td>
 </tr>
-<tr class="row-odd"><td><p>Constant</p></td>
-<td><p>Grid</p></td>
-<td><p>Application</p></td>
-<td><p>Device</p></td>
+<tr class="row-odd"><td><p>常量</p></td>
+<td><p>网格</p></td>
+<td><p>应用</p></td>
+<td><p>设备</p></td>
 </tr>
-<tr class="row-even"><td><p>Shared</p></td>
-<td><p>Block</p></td>
-<td><p>Kernel</p></td>
+<tr class="row-even"><td><p>共享</p></td>
+<td><p>线程块</p></td>
+<td><p>内核</p></td>
 <td><p>SM</p></td>
 </tr>
-<tr class="row-odd"><td><p>Local</p></td>
-<td><p>Thread</p></td>
-<td><p>Kernel</p></td>
-<td><p>Device</p></td>
+<tr class="row-odd"><td><p>本地</p></td>
+<td><p>线程</p></td>
+<td><p>内核</p></td>
+<td><p>设备</p></td>
 </tr>
-<tr class="row-even"><td><p>Register</p></td>
-<td><p>Thread</p></td>
-<td><p>Kernel</p></td>
+<tr class="row-even"><td><p>寄存器</p></td>
+<td><p>线程</p></td>
+<td><p>内核</p></td>
 <td><p>SM</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <section id="global-memory">
-<span id="writing-cuda-kernels-global-memory"></span><h3><span class="section-number">2.2.3.1. </span>Global Memory<a class="headerlink" href="writing-cuda-kernels.html#global-memory" title="Link to this heading">#</a></h3>
-<p>Global memory (also called device memory) is the primary memory space for storing data that is accessible by all threads in a kernel.  It is similar to RAM in a CPU system. Kernels running on the GPU have direct access to global memory in the same way code running on the CPU has access to system memory.</p>
+<span id="writing-cuda-kernels-global-memory"></span><h3><span class="section-number">2.2.3.1. </span>全局内存<a class="headerlink" href="writing-cuda-kernels.html#global-memory" title="跳转到此标题">#</a></h3>
+<p>全局内存（也称设备内存）是存放内核中所有线程可访问数据的主要内存空间。  其作用类似于 CPU 系统中的 RAM。运行在 GPU 上的内核可直接访问全局内存，就像 CPU 代码可直接访问系统内存一样。</p>
 <p>Global memory is persistent. That is, an allocation made in global memory and the data stored in it persist until the allocation is freed or until the application is terminated. <code class="docutils literal notranslate"><span class="pre">cudaDeviceReset</span></code> also frees all allocations.</p>
 <p>Global memory is allocated with CUDA API calls such as <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code> and <code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code>. Data can be copied into global memory from CPU memory using CUDA runtime API calls such as <code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code>.  Global memory allocations made with CUDA APIs are freed using <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code>.</p>
 <p>Prior to a kernel launch, global memory is allocated and initialized by CUDA API calls. During kernel execution, data from global memory can be read by the CUDA threads, and the result from operations carried out by CUDA threads can be written back to global memory. Once a kernel has completed execution, the results it wrote to global memory can be copied back to the host or used by other kernels on the GPU.</p>
@@ -572,8 +572,8 @@
 </div>
 </section>
 <section id="shared-memory">
-<span id="writing-cuda-kernels-shared-memory"></span><h3><span class="section-number">2.2.3.2. </span>Shared Memory<a class="headerlink" href="writing-cuda-kernels.html#shared-memory" title="Link to this heading">#</a></h3>
-<p>Shared memory is a memory space that is accessible by all threads in a thread block. It is physically located on each SM and uses the same physical resource as the L1 cache, the unified data cache.  The data in shared memory persists throughout the kernel execution.  Shared memory can be considered a user-managed scratchpad for use during kernel execution.  While small in size compared to global memory, because shared memory is located on each SM, the bandwidth is higher and the latency is lower than accessing global memory.</p>
+<span id="writing-cuda-kernels-shared-memory"></span><h3><span class="section-number">2.2.3.2. </span>共享内存<a class="headerlink" href="writing-cuda-kernels.html#shared-memory" title="跳转到此标题">#</a></h3>
+<p>共享内存是同一线程块内所有线程都可访问的内存空间。它物理上位于各个 SM 上，与 L1 缓存共享同一片统一数据缓存资源。共享内存中的数据在内核执行期间保持有效。可将其视为由用户管理、供内核执行阶段使用的暂存区。尽管容量小于全局内存，但由于其位于 SM 本地，访问带宽更高、延迟更低。</p>
 <p>Since shared memory is accessible by all threads in a thread block, care must be taken to avoid data races between threads in the same thread block.  Synchronization between threads in the same thread block can be achieved using the <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> function.  This function blocks all threads in the thread block until all threads have reached the call to <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code>.</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// assuming blockDim.x is 128</span>
 <span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">example_syncthreads</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="w"> </span><span class="n">input_data</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">*</span><span class="w"> </span><span class="n">output_data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -600,7 +600,7 @@
 <p>The CUDA runtime API provides a function <code class="docutils literal notranslate"><span class="pre">cudaFuncSetCacheConfig</span></code> to tell the runtime whether to allocate more space to shared memory, or more space to L1 cache.  This function specifies a preference to the runtime, but is not guaranteed to be honored.  The runtime is free to make decisions based on the available resources and the needs of the kernel.</p>
 <p>Shared memory can be allocated both statically and dynamically.</p>
 <section id="static-allocation-of-shared-memory">
-<span id="writing-cuda-kernels-static-allocation-shared-memory"></span><h4><span class="section-number">2.2.3.2.1. </span>Static Allocation of Shared Memory<a class="headerlink" href="writing-cuda-kernels.html#static-allocation-of-shared-memory" title="Link to this heading">#</a></h4>
+<span id="writing-cuda-kernels-static-allocation-shared-memory"></span><h4><span class="section-number">2.2.3.2.1. </span>共享内存的静态分配<a class="headerlink" href="writing-cuda-kernels.html#static-allocation-of-shared-memory" title="跳转到此标题">#</a></h4>
 <p>To allocate shared memory statically, the programmer must declare a variable inside the kernel using the <code class="docutils literal notranslate"><span class="pre">__shared__</span></code> specifier.  The variable will be allocated in shared memory and will persist for the duration of the kernel execution.  The size of the shared memory declared in this way must be specified at compile time.  For example, the following code snippet, located in the body of the kernel, declares a shared memory array of type <code class="docutils literal notranslate"><span class="pre">float</span></code> with 1024 elements.</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">__shared__</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">sharedArray</span><span class="p">[</span><span class="mi">1024</span><span class="p">];</span>
 </pre></div>
@@ -608,7 +608,7 @@
 <p>After this declaration, all the threads in the thread block will have access to this shared memory array.  Care must be taken to avoid data races between threads in the same thread block, typically with the use of <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code>.</p>
 </section>
 <section id="dynamic-allocation-of-shared-memory">
-<span id="writing-cuda-kernels-dynamic-allocation-shared-memory"></span><h4><span class="section-number">2.2.3.2.2. </span>Dynamic Allocation of Shared Memory<a class="headerlink" href="writing-cuda-kernels.html#dynamic-allocation-of-shared-memory" title="Link to this heading">#</a></h4>
+<span id="writing-cuda-kernels-dynamic-allocation-shared-memory"></span><h4><span class="section-number">2.2.3.2.2. </span>共享内存的动态分配<a class="headerlink" href="writing-cuda-kernels.html#dynamic-allocation-of-shared-memory" title="跳转到此标题">#</a></h4>
 <p>To allocate shared memory dynamically, the programmer can specify the desired amount of shared memory per thread block in bytes as the third (and optional) argument to the kernel launch in the triple chevron notation like this <code class="docutils literal notranslate"><span class="pre">functionName&lt;&lt;&lt;grid,</span> <span class="pre">block,</span> <span class="pre">sharedMemoryBytes&gt;&gt;&gt;()</span></code>.</p>
 <p>Then, inside the kernel, the programmer can use the <code class="docutils literal notranslate"><span class="pre">extern</span> <span class="pre">__shared__</span></code> specifier to declare a variable that will be allocated dynamically at kernel launch.</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">extern</span><span class="w"> </span><span class="n">__shared__</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">sharedArray</span><span class="p">[];</span>
@@ -637,13 +637,13 @@
 </section>
 </section>
 <section id="registers">
-<span id="writing-cuda-kernels-registers"></span><h3><span class="section-number">2.2.3.3. </span>Registers<a class="headerlink" href="writing-cuda-kernels.html#registers" title="Link to this heading">#</a></h3>
-<p>Registers are located on the SM and have thread local scope.  Register usage is managed by the compiler and registers are used for thread local storage during the execution of a kernel.  The number of registers per SM and the number of registers per thread block can be queried using the <code class="docutils literal notranslate"><span class="pre">regsPerMultiprocessor</span></code> and <code class="docutils literal notranslate"><span class="pre">regsPerBlock</span></code> device properties of the GPU.</p>
+<span id="writing-cuda-kernels-registers"></span><h3><span class="section-number">2.2.3.3. </span>寄存器<a class="headerlink" href="writing-cuda-kernels.html#registers" title="跳转到此标题">#</a></h3>
+<p>寄存器位于 SM 上，作用域为线程本地。寄存器使用由编译器管理，并在内核运行期间用于线程局部存储。可通过 GPU 设备属性 <code class="docutils literal notranslate"><span class="pre">regsPerMultiprocessor</span></code> 与 <code class="docutils literal notranslate"><span class="pre">regsPerBlock</span></code> 查询每个 SM 与每个线程块可用的寄存器数量。</p>
 <p>NVCC allows the developer to <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#maxrregcount-amount-maxrregcount">specify a maximum number of registers</a> to be used by a kernel via the <code class="docutils literal notranslate"><span class="pre">-maxrregcount</span></code> option.  Using this option to reduce the number of registers a kernel can use may result in more thread blocks being scheduled on the SM concurrently, but may also result in more register spilling.</p>
 </section>
 <section id="local-memory">
-<span id="writing-cuda-kernels-local-memory"></span><h3><span class="section-number">2.2.3.4. </span>Local Memory<a class="headerlink" href="writing-cuda-kernels.html#local-memory" title="Link to this heading">#</a></h3>
-<p>Local memory is thread local storage similar to registers and managed by NVCC, but the physical location of local memory is in the global memory space.  The ‘local’ label refers to its logical scope, not its physical location.  Local memory is used for thread local storage during the execution of a kernel.  Automatic variables that the compiler is likely to place in local memory are:</p>
+<span id="writing-cuda-kernels-local-memory"></span><h3><span class="section-number">2.2.3.4. </span>本地内存<a class="headerlink" href="writing-cuda-kernels.html#local-memory" title="跳转到此标题">#</a></h3>
+<p>本地内存与寄存器一样是线程本地存储，由 NVCC 管理，但其物理位置位于全局内存空间。这里的“local”指的是逻辑作用域，而非物理位置。本地内存在内核执行期间用于线程局部存储。编译器通常会将以下自动变量放入本地内存：</p>
 <ul class="simple">
 <li><p>Arrays for which it cannot determine that they are indexed with constant quantities,</p></li>
 <li><p>Large structures or arrays that would consume too much register space,</p></li>
@@ -652,8 +652,8 @@
 <p>Because the local memory space resides in device memory, local memory accesses have the same latency and bandwidth as global memory accesses and are subject to the same requirements for memory coalescing as described in <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-coalesced-global-memory-access"><span class="std std-ref">Coalesced Global Memory Access</span></a>. Local memory is however organized such that consecutive 32-bit words are accessed by consecutive thread IDs. Accesses are therefore fully coalesced as long as all threads in a warp access the same relative address, such as the same index in an array variable or the same member in a structure variable.</p>
 </section>
 <section id="constant-memory">
-<span id="writing-cuda-kernels-constant-memory"></span><h3><span class="section-number">2.2.3.5. </span>Constant Memory<a class="headerlink" href="writing-cuda-kernels.html#constant-memory" title="Link to this heading">#</a></h3>
-<p>Constant memory has a grid scope and is accessible for the lifetime of the application.  The constant memory resides on the device and is read-only to the kernel.  As such, it must be declared and initialized on the host with the <code class="docutils literal notranslate"><span class="pre">__constant__</span></code> specifier, outside any function.</p>
+<span id="writing-cuda-kernels-constant-memory"></span><h3><span class="section-number">2.2.3.5. </span>常量内存<a class="headerlink" href="writing-cuda-kernels.html#constant-memory" title="跳转到此标题">#</a></h3>
+<p>常量内存作用域为网格，在应用生命周期内可访问。常量内存驻留于设备端，对内核是只读的。因此必须在主机端、函数外通过 <code class="docutils literal notranslate"><span class="pre">__constant__</span></code> 说明符进行声明与初始化。</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">__constant__</span></code> memory space specifier declares a variable that:</p>
 <ul class="simple">
 <li><p>Resides in constant memory space,</p></li>
@@ -680,7 +680,7 @@
 </div>
 </section>
 <section id="caches">
-<span id="writing-cuda-kernels-caches"></span><h3><span class="section-number">2.2.3.6. </span>Caches<a class="headerlink" href="writing-cuda-kernels.html#caches" title="Link to this heading">#</a></h3>
+<span id="writing-cuda-kernels-caches"></span><h3><span class="section-number">2.2.3.6. </span>缓存<a class="headerlink" href="writing-cuda-kernels.html#caches" title="跳转到此标题">#</a></h3>
 <p>GPU devices have a multi-level cache structure which includes L2 and L1 caches.</p>
 <p>The L2 cache is located on the device and is shared among all the SMs.  The size of the L2 cache can be queried with the <code class="docutils literal notranslate"><span class="pre">l2CacheSize</span></code> device property element from the function <code class="docutils literal notranslate"><span class="pre">cudaGetDeviceProperties</span></code>.</p>
 <p>As described above in <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-shared-memory"><span class="std std-ref">Shared Memory</span></a>, L1 cache is physically located on each SM and is the same physical space used by shared memory.  If no shared memory is utilized by a kernel, the entire physical space will be utilized by the L1 cache.</p>
@@ -688,16 +688,16 @@
 <p>If these hints are not used, the compiler and runtime will do their best to utilize the caches efficiently.</p>
 </section>
 <section id="texture-and-surface-memory">
-<span id="writing-cuda-kernels-texture-surface"></span><h3><span class="section-number">2.2.3.7. </span>Texture and Surface Memory<a class="headerlink" href="writing-cuda-kernels.html#texture-and-surface-memory" title="Link to this heading">#</a></h3>
+<span id="writing-cuda-kernels-texture-surface"></span><h3><span class="section-number">2.2.3.7. </span>纹理与表面内存<a class="headerlink" href="writing-cuda-kernels.html#texture-and-surface-memory" title="跳转到此标题">#</a></h3>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
+<p class="admonition-title">注意</p>
 <p>Some older CUDA code may use texture memory because, in older NVIDIA GPUs, doing so provided performance benefits in some scenarios. On all currently supported GPUs, these scenarios may be handled using direct load and store instructions, and use of texture and surface memory instructions no longer provides any performance benefit.</p>
 </div>
 <p>A GPU may have specialized instructions for loading data from an image to be used as textures in 3D rendering. CUDA exposes these instructions and the machinery to use them in the <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TEXTURE__OBJECT.html">texture object API</a> and the <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__SURFACE__OBJECT.html">surface object API</a>.</p>
 <p>Texture and Surface memory are not discussed further in this guide as there is no advantage to using them in CUDA on any currently supported NVIDIA GPU. CUDA developers should feel free to ignore these APIs. For developers working on existing code bases which still use them, explanations of these APIs can still be found in the legacy <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#texture-and-surface-memory">CUDA C++ Programming Guide</a>.</p>
 </section>
 <section id="distributed-shared-memory">
-<span id="writing-cuda-kernels-distributed-shared-memory"></span><h3><span class="section-number">2.2.3.8. </span>Distributed Shared Memory<a class="headerlink" href="writing-cuda-kernels.html#distributed-shared-memory" title="Link to this heading">#</a></h3>
+<span id="writing-cuda-kernels-distributed-shared-memory"></span><h3><span class="section-number">2.2.3.8. </span>分布式共享内存<a class="headerlink" href="writing-cuda-kernels.html#distributed-shared-memory" title="跳转到此标题">#</a></h3>
 <p><a class="reference internal" href="../01-introduction/programming-model.html#programming-model-thread-block-clusters"><span class="std std-ref">Thread Block Clusters</span></a> introduced in compute capability 9.0 and facilitated by <a class="reference internal" href="../04-special-topics/cooperative-groups.html#cooperative-groups"><span class="std std-ref">Cooperative Groups</span></a>, provide the ability for threads in a thread block cluster to access shared memory of all the participating thread blocks in that cluster. This partitioned shared memory is called <em>Distributed Shared Memory</em>, and the corresponding address space is called Distributed Shared Memory address space. Threads that belong to a thread block cluster can read, write or perform atomics in the distributed address space, regardless whether the address belongs to the local thread block or a remote thread block. Whether a kernel uses distributed shared memory or not, the shared memory size specifications, static or dynamic is still per thread block. The size of distributed shared memory is just the number of thread blocks per cluster multiplied by the size of shared memory per thread block.</p>
 <p>Accessing data in distributed shared memory requires all the thread blocks to exist. A user can guarantee that all thread blocks have started executing using <code class="docutils literal notranslate"><span class="pre">cluster.sync()</span></code> from <a class="reference internal" href="../05-appendices/device-callable-apis.html#cg-api-cluster-group"><span class="std std-ref">class cluster_group</span></a>. The user also needs to ensure that all distributed shared memory operations happen before the exit of a thread block, e.g., if a remote thread block is trying to read a given thread block’s shared memory, the program needs to ensure that the shared memory read by the remote thread block is completed before it can exit.</p>
 <p>Let’s look at a simple histogram computation and how to optimize it on the GPU using thread block cluster. A standard way of computing histograms is to perform the computation in the shared memory of each thread block and then perform global memory atomics. A limitation of this approach is the shared memory capacity. Once the histogram bins no longer fit in the shared memory, a user needs to directly compute histograms and hence the atomics in the global memory. With distributed shared memory, CUDA provides an intermediate step, where depending on the histogram bins size, the histogram can be computed in shared memory, distributed shared memory or global memory directly.</p>
@@ -798,23 +798,23 @@
 </section>
 </section>
 <section id="memory-performance">
-<span id="writing-cuda-kernels-memory-performance"></span><h2><span class="section-number">2.2.4. </span>Memory Performance<a class="headerlink" href="writing-cuda-kernels.html#memory-performance" title="Link to this heading">#</a></h2>
-<p>Ensuring proper memory usage is key to achieving high performance in CUDA kernels.  This section discusses some general principles and examples for achieving high memory throughput in CUDA kernels.</p>
+<span id="writing-cuda-kernels-memory-performance"></span><h2><span class="section-number">2.2.4. </span>内存性能<a class="headerlink" href="writing-cuda-kernels.html#memory-performance" title="跳转到此标题">#</a></h2>
+<p>合理使用内存是 CUDA 内核获得高性能的关键。  This section discusses some general principles and examples for achieving high memory throughput in CUDA kernels.</p>
 <section id="coalesced-global-memory-access">
-<span id="writing-cuda-kernels-coalesced-global-memory-access"></span><h3><span class="section-number">2.2.4.1. </span>Coalesced Global Memory Access<a class="headerlink" href="writing-cuda-kernels.html#coalesced-global-memory-access" title="Link to this heading">#</a></h3>
+<span id="writing-cuda-kernels-coalesced-global-memory-access"></span><h3><span class="section-number">2.2.4.1. </span>全局内存合并访问<a class="headerlink" href="writing-cuda-kernels.html#coalesced-global-memory-access" title="跳转到此标题">#</a></h3>
 <p>Global memory is accessed via 32-byte memory transactions.  When a CUDA thread requests a word of data from global memory, the relevant warp coalesces the memory requests from all the threads in that warp into the number of memory transactions necessary to satisfy the request, depending on the size of the word accessed by each thread and the distribution of the memory addresses across the threads.  For example, if a thread requests a 4-byte word, the actual memory transaction the warp will generate to global memory will be 32 bytes in total.  To use the memory system most efficiently, the warp should use all the memory that is fetched in a single memory transaction.  That is, if a thread is requesting a 4-byte word from global memory, and the transaction size is 32 bytes, if other threads in that warp can use other 4-byte words of data from that 32-byte request, this will result in the most efficient use of the memory system.</p>
 <p>As a simple example, if consecutive threads in the warp request consecutive 4-byte words in memory, then the warp will request 128 bytes of memory total, and this 128 bytes required will be fetched in four 32-byte memory transactions.  This results in 100% utilization of the memory system.  That is, 100% of the memory traffic is utilized by the warp.  <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-128-byte-coalesced-access"><span class="std std-numref">Figure 10</span></a> illustrates this example of perfectly coalesced memory access.</p>
 <figure class="align-center" id="writing-cuda-kernels-128-byte-coalesced-access">
 <img alt="Coalesced memory access" src="../_images/perfect_coalescing_32byte_segments.png" />
 <figcaption>
-<p><span class="caption-number">Figure 10 </span><span class="caption-text">Coalesced memory access</span><a class="headerlink" href="writing-cuda-kernels.html#writing-cuda-kernels-128-byte-coalesced-access" title="Link to this image">#</a></p>
+<p><span class="caption-number">图 10 </span><span class="caption-text">合并内存访问</span><a class="headerlink" href="writing-cuda-kernels.html#writing-cuda-kernels-128-byte-coalesced-access" title="跳转到此图片">#</a></p>
 </figcaption>
 </figure>
 <p>Conversely, the pathologically worst case scenario is when consecutive threads access data elements that are 32 bytes or more apart from each other in memory.  In this case, the warp will be forced to issue a 32-byte memory transaction for each thread, and the total number of bytes of memory traffic will be 32 bytes times 32 threads/warp = 1024 bytes.  However, the amount of memory used will be 128 bytes only (4 bytes for each thread in the warp), so the memory utilization will only be 128 / 1024 = 12.5%.  This is a very inefficient use of the memory system.  <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-128-byte-no-coalesced-access"><span class="std std-numref">Figure 11</span></a> illustrates this example of uncoalesced memory access.</p>
 <figure class="align-center" id="writing-cuda-kernels-128-byte-no-coalesced-access">
 <img alt="Uncoalesced memory access" src="../_images/no_coalescing_32byte_segments.png" />
 <figcaption>
-<p><span class="caption-number">Figure 11 </span><span class="caption-text">Uncoalesced memory access</span><a class="headerlink" href="writing-cuda-kernels.html#writing-cuda-kernels-128-byte-no-coalesced-access" title="Link to this image">#</a></p>
+<p><span class="caption-number">图 11 </span><span class="caption-text">非合并内存访问</span><a class="headerlink" href="writing-cuda-kernels.html#writing-cuda-kernels-128-byte-no-coalesced-access" title="跳转到此图片">#</a></p>
 </figcaption>
 </figure>
 <p>The most straightforward way to achieve coalesced memory access is for consecutive threads to access consecutive elements in memory.  For example, for a  kernel launched with 1d thread blocks, the following <code class="docutils literal notranslate"><span class="pre">VecAdd</span></code> kernel will achieve coalesced memory access.  Notice how thread <code class="docutils literal notranslate"><span class="pre">workIndex</span></code> accesses the three arrays, and consecutive threads (indicated by consecutive values of <code class="docutils literal notranslate"><span class="pre">workIndex</span></code>) access consecutive elements in the arrays.</p>
@@ -828,11 +828,11 @@
 </div>
 <p>There is no requirement that consecutive threads access consecutive elements of memory to achieve coalesced memory access, it is merely the typical way coalescing is achieved. Coalesced memory access occurs provided all the threads in the warp access elements from the same 32-byte segments of memory in some linear or permuted way.  Stated another way, the best way to achieve coalesced memory access is to maximize the ratio of bytes used to bytes transferred.</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
+<p class="admonition-title">注意</p>
 <p>Ensuring proper coalescing of global memory accesses is one of the most important performance considerations for writing performant CUDA kernels.  It is imperative that applications use the memory system as efficiently as possible.</p>
 </div>
 <section id="matrix-transpose-example-using-global-memory">
-<span id="writing-cuda-kernels-matrix-transpose-example-global-memory"></span><h4><span class="section-number">2.2.4.1.1. </span>Matrix Transpose Example Using Global Memory<a class="headerlink" href="writing-cuda-kernels.html#matrix-transpose-example-using-global-memory" title="Link to this heading">#</a></h4>
+<span id="writing-cuda-kernels-matrix-transpose-example-global-memory"></span><h4><span class="section-number">2.2.4.1.1. </span>使用全局内存的矩阵转置示例<a class="headerlink" href="writing-cuda-kernels.html#matrix-transpose-example-using-global-memory" title="跳转到此标题">#</a></h4>
 <p>As a simple example, consider an out-of-place matrix transpose kernel that transposes a 32 bit float square matrix of size N x N, from matrix <code class="docutils literal notranslate"><span class="pre">a</span></code> to matrix <code class="docutils literal notranslate"><span class="pre">c</span></code>.  This example uses a 2d grid, and assumes a launch of 2d thread blocks of size 32 x 32 threads, that is, <code class="docutils literal notranslate"><span class="pre">blockDim.x</span> <span class="pre">=</span> <span class="pre">32</span></code> and <code class="docutils literal notranslate"><span class="pre">blockDim.y</span> <span class="pre">=</span> <span class="pre">32</span></code>, so each 2d thread block will operate on a 32 x 32 tile of the matrix.  Each thread operates on a unique element of the matrix, so no explicit synchronization of threads is necessary.  <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-figure-global-transpose"><span class="std std-numref">Figure 12</span></a> illustrates this matrix transpose operation.   The kernel source code follows the figure.</p>
 <figure class="align-center" id="writing-cuda-kernels-figure-global-transpose">
 <img alt="Matrix Transpose using Global memory" src="../_images/global_transpose.png" />
@@ -871,7 +871,7 @@
 </section>
 </section>
 <section id="shared-memory-access-patterns">
-<span id="writing-cuda-kernels-shared-memory-access-patterns"></span><h3><span class="section-number">2.2.4.2. </span>Shared Memory Access Patterns<a class="headerlink" href="writing-cuda-kernels.html#shared-memory-access-patterns" title="Link to this heading">#</a></h3>
+<span id="writing-cuda-kernels-shared-memory-access-patterns"></span><h3><span class="section-number">2.2.4.2. </span>共享内存访问模式<a class="headerlink" href="writing-cuda-kernels.html#shared-memory-access-patterns" title="跳转到此标题">#</a></h3>
 <p>Shared memory has 32 banks that are organized such that successive 32-bit words map to successive banks. Each bank has a bandwidth of 32 bits per clock cycle.</p>
 <p>When multiple threads in the same warp attempt to access different elements in the same bank, a bank conflict occurs.  In this case, the access to the data in that bank will be serialized until the data in that bank has been obtained by all the threads that have requested it.  This serialization of access results in a performance penalty.</p>
 <p>The two exceptions to this scenario happen when multiple threads in the same warp are accessing (either reading or writing) the same shared memory location.  For read accesses, the word is broadcast to the requesting threads.  For write accesses, each shared memory address is written by only one of the threads (which thread performs the write is undefined).</p>
@@ -910,12 +910,12 @@
 </figcaption>
 </figure>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
+<p class="admonition-title">注意</p>
 <p>Avoiding bank conflicts is an important performance consideration for writing performant CUDA kernels that use shared memory.</p>
 </div>
 <section id="matrix-transpose-example-using-shared-memory">
-<span id="writing-cuda-kernels-matrix-transpose-example-shared-memory"></span><h4><span class="section-number">2.2.4.2.1. </span>Matrix Transpose Example Using Shared Memory<a class="headerlink" href="writing-cuda-kernels.html#matrix-transpose-example-using-shared-memory" title="Link to this heading">#</a></h4>
-<p>In the previous example <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-matrix-transpose-example-global-memory"><span class="std std-ref">Matrix Transpose Example Using Global Memory</span></a>, a naive implementation of matrix transpose was illustrated that was functionally correct, but not optimized for efficient use of global memory because the write of the <code class="docutils literal notranslate"><span class="pre">c</span></code> matrix was not coalesced properly.  In this example, shared memory will be treated as a user-managed cache to stage loads and stores from global memory, resulting in coalesced global memory access of both reads and writes.</p>
+<span id="writing-cuda-kernels-matrix-transpose-example-shared-memory"></span><h4><span class="section-number">2.2.4.2.1. </span>使用共享内存的矩阵转置示例<a class="headerlink" href="writing-cuda-kernels.html#matrix-transpose-example-using-shared-memory" title="跳转到此标题">#</a></h4>
+<p>在前面的<a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-matrix-transpose-example-global-memory"><span class="std std-ref">使用全局内存的矩阵转置示例</span></a>中，我们展示了一个功能正确但较为朴素的实现：由于对 <code class="docutils literal notranslate"><span class="pre">c</span></code> 矩阵的写入未正确合并，因此全局内存利用并不高效。本示例将把共享内存作为用户管理缓存，用于暂存全局内存的读写，从而使读写两侧都获得更好的全局内存合并访问效果。</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-0">
@@ -1031,7 +1031,7 @@ Example with array checks</label><div class="sd-tab-content docutils">
 </ul>
 </section>
 <section id="shared-memory-bank-conflicts">
-<span id="writing-cuda-kernels-shared-memory-bank-conflicts"></span><h4><span class="section-number">2.2.4.2.2. </span>Shared Memory Bank Conflicts<a class="headerlink" href="writing-cuda-kernels.html#shared-memory-bank-conflicts" title="Link to this heading">#</a></h4>
+<span id="writing-cuda-kernels-shared-memory-bank-conflicts"></span><h4><span class="section-number">2.2.4.2.2. </span>共享内存 Bank 冲突<a class="headerlink" href="writing-cuda-kernels.html#shared-memory-bank-conflicts" title="跳转到此标题">#</a></h4>
 <p>In <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-shared-memory-access-patterns"><span class="std std-numref">Section 2.2.4.2</span></a>, the bank structure of shared memory was described.  In the previous matrix transpose example, the proper coalesced memory access to/from global memory was achieved, but no consideration was given to whether shared memory bank conflicts were present.  Consider the following 2d shared memory declaration,</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">__shared__</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">smemArray</span><span class="p">[</span><span class="mi">32</span><span class="p">][</span><span class="mi">32</span><span class="p">];</span>
 </pre></div>
@@ -1076,7 +1076,7 @@ Example with array checks</label><div class="sd-tab-content docutils">
 </section>
 </section>
 <section id="atomics">
-<span id="writing-cuda-kernels-atomics"></span><h2><span class="section-number">2.2.5. </span>Atomics<a class="headerlink" href="writing-cuda-kernels.html#atomics" title="Link to this heading">#</a></h2>
+<span id="writing-cuda-kernels-atomics"></span><h2><span class="section-number">2.2.5. </span>原子操作<a class="headerlink" href="writing-cuda-kernels.html#atomics" title="跳转到此标题">#</a></h2>
 <p>Performant CUDA kernels rely on expressing as much algorithmic parallelism as possible.  The asynchronous nature of GPU kernel execution requires that threads operate as independently as possible.  It’s not always possible to have complete independence of threads and as we saw in <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-shared-memory"><span class="std std-ref">Shared Memory</span></a>, there exists a mechanism for threads in the same thread block to exchange data and synchronize.</p>
 <p>On the level of an entire grid there is no such mechanism to synchronize all threads in a grid.  There is however a mechanism to provide synchronous access to global memory locations via the use of atomic functions.  Atomic functions allow a thread to obtain a lock on a global memory location and perform a read-modify-write operation on that location.  No other thread can access the same location while the lock is held.  CUDA provides atomics with the same behavior as the C++ standard library atomics as <code class="docutils literal notranslate"><span class="pre">cuda::std::atomic</span></code> and <code class="docutils literal notranslate"><span class="pre">cuda::std::atomic_ref</span></code>.  CUDA also provides extended C++ atomics <code class="docutils literal notranslate"><span class="pre">cuda::atomic</span></code> and <code class="docutils literal notranslate"><span class="pre">cuda::atomic_ref</span></code> which allow the user to specify the <a class="reference internal" href="../03-advanced/advanced-kernel-programming.html#advanced-kernels-thread-scopes"><span class="std std-ref">thread scope</span></a> of the atomic operation.  The details of atomic functions are covered in <a class="reference internal" href="../05-appendices/cpp-language-extensions.html#atomic-functions"><span class="std std-ref">Atomic Functions</span></a>.</p>
 <p>An example usage of <code class="docutils literal notranslate"><span class="pre">cuda::atomic_ref</span></code> to perform a device-wide atomic addition is as follows, where <code class="docutils literal notranslate"><span class="pre">array</span></code> is an array of floats, and <code class="docutils literal notranslate"><span class="pre">result</span></code> is a float pointer to a location in global memory which is the location where the sum of the array will be stored.</p>
@@ -1093,12 +1093,12 @@ Example with array checks</label><div class="sd-tab-content docutils">
 <p>Atomic functions should be used sparingly as they enforce thread synchronization that can impact performance.</p>
 </section>
 <section id="cooperative-groups">
-<span id="writing-cuda-kernels-cooperative-groups"></span><h2><span class="section-number">2.2.6. </span>Cooperative Groups<a class="headerlink" href="writing-cuda-kernels.html#cooperative-groups" title="Link to this heading">#</a></h2>
+<span id="writing-cuda-kernels-cooperative-groups"></span><h2><span class="section-number">2.2.6. </span>协作组（Cooperative Groups）<a class="headerlink" href="writing-cuda-kernels.html#cooperative-groups" title="跳转到此标题">#</a></h2>
 <p><a class="reference internal" href="../04-special-topics/cooperative-groups.html#cooperative-groups"><span class="std std-ref">Cooperative groups</span></a> is a software tool available in CUDA C++ that allows applications to define groups of threads which can synchronize with each other, even if that group of threads spans multiple thread blocks, multiple grids on a single GPU, or even across multiple GPUs.  The CUDA programming model in general allows threads within a thread block or thread block cluster to synchronize efficiently, but does not provide a mechanism for specifying thread groups smaller than a thread block or cluster. Similarly, the CUDA programming model does not provide mechanisms or guarantees that enable synchronization across thread blocks.</p>
 <p>Cooperative groups provide both of these capabilities through software. Cooperative groups allows the application to create thread groups that cross the boundary of thread blocks and clusters, though doing so comes with some semantic limitations and performance implications which are described in detail in the <a class="reference internal" href="../04-special-topics/cooperative-groups.html#cooperative-groups"><span class="std std-ref">feature section covering cooperative groups</span></a>.</p>
 </section>
 <section id="kernel-launch-and-occupancy">
-<span id="writing-cuda-kernels-kernel-launch-and-occupancy"></span><h2><span class="section-number">2.2.7. </span>Kernel Launch and Occupancy<a class="headerlink" href="writing-cuda-kernels.html#kernel-launch-and-occupancy" title="Link to this heading">#</a></h2>
+<span id="writing-cuda-kernels-kernel-launch-and-occupancy"></span><h2><span class="section-number">2.2.7. </span>内核启动与占用率<a class="headerlink" href="writing-cuda-kernels.html#kernel-launch-and-occupancy" title="跳转到此标题">#</a></h2>
 <p>When a CUDA kernel is launched, CUDA threads are grouped into thread blocks and a grid based on the execution configuration specified at kernel launch.  Once the kernel is launched, the scheduler assigns thread blocks to SMs.  The details of which thread blocks are scheduled to execute on which SMs cannot be controlled or queried by the application and no ordering guarantees are made by the scheduler, so programs cannot not rely on a specific scheduling order or scheme for correct execution.</p>
 <p>The number of blocks that can be scheduled on an SM depends on the hardware resources a given thread block requires, and the hardware resources available on the SM.  When a kernel is first launched, the scheduler begins assigning thread blocks to SMs.  As long as SMs have sufficient hardware resources unoccupied by other thread blocks, the scheduler will continue assigning thread blocks to SMs.  If at some point no SM has the capacity to accept another thread block, the scheduler will wait until the SMs complete previously assigned thread blocks.  Once this happens, SMs are free to accept more work, and the scheduler assigns thread blocks to them.  This process continues until all thread blocks have been scheduled and executed.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">cudaGetDeviceProperties</span></code> function allows an application to query the limits of each SM via <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/structcudaDeviceProp.html#structcudaDeviceProp">device properties</a>.  Note that there are limits per SM and per thread block.</p>
@@ -1168,7 +1168,7 @@ Example with array checks</label><div class="sd-tab-content docutils">
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-subtitle">上一页</p>
         <p class="prev-next-title"><span class="section-number">2.1. </span>Intro to CUDA C++</p>
       </div>
     </a>
@@ -1176,8 +1176,8 @@ Example with array checks</label><div class="sd-tab-content docutils">
        href="asynchronous-execution.html"
        title="next page">
       <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><span class="section-number">2.3. </span>Asynchronous Execution</p>
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title"><span class="section-number">2.3. </span>异步执行</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -1198,7 +1198,7 @@ Example with array checks</label><div class="sd-tab-content docutils">
 <div
     id="pst-page-navigation-heading-2"
     class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
+    <i class="fa-solid fa-list"></i> 本页内容
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
@@ -1221,10 +1221,10 @@ Example with array checks</label><div class="sd-tab-content docutils">
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="writing-cuda-kernels.html#memory-performance">2.2.4. Memory Performance</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="writing-cuda-kernels.html#coalesced-global-memory-access">2.2.4.1. Coalesced Global Memory Access</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="writing-cuda-kernels.html#matrix-transpose-example-using-global-memory">2.2.4.1.1. Matrix Transpose Example Using Global Memory</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="writing-cuda-kernels.html#matrix-transpose-example-using-global-memory">2.2.4.1.1. 使用全局内存的矩阵转置示例</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="writing-cuda-kernels.html#shared-memory-access-patterns">2.2.4.2. Shared Memory Access Patterns</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="writing-cuda-kernels.html#shared-memory-access-patterns">2.2.4.2. 共享内存访问模式</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="writing-cuda-kernels.html#matrix-transpose-example-using-shared-memory">2.2.4.2.1. Matrix Transpose Example Using Shared Memory</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="writing-cuda-kernels.html#shared-memory-bank-conflicts">2.2.4.2.2. Shared Memory Bank Conflicts</a></li>
 </ul>
@@ -1233,7 +1233,7 @@ Example with array checks</label><div class="sd-tab-content docutils">
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="writing-cuda-kernels.html#atomics">2.2.5. Atomics</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="writing-cuda-kernels.html#cooperative-groups">2.2.6. Cooperative Groups</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="writing-cuda-kernels.html#kernel-launch-and-occupancy">2.2.7. Kernel Launch and Occupancy</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="writing-cuda-kernels.html#kernel-launch-and-occupancy">2.2.7. 内核启动与占用率</a></li>
 </ul>
   </nav></div>
 
