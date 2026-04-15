@@ -1,0 +1,232 @@
+<html>
+ <head></head> 
+ <body> 
+  <div> 
+   <h3 class="documents-underline">Ethos-U hardware architecture</h3> 
+   <div> 
+    <p>An Ethos-U NPU requires a host processor to control its operations. Typically, the host processor is an Arm Cortex-M processor. The Ethos-U NPU provides several hardware interfaces: </p> 
+    <div class="documents-section"> 
+     <ul> 
+      <li>A peripheral bus interface allows the host processor to access the Ethos-U NPU programmable registers.</li> 
+      <li>Two AMBA bus manager interfaces to access the system memories.</li> 
+      <li>An interrupt output sends interrupt events to the host processor.</li> 
+     </ul> 
+     <p>For more information, see <a href="/documentation/109267/0103/Arm-Ethos-U-NPU/Ethos-U-hardware-architecture?lang=en#md380-ethos-u-hardware-architecture__ethos-u-bus-manager-interfaces" class="document-topic" document-topic-path="/109267/0103/Arm-Ethos-U-NPU/Ethos-U-hardware-architecture?lang=en#md380-ethos-u-hardware-architecture__ethos-u-bus-manager-interfaces">Ethos-U bus manager interfaces</a>.</p> 
+     <div class="documents-fignone"> 
+      <div> 
+       <span class="documents-figcap"><span class="documents-fig--title-label">Figure 1. </span>Overview of a microcontroller system with an Ethos-U NPU</span> 
+      </div> 
+      <img src="https://documentation-service.arm.com/static/69c5444e351d0c3476bdde69?token=" alt="Overview of a microcontroller system with an Ethos-U NPU" class="document-resource" document-resource-id="69c5444e351d0c3476bdde69"> 
+     </div> 
+     <p>Most of the processing in an NN inference is based on Multiply-Accumulate (MAC) computations. Inside the Ethos-U NPU there is a configurable MAC engine to handle MAC operations. Chip designers can configure the number of MACs that can be carried out per clock cycle, as follows:</p> 
+     <ul> 
+      <li>Ethos-U55: 32 to 256</li> 
+      <li>Ethos-U65: either 256 or 512</li> 
+      <li>Ethos-U85: 128 to 2048</li> 
+     </ul> 
+     <p>For more information about the relationship between the number of MACs and performance, see <a href="/documentation/109267/0103/Arm-Ethos-U-NPU/Ethos-U-hardware-architecture?lang=en#md380-ethos-u-hardware-architecture__ethos-u-performance-configuration" class="document-topic" document-topic-path="/109267/0103/Arm-Ethos-U-NPU/Ethos-U-hardware-architecture?lang=en#md380-ethos-u-hardware-architecture__ethos-u-performance-configuration">Ethos-U performance configuration</a>. the Ethos-U NPUs also provide an element-wise data processing engine for other computations.</p> 
+     <p>To enhance the efficiency of NN inferences, Ethos-U NPUs contain local memory for buffering the data they process. The Ethos-U NPUs also include a Direct Memory Access (DMA) engine so that data can be copied, before it is needed, from shared memory to local memory.</p> 
+     <p>Ethos-U NPUs are designed for embedded systems that often have limited memory. To reduce memory usage, Ethos-U NPUs support NN weight data compression. Weight data is decoded on-the-fly during inference operations.</p> 
+     <p>Ethos-U operations are controlled by several registers which are memory mapped on the processor system. When the system needs to perform an NN inference, the operations are broken into several smaller jobs that the Ethos-U NPU runs. Under the control of software libraries, jobs are issued to the Ethos-U NPU using the peripheral bus interface. Each time a job finishes, the Ethos-U NPU issues an interrupt request to the host processor so that the software library can issue the next job.</p> 
+     <p>Ethos-U NPUs also support other interfaces, for example an interface for power management. For more information about these Ethos-U NPU interfaces, see the following:</p> 
+     <ul> 
+      <li><a href="https://developer.arm.com/documentation/102420/0200" target="_blank">Ethos-U55 Technical Reference Manual</a></li> 
+      <li><a href="https://developer.arm.com/documentation/102023/0000" target="_blank">Ethos-U65 Technical Reference Manual</a></li> 
+      <li><a href="https://developer.arm.com/documentation/102685/latest/" target="_blank">Ethos-U85 Technical Reference manual</a></li> 
+     </ul> 
+     <p>There are many Neural Network models available, and some of those network models contain operators that the Ethos-U hardware does not support. In these cases, software running on the processor handles the unsupported operators. For more information about the ML operators supported by the Ethos-U55 and Ethos-U65 NPUs, see the following:</p> 
+     <ul> 
+      <li><a href="https://developer.arm.com/documentation/102420/0200/Programmers-model/Operators-and-performance/Supported-data-types-and-operators" target="_blank">Ethos-U55: Supported data types and operators</a></li> 
+      <li><a href="https://developer.arm.com/documentation/102023/0000/Programmers-model/Operators-and-performance/Supported-data-types-and-operators" target="_blank">Ethos-U65: Supported data types and operators</a></li> 
+      <li>Ethos-U85 provides support for data types and operators that are available in Ethos-U55 and Ethos-U85, along with support for transformer network and <a href="https://www.mlplatform.org/tosa/" target="_blank">Tensor Operator Set Architecture (TOSA)</a>. The specification for TOSA is available from <a href="https://www.mlplatform.org/tosa/tosa_spec.html" target="_blank">ML Platform</a>.</li> 
+     </ul> 
+    </div> 
+    <div class="documents-section" id="md380-ethos-u-hardware-architecture__ethos-u-performance-configuration"> 
+     <h3 class="documents-underline">Ethos-U performance configuration</h3> 
+     <p>The number of MACs that can be carried out per clock cycle is configurable for both the Ethos-U55 NPU and Ethos-U65 NPU, addressing a range of performance points.</p> 
+     <p>The following table shows the Ethos-U55 NPU configuration options:</p> 
+     <div class="documents-tablenoborder"> 
+      <table> 
+       <colgroup> 
+        <col span="1"> 
+        <col span="1"> 
+        <col span="1"> 
+       </colgroup> 
+       <thead> 
+        <tr> 
+         <th class="documents-nocellnorowborder" id="d11219e176" rowspan="1" colspan="1"><p>Number of MACs per cycle</p> </th> 
+         <th class="documents-nocellnorowborder" id="d11219e180" rowspan="1" colspan="1"><p>Internal memory</p> </th> 
+         <th class="documents-cell-norowborder" id="d11219e184" rowspan="1" colspan="1"><p>Performance@500MHz</p> </th> 
+        </tr> 
+       </thead> 
+       <tbody> 
+        <tr> 
+         <td class="documents-nocellnorowborder" rowspan="1" colspan="1"><p>256</p> </td> 
+         <td class="documents-nocellnorowborder" rowspan="1" colspan="1"><p>48KB</p> </td> 
+         <td class="documents-cell-norowborder" rowspan="1" colspan="1"><p>256 GOPs</p> </td> 
+        </tr> 
+        <tr> 
+         <td class="documents-nocellnorowborder" rowspan="1" colspan="1"><p>128</p> </td> 
+         <td class="documents-nocellnorowborder" rowspan="1" colspan="1"><p>24KB</p> </td> 
+         <td class="documents-cell-norowborder" rowspan="1" colspan="1"><p>128 GOPs</p> </td> 
+        </tr> 
+        <tr> 
+         <td class="documents-nocellnorowborder" rowspan="1" colspan="1"><p>64</p> </td> 
+         <td class="documents-nocellnorowborder" rowspan="1" colspan="1"><p>16KB</p> </td> 
+         <td class="documents-cell-norowborder" rowspan="1" colspan="1"><p>64 GOPs</p> </td> 
+        </tr> 
+        <tr> 
+         <td class="documents-row-nocellborder" rowspan="1" colspan="1"><p>32</p> </td> 
+         <td class="documents-row-nocellborder" rowspan="1" colspan="1"><p>16KB</p> </td> 
+         <td class="documents-cellrowborder" rowspan="1" colspan="1"><p>32 GOPs</p> </td> 
+        </tr> 
+       </tbody> 
+      </table> 
+     </div> 
+     <p>The following table shows the Ethos-U65 NPU configuration options:</p> 
+     <div class="documents-tablenoborder"> 
+      <table> 
+       <colgroup> 
+        <col span="1"> 
+        <col span="1"> 
+        <col span="1"> 
+       </colgroup> 
+       <thead> 
+        <tr> 
+         <th class="documents-nocellnorowborder" id="d11219e272" rowspan="1" colspan="1"><p>Number of MACs per cycle</p> </th> 
+         <th class="documents-nocellnorowborder" id="d11219e276" rowspan="1" colspan="1"><p>Internal memory</p> </th> 
+         <th class="documents-cell-norowborder" id="d11219e280" rowspan="1" colspan="1"><p>Performance@1GHz</p> </th> 
+        </tr> 
+       </thead> 
+       <tbody> 
+        <tr> 
+         <td class="documents-nocellnorowborder" rowspan="1" colspan="1"><p>512</p> </td> 
+         <td class="documents-nocellnorowborder" rowspan="1" colspan="1"><p>96KB</p> </td> 
+         <td class="documents-cell-norowborder" rowspan="1" colspan="1"><p>1 TOP</p> </td> 
+        </tr> 
+        <tr> 
+         <td class="documents-row-nocellborder" rowspan="1" colspan="1"><p>256</p> </td> 
+         <td class="documents-row-nocellborder" rowspan="1" colspan="1"><p>48KB</p> </td> 
+         <td class="documents-cellrowborder" rowspan="1" colspan="1"><p>512 GOPs</p> </td> 
+        </tr> 
+       </tbody> 
+      </table> 
+     </div> 
+     <p>The following table shows the Ethos-U85 NPU configuration options:</p> 
+     <div class="documents-tablenoborder"> 
+      <table> 
+       <colgroup> 
+        <col span="1"> 
+        <col span="1"> 
+        <col span="1"> 
+       </colgroup> 
+       <thead> 
+        <tr> 
+         <th class="documents-nocellnorowborder" id="d11219e339" rowspan="1" colspan="1"><p>Number of MACs per cycle</p> </th> 
+         <th class="documents-nocellnorowborder" id="d11219e343" rowspan="1" colspan="1"><p>Internal memory</p> </th> 
+         <th class="documents-cell-norowborder" id="d11219e347" rowspan="1" colspan="1"><p>Performance@1GHz</p> </th> 
+        </tr> 
+       </thead> 
+       <tbody> 
+        <tr> 
+         <td class="documents-nocellnorowborder" rowspan="1" colspan="1"><p>2048</p> </td> 
+         <td class="documents-nocellnorowborder" rowspan="1" colspan="1"><p>160KB</p> </td> 
+         <td class="documents-cell-norowborder" rowspan="1" colspan="1"><p>4 TOPs</p> </td> 
+        </tr> 
+        <tr> 
+         <td class="documents-nocellnorowborder" rowspan="1" colspan="1"><p>1024</p> </td> 
+         <td class="documents-nocellnorowborder" rowspan="1" colspan="1"><p>76KB</p> </td> 
+         <td class="documents-cell-norowborder" rowspan="1" colspan="1"><p>2 TOPs</p> </td> 
+        </tr> 
+        <tr> 
+         <td class="documents-nocellnorowborder" rowspan="1" colspan="1"><p>512</p> </td> 
+         <td class="documents-nocellnorowborder" rowspan="1" colspan="1"><p>48KB</p> </td> 
+         <td class="documents-cell-norowborder" rowspan="1" colspan="1"><p>1 TOP</p> </td> 
+        </tr> 
+        <tr> 
+         <td class="documents-nocellnorowborder" rowspan="1" colspan="1"><p>256</p> </td> 
+         <td class="documents-nocellnorowborder" rowspan="1" colspan="1"><p>32KB</p> </td> 
+         <td class="documents-cell-norowborder" rowspan="1" colspan="1"><p>512 GOPs</p> </td> 
+        </tr> 
+        <tr> 
+         <td class="documents-row-nocellborder" rowspan="1" colspan="1"><p>128</p> </td> 
+         <td class="documents-row-nocellborder" rowspan="1" colspan="1"><p>16KB</p> </td> 
+         <td class="documents-cellrowborder" rowspan="1" colspan="1"><p>256 GOPs</p> </td> 
+        </tr> 
+       </tbody> 
+      </table> 
+     </div> 
+    </div> 
+    <div class="documents-section" id="md380-ethos-u-hardware-architecture__ethos-u-bus-manager-interfaces"> 
+     <h3 class="documents-underline">Ethos-U bus manager interfaces</h3> 
+     <p>The Ethos-U55 and Ethos-U65 each have two AMBA 5 AXI interfaces for connecting to the memory system, named M0 and M1:</p> 
+     <ul> 
+      <li>To optimize performance of the Ethos-U NPU, the AXI interface M0 should be connected to a high-speed, low-latency memory, such as SRAM. The memory is used for dynamic storage of runtime data during the inference of the neural network.</li> 
+      <li>The AXI interface M1 is used for memory transactions that tolerate lower bandwidth and higher latency. The AXI M1 interface can therefore be connected to memory that is slower or less burst efficient, for example flash or DRAM. The memory is used for the non-volatile storage of the runtime software stack (including the User Application) and the neural network definition (including weights).</li> 
+      <li>For the Ethos-U55 NPU, the AXI interface M1 is read-only. For the Ethos-U65 NPU, the AXI interface M1 is read/write.</li> 
+     </ul> 
+     <p>The M0 and M1 ports typically connect to an interconnect, which allows the M0 and M1 AXI interfaces to access any memory. The Vela compiler schedules high bandwidth, low-latency memory transactions on the AXI interface M0, and all other transactions on the AXI interface M1.</p> 
+     <p>To support the high inference performance, Ethos-U85 supports up to 6 AMBA 5 AXI interface:</p> 
+     <ul> 
+      <li>AXI interfaces SRAM0, SRAM1, SRAM2 and SRAM3 are for on-chip SRAM.</li> 
+      <li>AXI interfaces EXT0 and EXT1 are suitable for external memories such as DDR.</li> 
+     </ul> 
+    </div> 
+    <div class="documents-section" id="md380-ethos-u-hardware-architecture__differences-between-ethos-u55-ethos-u65-and-ethos-u85"> 
+     <h3 class="documents-underline">Differences between Ethos-U55, Ethos-U65 and Ethos-U85</h3> 
+     <p>There are several key differences between the Ethos-U NPUs:</p> 
+     <div class="documents-tablenoborder"> 
+      <table> 
+       <colgroup> 
+        <col span="1"> 
+        <col span="1"> 
+        <col span="1"> 
+        <col span="1"> 
+       </colgroup> 
+       <thead> 
+        <tr> 
+         <th class="documents-nocellnorowborder" id="d11219e490" rowspan="1" colspan="1"><p>Feature</p> </th> 
+         <th class="documents-nocellnorowborder" id="d11219e494" rowspan="1" colspan="1"><p>Ethos-U55</p> </th> 
+         <th class="documents-nocellnorowborder" id="d11219e498" rowspan="1" colspan="1"><p>Ethos-U65</p> </th> 
+         <th class="documents-cell-norowborder" id="d11219e502" rowspan="1" colspan="1"><p>Ethos-U85</p> </th> 
+        </tr> 
+       </thead> 
+       <tbody> 
+        <tr> 
+         <td class="documents-nocellnorowborder" rowspan="1" colspan="1"><p>Number of MACs/cycle</p> </td> 
+         <td class="documents-nocellnorowborder" rowspan="1" colspan="1"><p>32/64/128/256</p> </td> 
+         <td class="documents-nocellnorowborder" rowspan="1" colspan="1"><p>256 or 512</p> </td> 
+         <td class="documents-cell-norowborder" rowspan="1" colspan="1"><p>128/256/512/1024/2048</p> </td> 
+        </tr> 
+        <tr> 
+         <td class="documents-nocellnorowborder" rowspan="1" colspan="1"><p>Manager Bus interface</p> </td> 
+         <td class="documents-nocellnorowborder" rowspan="1" colspan="1"><p>Two 64-bit AXI supporting on-chip SRAM and embedded flash</p> </td> 
+         <td class="documents-nocellnorowborder" rowspan="1" colspan="1"><p>Two 128-bit AXI supporting on-chip SRAM, DRAM and flash</p> </td> 
+         <td class="documents-cell-norowborder" rowspan="1" colspan="1"><p>Up to six 128-bit AXI supporting on-chip SRAM, DRAM and flash</p> </td> 
+        </tr> 
+        <tr> 
+         <td class="documents-row-nocellborder" rowspan="1" colspan="1"><p>Host CPU support</p> </td> 
+         <td class="documents-row-nocellborder" rowspan="1" colspan="1"><p>Cortex-M85, Cortex-M55, Cortex-M7, Cortex-M4, Cortex-M33</p> </td> 
+         <td class="documents-row-nocellborder" rowspan="1" colspan="1"><p>Cortex-M85, Cortex-M55, Cortex-M7</p> </td> 
+         <td class="documents-cellrowborder" rowspan="1" colspan="1"><p>Cortex-M85, Cortex-M55, Cortex-M7, Cortex-A520, Cortex-A510, Cortex-A57, Cortex-A55, Cortex-A53, Cortex-A35</p> </td> 
+        </tr> 
+       </tbody> 
+      </table> 
+     </div> 
+     <p>Because Ethos-U65 has wider bus interface and additional hardware resources, on average it provides around 50% higher performance than the Ethos-U55. For more information, see the blog post <a href="https://community.arm.com/arm-community-blogs/b/ai-and-ml-blog/posts/arm-ethos-u65-powering-innovation-in-a-new-world-of-ai-devices" target="_blank">Arm Ethos-U65: Powering innovation in a new world of AI devices</a>.</p> 
+     <p>Ethos-U85 supports even higher number of MACs/cycle (2048 MACs) when compared to Ethos-U65 (512 MACs), and support transformer network and is fully compliant to <a href="https://www.mlplatform.org/tosa/tosa_spec.html" target="_blank">TOSA specification</a>. Highlights of the Ethos-U85 are covered in the blog post <a href="https://newsroom.arm.com/blog/ethos-u85" target="_blank">Arm Ethos-U85: Addressing the High Performance Demands of IoT in the Age of AI</a>.</p> 
+     <p>For systems with DRAM/DDR, such as Cortex-A systems running Linux, the Ethos-U65 and Ethos-U85 is more suitable because the bus interface is designed to support memories with longer latency.</p> 
+    </div> 
+    <div class="documents-section" id="md380-ethos-u-hardware-architecture__power-security-and-performance-analysis"> 
+     <h3 class="documents-underline">Power, security, and performance analysis</h3> 
+     <p>To enable Ethos-U NPUs to be used in a wide range of systems, the following additional features are provided:</p> 
+     <ul> 
+      <li>Power management interface: Ethos-U55, Ethos-U65 and Ethos-U85 provide Q-channels for the management of clock and power gating. This interface connects to system level power management hardware, for example power control infrastructure built with the <a href="https://developer.arm.com/documentation/101150/latest/" target="_blank">Arm CoreLink PCK-600 Power Control Kit</a>. For more information about Q-channels, refer to the <a href="https://developer.arm.com/documentation/ihi0068/latest/" target="_blank">AMBA 4 Low Power Interface Specification</a>.</li> 
+      <li>Security management: If an Ethos-U NPU is used in a TrustZone enabled system, software running in the Secure state can restrict access permissions from the Non-secure world. Privileged software can also control whether the Ethos-U NPU is privileged access only or can be accessed from both privileged and unprivileged software. Two hardware signals are available to define the access permission when the NPU comes out of reset. Contents of registers inside the NPU are also cleared at reset to prevent data leakage.</li> 
+      <li>Performance Monitoring Unit (PMU): The PMU supports a 48-bit cycle counter and four 32-bit event counters which can be used to measure activities inside the NPU. This allows software developers to analyze the characteristics of NN workloads and identify potential performance issues.</li> 
+     </ul> 
+    </div> 
+   </div> 
+  </div>  
+ </body>
+</html>

@@ -1,0 +1,70 @@
+<html>
+ <head></head> 
+ <body> 
+  <div> 
+   <h3 class="documents-underline">ML software support for Ethos-U</h3> 
+   <div> 
+    <p>An ML software project is usually based on a specific ML software framework. The Ethos-U NPUs support TensorFlow Lite Micro (TFLM), a popular ML software framework which is optimized for microcontrollers, as well as MicroTVM. Because the weights in the NN models in TFLM are quantized to 8-bit integers, the memory footprint of the NN models is significantly reduced. Another advantage of using quantized NN models is that generally these models perform very well on hardware with support for vector-dot-product operations, for example Ethos-U, as well as a range of modern Arm Cortex processors. </p> 
+    <div class="documents-section"> 
+     <p>The development of a ML application can be divided into two parts:</p> 
+     <ol> 
+      <li><p>Off-line development flow. This consists of:</p> 
+       <ul> 
+        <li>Preparation of the ML model</li> 
+        <li>Quantizing the ML model to use 8-bit weight data (TF Quantization tooling - TOCO)</li> 
+        <li>Optimizing the ML model using the <a href="https://gitlab.arm.com/artificial-intelligence/ethos-u/ethos-u-vela" target="_blank">Vela compiler</a>. This tool identifies operators inside the model that can be handled by the Ethos-U and replaces them with Ethos-U functions. If an ML operator is not supported by Ethos-U but is supported by an optimized function in the <a href="https://github.com/ARM-software/CMSIS-NN" target="_blank">CMSIS-NN</a> library, <a href="https://github.com/ARM-software/CMSIS-NN" target="_blank">CMSIS-NN</a> is used instead. The Vela compiler also handles memory layout optimizations. See <a href="/documentation/109267/0103/Tool-support-for-the-Arm-Ethos-U-NPU/Ethos-U-Vela-compiler?lang=en" title="Ethos-U Vela is a software tool developed by Arm that compiles a TFLM model into an optimized version that runs on an Ethos-U NPU. Vela takes TensorFlow Lite models as input, applies optimizations including memory optimization and layer fusion techniques, and generates a compiled binary that is specifically optimized for the Ethos-U architecture. This optimized binary maximizes use of Ethos-U NPU hardware features for efficient execution of machine learning workloads." class="document-topic" document-topic-path="/109267/0103/Tool-support-for-the-Arm-Ethos-U-NPU/Ethos-U-Vela-compiler?lang=en">Ethos-U Vela compiler</a> for more information. The Vela compiler runs on a desktop PC or similar device.</li> 
+       </ul> </li> 
+      <li><p>The NPU runtime software stack. This consists of a range of software components running on the target hardware that interact with each other in specific ways. These include the following:</p> 
+       <ul> 
+        <li><p>User application</p> <p>The user application runs the required functions and makes calls to the TFLM library when it performs an inference of the model.</p> </li> 
+        <li><p>TFLM</p> <p>The TFLM framework is compiled into a C++ library that contains a copy of the optimized model from Vela along with the Reference and CMSIS-NN kernels. This library is then used by the user application to perform inferences.</p> <p>During an inference, the model is parsed one operator at a time and the corresponding kernels are executed. The exception to this is when a TensorFlow Lite custom operator is encountered. In this case, the library sends the operator and associated tensor data to the Ethos-U NPU driver instead.</p> </li> 
+        <li><p>The Ethos-U NPU driver which controls the Ethos-U NPU</p> <p>The Ethos-U NPU driver handles the communication between the TFLM framework and the Ethos-U NPU to process custom operators. When the Ethos-U NPU completes its processing, it signals back to the driver, which in turn informs the TFLM library.</p> </li> 
+        <li><p>The <a href="https://github.com/ARM-software/CMSIS-NN" target="_blank">CMSIS-NN</a> library</p> <p>This contains highly optimized and performant kernels that accelerate a subset of operators in the TFLM framework. It is needed to handle the ML operators that are not supported by Ethos-U.</p> </li> 
+        <li><p>Reference kernels</p> <p>This contains a set of kernels for all the operators in the TFLM framework. They are used when the TFLM framework encounters ML operators that are not supported by the Ethos-U or the <a href="https://github.com/ARM-software/CMSIS-NN" target="_blank">CMSIS-NN</a> library.</p> </li> 
+       </ul> </li> 
+     </ol> 
+     <p>The following diagram shows an overview of the software development flow:</p> 
+     <div class="documents-fignone"> 
+      <div> 
+       <span class="documents-figcap"><span class="documents-fig--title-label">Figure 1. </span>Software development overview</span> 
+      </div> 
+      <img src="https://documentation-service.arm.com/static/69c5444e351d0c3476bdde4e?token=" alt="Software development overview" class="document-resource" document-resource-id="69c5444e351d0c3476bdde4e"> 
+     </div> 
+    </div> 
+    <div class="documents-section" id="md523-ml-software-support-for-ethos-u__ethos-u-custom-operators"> 
+     <h3 class="documents-underline">Ethos-U custom operators</h3> 
+     <p>TensorFlow Lite for Microcontrollers (TFLM) is an interpreter. It reads an NN model, in the form of <code>.tflite</code> data in memory, and carries out the functions of the NN operators. In order to allow NN model processing to be accelerated by the Ethos-U NPU, TFLM supports a feature called custom operators.</p> 
+     <p>During the compilation of a NN model, the Vela compiler groups the sequence of operators that can be accelerated by the NPU into a custom Ethos-U operator. The Ethos-U custom operator has 5 input tensors – tensor for command stream, a flash tensor for constant Read-Only data such as weights and biases, scratch tensor for the tensor arena, scratch fast tensor for the spilling feature of the Ethos-U65(scratch fast tensor is not used for the Ethos-U55) and a tensor for the inputs of the model. From the TF Lite Micro application code, you need to define an interpreter specifying the model, the operator resolver, the tensor arena, and its size and pass these parameters to TF Lite Micro. During the inference TensorFlow Lite Micro reads the Ethos-U custom operator and executes it on the Ethos-U NPU. You can read more about the Ethos-U custom operator <a href="https://github.com/tensorflow/tflite-micro/blob/main/tensorflow/lite/micro/kernels/ethos_u/ethosu.cc#L120" target="_blank">here</a>.</p> 
+    </div> 
+    <div class="documents-section" id="md523-ml-software-support-for-ethos-u__ml-software-for-microcontrollers-with-cortex-m-and-ethos-u-npu"> 
+     <h3 class="documents-underline">ML software for microcontrollers with Cortex-M and Ethos-U NPU</h3> 
+     <p>In a Cortex-M based microcontroller with Ethos-U NPU, the runtime software stack provides the software required to support the Ethos-U NPU. This includes the user application, which uses the TFLM library to execute parts of the optimized model, or command stream, on the Ethos-U NPU. Based on the application requirements, additional software components such as an RTOS might be needed.</p> 
+     <div class="documents-fignone"> 
+      <div> 
+       <span class="documents-figcap"><span class="documents-fig--title-label">Figure 2. </span>Microcontroller software overview</span> 
+      </div> 
+      <img src="https://documentation-service.arm.com/static/69c5444e351d0c3476bdde68?token=" alt="Microcontroller software overview" class="document-resource" document-resource-id="69c5444e351d0c3476bdde68"> 
+     </div> 
+    </div> 
+    <div class="documents-section" id="md523-ml-software-support-for-ethos-u__ml-software-for-ml-subsystems-in-a-larger-soc"> 
+     <h3 class="documents-underline">ML software for ML subsystems in a larger SoC</h3> 
+     <p>In the scenario where the Ethos-U is integrated into an ML subsystem within a SoC with Cortex-A processors, the applications running in the Linux environment use the Ethos-U kernel driver to communicate with the ML subsystem. This driver then communicates with the Cortex-M processor using a Message Handling Unit (MHU). After receiving the information, the Cortex-M processor controls the Ethos-U NPU that carries out the inference.</p> 
+     <p>The Linux driver stack is provided as an example of how a rich operating system like Linux can dispatch inferences to an Ethos-U subsystem. The source code is provided. In accordance with the license, you can modify and further develop the source code.</p> 
+     <div class="documents-fignone"> 
+      <div> 
+       <span class="documents-figcap"><span class="documents-fig--title-label">Figure 3. </span>ML subsystem software stack overview</span> 
+      </div> 
+      <img src="https://documentation-service.arm.com/static/69c5444e351d0c3476bdde5d?token=" alt="ML subsystem software stack overview" class="document-resource" document-resource-id="69c5444e351d0c3476bdde5d"> 
+     </div> 
+     <p>The software components include the following:</p> 
+     <ul> 
+      <li><p>Inference runner</p> <p>The inference runner is a test application that runs inferences on the Ethos-U driver stack. The inference runner takes as input a TFLM model that has been optimized by the Vela compiler, and an input file containing input feature map (IFM) data. The output from the inference runner is an output feature map (OFM) file.</p> </li> 
+      <li><p>Driver library</p> <p>The driver library is a thin C++ interface around the kernel-user API (UAPI) header file that the kernel driver exports to user space. The driver library enables user space applications to detect NPU capabilities, create buffers, register networks, and run inferences.</p> </li> 
+      <li><p>Kernel driver</p> <p>The kernel driver is the bridge between user space and the Ethos-U subsystem. It presents a UAPI that allows a user space application to run inferences. The inference request from user space is forwarded to the Ethos-U subsystem that runs the inference.</p> </li> 
+      <li><p>Linux kernel and DTB</p> <p>Any vanilla Linux kernel can be used. The Debug and Trace Bus (DTB) entry for the Ethos-U subsystem is documented in the kernel driver.</p> </li> 
+     </ul> 
+    </div> 
+   </div> 
+  </div>  
+ </body>
+</html>

@@ -1,0 +1,45 @@
+<html>
+ <head></head>
+ <body>
+  <div>
+   <h3 class="documents-underline">Ethos-U 系统集成</h3>
+   <div>
+    <p>使用 Ethos-U NPU 时，常见有两种系统组织方式：</p>
+    <div class="documents-section">
+     <ul>
+      <li>由 Cortex-M 处理器直接控制 Ethos-U NPU。应用代码运行在 Cortex-M 上，并将推理任务分发给 Ethos-U；Cortex-M 仍可并行承担其他任务。</li>
+      <li>将 Ethos-U 与 Cortex-M 组成 ML 子系统，并集成到更大的 SoC 中（通常含一个或多个 Cortex-A）。应用代码运行在 Cortex-A 上，推理任务先下发到 ML 子系统中的 Cortex-M，再由其控制 Ethos-U 执行。</li>
+     </ul>
+     <p>无论哪种方式，系统设计都需保证 Ethos-U 能够：</p>
+     <ul>
+      <li>通过总线管理器接口访问内存系统。</li>
+      <li>通过外设总线接口接收来自主处理器的事务（Ethos-U 使用 AMBA 4 APB 暴露寄存器，基地址由系统定义）。</li>
+      <li>通过中断输出向主处理器发起中断请求（如连接到 Cortex-M 的 NVIC）。</li>
+     </ul>
+     <p>此外还需正确连接电源管理与安全管理接口。例如在 TrustZone 系统中，可将 Ethos-U 配置为仅安全固件可用，或开放给非安全世界应用。</p>
+    </div>
+    <div class="documents-section">
+     <h3 class="documents-underline">在 Cortex-M 系统中的集成</h3>
+     <p>Ethos-U 与 Cortex-M CPU 配对使用，系统可高度配置。典型组成包括：</p>
+     <ul>
+      <li>Cortex-M 处理器：作为应用处理器控制一个或多个 Ethos-U；官方推荐 M4/M7/M33/M52/M55/M85。</li>
+      <li>Ethos-U NPU：可选 U55/U65/U85；其中 U65/U85 在慢速内存（如 DDR）与高速缓存间数据传输优化更强。</li>
+      <li>SRAM：保存 IFM/OFM；若网络可完全放入 SRAM，性能最佳；否则至少将临时数据放入 SRAM。</li>
+      <li>Flash/DRAM/SRAM：用于存放权重与偏置。</li>
+      <li>外设控制器：如麦克风、摄像头等。</li>
+     </ul>
+    </div>
+    <div class="documents-section">
+     <h3 class="documents-underline">与 Ethos-U 子系统集成</h3>
+     <p>Ethos-U 子系统可连接 Linux 主机及其他操作系统。典型组成包括：</p>
+     <ul>
+      <li>Ethos-U NPU：U55/U65/U85 均可；在慢速内存场景下推荐 U65/U85。</li>
+      <li>消息处理单元（MHU）：可使用任意 mailbox 机制（类似 Arm MHU）。</li>
+      <li>DRAM：保存权重、偏置、IFM、OFM 等高时延存储数据。</li>
+      <li>Cortex-A 处理器：仅与 Cortex-M 通信，不直接操作 Ethos-U；CPU 间通信依赖 DRAM 共享区与 MHU doorbell。</li>
+     </ul>
+    </div>
+   </div>
+  </div>
+ </body>
+</html>

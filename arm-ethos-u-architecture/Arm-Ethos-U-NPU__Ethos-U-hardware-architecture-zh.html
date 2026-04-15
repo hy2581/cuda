@@ -1,0 +1,88 @@
+<html>
+ <head></head>
+ <body>
+  <div>
+   <h3 class="documents-underline">Ethos-U 硬件架构</h3>
+   <div>
+    <p>Ethos-U NPU 需要一个主处理器来控制其运行。通常主处理器是 Arm Cortex-M 处理器。Ethos-U NPU 提供以下几类硬件接口：</p>
+    <div class="documents-section">
+     <ul>
+      <li>外设总线接口：主处理器可通过该接口访问 Ethos-U NPU 的可编程寄存器。</li>
+      <li>两个 AMBA 总线管理器接口：用于访问系统内存。</li>
+      <li>中断输出：向主处理器发送中断事件。</li>
+     </ul>
+     <p>更多信息可参见 Ethos-U 总线管理器接口章节。</p>
+     <p>神经网络推理中的大部分计算都基于乘加（MAC）运算。Ethos-U NPU 内部包含可配置的 MAC 引擎，用于执行 MAC 操作。芯片设计者可按时钟周期配置可执行的 MAC 数量：</p>
+     <ul>
+      <li>Ethos-U55：32 到 256</li>
+      <li>Ethos-U65：256 或 512</li>
+      <li>Ethos-U85：128 到 2048</li>
+     </ul>
+     <p>关于 MAC 数量与性能的关系可参见性能配置章节。除了 MAC 引擎外，Ethos-U NPU 还提供逐元素数据处理引擎，用于其他类型的计算。</p>
+     <p>为提升推理效率，Ethos-U NPU 提供本地存储器用于数据缓冲，并包含 DMA 引擎，可在数据被使用前将其从共享内存拷贝到本地内存。</p>
+     <p>Ethos-U 面向常见的内存受限嵌入式系统，因此支持神经网络权重压缩；权重数据在推理期间按需实时解码。</p>
+     <p>Ethos-U 的运行由映射到处理器系统地址空间的一组寄存器控制。执行一次推理时，任务会被拆分为多个更小作业提交给 NPU。软件库通过外设总线接口下发作业；每个作业完成后，NPU 触发中断通知主处理器，以便软件库下发下一作业。</p>
+     <p>Ethos-U 还支持其他接口（如电源管理接口）。有关这些接口的详细说明，请参考对应技术参考手册（TRM）。</p>
+     <p>并非所有神经网络算子都由 Ethos-U 硬件直接支持；不支持的算子由处理器侧软件执行。U55/U65 支持算子列表请参考官方文档；U85 在此基础上还支持 Transformer 网络与 TOSA（Tensor Operator Set Architecture）。</p>
+    </div>
+    <div class="documents-section">
+     <h3 class="documents-underline">Ethos-U 性能配置</h3>
+     <p>Ethos-U55 与 Ethos-U65 每个时钟周期可执行的 MAC 数是可配置的，从而覆盖不同性能档位。</p>
+     <p><b>Ethos-U55 配置选项（@500MHz）</b>：</p>
+     <ul>
+      <li>256 MAC/cycle，48KB 内部存储，约 256 GOPs</li>
+      <li>128 MAC/cycle，24KB 内部存储，约 128 GOPs</li>
+      <li>64 MAC/cycle，16KB 内部存储，约 64 GOPs</li>
+      <li>32 MAC/cycle，16KB 内部存储，约 32 GOPs</li>
+     </ul>
+     <p><b>Ethos-U65 配置选项（@1GHz）</b>：</p>
+     <ul>
+      <li>512 MAC/cycle，96KB 内部存储，约 1 TOP</li>
+      <li>256 MAC/cycle，48KB 内部存储，约 512 GOPs</li>
+     </ul>
+     <p><b>Ethos-U85 配置选项（@1GHz）</b>：</p>
+     <ul>
+      <li>2048 MAC/cycle，160KB 内部存储，约 4 TOPs</li>
+      <li>1024 MAC/cycle，76KB 内部存储，约 2 TOPs</li>
+      <li>512 MAC/cycle，48KB 内部存储，约 1 TOP</li>
+      <li>256 MAC/cycle，32KB 内部存储，约 512 GOPs</li>
+      <li>128 MAC/cycle，16KB 内部存储，约 256 GOPs</li>
+     </ul>
+    </div>
+    <div class="documents-section">
+     <h3 class="documents-underline">Ethos-U 总线管理器接口</h3>
+     <p>Ethos-U55 与 Ethos-U65 都提供两个 AMBA 5 AXI 接口（M0、M1）连接内存系统：</p>
+     <ul>
+      <li>M0 建议连接高带宽、低时延内存（如 SRAM），用于推理过程中的动态运行时数据。</li>
+      <li>M1 处理对带宽要求较低、可容忍更高时延的事务，因此可连接较慢存储（如 Flash 或 DRAM），用于保存运行时软件栈与网络定义（含权重）。</li>
+      <li>U55 的 M1 为只读；U65 的 M1 为可读写。</li>
+     </ul>
+     <p>M0 与 M1 通常接入互连，从而访问系统任意内存。Vela 编译器会把高带宽低时延事务调度到 M0，其余事务调度到 M1。</p>
+     <p>为支持更高推理性能，Ethos-U85 最多支持 6 个 AMBA 5 AXI 接口：</p>
+     <ul>
+      <li>SRAM0/1/2/3：面向片上 SRAM。</li>
+      <li>EXT0/1：适合 DDR 等外部内存。</li>
+     </ul>
+    </div>
+    <div class="documents-section">
+     <h3 class="documents-underline">Ethos-U55、U65 与 U85 的差异</h3>
+     <ul>
+      <li>MAC/cycle：U55 为 32/64/128/256；U65 为 256/512；U85 为 128~2048。</li>
+      <li>管理总线接口：U55 为双 64-bit AXI（片上 SRAM/嵌入式 Flash）；U65 为双 128-bit AXI（片上 SRAM/DRAM/Flash）；U85 最高 6 路 128-bit AXI。</li>
+      <li>主 CPU 支持：U85 覆盖更多 Cortex-M 与 Cortex-A 处理器。</li>
+     </ul>
+     <p>由于更宽总线和更多硬件资源，U65 的平均性能约比 U55 高 50%。U85 进一步提升 MAC 规模并支持 Transformer 与 TOSA，对高性能边缘 AI 更友好。</p>
+     <p>对于带 DRAM/DDR 的系统（例如运行 Linux 的 Cortex-A 系统），U65/U85 往往更合适，因为其总线接口对较高时延内存支持更好。</p>
+    </div>
+    <div class="documents-section">
+     <h3 class="documents-underline">功耗、安全与性能分析</h3>
+     <ul>
+      <li>电源管理接口：U55/U65/U85 提供 Q-channel，用于时钟门控与电源门控管理，可接系统级电源控制基础设施。</li>
+      <li>安全管理：在 TrustZone 系统中，安全态软件可限制非安全世界访问权限，也可控制仅特权访问或特权/非特权均可访问。NPU 复位后寄存器清零以避免数据泄露。</li>
+      <li>性能监控单元（PMU）：提供 48 位周期计数器和 4 个 32 位事件计数器，便于分析工作负载特征并定位潜在性能瓶颈。</li>
+     </ul>
+    </div>
+   </div>
+  </div>
+ </body>
+</html>

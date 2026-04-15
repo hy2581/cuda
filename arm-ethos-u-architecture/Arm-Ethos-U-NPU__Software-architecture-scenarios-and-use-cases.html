@@ -1,0 +1,27 @@
+<html>
+ <head></head> 
+ <body> 
+  <div> 
+   <h3 class="documents-underline">Software architecture scenarios and use cases</h3> 
+   <div> 
+    <p>The software architecture for an Ethos-U subsystem can be categorized into two scenarios: </p> 
+    <div class="documents-section"> 
+     <ul> 
+      <li><p>Linux dispatches inferences</p> 
+       <ol> 
+        <li>Linux allocates DRAM memory for the network, input feature map (IFM), and the output feature map (OFM).</li> 
+        <li>An inference request is sent from Linux to the Ethos-U subsystem.</li> 
+        <li>The Ethos-U subsystem executes inference and returns an inference response.</li> 
+       </ol> <p>This use case is implemented and has been verified.</p> </li> 
+      <li><p>Ethos-U running without Linux</p> 
+       <ol> 
+        <li>The Ethos-U subsystem is capturing IFMs and running inferences without the help of Linux. Linux is busy, in sleep mode, or even powered down.</li> 
+        <li>The Ethos-U subsystem captures an IFM (audio, video, or sensor data) and runs inference.</li> 
+        <li>When the Ethos-U subsystem detects something of interest, Linux is notified.</li> 
+       </ol> <p>A possible situation for this use case would be an AI speaker scanning audio for a particular word or a camera scanning faces to trigger an unlock event.</p> <p>This use case is not implemented in the Linux driver stack. You would have to implement this use case.</p> </li> 
+     </ul> 
+    </div> 
+   </div> 
+  </div>  
+ </body>
+</html>

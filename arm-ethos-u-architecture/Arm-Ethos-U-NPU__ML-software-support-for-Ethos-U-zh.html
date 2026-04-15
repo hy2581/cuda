@@ -1,0 +1,55 @@
+<html>
+ <head></head>
+ <body>
+  <div>
+   <h3 class="documents-underline">Ethos-U 的 ML 软件支持</h3>
+   <div>
+    <p>ML 软件项目通常基于特定框架。Ethos-U 支持面向微控制器优化的 TensorFlow Lite Micro（TFLM）以及 MicroTVM。TFLM 中网络权重量化为 8-bit 整数后，可显著降低模型内存占用；同时量化模型在支持向量点积的硬件上（如 Ethos-U 和多款 Arm Cortex 处理器）通常表现更好。</p>
+    <div class="documents-section">
+     <p>ML 应用开发可分为两部分：</p>
+     <ol>
+      <li>
+       <p>离线开发流程</p>
+       <ul>
+        <li>准备模型。</li>
+        <li>将模型量化为 8-bit 权重（TF Quantization 工具）。</li>
+        <li>使用 Vela 编译器优化模型：识别可由 Ethos-U 加速的算子并替换为 Ethos-U 函数；若某算子不被 Ethos-U 支持但有 CMSIS-NN 优化内核，则使用 CMSIS-NN；同时执行内存布局优化。Vela 在桌面端运行。</li>
+       </ul>
+      </li>
+      <li>
+       <p>NPU 运行时软件栈</p>
+       <ul>
+        <li><b>用户应用</b>：调用 TFLM 库执行模型推理。</li>
+        <li><b>TFLM</b>：以 C++ 库形式集成 Vela 优化模型、Reference 内核和 CMSIS-NN 内核。推理时逐算子解释执行；遇到 TFLite 自定义算子时转交 Ethos-U 驱动。</li>
+        <li><b>Ethos-U 驱动</b>：负责 TFLM 与 NPU 通信；NPU 完成后回告驱动，驱动再通知 TFLM。</li>
+        <li><b>CMSIS-NN</b>：为 TFLM 的部分算子提供高性能优化实现，用于补足 Ethos-U 不支持算子。</li>
+        <li><b>Reference kernels</b>：覆盖 TFLM 全部算子的通用实现，作为 Ethos-U/CMSIS-NN 都不支持时的回退路径。</li>
+       </ul>
+      </li>
+     </ol>
+    </div>
+    <div class="documents-section">
+     <h3 class="documents-underline">Ethos-U 自定义算子</h3>
+     <p>TFLM 是解释器，会读取内存中的 <code>.tflite</code> 模型并执行算子。为使用 Ethos-U 加速，TFLM 提供“自定义算子”机制。</p>
+     <p>在模型编译阶段，Vela 会把可由 NPU 加速的一串算子组合成一个 Ethos-U 自定义算子。该算子包含 5 个输入张量：命令流张量、只读常量（权重/偏置）张量、tensor arena 的 scratch 张量、U65 spilling 功能使用的 scratch fast 张量（U55 不使用）以及模型输入张量。应用侧需创建并配置 interpreter（模型、算子解析器、tensor arena 及其大小），推理过程中由 TFLM 读取该自定义算子并在 Ethos-U 上执行。</p>
+    </div>
+    <div class="documents-section">
+     <h3 class="documents-underline">Cortex-M + Ethos-U 微控制器的软件架构</h3>
+     <p>在 Cortex-M 微控制器中集成 Ethos-U 时，运行时软件栈提供完整 NPU 支撑：用户应用通过 TFLM 在 Ethos-U 上执行优化后的模型片段（命令流）。根据应用需求，还可加入 RTOS 等组件。</p>
+    </div>
+    <div class="documents-section">
+     <h3 class="documents-underline">更大 SoC 中 ML 子系统的软件架构</h3>
+     <p>当 Ethos-U 作为 SoC（含 Cortex-A）中的 ML 子系统时，Linux 应用通过 Ethos-U 内核驱动与子系统通信，驱动再通过 MHU 与 Cortex-M 通信，由 Cortex-M 控制 Ethos-U 执行推理。</p>
+     <p>官方 Linux 驱动栈展示了富操作系统（如 Linux）向 Ethos-U 子系统分发推理任务的方式，源码可按许可进行修改和扩展。</p>
+     <p>主要软件组件包括：</p>
+     <ul>
+      <li><b>Inference runner</b>：测试应用；输入为 Vela 优化后的 TFLM 模型与 IFM 文件，输出 OFM 文件。</li>
+      <li><b>Driver library</b>：对内核 UAPI 的轻量 C++ 封装，支持能力发现、buffer 创建、网络注册和推理调用。</li>
+      <li><b>Kernel driver</b>：连接用户态与 Ethos-U 子系统的桥梁，接收并转发推理请求。</li>
+      <li><b>Linux kernel 与 DTB</b>：可使用标准 Linux 内核；Ethos-U 子系统 DTB 节点在驱动文档中定义。</li>
+     </ul>
+    </div>
+   </div>
+  </div>
+ </body>
+</html>

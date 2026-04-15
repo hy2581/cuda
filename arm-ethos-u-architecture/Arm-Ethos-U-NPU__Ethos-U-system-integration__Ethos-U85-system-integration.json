@@ -1,0 +1,19 @@
+{
+  "label": "Ethos-U85 system integration",
+  "content": "PGh0bWw+CiA8aGVhZD48L2hlYWQ+IAogPGJvZHk+IAogIDxkaXY+IAogICA8aDMgY2xhc3M9ImRvY3VtZW50cy11bmRlcmxpbmUiPkV0aG9zLVU4NSBzeXN0ZW0gaW50ZWdyYXRpb248L2gzPiAKICAgPGRpdj4gCiAgICA8cD5FdGhvcy1VODUgc3VwcG9ydHMgdGhlIHR3byBhZm9yZW1lbnRpb25lZCBzeXN0ZW0gaW50ZWdyYXRpb24gbWV0aG9kcywgcGx1cyB0aGUgcG9zc2liaWxpdHkgdG8gYmUgbWFuYWdlZCBieSBDb3J0ZXgtQSBzeXN0ZW0gZGlyZWN0bHkuIDwvcD4gCiAgICA8ZGl2IGNsYXNzPSJkb2N1bWVudHMtc2VjdGlvbiI+IAogICAgIDxkaXYgY2xhc3M9ImRvY3VtZW50cy1maWdub25lIj4gCiAgICAgIDxkaXY+IAogICAgICAgPHNwYW4gY2xhc3M9ImRvY3VtZW50cy1maWdjYXAiPjxzcGFuIGNsYXNzPSJkb2N1bWVudHMtZmlnLS10aXRsZS1sYWJlbCI+RmlndXJlIDEuIDwvc3Bhbj5FdGhvcy1VODUgc3lzdGVtIGludGVncmF0aW9uIGFycmFuZ2VtZW50czwvc3Bhbj4gCiAgICAgIDwvZGl2PiAKICAgICAgPGltZyBzcmM9Imh0dHBzOi8vZG9jdW1lbnRhdGlvbi1zZXJ2aWNlLmFybS5jb20vc3RhdGljLzY5YzU0NDRlMzUxZDBjMzQ3NmJkZGU1Zj90b2tlbj0iIGFsdD0iRXRob3MtVTg1IHN5c3RlbSBpbnRlZ3JhdGlvbiBhcnJhbmdlbWVudHMiIGNsYXNzPSJkb2N1bWVudC1yZXNvdXJjZSIgZG9jdW1lbnQtcmVzb3VyY2UtaWQ9IjY5YzU0NDRlMzUxZDBjMzQ3NmJkZGU1ZiI+IAogICAgIDwvZGl2PiAKICAgIDwvZGl2PiAKICAgPC9kaXY+IAogIDwvZGl2PiAgCiA8L2JvZHk+CjwvaHRtbD4=",
+  "slug": "Arm-Ethos-U-NPU/Ethos-U-system-integration/Ethos-U85-system-integration",
+  "topics": [],
+  "anchors": [],
+  "_links": {
+    "self-relative": [
+      {
+        "href": "/documentation/109267/0103/Arm-Ethos-U-NPU/Ethos-U-system-integration/Ethos-U85-system-integration?lang=en&rev=0103-01"
+      }
+    ],
+    "self": [
+      {
+        "href": "https://documentation-service.arm.com/documentation/109267/0103/Arm-Ethos-U-NPU/Ethos-U-system-integration/Ethos-U85-system-integration?lang=en&rev=0103-01"
+      }
+    ]
+  }
+}

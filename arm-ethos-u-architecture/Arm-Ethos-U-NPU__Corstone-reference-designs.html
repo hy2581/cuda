@@ -1,0 +1,41 @@
+<html>
+ <head></head> 
+ <body> 
+  <div> 
+   <h3 class="documents-underline">Corstone reference designs</h3> 
+   <div> 
+    <p>Instead of building new systems from scratch, Arm provides reference system designs in Arm Corstone subsystem products to help system designers create Cortex-M based systems. The Arm Corstone-3xx series reference designs provide examples of building a secure System-on-Chip featuring a Cortex-M and Ethos-U NPU. </p> 
+    <div class="documents-section"> 
+     <ul> 
+      <li><a href="https://developer.arm.com/Processors/Corstone-300" target="_blank">Corstone-300</a> provides a reference system design for the <a href="https://developer.arm.com/Processors/Cortex-M55" target="_blank">Cortex-M55</a> processor with a choice of either the Ethos-U55 or Ethos-U65 NPU.</li> 
+      <li><a href="https://developer.arm.com/Processors/Corstone-310" target="_blank">Corstone-310</a> provides a reference system design for the <a href="https://developer.arm.com/Processors/Cortex-M85" target="_blank">Cortex-M85</a> processor with an Ethos-U65 NPU.</li> 
+      <li><a href="https://developer.arm.com/Processors/Corstone-315" target="_blank">Corstone-315</a> provides a reference system design for the <a href="https://developer.arm.com/Processors/Cortex-M85" target="_blank">Cortex-M85</a> processor with an Ethos-U65 NPU.</li> 
+      <li><a href="https://developer.arm.com/Processors/Corstone-320" target="_blank">Corstone-320</a> provides a reference system design for the <a href="https://developer.arm.com/Processors/Cortex-M85" target="_blank">Cortex-M85</a> processor with an Ethos-U85 NPU.</li> 
+     </ul> 
+     <p>To help software developers to test their software, simulation models of the Corstone-300 and Corstone-310 reference designs are available as Fixed Virtual Platforms (FVPs). These models are available on the <a href="https://developer.arm.com/downloads/-/arm-ecosystem-fvps" target="_blank">Arm Developer website</a>.</p> 
+     <p>The FVPs include simulation models of the corresponding Cortex-M processor and Ethos-U NPU. These models allow software developers to test their ML software easily. Note that the simulation models are not cycle accurate, especially for the processors in these models. However, they can provide an indication of expected processing time on the Ethos-U NPUs. For example, the Corstone-300 FVP is roughly 90% accurate for Ethos-U55 cycle timing. Note that the timing accuracy of the Ethos-U65 in the FVP model is lower than the Ethos-U55.</p> 
+     <p>When simulating an NN inference workload with an FVP, if the workload includes operators that are not supported by the Ethos-U NPU, then the operator processing falls back to the processor. In these cases, you cannot rely on the FVP models to provide you with an accurate estimate of processing time. If cycle accurate timing is required, you can choose other evaluation methods. For example:</p> 
+     <ul> 
+      <li>An FPGA platform, for example the <a href="https://www.arm.com/products/development-tools/development-boards/mps3" target="_blank">Arm MPS3 FPGA board</a></li> 
+      <li><a href="https://www.arm.com/products/ip-explore" target="_blank">Arm IP explorer</a></li> 
+      <li>Another hardware device using the same combination of processor and NPU as the device that you are developing.</li> 
+     </ul> 
+     <p>Arm provides the following <a href="https://developer.arm.com/downloads/-/download-fpga-images" target="_blank">FPGA images</a> for the Arm MPS3 FPGA board:</p> 
+     <ul> 
+      <li>AN552 for Corstone-300 with Cortex-M55 processor and Ethos-U55 NPU.</li> 
+      <li>AN555 for Corstone-310 with Cortex-M85 processor and Ethos-U55 NPU.</li> 
+     </ul> 
+     <p>The following diagram shows a simplified overview of the AN552 system architecture:</p> 
+     <div class="documents-fignone"> 
+      <div> 
+       <span class="documents-figcap"><span class="documents-fig--title-label">Figure 1. </span>Simplified overview of the AN552 system architecture</span> 
+      </div> 
+      <img src="https://documentation-service.arm.com/static/69c5444e351d0c3476bdde65?token=" alt="Simplified overview of the AN552 system architecture" class="document-resource" document-resource-id="69c5444e351d0c3476bdde65"> 
+     </div> 
+     <p>This diagram provides an overview of the Corstone-300 memory system. The Ethos-U NPU can access SRAM, Flash, FPGA block RAM (BRAM), and DDR memory. In this design, you cannot store the tensor arena in D-TCM or I-TCM because the Ethos-U NPU cannot access this memory.</p> 
+     <p>The advantage of running applications on real hardware such as the MPS3 board is that you get cycle accurate performance figures for both the CPU and the NPU. The Corstone-300 and Corstone-310 designs serve as valuable examples for integrating an Ethos-U into a SoC. Arm recommends that you read the technical reference manual for these reference designs before starting your own design.</p> 
+    </div> 
+   </div> 
+  </div>  
+ </body>
+</html>

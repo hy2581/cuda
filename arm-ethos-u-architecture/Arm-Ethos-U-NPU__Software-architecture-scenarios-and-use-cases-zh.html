@@ -1,0 +1,34 @@
+<html>
+ <head></head>
+ <body>
+  <div>
+   <h3 class="documents-underline">软件架构场景与用例</h3>
+   <div>
+    <p>Ethos-U 子系统的软件架构可归纳为两类：</p>
+    <div class="documents-section">
+     <ul>
+      <li>
+       <p>由 Linux 分发推理</p>
+       <ol>
+        <li>Linux 为网络、输入特征图（IFM）与输出特征图（OFM）分配 DRAM 内存。</li>
+        <li>Linux 向 Ethos-U 子系统发起推理请求。</li>
+        <li>Ethos-U 子系统执行推理并返回结果。</li>
+       </ol>
+       <p>该用例已实现并完成验证。</p>
+      </li>
+      <li>
+       <p>Ethos-U 脱离 Linux 运行</p>
+       <ol>
+        <li>Ethos-U 子系统独立采集 IFM 并运行推理，Linux 可处于忙碌、休眠甚至断电状态。</li>
+        <li>子系统采集 IFM（音频、视频或传感器数据）并执行推理。</li>
+        <li>检测到感兴趣事件后，再通知 Linux。</li>
+       </ol>
+       <p>典型场景如 AI 音箱关键词唤醒，或摄像头人脸检测触发解锁。</p>
+       <p>该用例在现有 Linux 驱动栈中未实现，需要自行开发。</p>
+      </li>
+     </ul>
+    </div>
+   </div>
+  </div>
+ </body>
+</html>

@@ -1,0 +1,29 @@
+<html>
+ <head></head>
+ <body>
+  <div>
+   <h3 class="documents-underline">Corstone 参考设计</h3>
+   <div>
+    <p>相比从零开始构建系统，Arm 在 Corstone 子系统产品中提供参考系统设计，帮助设计者快速构建基于 Cortex-M 的系统。Corstone-3xx 系列展示了如何构建包含 Cortex-M 与 Ethos-U NPU 的安全 SoC。</p>
+    <div class="documents-section">
+     <ul>
+      <li>Corstone-300：面向 Cortex-M55，可选 Ethos-U55 或 Ethos-U65。</li>
+      <li>Corstone-310：面向 Cortex-M85，搭配 Ethos-U65。</li>
+      <li>Corstone-315：面向 Cortex-M85，搭配 Ethos-U65。</li>
+      <li>Corstone-320：面向 Cortex-M85，搭配 Ethos-U85。</li>
+     </ul>
+     <p>为便于软件测试，Corstone-300/310 提供 FVP（Fixed Virtual Platform）仿真模型，可在 Arm Developer 网站下载。</p>
+     <p>FVP 包含对应 Cortex-M 与 Ethos-U 模型，便于快速验证 ML 软件。需注意：FVP 并非严格周期精确，尤其在处理器侧；但可用于估计 Ethos-U 推理时间（如 Corstone-300 的 U55 周期精度约 90%，U65 精度更低）。</p>
+     <p>若推理中含 Ethos-U 不支持算子，执行会回退到处理器，此时不能依赖 FVP 获得精确时间估计。若需要周期精确评估，可采用：</p>
+     <ul>
+      <li>FPGA 平台（如 Arm MPS3）。</li>
+      <li>Arm IP Explorer。</li>
+      <li>采用相同 CPU+NPU 组合的真实硬件设备。</li>
+     </ul>
+     <p>Arm 还为 MPS3 提供 FPGA 镜像（如 AN552、AN555）。在 AN552 架构下，Ethos-U 可访问 SRAM/Flash/BRAM/DDR，但无法访问 D-TCM 或 I-TCM，因此 tensor arena 不能放在 TCM 中。</p>
+     <p>在 MPS3 这类真实硬件上运行的优势是：CPU 与 NPU 都可获得周期精确性能数据。Corstone-300/310 也是 Ethos-U 集成到 SoC 的重要参考。</p>
+    </div>
+   </div>
+  </div>
+ </body>
+</html>

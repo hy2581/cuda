@@ -1,0 +1,19 @@
+{
+  "label": "Software architecture scenarios and use cases",
+  "content": "PGh0bWw+CiA8aGVhZD48L2hlYWQ+IAogPGJvZHk+IAogIDxkaXY+IAogICA8aDMgY2xhc3M9ImRvY3VtZW50cy11bmRlcmxpbmUiPlNvZnR3YXJlIGFyY2hpdGVjdHVyZSBzY2VuYXJpb3MgYW5kIHVzZSBjYXNlczwvaDM+IAogICA8ZGl2PiAKICAgIDxwPlRoZSBzb2Z0d2FyZSBhcmNoaXRlY3R1cmUgZm9yIGFuIEV0aG9zLVUgc3Vic3lzdGVtIGNhbiBiZSBjYXRlZ29yaXplZCBpbnRvIHR3byBzY2VuYXJpb3M6IDwvcD4gCiAgICA8ZGl2IGNsYXNzPSJkb2N1bWVudHMtc2VjdGlvbiI+IAogICAgIDx1bD4gCiAgICAgIDxsaT48cD5MaW51eCBkaXNwYXRjaGVzIGluZmVyZW5jZXM8L3A+IAogICAgICAgPG9sPiAKICAgICAgICA8bGk+TGludXggYWxsb2NhdGVzIERSQU0gbWVtb3J5IGZvciB0aGUgbmV0d29yaywgaW5wdXQgZmVhdHVyZSBtYXAgKElGTSksIGFuZCB0aGUgb3V0cHV0IGZlYXR1cmUgbWFwIChPRk0pLjwvbGk+IAogICAgICAgIDxsaT5BbiBpbmZlcmVuY2UgcmVxdWVzdCBpcyBzZW50IGZyb20gTGludXggdG8gdGhlIEV0aG9zLVUgc3Vic3lzdGVtLjwvbGk+IAogICAgICAgIDxsaT5UaGUgRXRob3MtVSBzdWJzeXN0ZW0gZXhlY3V0ZXMgaW5mZXJlbmNlIGFuZCByZXR1cm5zIGFuIGluZmVyZW5jZSByZXNwb25zZS48L2xpPiAKICAgICAgIDwvb2w+IDxwPlRoaXMgdXNlIGNhc2UgaXMgaW1wbGVtZW50ZWQgYW5kIGhhcyBiZWVuIHZlcmlmaWVkLjwvcD4gPC9saT4gCiAgICAgIDxsaT48cD5FdGhvcy1VIHJ1bm5pbmcgd2l0aG91dCBMaW51eDwvcD4gCiAgICAgICA8b2w+IAogICAgICAgIDxsaT5UaGUgRXRob3MtVSBzdWJzeXN0ZW0gaXMgY2FwdHVyaW5nIElGTXMgYW5kIHJ1bm5pbmcgaW5mZXJlbmNlcyB3aXRob3V0IHRoZSBoZWxwIG9mIExpbnV4LiBMaW51eCBpcyBidXN5LCBpbiBzbGVlcCBtb2RlLCBvciBldmVuIHBvd2VyZWQgZG93bi48L2xpPiAKICAgICAgICA8bGk+VGhlIEV0aG9zLVUgc3Vic3lzdGVtIGNhcHR1cmVzIGFuIElGTSAoYXVkaW8sIHZpZGVvLCBvciBzZW5zb3IgZGF0YSkgYW5kIHJ1bnMgaW5mZXJlbmNlLjwvbGk+IAogICAgICAgIDxsaT5XaGVuIHRoZSBFdGhvcy1VIHN1YnN5c3RlbSBkZXRlY3RzIHNvbWV0aGluZyBvZiBpbnRlcmVzdCwgTGludXggaXMgbm90aWZpZWQuPC9saT4gCiAgICAgICA8L29sPiA8cD5BIHBvc3NpYmxlIHNpdHVhdGlvbiBmb3IgdGhpcyB1c2UgY2FzZSB3b3VsZCBiZSBhbiBBSSBzcGVha2VyIHNjYW5uaW5nIGF1ZGlvIGZvciBhIHBhcnRpY3VsYXIgd29yZCBvciBhIGNhbWVyYSBzY2FubmluZyBmYWNlcyB0byB0cmlnZ2VyIGFuIHVubG9jayBldmVudC48L3A+IDxwPlRoaXMgdXNlIGNhc2UgaXMgbm90IGltcGxlbWVudGVkIGluIHRoZSBMaW51eCBkcml2ZXIgc3RhY2suIFlvdSB3b3VsZCBoYXZlIHRvIGltcGxlbWVudCB0aGlzIHVzZSBjYXNlLjwvcD4gPC9saT4gCiAgICAgPC91bD4gCiAgICA8L2Rpdj4gCiAgIDwvZGl2PiAKICA8L2Rpdj4gIAogPC9ib2R5Pgo8L2h0bWw+",
+  "slug": "Arm-Ethos-U-NPU/Software-architecture-scenarios-and-use-cases",
+  "topics": [],
+  "anchors": [],
+  "_links": {
+    "self-relative": [
+      {
+        "href": "/documentation/109267/0103/Arm-Ethos-U-NPU/Software-architecture-scenarios-and-use-cases?lang=en&rev=0103-01"
+      }
+    ],
+    "self": [
+      {
+        "href": "https://documentation-service.arm.com/documentation/109267/0103/Arm-Ethos-U-NPU/Software-architecture-scenarios-and-use-cases?lang=en&rev=0103-01"
+      }
+    ]
+  }
+}

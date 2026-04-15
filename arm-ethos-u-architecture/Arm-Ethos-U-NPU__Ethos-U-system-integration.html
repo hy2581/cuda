@@ -1,0 +1,99 @@
+<html>
+ <head></head> 
+ <body> 
+  <div> 
+   <h3 class="documents-underline">Ethos-U system integration</h3> 
+   <div> 
+    <p>There are two common system arrangements when using an Ethos-U NPU: </p> 
+    <div class="documents-section"> 
+     <ul> 
+      <li><p>An Ethos-U NPU controlled by a Cortex-M processor. In this scenario, the Cortex-M processor runs the application code, dispatching NN inference workloads to the Ethos-U NPU. Because the application code runs directly on the Cortex-M processor, you can use the Cortex-M processor for other tasks in addition to machine learning.</p> </li> 
+      <li><p>An Ethos-U NPU integrated into an ML subsystem together with a Cortex-M processor. In this scenario, the ML subsystem is part of a larger SoC with one or more Cortex-A processors. The Cortex-A processor runs the application code and dispatches NN inference workloads to the Cortex-M processor in the ML subsystem. The Cortex-M processor in turn manages the low-level control of the Ethos-U NPU.</p> </li> 
+     </ul> 
+     <p>In both cases, the system designer must ensure that the Ethos-U NPU is able to do the following:</p> 
+     <ul> 
+      <li>Access the memory system using the bus manager interface.</li> 
+      <li>Accept bus transactions from the host processor using the peripheral bus interface. The Ethos-U NPU has an AMBA 4 APB interface that provides access to its registers. The base address of the registers block is system-specific, and is normally located in a peripheral address range.</li> 
+      <li>Generate interrupt requests for the host processor using the interrupt output. The interrupt output is connected to the interrupt controller for the host processor, for example the NVIC interrupt on a Cortex-M processor.</li> 
+     </ul> 
+     <p>In addition, system designers must also connect the power management interface and security management interface appropriately. For example, if the Ethos-U NPU is integrated into a system with TrustZone security extension, the hardware can be configured to either restrict the Ethos-U NPU to be used only by the secure firmware, or to be available to the applications running in the Non-secure world.</p> 
+    </div> 
+    <div class="documents-section" id="md404-ethos-u-system-integration__ethos-u-integration-in-a-cortex-m-system"> 
+     <h3 class="documents-underline">Ethos-U integration in a Cortex-M system</h3> 
+     <p>The Ethos-U system is paired with a Cortex-M CPU. The system is highly configurable and can be built in many different ways. The following figure shows a typical Ethos-U system.</p> 
+     <div class="documents-fignone"> 
+      <div> 
+       <span class="documents-figcap"><span class="documents-fig--title-label">Figure 1. </span>Ethos-U system</span> 
+      </div> 
+      <img src="https://documentation-service.arm.com/static/69c5444e351d0c3476bdde61?token=" alt="Ethos-U system" class="document-resource" document-resource-id="69c5444e351d0c3476bdde61"> 
+     </div> 
+     <p>The system contains the following components:</p> 
+     <ul> 
+      <li>Cortex-M 
+       <ul> 
+        <li>The Cortex-M series CPU is the application processor that controls one or more Ethos-U NPUs. You can specify your preferred Cortex-M series CPU, but Arm recommends the following CPUs: 
+         <ul> 
+          <li>Cortex-M4</li> 
+          <li>Cortex-M7</li> 
+          <li>Cortex-M33</li> 
+          <li>Cortex-M52</li> 
+          <li>Cortex-M55</li> 
+          <li>Cortex-M85</li> 
+         </ul> </li> 
+       </ul> </li> 
+      <li>Ethos-N NPU 
+       <ul> 
+        <li>Either an Ethos-U55 NPU, an Ethos-U65 NPU, or an Ethos-U85 can be paired with the Cortex-M CPU, but the Ethos-U65 and Ethos-U85 NPUs have been designed to optimize data transfer between the slower memory (for example DDR) and the fast memory cache.</li> 
+       </ul> </li> 
+      <li>SRAM 
+       <ul> 
+        <li>The input feature map (IFM) data and the output feature map (OFM) data are stored in SRAM. You can specify your preferred amount of SRAM, but optimal performance is obtained when the network is fully placed in SRAM. If the network cannot be placed fully in SRAM, only the temporary data is stored in SRAM.</li> 
+       </ul> </li> 
+      <li>Flash memory 
+       <ul> 
+        <li>The weights and biases are stored in flash memory, DRAM, or SRAM.</li> 
+       </ul> </li> 
+      <li>External peripherals 
+       <ul> 
+        <li>Controllers for external peripherals, such as a microphone or camera, can be added.</li> 
+       </ul> </li> 
+     </ul> 
+    </div> 
+    <div class="documents-section" id="md404-ethos-u-system-integration__ethos-u-integration-with-an-ethos-u-subsystem"> 
+     <h3 class="documents-underline">Ethos-U integration with an Ethos-U subsystem</h3> 
+     <p>The Ethos-U subsystem can connect to a Linux host and various other operating systems.</p> 
+     <p>The following figure shows a typical Ethos-U subsystem.</p> 
+     <div class="documents-fignone"> 
+      <div> 
+       <span class="documents-figcap"><span class="documents-fig--title-label">Figure 2. </span>A typical Ethos-U subsystem</span> 
+      </div> 
+      <img src="https://documentation-service.arm.com/static/69c5444e351d0c3476bdde62?token=" alt="A typical Ethos-U subsystem" class="document-resource" document-resource-id="69c5444e351d0c3476bdde62"> 
+     </div> 
+     <p>The system contains the following components:</p> 
+     <ul> 
+      <li>Ethos-U NPU 
+       <ul> 
+        <li>Either an Ethos-U55 NPU, an Ethos-U65 NPU, or an Ethos-U85 NPU can be paired with the Cortex-M CPU. The Ethos-U65 and Ethos-U85 NPUs have been designed to optimize data transfer between the slower memory (for example DDR) and the fast memory cache and is therefore the recommended NPU.</li> 
+       </ul> </li> 
+      <li>Message Handling Unit 
+       <ul> 
+        <li>Any type of mailbox, similar to the Arm Message Handling Unit (MHU), can be used.</li> 
+       </ul> 
+       <blockquote title="Note info"> 
+        <h3 class="documents-underline">Note</h3> 
+        <p>For an example of using an MHU, see the <a href="https://developer.arm.com/documentation/101104/0200" target="_blank">Arm CoreLink SSE-200 Subsystem for Embedded Technical Reference Manual</a>.</p> 
+       </blockquote> </li> 
+      <li>DRAM 
+       <ul> 
+        <li>Weights, biases, the input feature map (IFM), and the output feature map (OFM) data are stored in slower, high latency memory such as DRAM.</li> 
+       </ul> </li> 
+      <li>Cortex-A processor(s) 
+       <ul> 
+        <li>The Cortex-A series CPU only communicates with the Cortex-M series CPU. The Cortex-A series CPU has no direct contact with the Ethos-U NPU. Communication between the CPUs is based on a memory interface in DRAM and the MHU doorbell.</li> 
+       </ul> </li> 
+     </ul> 
+    </div> 
+   </div> 
+  </div>  
+ </body>
+</html>
