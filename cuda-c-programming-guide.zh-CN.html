@@ -2519,7 +2519,7 @@ html
 <span class="section-number">6.2.4. </span>共享内存<a class="headerlink" href="#shared-memory" title="跳转到此标题"></a>
 </h3>
 <p>详见 <a class="reference internal" href="#variable-memory-space-specifiers"><span class="std std-ref">可变内存空间说明符</span></a> 共享内存是使用分配的 <code class="docutils literal notranslate"><span class="pre">__shared__</span></code> 内存空间说明符。</p>
-<p>正如中提到的，共享内存预计将比全局内存快得多 <a class="reference internal" href="#thread-hierarchy"><span class="std std-ref">线程层次结构</span></a> 并详细介绍于 <a class="reference internal" href="#shared-memory"><span class="std std-ref">共享内存</span></a>。它可以用作暂存存储器（或软件管理的缓存），以最大限度地减少来自 CUDA 块的全局存储器访问，如以下矩阵乘法示例所示。</p>
+<p>如 <a class="reference internal" href="#thread-hierarchy"><span class="std std-ref">线程层次结构</span></a> 与 <a class="reference internal" href="#shared-memory"><span class="std std-ref">共享内存</span></a> 所述，共享内存通常比全局内存快得多。<a class="reference internal" href="#thread-hierarchy"><span class="std std-ref">线程层次结构</span></a> 并详细介绍于 <a class="reference internal" href="#shared-memory"><span class="std std-ref">共享内存</span></a>。它可作为暂存存储（或软件管理缓存），以尽量减少 CUDA 线程块对全局内存的访问，示例如下方矩阵乘法所示。</p>
 <p>以下代码示例是矩阵乘法的简单实现，不利用共享内存。每个线程读取一行 <em>一个</em> 和一列 <em>乙</em> 并计算相应的元素 <em>C</em> 如图所示 <a class="reference internal" href="#shared-memory-matrix-multiplication-no-shared-memory"><span class="std std-numref">图8</span></a>。 <em>一个</em> 因此被读为 <em>B.宽度</em> 来自全局内存的时间和 <em>乙</em> 已读 <em>A.高度</em> 次。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="c1">// Matrices are stored in row-major order:</span>
@@ -3698,7 +3698,7 @@ html
 <p>典型的工作流程是创建初始 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 使用流捕获或图形 API。<code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 然后实例化并正常启动。首次推出后，新 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 使用与初始图相同的方法创建并且 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code> 被称为。如果图形更新成功，则由 <code class="docutils literal notranslate"><span class="pre">updateResult</span></code> 上例中的参数，更新后的 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 已推出。如果由于任何原因更新失败， <code class="docutils literal notranslate"><span class="pre">cudaGraphExecDestroy()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiate()</span></code> 被要求毁掉原来的 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 并实例化一个新的。</p>
 <p>也可以更新 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 直接节点（即，使用 <code class="docutils literal notranslate"><span class="pre">cudaGraphKernelNodeSetParams()</span></code>）并随后更新 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code>，但是使用下一节中介绍的显式节点更新 API 会更有效。</p>
 <p>条件句柄标志和默认值作为图形更新的一部分进行更新。</p>
-<p>请参阅 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH">图形API</a> 有关使用和当前限制的更多信息。</p>
+<p>有关用法和当前限制，请参阅 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH">图形 API</a>。</p>
 </section>
 <section id="individual-node-update">
 <span id="id54"></span><h6>
@@ -3716,7 +3716,7 @@ html
 <li><p><code class="docutils literal notranslate"><span class="pre">cudaGraphExecExternalSemaphoresSignalNodeSetParams()</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cudaGraphExecExternalSemaphoresWaitNodeSetParams()</span></code></p></li>
 </ul>
-<p>请参阅 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH">图形API</a> 有关使用和当前限制的更多信息。</p>
+<p>有关用法和当前限制，请参阅 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH">图形 API</a>。</p>
 </section>
 <section id="individual-node-enable">
 <span id="id55"></span><h6>
@@ -3729,7 +3729,7 @@ html
 <li><p><code class="docutils literal notranslate"><span class="pre">cudaGraphNodeSetEnabled()</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cudaGraphNodeGetEnabled()</span></code></p></li>
 </ul>
-<p>请参阅 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH">图形API</a> 有关使用和当前限制的更多信息。</p>
+<p>有关用法和当前限制，请参阅 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH">图形 API</a>。</p>
 </section>
 </section>
 <section id="using-graph-apis">
@@ -3739,7 +3739,7 @@ html
 <p><code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 对象不是线程安全的。用户有责任确保多个线程不会同时访问相同的内容 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code>.</p>
 <p>一个 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 不能与其自身同时运行。推出一个 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 将在先前启动同一可执行图之后进行排序。</p>
 <p>图形执行在流中完成，以便与其他异步工作进行排序。然而，该流仅用于订购；它不限制图的内部并行性，也不影响图节点的执行位置。</p>
-<p>见 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH">图形API。</a></p>
+<p>见 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH">图形 API</a>。</p>
 </section>
 <section id="device-graph-launch">
 <span id="id57"></span><h5>
@@ -4075,7 +4075,7 @@ html
 <p><span class="caption-number">图23 </span><span class="caption-text">条件 IF 节点</span><a class="headerlink" href="#id465" title="跳转到此图片"></a></p>
 </figcaption>
 </figure>
-<p>以下代码说明了如何创建包含 IF 条件节点的图。条件的默认值是使用上游内核设置的。条件语句的主体使用以下方式填充 <a class="reference internal" href="#creating-a-graph-using-graph-apis"><span class="std std-ref">图形API</span></a>。</p>
+<p>以下代码说明了如何创建包含 IF 条件节点的图。条件的默认值是使用上游内核设置的。条件语句的主体使用以下方式填充 <a class="reference internal" href="#creating-a-graph-using-graph-apis"><span class="std std-ref">图形 API</span></a>。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">setHandle</span><span class="p">(</span><span class="n">cudaGraphConditionalHandle</span><span class="w"> </span><span class="n">handle</span><span class="p">)</span><span class="w"></span>
 <span class="p">{</span><span class="w"></span>
@@ -4185,7 +4185,7 @@ html
 <p><span class="caption-number">图24 </span><span class="caption-text">条件 WHILE 节点</span><a class="headerlink" href="#id466" title="跳转到此图片"></a></p>
 </figcaption>
 </figure>
-<p>以下代码说明了如何创建包含 WHILE 条件节点的图。句柄是使用创建的 <em>cudaGraphCondAssignDefault</em> 以避免需要上游内核。条件语句的主体使用以下方式填充 <a class="reference internal" href="#creating-a-graph-using-graph-apis"><span class="std std-ref">图形API</span></a>。</p>
+<p>以下代码说明了如何创建包含 WHILE 条件节点的图。句柄是使用创建的 <em>cudaGraphCondAssignDefault</em> 以避免需要上游内核。条件语句的主体使用以下方式填充 <a class="reference internal" href="#creating-a-graph-using-graph-apis"><span class="std std-ref">图形 API</span></a>。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">loopKernel</span><span class="p">(</span><span class="n">cudaGraphConditionalHandle</span><span class="w"> </span><span class="n">handle</span><span class="p">)</span><span class="w"></span>
 <span class="p">{</span><span class="w"></span>
@@ -4241,7 +4241,7 @@ html
 <p><span class="caption-number">图25 </span><span class="caption-text">条件 SWITCH 节点</span><a class="headerlink" href="#id467" title="跳转到此图片"></a></p>
 </figcaption>
 </figure>
-<p>以下代码说明了如何创建包含 SWITCH 条件节点的图。条件的值是使用上游内核设置的。条件语句的主体使用以下方式填充 <a class="reference internal" href="#creating-a-graph-using-graph-apis"><span class="std std-ref">图形API</span></a>。</p>
+<p>以下代码说明了如何创建包含 SWITCH 条件节点的图。条件的值是使用上游内核设置的。条件语句的主体使用以下方式填充 <a class="reference internal" href="#creating-a-graph-using-graph-apis"><span class="std std-ref">图形 API</span></a>。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">setHandle</span><span class="p">(</span><span class="n">cudaGraphConditionalHandle</span><span class="w"> </span><span class="n">handle</span><span class="p">)</span><span class="w"></span>
 <span class="p">{</span><span class="w"></span>
@@ -4454,8 +4454,8 @@ html
 <span class="section-number">6.2.9.5. </span>点对点内存复制<a class="headerlink" href="#peer-to-peer-memory-copy" title="跳转到此标题"></a>
 </h4>
 <p>可以在两个不同设备的存储器之间执行存储器复制。</p>
-<p>当两个设备使用统一的地址空间时（请参阅 <a class="reference internal" href="#unified-virtual-address-space"><span class="std std-ref">统一虚拟地址空间</span></a>），这是使用中提到的常规内存复制函数来完成的 <a class="reference internal" href="#device-memory"><span class="std std-ref">设备内存</span></a>。</p>
-<p>否则，这是使用完成的 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyPeer()</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaMemcpyPeerAsync()</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaMemcpy3DPeer()</span></code>， 或 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy3DPeerAsync()</span></code> 如以下代码示例所示。</p>
+<p>当两个设备使用统一的地址空间时（请参阅 <a class="reference internal" href="#unified-virtual-address-space"><span class="std std-ref">统一虚拟地址空间</span></a>），可通过 <a class="reference internal" href="#device-memory"><span class="std std-ref">设备内存</span></a> 一节提到的常规内存拷贝函数完成。</p>
+<p>否则，可使用 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyPeer()</span></code>、<code class="docutils literal notranslate"><span class="pre">cudaMemcpyPeerAsync()</span></code>、<code class="docutils literal notranslate"><span class="pre">cudaMemcpy3DPeer()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy3DPeerAsync()</span></code>，如下方代码示例所示。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">cudaSetDevice</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="c1">// Set device 0 as current</span>
 <span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">p0</span><span class="p">;</span><span class="w"></span>
@@ -5848,7 +5848,7 @@ html
 <span id="id105"></span><h5>
 <span class="section-number">6.2.16.3.2. </span>导入内存对象<a class="headerlink" href="#importing-memory-objects-dir3d-12-int" title="跳转到此标题"></a>
 </h5>
-<p>可共享的 Direct3D 12 堆内存对象，通过设置标志创建 <code class="docutils literal notranslate"><span class="pre">D3D12_HEAP_FLAG_SHARED</span></code> 在通话中 <code class="docutils literal notranslate"><span class="pre">ID3D12Device::CreateHeap</span></code>，可以使用与该对象关联的 NT 句柄导入到 CUDA 中，如下所示。请注意，当不再需要 NT 句柄时，应用程序有责任关闭它。 NT 句柄保存对资源的引用，因此必须在释放底层内存之前显式释放它。</p>
+<p>可共享的 Direct3D 12 堆内存对象，通过设置标志创建 <code class="docutils literal notranslate"><span class="pre">D3D12_HEAP_FLAG_SHARED</span></code> 在调用 <code class="docutils literal notranslate"><span class="pre">ID3D12Device::CreateHeap</span></code>，可以使用与该对象关联的 NT 句柄导入到 CUDA 中，如下所示。请注意，当不再需要 NT 句柄时，应用程序有责任关闭它。 NT 句柄保存对资源的引用，因此必须在释放底层内存之前显式释放它。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">cudaExternalMemory_t</span><span class="w"> </span><span class="nf">importD3D12HeapFromNTHandle</span><span class="p">(</span><span class="n">HANDLE</span><span class="w"> </span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaExternalMemory_t</span><span class="w"> </span><span class="n">extMem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
@@ -5887,7 +5887,7 @@ html
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>可共享的 Direct3D 12 提交资源，通过设置标志创建 <code class="docutils literal notranslate"><span class="pre">D3D12_HEAP_FLAG_SHARED</span></code> 在通话中 <code class="docutils literal notranslate"><span class="pre">D3D12Device::CreateCommittedResource</span></code>，可以使用与该对象关联的 NT 句柄导入到 CUDA 中，如下所示。导入 Direct3D 12 提交的资源时，标志 <code class="docutils literal notranslate"><span class="pre">cudaExternalMemoryDedicated</span></code> 必须设置。请注意，当不再需要 NT 句柄时，应用程序有责任关闭它。 NT 句柄保存对资源的引用，因此必须在释放底层内存之前显式释放它。</p>
+<p>可共享的 Direct3D 12 提交资源，通过设置标志创建 <code class="docutils literal notranslate"><span class="pre">D3D12_HEAP_FLAG_SHARED</span></code> 在调用 <code class="docutils literal notranslate"><span class="pre">D3D12Device::CreateCommittedResource</span></code>，可以使用与该对象关联的 NT 句柄导入到 CUDA 中，如下所示。导入 Direct3D 12 提交的资源时，标志 <code class="docutils literal notranslate"><span class="pre">cudaExternalMemoryDedicated</span></code> 必须设置。请注意，当不再需要 NT 句柄时，应用程序有责任关闭它。 NT 句柄保存对资源的引用，因此必须在释放底层内存之前显式释放它。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">cudaExternalMemory_t</span><span class="w"> </span><span class="nf">importD3D12CommittedResourceFromNTHandle</span><span class="p">(</span><span class="n">HANDLE</span><span class="w"> </span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaExternalMemory_t</span><span class="w"> </span><span class="n">extMem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
@@ -6057,7 +6057,7 @@ html
 <span id="id108"></span><h5>
 <span class="section-number">6.2.16.3.5. </span>导入同步对象<a class="headerlink" href="#importing-synchronization-objects-dir3d-12-int" title="跳转到此标题"></a>
 </h5>
-<p>可共享的 Direct3D 12 栅栏对象，通过设置标志创建 <code class="docutils literal notranslate"><span class="pre">D3D12_FENCE_FLAG_SHARED</span></code> 在通话中 <code class="docutils literal notranslate"><span class="pre">ID3D12Device::CreateFence</span></code>，可以使用与该对象关联的 NT 句柄导入到 CUDA 中，如下所示。请注意，当不再需要句柄时，应用程序有责任关闭该句柄。 NT 句柄保存对资源的引用，因此必须在释放底层信号量之前显式释放它。</p>
+<p>可共享的 Direct3D 12 栅栏对象，通过设置标志创建 <code class="docutils literal notranslate"><span class="pre">D3D12_FENCE_FLAG_SHARED</span></code> 在调用 <code class="docutils literal notranslate"><span class="pre">ID3D12Device::CreateFence</span></code>，可以使用与该对象关联的 NT 句柄导入到 CUDA 中，如下所示。请注意，当不再需要句柄时，应用程序有责任关闭该句柄。 NT 句柄保存对资源的引用，因此必须在释放底层信号量之前显式释放它。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">cudaExternalSemaphore_t</span><span class="w"> </span><span class="nf">importD3D12FenceFromNTHandle</span><span class="p">(</span><span class="n">HANDLE</span><span class="w"> </span><span class="n">handle</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaExternalSemaphore_t</span><span class="w"> </span><span class="n">extSem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
@@ -6171,7 +6171,7 @@ html
 <span id="id111"></span><h5>
 <span class="section-number">6.2.16.4.2. </span>导入内存对象<a class="headerlink" href="#importing-memory-objects-dir3d-11-int" title="跳转到此标题"></a>
 </h5>
-<p>可共享的 Direct3D 11 纹理资源，即 <code class="docutils literal notranslate"><span class="pre">ID3D11Texture1D</span></code>, <code class="docutils literal notranslate"><span class="pre">ID3D11Texture2D</span></code> 或 <code class="docutils literal notranslate"><span class="pre">ID3D11Texture3D</span></code>，可以通过设置创建 <code class="docutils literal notranslate"><span class="pre">D3D11_RESOURCE_MISC_SHARED</span></code> 或 <code class="docutils literal notranslate"><span class="pre">D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX</span></code> （在 Windows 7 上）或 <code class="docutils literal notranslate"><span class="pre">D3D11_RESOURCE_MISC_SHARED_NTHANDLE</span></code> （在 Windows 10 上）调用 <code class="docutils literal notranslate"><span class="pre">ID3D11Device:CreateTexture1D</span></code>, <code class="docutils literal notranslate"><span class="pre">ID3D11Device:CreateTexture2D</span></code> 或 <code class="docutils literal notranslate"><span class="pre">ID3D11Device:CreateTexture3D</span></code> 分别。可共享ared的 Direct3D 11 缓冲区资源， <code class="docutils literal notranslate"><span class="pre">ID3D11Buffer</span></code>，可以通过在调用时指定上述任一标志来创建 <code class="docutils literal notranslate"><span class="pre">ID3D11Device::CreateBuffer</span></code>。通过指定创建的可共享ared资源 <code class="docutils literal notranslate"><span class="pre">D3D11_RESOURCE_MISC_SHARED_NTHANDLE</span></code> 可以使用与该对象关联的 NT 句柄导入到 CUDA 中，如下所示。请注意，当不再需要 NT 句柄时，应用程序有责任关闭它。 NT 句柄保存对资源的引用，因此必须在释放底层内存之前显式释放它。导入 Direct3D 11 资源时，标志 <code class="docutils literal notranslate"><span class="pre">cudaExternalMemoryDedicated</span></code> 必须设置。</p>
+<p>可共享的 Direct3D 11 纹理资源，即 <code class="docutils literal notranslate"><span class="pre">ID3D11Texture1D</span></code>, <code class="docutils literal notranslate"><span class="pre">ID3D11Texture2D</span></code> 或 <code class="docutils literal notranslate"><span class="pre">ID3D11Texture3D</span></code>，可以通过设置创建 <code class="docutils literal notranslate"><span class="pre">D3D11_RESOURCE_MISC_SHARED</span></code> 或 <code class="docutils literal notranslate"><span class="pre">D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX</span></code> （在 Windows 7 上）或 <code class="docutils literal notranslate"><span class="pre">D3D11_RESOURCE_MISC_SHARED_NTHANDLE</span></code> （在 Windows 10 上）调用 <code class="docutils literal notranslate"><span class="pre">ID3D11Device:CreateTexture1D</span></code>, <code class="docutils literal notranslate"><span class="pre">ID3D11Device:CreateTexture2D</span></code> 或 <code class="docutils literal notranslate"><span class="pre">ID3D11Device:CreateTexture3D</span></code> 分别。可共享的d的 Direct3D 11 缓冲区资源， <code class="docutils literal notranslate"><span class="pre">ID3D11Buffer</span></code>，可以通过在调用时指定上述任一标志来创建 <code class="docutils literal notranslate"><span class="pre">ID3D11Device::CreateBuffer</span></code>。通过指定创建的可共享的d资源 <code class="docutils literal notranslate"><span class="pre">D3D11_RESOURCE_MISC_SHARED_NTHANDLE</span></code> 可以使用与该对象关联的 NT 句柄导入到 CUDA 中，如下所示。请注意，当不再需要 NT 句柄时，应用程序有责任关闭它。 NT 句柄保存对资源的引用，因此必须在释放底层内存之前显式释放它。导入 Direct3D 11 资源时，标志 <code class="docutils literal notranslate"><span class="pre">cudaExternalMemoryDedicated</span></code> 必须设置。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">cudaExternalMemory_t</span><span class="w"> </span><span class="nf">importD3D11ResourceFromNTHandle</span><span class="p">(</span><span class="n">HANDLE</span><span class="w"> </span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaExternalMemory_t</span><span class="w"> </span><span class="n">extMem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
@@ -6357,7 +6357,7 @@ html
 <span id="id114"></span><h5>
 <span class="section-number">6.2.16.4.5. </span>导入同步对象<a class="headerlink" href="#importing-synchronization-objects-dir3d-11-int" title="跳转到此标题"></a>
 </h5>
-<p>可共享的 Direct3D 11 栅栏对象，通过设置标志创建 <code class="docutils literal notranslate"><span class="pre">D3D11_FENCE_FLAG_SHARED</span></code> 在通话中 <code class="docutils literal notranslate"><span class="pre">ID3D11Device5::CreateFence</span></code>，可以使用与该对象关联的 NT 句柄导入到 CUDA 中，如下所示。请注意，当不再需要句柄时，应用程序有责任关闭该句柄。 NT 句柄保存对资源的引用，因此必须在释放底层信号量之前显式释放它。</p>
+<p>可共享的 Direct3D 11 栅栏对象，通过设置标志创建 <code class="docutils literal notranslate"><span class="pre">D3D11_FENCE_FLAG_SHARED</span></code> 在调用 <code class="docutils literal notranslate"><span class="pre">ID3D11Device5::CreateFence</span></code>，可以使用与该对象关联的 NT 句柄导入到 CUDA 中，如下所示。请注意，当不再需要句柄时，应用程序有责任关闭该句柄。 NT 句柄保存对资源的引用，因此必须在释放底层信号量之前显式释放它。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">cudaExternalSemaphore_t</span><span class="w"> </span><span class="nf">importD3D11FenceFromNTHandle</span><span class="p">(</span><span class="n">HANDLE</span><span class="w"> </span><span class="n">handle</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaExternalSemaphore_t</span><span class="w"> </span><span class="n">extSem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
@@ -6588,7 +6588,7 @@ html
 <span class="k">return</span><span class="w"> </span><span class="n">bufferObjRo</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
-<p>可以使用 NvSciBufObj 句柄将分配的 NvSciBuf 内存对象导入到 CUDA 中，如下所示。应用程序应查询分配的 NvSciBufObj 以获取填充 CUDA 外部内存描述符所需的属性。请注意，属性列表和 NvSciBuf 对象应由应用程序维护。如果导入到CUDA的NvSciBuf对象也被其他驱动映射，那么基于 <code class="docutils literal notranslate"><span class="pre">NvSciBufGeneralAttrKey_GpuSwNeedCacheCoherency</span></code> 应用程序必须使用 NvSciSync 对象的输出属性值（请参阅 <a class="reference internal" href="#importing-synchronization-objects-nvsci"><span class="std std-ref">导入同步对象</span></a>）作为保持 CUDA 和其他驱动程序之间一致性的适当障碍。</p>
+<p>可以使用 NvSciBufObj 句柄将分配的 NvSciBuf 内存对象导入到 CUDA 中，如下所示。应用程序应查询分配的 NvSciBufObj 以获取填充 CUDA 外部内存描述符所需的属性。请注意，属性列表和 NvSciBuf 对象应由应用程序维护。如果导入到 CUDA 的 NvSciBuf 对象也被其他驱动映射，则基于 <code class="docutils literal notranslate"><span class="pre">NvSciBufGeneralAttrKey_GpuSwNeedCacheCoherency</span></code> 应用程序必须使用 NvSciSync 对象的输出属性值（请参阅 <a class="reference internal" href="#importing-synchronization-objects-nvsci"><span class="std std-ref">导入同步对象</span></a>）作为保持 CUDA 和其他驱动程序之间一致性的适当障碍。</p>
 <div class="admonition note">
 <p class="admonition-title">注意</p>
 <p>有关如何分配和维护 NvSciBuf 对象的更多详细信息，请参阅 NvSciBuf API 文档。</p>
