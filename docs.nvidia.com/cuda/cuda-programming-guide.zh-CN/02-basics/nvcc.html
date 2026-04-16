@@ -670,24 +670,24 @@ nvcc<span class="w"> </span>definition.o<span class="w"> </span>example.o<span c
 </section>
 <section id="common-compiler-options">
 <h2><span class="section-number">2.5.4. </span>常用编译选项<a class="headerlink" href="nvcc.html#common-compiler-options" title="跳转到此标题">#</a></h2>
-<p>This section presents the most relevant compiler options that can be used with <code class="docutils literal notranslate"><span class="pre">nvcc</span></code>, covering language features, optimization, debugging, profiling, and build aspects. The full description of all options can be found in the <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#command-option-description">nvcc documentation</a>.</p>
+<p>本节介绍可与 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 搭配使用的重点编译选项，覆盖语言特性、优化、调试、性能分析与构建等方面。所有选项的完整说明见 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#command-option-description">nvcc 文档</a>。</p>
 <section id="language-features">
 <h3><span class="section-number">2.5.4.1. </span>语言特性<a class="headerlink" href="nvcc.html#language-features" title="跳转到此标题">#</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> supports the C++ core language features, from C++03 to <a class="reference external" href="https://en.cppreference.com/w/cpp/compiler_support#cpp20">C++20</a>. The <code class="docutils literal notranslate"><span class="pre">-std</span></code> flag can be used to specify the language standard to use:</p>
+<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 支持从 C++03 到 <a class="reference external" href="https://en.cppreference.com/w/cpp/compiler_support#cpp20">C++20</a> 的 C++ 核心语言特性。可通过 <code class="docutils literal notranslate"><span class="pre">-std</span></code> 指定语言标准：</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">--std={c++03|c++11|c++14|c++17|c++20}</span></code></p></li>
 </ul>
-<p>In addition, <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> supports the following language extensions:</p>
+<p>此外，<code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 支持以下语言扩展：</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">-restrict</span></code>: Assert that all kernel pointer parameters are <a class="reference internal" href="../05-appendices/cpp-language-extensions.html#restrict"><span class="std std-ref">restrict</span></a> pointers.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-extended-lambda</span></code>: Allow <code class="docutils literal notranslate"><span class="pre">__host__</span></code>, <code class="docutils literal notranslate"><span class="pre">__device__</span></code> annotations in lambda declarations.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-expt-relaxed-constexpr</span></code>: (Experimental flag) Allow host code to invoke <code class="docutils literal notranslate"><span class="pre">__device__</span> <span class="pre">constexpr</span></code> functions, and device code to invoke <code class="docutils literal notranslate"><span class="pre">__host__</span> <span class="pre">constexpr</span></code> functions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-restrict</span></code>：声明所有内核指针参数均为 <a class="reference internal" href="../05-appendices/cpp-language-extensions.html#restrict"><span class="std std-ref">restrict</span></a> 指针。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-extended-lambda</span></code>：允许在 lambda 声明中使用 <code class="docutils literal notranslate"><span class="pre">__host__</span></code>、<code class="docutils literal notranslate"><span class="pre">__device__</span></code> 注解。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-expt-relaxed-constexpr</span></code>：（实验性）允许主机代码调用 <code class="docutils literal notranslate"><span class="pre">__device__</span> <span class="pre">constexpr</span></code> 函数，也允许设备代码调用 <code class="docutils literal notranslate"><span class="pre">__host__</span> <span class="pre">constexpr</span></code> 函数。</p></li>
 </ul>
 <p>More detail on these features can be found in the <a class="reference internal" href="../05-appendices/cpp-language-support.html#extended-lambdas"><span class="std std-ref">extended lambda</span></a> and <a class="reference internal" href="../05-appendices/cpp-language-support.html#constexpr-functions"><span class="std std-ref">constexpr</span></a> sections.</p>
 </section>
 <section id="debugging-options">
 <h3><span class="section-number">2.5.4.2. </span>调试选项<a class="headerlink" href="nvcc.html#debugging-options" title="跳转到此标题">#</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> supports the following options to generate debug information:</p>
+<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 提供以下调试信息生成选项：</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">-g</span></code>: Generate debug information for host code. <code class="docutils literal notranslate"><span class="pre">gdb/lldb</span></code> and similar tools rely on such information for host code debugging.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-G</span></code>: Generate debug information for device code. <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-gdb/index.html">cuda-gdb</a> relies on such information for device-code debugging. The flag also defines the <code class="docutils literal notranslate"><span class="pre">__CUDACC_DEBUG__</span></code> macro.</p></li>
@@ -697,13 +697,13 @@ nvcc<span class="w"> </span>definition.o<span class="w"> </span>example.o<span c
 </section>
 <section id="optimization-options">
 <span id="id1"></span><h3><span class="section-number">2.5.4.3. </span>优化选项<a class="headerlink" href="nvcc.html#optimization-options" title="跳转到此标题">#</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> provides many options for optimizing performance. This section aims to provide a brief survey of some of the options available that developers may find useful, as well as links to further information. Complete coverage can be found in the <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html">nvcc documentation</a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 提供了大量性能优化选项。本节仅概览开发者常用的一部分，并给出进一步资料链接。完整内容见 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html">nvcc 文档</a>。</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">-Xptxas</span></code> passes arguments to the PTX assembler tool <code class="docutils literal notranslate"><span class="pre">ptxas</span></code>. The <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> documentation provides a <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#ptxas-options">list of useful arguments</a> for <code class="docutils literal notranslate"><span class="pre">ptxas</span></code>. For example, <code class="docutils literal notranslate"><span class="pre">-Xptxas=-maxrregcount=N</span></code> specifies the maximum number of registers to use, per thread.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-extra-device-vectorization</span></code>: Enables more aggressive device code vectorization.</p></li>
 <li><p>Additional flags which provide fine-grained control over floating point behavior are covered in the <a class="reference internal" href="../05-appendices/mathematical-functions.html#floating-point-computation"><span class="std std-ref">Floating-Point Computation</span></a> section and in the <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#use-fast-math-use-fast-math">nvcc documentation</a>.</p></li>
 </ul>
-<p>The following flags get output from the compiler which can be useful in more advanced code optimization:</p>
+<p>以下选项可输出有助于高级优化分析的编译信息：</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">-res-usage</span></code>: Print resource usage report after compilation. It includes the number of registers, shared memory, constant memory, and local memory allocated for each kernel function.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-opt-info=inline</span></code>: Print information about inlined functions.</p></li>
@@ -713,8 +713,8 @@ nvcc<span class="w"> </span>definition.o<span class="w"> </span>example.o<span c
 </section>
 <section id="link-time-optimization-lto">
 <span id="nvcc-link-time-optimization"></span><h3><span class="section-number">2.5.4.4. </span>链接时优化（LTO）<a class="headerlink" href="nvcc.html#link-time-optimization-lto" title="跳转到此标题">#</a></h3>
-<p><a class="reference internal" href="nvcc.html#nvcc-separate-compilation"><span class="std std-ref">Separate compilation</span></a> can result in lower performance than whole-program compilation due to limited cross-file optimization opportunities. Link-Time Optimization (LTO) addresses this by performing optimizations across separately compiled files at link time, at the cost of increased compilation time. LTO can recover much of the performance of whole-program compilation while maintaining the flexibility of separate compilation.</p>
-<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> requires the <code class="docutils literal notranslate"><span class="pre">-dlto</span></code> <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#dlink-time-opt-dlto">flag</a> or <code class="docutils literal notranslate"><span class="pre">lto_&lt;SM</span> <span class="pre">version&gt;</span></code> link-time optimization targets to enable LTO:</p>
+<p>由于跨文件优化机会受限，<a class="reference internal" href="nvcc.html#nvcc-separate-compilation"><span class="std std-ref">分离编译</span></a> 的性能可能低于整程序编译。链接时优化（LTO）通过在链接阶段跨编译单元优化来缓解这一问题，但会增加编译时间。LTO 可在保留分离编译灵活性的同时，恢复大量整程序编译性能。</p>
+<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 需通过 <code class="docutils literal notranslate"><span class="pre">-dlto</span></code> <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#dlink-time-opt-dlto">选项</a> 或 <code class="docutils literal notranslate"><span class="pre">lto_&lt;SM</span> <span class="pre">version&gt;</span></code> 目标启用 LTO：</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nvcc<span class="w"> </span>-dc<span class="w"> </span>-dlto<span class="w"> </span>-arch<span class="o">=</span>sm_100<span class="w"> </span>definition.cu<span class="w"> </span>-o<span class="w"> </span>definition.o
 nvcc<span class="w"> </span>-dc<span class="w"> </span>-dlto<span class="w"> </span>-arch<span class="o">=</span>sm_100<span class="w"> </span>example.cu<span class="w">    </span>-o<span class="w"> </span>example.o
 nvcc<span class="w"> </span>-dlto<span class="w"> </span>definition.o<span class="w"> </span>example.o<span class="w"> </span>-o<span class="w"> </span>program
@@ -727,7 +727,7 @@ nvcc<span class="w"> </span>-dlto<span class="w"> </span>definition.o<span class
 </div>
 </section>
 <section id="profiling-options">
-<h3><span class="section-number">2.5.4.5. </span>Profiling Options<a class="headerlink" href="nvcc.html#profiling-options" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">2.5.4.5. </span>性能分析选项<a class="headerlink" href="nvcc.html#profiling-options" title="跳转到此标题">#</a></h3>
 <p>It is possible to directly profile a CUDA application using the <a class="reference external" href="https://developer.nvidia.com/nsight-compute">Nsight Compute</a> and <a class="reference external" href="https://developer.nvidia.com/nsight-systems">Nsight Systems</a> tools without the need for additional flags during the compilation process. However, additional information which can be generated by <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> can assist profiling by correlating source files with the generated code:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">-lineinfo</span></code>: Generate line-number information for device code; this allows viewing the source code in the profiling tools. Profiling tools require the original source code to be available in the same location where the code was compiled.</p></li>
@@ -735,7 +735,7 @@ nvcc<span class="w"> </span>-dlto<span class="w"> </span>definition.o<span class
 </ul>
 </section>
 <section id="fatbin-compression">
-<h3><span class="section-number">2.5.4.6. </span>Fatbin Compression<a class="headerlink" href="nvcc.html#fatbin-compression" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">2.5.4.6. </span>Fatbin 压缩<a class="headerlink" href="nvcc.html#fatbin-compression" title="跳转到此标题">#</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> compresses the <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-cubins-fatbins"><span class="std std-ref">fatbins</span></a> stored in application or library binaries by default. Fatbin compression can be controlled using the following options:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">-no-compress</span></code>: Disable the compression of the fatbin.</p></li>
@@ -743,7 +743,7 @@ nvcc<span class="w"> </span>-dlto<span class="w"> </span>definition.o<span class
 </ul>
 </section>
 <section id="compiler-performance-controls">
-<h3><span class="section-number">2.5.4.7. </span>Compiler Performance Controls<a class="headerlink" href="nvcc.html#compiler-performance-controls" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">2.5.4.7. </span>编译器性能控制<a class="headerlink" href="nvcc.html#compiler-performance-controls" title="跳转到此标题">#</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> provides options to analyze and accelerate the compilation process itself:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">-t</span> <span class="pre">&lt;N&gt;</span></code>: The number of CPU threads used to parallelize the compilation of a single compilation unit for multiple GPU architectures.</p></li>
@@ -772,16 +772,16 @@ nvcc<span class="w"> </span>-dlto<span class="w"> </span>definition.o<span class
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><span class="section-number">2.4. </span>Unified and System Memory</p>
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title"><span class="section-number">2.4. </span>统一内存与系统内存</p>
       </div>
     </a>
     <a class="right-next"
        href="../part3.html"
        title="next page">
       <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><span class="section-number">3. </span>Advanced CUDA</p>
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title"><span class="section-number">3. </span>高级 CUDA</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -806,22 +806,22 @@ nvcc<span class="w"> </span>-dlto<span class="w"> </span>definition.o<span class
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#cuda-source-files-and-headers">2.5.1. CUDA Source Files and Headers</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#nvcc-compilation-workflow">2.5.2. NVCC Compilation Workflow</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#nvcc-basic-usage">2.5.3. NVCC Basic Usage</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#nvcc-ptx-and-cubin-generation">2.5.3.1. NVCC PTX and Cubin Generation</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#host-code-compilation-notes">2.5.3.2. Host Code Compilation Notes</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#separate-compilation-of-gpu-code">2.5.3.3. Separate Compilation of GPU Code</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#cuda-source-files-and-headers">2.5.1. CUDA 源文件与头文件</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#nvcc-compilation-workflow">2.5.2. NVCC 编译工作流</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#nvcc-basic-usage">2.5.3. NVCC 基本用法</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#nvcc-ptx-and-cubin-generation">2.5.3.1. NVCC 的 PTX 与 Cubin 生成</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#host-code-compilation-notes">2.5.3.2. 主机代码编译说明</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#separate-compilation-of-gpu-code">2.5.3.3. GPU 代码的分离编译</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#common-compiler-options">2.5.4. Common Compiler Options</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#language-features">2.5.4.1. Language Features</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#debugging-options">2.5.4.2. Debugging Options</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#optimization-options">2.5.4.3. Optimization Options</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#link-time-optimization-lto">2.5.4.4. Link-Time Optimization (LTO)</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#profiling-options">2.5.4.5. Profiling Options</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#fatbin-compression">2.5.4.6. Fatbin Compression</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#compiler-performance-controls">2.5.4.7. Compiler Performance Controls</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#common-compiler-options">2.5.4. 常用编译选项</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#language-features">2.5.4.1. 语言特性</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#debugging-options">2.5.4.2. 调试选项</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#optimization-options">2.5.4.3. 优化选项</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#link-time-optimization-lto">2.5.4.4. 链接时优化（LTO）</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#profiling-options">2.5.4.5. 性能分析选项</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#fatbin-compression">2.5.4.6. Fatbin 压缩</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#compiler-performance-controls">2.5.4.7. 编译器性能控制</a></li>
 </ul>
 </li>
 </ul>
