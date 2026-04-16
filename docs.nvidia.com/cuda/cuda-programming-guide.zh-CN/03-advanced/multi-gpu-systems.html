@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>3.4. Programming Systems with Multiple GPUs &#8212; CUDA Programming Guide</title>
+    <title>3.4. 多 GPU 系统编程 &#8212; CUDA Programming Guide</title>
   
   
   
@@ -378,7 +378,7 @@
 <li class="toctree-l3"><a class="reference internal" href="advanced-host-programming.html">3.1. Advanced CUDA APIs and Features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="advanced-kernel-programming.html">3.2. Advanced Kernel Programming</a></li>
 <li class="toctree-l3"><a class="reference internal" href="driver-api.html">3.3. The CUDA Driver API</a></li>
-<li class="toctree-l3 current active"><a class="current reference internal" href="multi-gpu-systems.html#">3.4. Programming Systems with Multiple GPUs</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="multi-gpu-systems.html#">3.4. 多 GPU 系统编程</a></li>
 <li class="toctree-l3"><a class="reference internal" href="feature-survey.html">3.5. A Tour of CUDA Features</a></li>
 </ul>
 </details></li>
@@ -459,7 +459,7 @@
     
     <li class="breadcrumb-item"><a href="../part3.html" class="nav-link"><span class="section-number">3. </span>Advanced CUDA</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">3.4. </span>Programming Systems with Multiple GPUs</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">3.4. </span>多 GPU 系统编程</span></li>
   </ul>
 </nav>
 </div>
@@ -488,18 +488,14 @@
                 <article class="bd-article">
                   
   <section id="programming-systems-with-multiple-gpus">
-<span id="multi-gpu-introduction"></span><h1><span class="section-number">3.4. </span>Programming Systems with Multiple GPUs<a class="headerlink" href="multi-gpu-systems.html#programming-systems-with-multiple-gpus" title="Link to this heading">#</a></h1>
-<p>Multi-GPU programming allows an application to address problem sizes
-and achieve performance levels beyond what is possible with a single GPU
-by exploiting the larger aggregate arithmetic performance,
-memory capacity, and memory bandwidth provided by multi-GPU systems.</p>
-<p>CUDA enables multi-GPU programming through host APIs,
-driver infrastructure, and supporting GPU hardware technologies:</p>
+<span id="multi-gpu-introduction"></span><h1><span class="section-number">3.4. </span>多 GPU 系统编程<a class="headerlink" href="multi-gpu-systems.html#programming-systems-with-multiple-gpus" title="跳转到此标题">#</a></h1>
+<p>多 GPU 编程可让应用通过利用多 GPU 系统提供的更高总体算力、更大内存容量和更高内存带宽，处理单 GPU 难以胜任的问题规模并达到更高性能水平。</p>
+<p>CUDA 通过主机 API、驱动基础设施与配套 GPU 硬件技术支持多 GPU 编程：</p>
 <ul class="simple">
-<li><p>Host thread CUDA context management</p></li>
-<li><p>Unified memory addressing for all processors in the system</p></li>
-<li><p>Peer-to-peer bulk memory transfers between GPUs</p></li>
-<li><p>Fine-grained peer-to-peer GPU load/store memory access</p></li>
+<li><p>主机线程 CUDA 上下文管理</p></li>
+<li><p>系统内所有处理器的统一内存寻址</p></li>
+<li><p>GPU 间点对点批量内存传输</p></li>
+<li><p>细粒度 GPU 点对点 load/store 内存访问</p></li>
 <li><p>Higher level abstractions and supporting system software such as CUDA interprocess communication, parallel reductions using <a class="reference external" href="https://developer.nvidia.com/nccl">NCCL</a>, and communication using NVLink and/or GPU-Direct RDMA with APIs such as <a class="reference external" href="https://developer.nvidia.com/nvshmem">NVSHMEM</a> and MPI</p></li>
 </ul>
 <p>At the most basic level, multi-GPU programming requires the application
@@ -549,14 +545,14 @@ libraries such as
 and
 <a class="reference external" href="https://developer.nvidia.com/nvshmem">NVSHMEM</a>.</p>
 <section id="multi-device-context-and-execution-management">
-<span id="multi-gpu-context-execution"></span><h2><span class="section-number">3.4.1. </span>Multi-Device Context and Execution Management<a class="headerlink" href="multi-gpu-systems.html#multi-device-context-and-execution-management" title="Link to this heading">#</a></h2>
+<span id="multi-gpu-context-execution"></span><h2><span class="section-number">3.4.1. </span>多设备上下文与执行管理<a class="headerlink" href="multi-gpu-systems.html#multi-device-context-and-execution-management" title="跳转到此标题">#</a></h2>
 <p>The first steps that are required to for an application to use multiple GPUs
 are to enumerate the available GPU devices,
 select among the available devices as appropriate based on their
 hardware properties, CPU affinity, and connectivity to peers,
 and to create CUDA contexts for each device that the application will use.</p>
 <section id="device-enumeration">
-<span id="multi-gpu-device-enumeration"></span><h3><span class="section-number">3.4.1.1. </span>Device Enumeration<a class="headerlink" href="multi-gpu-systems.html#device-enumeration" title="Link to this heading">#</a></h3>
+<span id="multi-gpu-device-enumeration"></span><h3><span class="section-number">3.4.1.1. </span>设备枚举<a class="headerlink" href="multi-gpu-systems.html#device-enumeration" title="跳转到此标题">#</a></h3>
 <p>The following code sample shows how to query number of CUDA-enabled devices,
 enumerate each of the devices, and query their properties.</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">deviceCount</span><span class="p">;</span>
@@ -572,7 +568,7 @@ enumerate each of the devices, and query their properties.</p>
 </div>
 </section>
 <section id="device-selection">
-<span id="id1"></span><h3><span class="section-number">3.4.1.2. </span>Device Selection<a class="headerlink" href="multi-gpu-systems.html#device-selection" title="Link to this heading">#</a></h3>
+<span id="id1"></span><h3><span class="section-number">3.4.1.2. </span>设备选择<a class="headerlink" href="multi-gpu-systems.html#device-selection" title="跳转到此标题">#</a></h3>
 <p>A host thread can set the device it is currently operating on at any time by calling <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code>.
 Device memory allocations and kernel launches are made on the current device; streams and events are created in association with the currently set device.
 Until a call to <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code> is made by the host thread, the current device defaults to device 0.</p>
@@ -591,7 +587,7 @@ Until a call to <code class="docutils literal notranslate"><span class="pre">cud
 </div>
 </section>
 <section id="multi-device-stream-event-and-memory-copy-behavior">
-<span id="multi-gpu-stream-and-event-behavior"></span><h3><span class="section-number">3.4.1.3. </span>Multi-Device Stream, Event, and Memory Copy Behavior<a class="headerlink" href="multi-gpu-systems.html#multi-device-stream-event-and-memory-copy-behavior" title="Link to this heading">#</a></h3>
+<span id="multi-gpu-stream-and-event-behavior"></span><h3><span class="section-number">3.4.1.3. </span>多设备流、事件与内存拷贝行为<a class="headerlink" href="multi-gpu-systems.html#multi-device-stream-event-and-memory-copy-behavior" title="跳转到此标题">#</a></h3>
 <p>A kernel launch will fail if it is issued to a stream that is not associated to the current device as illustrated in the following code sample.</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaSetDevice</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w">               </span><span class="c1">// Set device 0 as current</span>
 <span class="n">cudaStream_t</span><span class="w"> </span><span class="n">s0</span><span class="p">;</span>
@@ -616,9 +612,9 @@ Until a call to <code class="docutils literal notranslate"><span class="pre">cud
 </section>
 </section>
 <section id="multi-device-peer-to-peer-transfers-and-memory-access">
-<span id="multi-gpu-peer-memory-access"></span><h2><span class="section-number">3.4.2. </span>Multi-Device Peer-to-Peer Transfers and Memory Access<a class="headerlink" href="multi-gpu-systems.html#multi-device-peer-to-peer-transfers-and-memory-access" title="Link to this heading">#</a></h2>
+<span id="multi-gpu-peer-memory-access"></span><h2><span class="section-number">3.4.2. </span>多设备点对点传输与内存访问<a class="headerlink" href="multi-gpu-systems.html#multi-device-peer-to-peer-transfers-and-memory-access" title="跳转到此标题">#</a></h2>
 <section id="peer-to-peer-memory-transfers">
-<span id="multi-gpu-peer-to-peer-transfers"></span><h3><span class="section-number">3.4.2.1. </span>Peer-to-Peer Memory Transfers<a class="headerlink" href="multi-gpu-systems.html#peer-to-peer-memory-transfers" title="Link to this heading">#</a></h3>
+<span id="multi-gpu-peer-to-peer-transfers"></span><h3><span class="section-number">3.4.2.1. </span>点对点内存传输<a class="headerlink" href="multi-gpu-systems.html#peer-to-peer-memory-transfers" title="跳转到此标题">#</a></h3>
 <p>CUDA can perform memory transfers between devices and will take advantage
 of dedicated copy engines and NVLink hardware to maximize performance
 when peer-to-peer memory access is possible.</p>
@@ -647,10 +643,10 @@ when peer-to-peer memory access is possible.</p>
 <li><p>runs to completion before any commands (see <a class="reference internal" href="../02-basics/asynchronous-execution.html#asynchronous-execution"><span class="std std-ref">Asynchronous Execution</span></a>) issued after the copy to either device can start.</p></li>
 </ul>
 <p>Consistent with the normal behavior of streams, an asynchronous copy between the memories of two devices may overlap with copies or kernels in another stream.</p>
-<p>If peer-to-peer access is enabled between two devices, e.g., as described in <a class="reference internal" href="multi-gpu-systems.html#multi-gpu-peer-to-peer-memory-access"><span class="std std-ref">Peer-to-Peer Memory Access</span></a>, peer-to-peer memory copies between these two devices no longer need to be staged through the host and are therefore faster.</p>
+<p>If peer-to-peer access is enabled between two devices, e.g., as described in <a class="reference internal" href="multi-gpu-systems.html#multi-gpu-peer-to-peer-memory-access"><span class="std std-ref">点对点内存访问</span></a>, peer-to-peer memory copies between these two devices no longer need to be staged through the host and are therefore faster.</p>
 </section>
 <section id="peer-to-peer-memory-access">
-<span id="multi-gpu-peer-to-peer-memory-access"></span><h3><span class="section-number">3.4.2.2. </span>Peer-to-Peer Memory Access<a class="headerlink" href="multi-gpu-systems.html#peer-to-peer-memory-access" title="Link to this heading">#</a></h3>
+<span id="multi-gpu-peer-to-peer-memory-access"></span><h3><span class="section-number">3.4.2.2. </span>点对点内存访问<a class="headerlink" href="multi-gpu-systems.html#peer-to-peer-memory-access" title="跳转到此标题">#</a></h3>
 <p>Depending on the system properties, specifically the PCIe and/or NVLink topology, devices are able to address each other’s memory (i.e., a kernel executing on one device can dereference a pointer to the memory of the other device).
 Peer-to-peer memory access is supported between two devices if <code class="docutils literal notranslate"><span class="pre">cudaDeviceCanAccessPeer()</span></code> returns true for the specified devices.</p>
 <p>Peer-to-peer memory access must be enabled between two devices by calling <code class="docutils literal notranslate"><span class="pre">cudaDeviceEnablePeerAccess()</span></code> as illustrated in the following code sample. On non-NVSwitch enabled systems, each device can support a system-wide maximum of eight peer connections.</p>
@@ -671,7 +667,7 @@ Peer-to-peer memory access is supported between two devices if <code class="docu
 </pre></div>
 </div>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
+<p class="admonition-title">注意</p>
 <p>The use of <code class="docutils literal notranslate"><span class="pre">cudaDeviceEnablePeerAccess()</span></code> to enable peer memory access operates globally on all previous and subsequent GPU memory allocations on the peer device.
 Enabling peer access to a device via <code class="docutils literal notranslate"><span class="pre">cudaDeviceEnablePeerAccess()</span></code> adds runtime cost to device memory allocation operations on that peer due to the need make the allocations immediately accessible to the current device and any other peers that also have access, adding multiplicative overhead that scales with the number of peer devices.</p>
 <p>A more scalable alternative to enabling peer memory access for all device memory allocations is to make use of CUDA Virtual Memory Management APIs to explicitly allocate peer-accessible memory regions only as-needed, at allocation time.
@@ -679,7 +675,7 @@ By requesting peer-accessibility explicitly during memory allocation, the runtim
 </div>
 </section>
 <section id="peer-to-peer-memory-consistency">
-<span id="multi-gpu-peer-to-peer-memory-consistency-synchronization"></span><h3><span class="section-number">3.4.2.3. </span>Peer-to-Peer Memory Consistency<a class="headerlink" href="multi-gpu-systems.html#peer-to-peer-memory-consistency" title="Link to this heading">#</a></h3>
+<span id="multi-gpu-peer-to-peer-memory-consistency-synchronization"></span><h3><span class="section-number">3.4.2.3. </span>点对点内存一致性<a class="headerlink" href="multi-gpu-systems.html#peer-to-peer-memory-consistency" title="跳转到此标题">#</a></h3>
 <p>Synchronization operations must be used to enforce the ordering and
 correctness of memory accesses by concurrently executing threads in grids
 distributed across multiple devices.
@@ -693,13 +689,13 @@ accessing that object.
 The requirements and limitations for peer atomicity are described in the CUDA memory model <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_model.html#atomicity">atomicity requirements</a> discussion.</p>
 </section>
 <section id="multi-device-managed-memory">
-<span id="multi-gpu-managed-memory"></span><h3><span class="section-number">3.4.2.4. </span>Multi-Device Managed Memory<a class="headerlink" href="multi-gpu-systems.html#multi-device-managed-memory" title="Link to this heading">#</a></h3>
+<span id="multi-gpu-managed-memory"></span><h3><span class="section-number">3.4.2.4. </span>多设备托管内存<a class="headerlink" href="multi-gpu-systems.html#multi-device-managed-memory" title="跳转到此标题">#</a></h3>
 <p>Managed memory can be used on multi-GPU systems with peer-to-peer support.
 The detailed requirements for concurrent multi-device managed memory access
 and APIs for GPU-exclusive access to managed memory are described in <a class="reference internal" href="../04-special-topics/unified-memory.html#um-legacy-multi-gpu"><span class="std std-ref">Multi-GPU</span></a>.</p>
 </section>
 <section id="host-iommu-hardware-pci-access-control-services-and-vms">
-<span id="multi-gpu-host-iommu-acs-vm"></span><h3><span class="section-number">3.4.2.5. </span>Host IOMMU Hardware, PCI Access Control Services, and VMs<a class="headerlink" href="multi-gpu-systems.html#host-iommu-hardware-pci-access-control-services-and-vms" title="Link to this heading">#</a></h3>
+<span id="multi-gpu-host-iommu-acs-vm"></span><h3><span class="section-number">3.4.2.5. </span>主机 IOMMU 硬件、PCI ACS 与虚拟机<a class="headerlink" href="multi-gpu-systems.html#host-iommu-hardware-pci-access-control-services-and-vms" title="跳转到此标题">#</a></h3>
 <p>On Linux specifically, CUDA and the display driver do not support IOMMU-enabled bare-metal PCIe peer-to-peer memory transfer.
 However, CUDA and the display driver do support IOMMU via virtual machine pass through.
 The IOMMU must be disabled when running Linux on a bare metal system to prevent silent device memory corruption.
@@ -761,18 +757,18 @@ The PCI ACS feature redirects all PCI point-to-point traffic through the CPU roo
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#multi-device-context-and-execution-management">3.4.1. Multi-Device Context and Execution Management</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#device-enumeration">3.4.1.1. Device Enumeration</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#device-selection">3.4.1.2. Device Selection</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#multi-device-stream-event-and-memory-copy-behavior">3.4.1.3. Multi-Device Stream, Event, and Memory Copy Behavior</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#multi-device-context-and-execution-management">3.4.1. 多设备上下文与执行管理</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#device-enumeration">3.4.1.1. 设备枚举</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#device-selection">3.4.1.2. 设备选择</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#multi-device-stream-event-and-memory-copy-behavior">3.4.1.3. 多设备流、事件与内存拷贝行为</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#multi-device-peer-to-peer-transfers-and-memory-access">3.4.2. Multi-Device Peer-to-Peer Transfers and Memory Access</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#peer-to-peer-memory-transfers">3.4.2.1. Peer-to-Peer Memory Transfers</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#peer-to-peer-memory-access">3.4.2.2. Peer-to-Peer Memory Access</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#peer-to-peer-memory-consistency">3.4.2.3. Peer-to-Peer Memory Consistency</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#multi-device-managed-memory">3.4.2.4. Multi-Device Managed Memory</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#host-iommu-hardware-pci-access-control-services-and-vms">3.4.2.5. Host IOMMU Hardware, PCI Access Control Services, and VMs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#multi-device-peer-to-peer-transfers-and-memory-access">3.4.2. 多设备点对点传输与内存访问</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#peer-to-peer-memory-transfers">3.4.2.1. 点对点内存传输</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#peer-to-peer-memory-access">3.4.2.2. 点对点内存访问</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#peer-to-peer-memory-consistency">3.4.2.3. 点对点内存一致性</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#multi-device-managed-memory">3.4.2.4. 多设备托管内存</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#host-iommu-hardware-pci-access-control-services-and-vms">3.4.2.5. 主机 IOMMU 硬件、PCI ACS 与虚拟机</a></li>
 </ul>
 </li>
 </ul>
