@@ -3,13 +3,13 @@
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="../" >
+<html lang="zh-CN" data-content_root="../" >
 
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>2.5. NVCC: The NVIDIA CUDA Compiler &#8212; CUDA Programming Guide</title>
+    <title>2.5. NVCC：NVIDIA CUDA 编译器 &#8212; CUDA 编程指南</title>
   
   
   
@@ -357,7 +357,7 @@
 
 <nav class="bd-docs-nav bd-links"
      aria-label="Table of Contents">
-  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
+  <p class="bd-links__title" role="heading" aria-level="1">目录</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA Programming Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. Introduction to CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -488,12 +488,12 @@
                 <article class="bd-article">
                   
   <section id="nvcc-the-nvidia-cuda-compiler">
-<span id="nvcc"></span><h1><span class="section-number">2.5. </span>NVCC: The NVIDIA CUDA Compiler<a class="headerlink" href="nvcc.html#nvcc-the-nvidia-cuda-compiler" title="Link to this heading">#</a></h1>
-<p><a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html">The NVIDIA CUDA Compiler</a> <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> is a toolchain from NVIDIA for compiling CUDA C/C++ as well as <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html">PTX</a> code. The toolchain is part of the <a class="reference external" href="https://developer.nvidia.com/cuda-toolkit">CUDA Toolkit</a> and consists of several tools, including the compiler, linker, and the PTX and <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-cubins-fatbins"><span class="std std-ref">Cubin</span></a> assemblers. The top-level <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> tool coordinates the compilation process, invoking the appropriate tool for each stage of compilation.</p>
-<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> drives offline compilation of CUDA code, in contrast to online or Just-in-Time (JIT) compilation driven by the CUDA runtime compiler <a class="reference external" href="https://docs.nvidia.com/cuda/nvrtc/index.html">nvrtc</a>.</p>
-<p>This chapter covers the most common uses and details of <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> needed for building applications. Full coverage of <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> is found in the <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html">nvcc documentation</a>.</p>
+<span id="nvcc"></span><h1><span class="section-number">2.5. </span>NVCC：NVIDIA CUDA 编译器<a class="headerlink" href="nvcc.html#nvcc-the-nvidia-cuda-compiler" title="跳转到此标题">#</a></h1>
+<p><a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html">NVIDIA CUDA 编译器</a> <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 是 NVIDIA 提供的工具链，用于编译 CUDA C/C++ 以及 <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html">PTX</a> 代码。该工具链属于 <a class="reference external" href="https://developer.nvidia.com/cuda-toolkit">CUDA Toolkit</a>，包含编译器、链接器以及 PTX 与 <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-cubins-fatbins"><span class="std std-ref">Cubin</span></a> 汇编器等工具。顶层工具 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 负责协调整个编译流程，在各阶段调用相应工具。</p>
+<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 负责 CUDA 代码的离线编译；这与由 CUDA 运行时编译器 <a class="reference external" href="https://docs.nvidia.com/cuda/nvrtc/index.html">nvrtc</a> 驱动的在线或即时（JIT）编译相对。</p>
+<p>本章介绍构建应用时最常见的 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 用法与关键细节。更完整内容请参见 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html">nvcc 文档</a>。</p>
 <section id="cuda-source-files-and-headers">
-<h2><span class="section-number">2.5.1. </span>CUDA Source Files and Headers<a class="headerlink" href="nvcc.html#cuda-source-files-and-headers" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">2.5.1. </span>CUDA 源文件与头文件<a class="headerlink" href="nvcc.html#cuda-source-files-and-headers" title="跳转到此标题">#</a></h2>
 <p>Source files compiled with <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> may contain a combination of host code, which executes on the CPU, and device code that executes on the GPU. <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> accepts the common C/C++ source file extensions <code class="docutils literal notranslate"><span class="pre">.c</span></code>, <code class="docutils literal notranslate"><span class="pre">.cpp</span></code>, <code class="docutils literal notranslate"><span class="pre">.cc</span></code>, <code class="docutils literal notranslate"><span class="pre">.cxx</span></code> for host-only code and <code class="docutils literal notranslate"><span class="pre">.cu</span></code> for files that contain device code or a mix of host and device code. Headers containing device code typically adopt the <code class="docutils literal notranslate"><span class="pre">.cuh</span></code> extension to distinguish them from host-only code headers <code class="docutils literal notranslate"><span class="pre">.h</span></code>, <code class="docutils literal notranslate"><span class="pre">.hpp</span></code>, <code class="docutils literal notranslate"><span class="pre">.hh</span></code>, <code class="docutils literal notranslate"><span class="pre">.hxx</span></code>, etc.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
@@ -528,7 +528,7 @@
 </div>
 </section>
 <section id="nvcc-compilation-workflow">
-<h2><span class="section-number">2.5.2. </span>NVCC Compilation Workflow<a class="headerlink" href="nvcc.html#nvcc-compilation-workflow" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">2.5.2. </span>NVCC 编译工作流<a class="headerlink" href="nvcc.html#nvcc-compilation-workflow" title="跳转到此标题">#</a></h2>
 <p>In the initial phase, <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> separates the device code from the host code and dispatches their compilation to the GPU and the host compilers, respectively.</p>
 <div class="line-block">
 <div class="line">To compile the host code, the CUDA compiler <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> requires a compatible host compiler to be available. The CUDA Toolkit defines the host compiler support policy for <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#host-compiler-support-policy">Linux</a> and <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html#system-requirements">Windows</a> platforms.</div>
@@ -571,7 +571,7 @@
 <p>A more detailed description of the <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> compilation workflow can be found in the <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/#the-cuda-compilation-trajectory">compiler documentation</a>.</p>
 </section>
 <section id="nvcc-basic-usage">
-<h2><span class="section-number">2.5.3. </span>NVCC Basic Usage<a class="headerlink" href="nvcc.html#nvcc-basic-usage" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">2.5.3. </span>NVCC 基本用法<a class="headerlink" href="nvcc.html#nvcc-basic-usage" title="跳转到此标题">#</a></h2>
 <p>The basic command to compile a CUDA source file with <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> is:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nvcc<span class="w"> </span>&lt;source_file&gt;.cu<span class="w"> </span>-o<span class="w"> </span>&lt;output_file&gt;
 </pre></div>
@@ -581,7 +581,7 @@
 </pre></div>
 </div>
 <section id="nvcc-ptx-and-cubin-generation">
-<h3><span class="section-number">2.5.3.1. </span>NVCC PTX and Cubin Generation<a class="headerlink" href="nvcc.html#nvcc-ptx-and-cubin-generation" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">2.5.3.1. </span>NVCC 的 PTX 与 Cubin 生成<a class="headerlink" href="nvcc.html#nvcc-ptx-and-cubin-generation" title="跳转到此标题">#</a></h3>
 <p>By default, <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> generates PTX and Cubin for the earliest GPU architecture (lowest <code class="docutils literal notranslate"><span class="pre">compute_XY</span></code> and <code class="docutils literal notranslate"><span class="pre">sm_XY</span></code> version) supported by the CUDA Toolkit to maximize compatibility.</p>
 <ul class="simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">-arch</span></code> <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#gpu-architecture-arch">option</a> can be used to generate PTX and Cubin for a specific GPU architecture.</p></li>
@@ -624,7 +624,7 @@ nvcc<span class="w"> </span>example.cu<span class="w"> </span>-gencode<span clas
 <p>The full reference of <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> command-line options for steering GPU code generation can be found in the <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#options-for-steering-gpu-code-generation">nvcc documentation</a>.</p>
 </section>
 <section id="host-code-compilation-notes">
-<h3><span class="section-number">2.5.3.2. </span>Host Code Compilation Notes<a class="headerlink" href="nvcc.html#host-code-compilation-notes" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">2.5.3.2. </span>主机代码编译说明<a class="headerlink" href="nvcc.html#host-code-compilation-notes" title="跳转到此标题">#</a></h3>
 <p>Compilation units, namely a source file and its headers, that do not contain device code or symbols can be compiled directly with a host compiler. If any compilation unit uses CUDA runtime API functions, the application must be linked with the CUDA runtime library. The CUDA runtime is available as both a static and a shared library, <code class="docutils literal notranslate"><span class="pre">libcudart_static</span></code> and <code class="docutils literal notranslate"><span class="pre">libcudart</span></code>, respectively. By default, <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> links against the static CUDA runtime library. To use the shared library version of the CUDA runtime, pass the flag <code class="docutils literal notranslate"><span class="pre">--cudart=shared</span></code> to <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> on the compile or link command.</p>
 <p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> allows the host compiler used for host functions to be specified via the <code class="docutils literal notranslate"><span class="pre">-ccbin</span> <span class="pre">&lt;compiler&gt;</span></code> argument. The environment variable <code class="docutils literal notranslate"><span class="pre">NVCC_CCBIN</span></code> can also be defined to specify the host compiler used by <code class="docutils literal notranslate"><span class="pre">nvcc</span></code>. The <code class="docutils literal notranslate"><span class="pre">-Xcompiler</span></code> argument to <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> passes through arguments to the host compiler. For example, in the example below, the <code class="docutils literal notranslate"><span class="pre">-O3</span></code> argument is passed to the host compiler by <code class="docutils literal notranslate"><span class="pre">nvcc</span></code>.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nvcc<span class="w"> </span>example.cu<span class="w"> </span>-ccbin<span class="o">=</span>clang++
@@ -635,7 +635,7 @@ nvcc<span class="w"> </span>example.cu<span class="w"> </span>-Xcompiler<span cl
 </div>
 </section>
 <section id="separate-compilation-of-gpu-code">
-<span id="nvcc-separate-compilation"></span><h3><span class="section-number">2.5.3.3. </span>Separate Compilation of GPU Code<a class="headerlink" href="nvcc.html#separate-compilation-of-gpu-code" title="Link to this heading">#</a></h3>
+<span id="nvcc-separate-compilation"></span><h3><span class="section-number">2.5.3.3. </span>GPU 代码的分离编译<a class="headerlink" href="nvcc.html#separate-compilation-of-gpu-code" title="跳转到此标题">#</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> defaults to <em>whole-program compilation</em>, which expects all GPU code and symbols to be present in the compilation unit that uses them. CUDA device functions may call device functions or access device variables defined in other compilation units, but either the <code class="docutils literal notranslate"><span class="pre">-rdc=true</span></code> or its alias the <code class="docutils literal notranslate"><span class="pre">-dc</span></code> flag must be specified on the <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> command line to enable linking of device code from different compilation units. The ability to link device code and symbols from different compilation units is called <em>separate compilation</em>.</p>
 <p>Separate compilation allows more flexible code organization, can improve compile time, and can lead to smaller binaries. Separate compilation may involve some build-time complexity compared to whole-program compilation. Performance can be affected by the use of device code linking, which is why it is not used by default.  <a class="reference internal" href="nvcc.html#nvcc-link-time-optimization"><span class="std std-ref">Link-Time Optimization (LTO)</span></a> can help reduce the performance overhead of separate compilation.</p>
 <p>Separate compilation requires the following conditions:</p>
@@ -669,10 +669,10 @@ nvcc<span class="w"> </span>definition.o<span class="w"> </span>example.o<span c
 </section>
 </section>
 <section id="common-compiler-options">
-<h2><span class="section-number">2.5.4. </span>Common Compiler Options<a class="headerlink" href="nvcc.html#common-compiler-options" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">2.5.4. </span>常用编译选项<a class="headerlink" href="nvcc.html#common-compiler-options" title="跳转到此标题">#</a></h2>
 <p>This section presents the most relevant compiler options that can be used with <code class="docutils literal notranslate"><span class="pre">nvcc</span></code>, covering language features, optimization, debugging, profiling, and build aspects. The full description of all options can be found in the <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#command-option-description">nvcc documentation</a>.</p>
 <section id="language-features">
-<h3><span class="section-number">2.5.4.1. </span>Language Features<a class="headerlink" href="nvcc.html#language-features" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">2.5.4.1. </span>语言特性<a class="headerlink" href="nvcc.html#language-features" title="跳转到此标题">#</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> supports the C++ core language features, from C++03 to <a class="reference external" href="https://en.cppreference.com/w/cpp/compiler_support#cpp20">C++20</a>. The <code class="docutils literal notranslate"><span class="pre">-std</span></code> flag can be used to specify the language standard to use:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">--std={c++03|c++11|c++14|c++17|c++20}</span></code></p></li>
@@ -686,7 +686,7 @@ nvcc<span class="w"> </span>definition.o<span class="w"> </span>example.o<span c
 <p>More detail on these features can be found in the <a class="reference internal" href="../05-appendices/cpp-language-support.html#extended-lambdas"><span class="std std-ref">extended lambda</span></a> and <a class="reference internal" href="../05-appendices/cpp-language-support.html#constexpr-functions"><span class="std std-ref">constexpr</span></a> sections.</p>
 </section>
 <section id="debugging-options">
-<h3><span class="section-number">2.5.4.2. </span>Debugging Options<a class="headerlink" href="nvcc.html#debugging-options" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">2.5.4.2. </span>调试选项<a class="headerlink" href="nvcc.html#debugging-options" title="跳转到此标题">#</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> supports the following options to generate debug information:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">-g</span></code>: Generate debug information for host code. <code class="docutils literal notranslate"><span class="pre">gdb/lldb</span></code> and similar tools rely on such information for host code debugging.</p></li>
@@ -696,7 +696,7 @@ nvcc<span class="w"> </span>definition.o<span class="w"> </span>example.o<span c
 <p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> uses the highest optimization level <code class="docutils literal notranslate"><span class="pre">-O3</span></code> for GPU code by default. The debug flag <code class="docutils literal notranslate"><span class="pre">-G</span></code> prevents some compiler optimizations, and so debug code is expected to have lower performance than non-debug code.  The <code class="docutils literal notranslate"><span class="pre">-DNDEBUG</span></code> flag can be defined to disable runtime assertions, as these can also slow down execution.</p>
 </section>
 <section id="optimization-options">
-<span id="id1"></span><h3><span class="section-number">2.5.4.3. </span>Optimization Options<a class="headerlink" href="nvcc.html#optimization-options" title="Link to this heading">#</a></h3>
+<span id="id1"></span><h3><span class="section-number">2.5.4.3. </span>优化选项<a class="headerlink" href="nvcc.html#optimization-options" title="跳转到此标题">#</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> provides many options for optimizing performance. This section aims to provide a brief survey of some of the options available that developers may find useful, as well as links to further information. Complete coverage can be found in the <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html">nvcc documentation</a>.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">-Xptxas</span></code> passes arguments to the PTX assembler tool <code class="docutils literal notranslate"><span class="pre">ptxas</span></code>. The <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> documentation provides a <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#ptxas-options">list of useful arguments</a> for <code class="docutils literal notranslate"><span class="pre">ptxas</span></code>. For example, <code class="docutils literal notranslate"><span class="pre">-Xptxas=-maxrregcount=N</span></code> specifies the maximum number of registers to use, per thread.</p></li>
@@ -712,7 +712,7 @@ nvcc<span class="w"> </span>definition.o<span class="w"> </span>example.o<span c
 </ul>
 </section>
 <section id="link-time-optimization-lto">
-<span id="nvcc-link-time-optimization"></span><h3><span class="section-number">2.5.4.4. </span>Link-Time Optimization (LTO)<a class="headerlink" href="nvcc.html#link-time-optimization-lto" title="Link to this heading">#</a></h3>
+<span id="nvcc-link-time-optimization"></span><h3><span class="section-number">2.5.4.4. </span>链接时优化（LTO）<a class="headerlink" href="nvcc.html#link-time-optimization-lto" title="跳转到此标题">#</a></h3>
 <p><a class="reference internal" href="nvcc.html#nvcc-separate-compilation"><span class="std std-ref">Separate compilation</span></a> can result in lower performance than whole-program compilation due to limited cross-file optimization opportunities. Link-Time Optimization (LTO) addresses this by performing optimizations across separately compiled files at link time, at the cost of increased compilation time. LTO can recover much of the performance of whole-program compilation while maintaining the flexibility of separate compilation.</p>
 <p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> requires the <code class="docutils literal notranslate"><span class="pre">-dlto</span></code> <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#dlink-time-opt-dlto">flag</a> or <code class="docutils literal notranslate"><span class="pre">lto_&lt;SM</span> <span class="pre">version&gt;</span></code> link-time optimization targets to enable LTO:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nvcc<span class="w"> </span>-dc<span class="w"> </span>-dlto<span class="w"> </span>-arch<span class="o">=</span>sm_100<span class="w"> </span>definition.cu<span class="w"> </span>-o<span class="w"> </span>definition.o
@@ -802,7 +802,7 @@ nvcc<span class="w"> </span>-dlto<span class="w"> </span>definition.o<span class
 <div
     id="pst-page-navigation-heading-2"
     class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
+    <i class="fa-solid fa-list"></i> 本页内容
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
