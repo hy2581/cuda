@@ -644,8 +644,8 @@ nvcc<span class="w"> </span>example.cu<span class="w"> </span>-Xcompiler<span cl
 <li><p>所有 <code class="docutils literal notranslate"><span class="pre">const</span></code> 设备变量在定义与引用时都应使用 <code class="docutils literal notranslate"><span class="pre">extern</span></code>。</p></li>
 <li><p>所有 CUDA 源文件 <code class="docutils literal notranslate"><span class="pre">.cu</span></code> 必须使用 <code class="docutils literal notranslate"><span class="pre">-dc</span></code> 或 <code class="docutils literal notranslate"><span class="pre">-rdc=true</span></code> 编译。</p></li>
 </ul>
-<p>Host and device functions have external linkage by default and do not require the <code class="docutils literal notranslate"><span class="pre">extern</span></code> keyword. Note that <a class="reference external" href="https://developer.nvidia.com/blog/cuda-c-compiler-updates-impacting-elf-visibility-and-linkage/">starting from CUDA 13</a>, <code class="docutils literal notranslate"><span class="pre">__global__</span></code> functions and <code class="docutils literal notranslate"><span class="pre">__managed__</span></code>/<code class="docutils literal notranslate"><span class="pre">__device__</span></code>/<code class="docutils literal notranslate"><span class="pre">__constant__</span></code> variables have internal linkage by default.</p>
-<p>In the following example, <code class="docutils literal notranslate"><span class="pre">definition.cu</span></code> defines a variable and a function, while <code class="docutils literal notranslate"><span class="pre">example.cu</span></code> refers to them. Both files are compiled separately and linked into the final binary.</p>
+<p>主机函数与设备函数默认具有外部链接属性，通常无需显式添加 <code class="docutils literal notranslate"><span class="pre">extern</span></code>。需注意，<a class="reference external" href="https://developer.nvidia.com/blog/cuda-c-compiler-updates-impacting-elf-visibility-and-linkage/">从 CUDA 13 开始</a>，<code class="docutils literal notranslate"><span class="pre">__global__</span></code> 函数以及 <code class="docutils literal notranslate"><span class="pre">__managed__</span></code>/<code class="docutils literal notranslate"><span class="pre">__device__</span></code>/<code class="docutils literal notranslate"><span class="pre">__constant__</span></code> 变量默认改为内部链接属性。</p>
+<p>下例中，<code class="docutils literal notranslate"><span class="pre">definition.cu</span></code> 定义了变量与函数，而 <code class="docutils literal notranslate"><span class="pre">example.cu</span></code> 对其进行引用。两个文件分别编译后再链接为最终二进制。</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// ----- definition.cu -----</span>
 <span class="k">extern</span><span class="w"> </span><span class="kt">__device__</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">device_variable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
 <span class="kt">__device__</span><span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">device_function</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
@@ -683,7 +683,7 @@ nvcc<span class="w"> </span>definition.o<span class="w"> </span>example.o<span c
 <li><p><code class="docutils literal notranslate"><span class="pre">-extended-lambda</span></code>：允许在 lambda 声明中使用 <code class="docutils literal notranslate"><span class="pre">__host__</span></code>、<code class="docutils literal notranslate"><span class="pre">__device__</span></code> 注解。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-expt-relaxed-constexpr</span></code>：（实验性）允许主机代码调用 <code class="docutils literal notranslate"><span class="pre">__device__</span> <span class="pre">constexpr</span></code> 函数，也允许设备代码调用 <code class="docutils literal notranslate"><span class="pre">__host__</span> <span class="pre">constexpr</span></code> 函数。</p></li>
 </ul>
-<p>More detail on these features can be found in the <a class="reference internal" href="../05-appendices/cpp-language-support.html#extended-lambdas"><span class="std std-ref">extended lambda</span></a> and <a class="reference internal" href="../05-appendices/cpp-language-support.html#constexpr-functions"><span class="std std-ref">constexpr</span></a> sections.</p>
+<p>这些特性的更多细节可参见 <a class="reference internal" href="../05-appendices/cpp-language-support.html#extended-lambdas"><span class="std std-ref">extended lambda</span></a> 与 <a class="reference internal" href="../05-appendices/cpp-language-support.html#constexpr-functions"><span class="std std-ref">constexpr</span></a> 相关章节。</p>
 </section>
 <section id="debugging-options">
 <h3><span class="section-number">2.5.4.2. </span>调试选项<a class="headerlink" href="nvcc.html#debugging-options" title="跳转到此标题">#</a></h3>
@@ -701,7 +701,7 @@ nvcc<span class="w"> </span>definition.o<span class="w"> </span>example.o<span c
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">-Xptxas</span></code> passes arguments to the PTX assembler tool <code class="docutils literal notranslate"><span class="pre">ptxas</span></code>. The <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> documentation provides a <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#ptxas-options">list of useful arguments</a> for <code class="docutils literal notranslate"><span class="pre">ptxas</span></code>. For example, <code class="docutils literal notranslate"><span class="pre">-Xptxas=-maxrregcount=N</span></code> specifies the maximum number of registers to use, per thread.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-extra-device-vectorization</span></code>: Enables more aggressive device code vectorization.</p></li>
-<li><p>Additional flags which provide fine-grained control over floating point behavior are covered in the <a class="reference internal" href="../05-appendices/mathematical-functions.html#floating-point-computation"><span class="std std-ref">Floating-Point Computation</span></a> section and in the <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#use-fast-math-use-fast-math">nvcc documentation</a>.</p></li>
+<li><p>用于细粒度控制浮点行为的更多选项见 <a class="reference internal" href="../05-appendices/mathematical-functions.html#floating-point-computation"><span class="std std-ref">浮点计算</span></a> 章节及 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#use-fast-math-use-fast-math">nvcc 文档</a>。</p></li>
 </ul>
 <p>以下选项可输出有助于高级优化分析的编译信息：</p>
 <ul class="simple">
@@ -728,7 +728,7 @@ nvcc<span class="w"> </span>-dlto<span class="w"> </span>definition.o<span class
 </section>
 <section id="profiling-options">
 <h3><span class="section-number">2.5.4.5. </span>性能分析选项<a class="headerlink" href="nvcc.html#profiling-options" title="跳转到此标题">#</a></h3>
-<p>It is possible to directly profile a CUDA application using the <a class="reference external" href="https://developer.nvidia.com/nsight-compute">Nsight Compute</a> and <a class="reference external" href="https://developer.nvidia.com/nsight-systems">Nsight Systems</a> tools without the need for additional flags during the compilation process. However, additional information which can be generated by <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> can assist profiling by correlating source files with the generated code:</p>
+<p>可直接使用 <a class="reference external" href="https://developer.nvidia.com/nsight-compute">Nsight Compute</a> 与 <a class="reference external" href="https://developer.nvidia.com/nsight-systems">Nsight Systems</a> 对 CUDA 应用进行分析，通常无需在编译时增加额外参数。不过，<code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 生成的附加信息可帮助将源码与生成代码关联，从而改进分析效果：</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">-lineinfo</span></code>: Generate line-number information for device code; this allows viewing the source code in the profiling tools. Profiling tools require the original source code to be available in the same location where the code was compiled.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-src-in-ptx</span></code>: Keep the original source code in the PTX, avoiding the limitations of <code class="docutils literal notranslate"><span class="pre">-lineinfo</span></code> mentioned above. Requires <code class="docutils literal notranslate"><span class="pre">-lineinfo</span></code>.</p></li>
@@ -736,22 +736,22 @@ nvcc<span class="w"> </span>-dlto<span class="w"> </span>definition.o<span class
 </section>
 <section id="fatbin-compression">
 <h3><span class="section-number">2.5.4.6. </span>Fatbin 压缩<a class="headerlink" href="nvcc.html#fatbin-compression" title="跳转到此标题">#</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> compresses the <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-cubins-fatbins"><span class="std std-ref">fatbins</span></a> stored in application or library binaries by default. Fatbin compression can be controlled using the following options:</p>
+<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 默认会压缩应用或库二进制中的 <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-cubins-fatbins"><span class="std std-ref">fatbin</span></a>。可通过以下选项控制 Fatbin 压缩行为：</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">-no-compress</span></code>: Disable the compression of the fatbin.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--compress-mode={default|size|speed|balance|none}</span></code>: Set the compression mode. <code class="docutils literal notranslate"><span class="pre">speed</span></code> focuses on fast decompression time, while <code class="docutils literal notranslate"><span class="pre">size</span></code> aims at reducing the fatbin size. <code class="docutils literal notranslate"><span class="pre">balance</span></code> provides a trade-off between speed and size. The default mode is <code class="docutils literal notranslate"><span class="pre">speed</span></code>. <code class="docutils literal notranslate"><span class="pre">none</span></code> disables compression.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-no-compress</span></code>：禁用 Fatbin 压缩。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--compress-mode={default|size|speed|balance|none}</span></code>：设置压缩模式。<code class="docutils literal notranslate"><span class="pre">speed</span></code> 侧重更快解压，<code class="docutils literal notranslate"><span class="pre">size</span></code> 侧重更小体积，<code class="docutils literal notranslate"><span class="pre">balance</span></code> 在二者间折中。默认模式为 <code class="docutils literal notranslate"><span class="pre">speed</span></code>，<code class="docutils literal notranslate"><span class="pre">none</span></code> 表示禁用压缩。</p></li>
 </ul>
 </section>
 <section id="compiler-performance-controls">
 <h3><span class="section-number">2.5.4.7. </span>编译器性能控制<a class="headerlink" href="nvcc.html#compiler-performance-controls" title="跳转到此标题">#</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> provides options to analyze and accelerate the compilation process itself:</p>
+<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 还提供了用于分析并加速编译过程本身的选项：</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">-t</span> <span class="pre">&lt;N&gt;</span></code>: The number of CPU threads used to parallelize the compilation of a single compilation unit for multiple GPU architectures.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-split-compile</span> <span class="pre">&lt;N&gt;</span></code>: The number of CPU threads used to parallelize the optimization phase.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-split-compile-extended</span> <span class="pre">&lt;N&gt;</span></code>: More aggressive form of split compilation. Requires link-time optimization.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-Ofc</span> <span class="pre">&lt;N&gt;</span></code>: Level of device code compilation speed.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-time</span> <span class="pre">&lt;filename&gt;</span></code>: Generate a comma-separated value (CSV) table with the time taken by each compilation phase.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-fdevice-time-trace</span></code>: Generate a time trace for device code compilation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-t</span> <span class="pre">&lt;N&gt;</span></code>：为同一编译单元面向多个 GPU 架构并行编译时使用的 CPU 线程数。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-split-compile</span> <span class="pre">&lt;N&gt;</span></code>：优化阶段并行使用的 CPU 线程数。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-split-compile-extended</span> <span class="pre">&lt;N&gt;</span></code>：更激进的分段并行编译方式，需启用链接时优化。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-Ofc</span> <span class="pre">&lt;N&gt;</span></code>：设备代码编译速度等级。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-time</span> <span class="pre">&lt;filename&gt;</span></code>：生成包含各编译阶段耗时的 CSV 报表。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-fdevice-time-trace</span></code>：生成设备代码编译时间轨迹。</p></li>
 </ul>
 </section>
 </section>
