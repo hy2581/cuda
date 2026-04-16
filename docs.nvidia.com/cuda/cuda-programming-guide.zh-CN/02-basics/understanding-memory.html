@@ -531,7 +531,7 @@
 <p><em>统一内存</em>是 CUDA 的一种内存特性，允许称为<em>托管内存</em>的分配被 CPU 端与 GPU 端代码共同访问。我们已在 <a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-unified-memory"><span class="std std-ref">CUDA C++ 入门</span></a> 中展示过统一内存。统一内存在所有 CUDA 支持的系统上均可用。</p>
 <p>在某些系统上，托管内存需要显式分配。CUDA 中可通过以下几种方式显式分配托管内存：</p>
 <ul class="simple">
-<li><p>CUDA API <code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code></p></li>
+<li><p>CUDA API：<code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code></p></li>
 <li><p>在内存池的 <code class="docutils literal notranslate"><span class="pre">allocType</span></code> 设置为 <code class="docutils literal notranslate"><span class="pre">cudaMemAllocationTypeManaged</span></code> 时，使用 CUDA API <code class="docutils literal notranslate"><span class="pre">cudaMallocFromPoolAsync</span></code></p></li>
 <li><p>使用 <code class="docutils literal notranslate"><span class="pre">__managed__</span></code> 说明符的全局变量（见 <a class="reference internal" href="../05-appendices/cpp-language-extensions.html#memory-space-specifiers"><span class="std std-ref">内存空间说明符</span></a>）</p></li>
 </ul>
