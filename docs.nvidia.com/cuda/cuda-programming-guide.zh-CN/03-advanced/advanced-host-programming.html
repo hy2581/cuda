@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>3.1. Advanced CUDA APIs and Features &#8212; CUDA Programming Guide</title>
+    <title>3.1. 高级 CUDA API 与特性 &#8212; CUDA Programming Guide</title>
   
   
   
@@ -375,7 +375,7 @@
 </ul>
 </details></li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../part3.html">3. Advanced CUDA</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l3 current active"><a class="current reference internal" href="advanced-host-programming.html#">3.1. Advanced CUDA APIs and Features</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="advanced-host-programming.html#">3.1. 高级 CUDA API 与特性</a></li>
 <li class="toctree-l3"><a class="reference internal" href="advanced-kernel-programming.html">3.2. Advanced Kernel Programming</a></li>
 <li class="toctree-l3"><a class="reference internal" href="driver-api.html">3.3. The CUDA Driver API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="multi-gpu-systems.html">3.4. Programming Systems with Multiple GPUs</a></li>
@@ -459,7 +459,7 @@
     
     <li class="breadcrumb-item"><a href="../part3.html" class="nav-link"><span class="section-number">3. </span>Advanced CUDA</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">3.1. </span>Advanced CUDA APIs and Features</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">3.1. </span>高级 CUDA API 与特性</span></li>
   </ul>
 </nav>
 </div>
@@ -488,24 +488,24 @@
                 <article class="bd-article">
                   
   <section id="advanced-cuda-apis-and-features">
-<span id="advanced-apis-and-features"></span><h1><span class="section-number">3.1. </span>Advanced CUDA APIs and Features<a class="headerlink" href="advanced-host-programming.html#advanced-cuda-apis-and-features" title="Link to this heading">#</a></h1>
-<p>This section will cover use of more advanced CUDA APIs and features. These topics cover techniques or features that do not usually require CUDA kernel modifications, but can still influence, from the host-side, application-level behavior, both in terms of GPU work execution and performance as well as CPU-side performance.</p>
+<span id="advanced-apis-and-features"></span><h1><span class="section-number">3.1. </span>高级 CUDA API 与特性<a class="headerlink" href="advanced-host-programming.html#advanced-cuda-apis-and-features" title="跳转到此标题">#</a></h1>
+<p>本节介绍更高级的 CUDA API 与特性。这些主题通常不需要修改 CUDA 内核代码，但仍可从主机侧影响应用层行为，包括 GPU 工作的执行与性能，以及 CPU 侧性能。</p>
 <section id="cudalaunchkernelex">
-<span id="advanced-host-cudalaunchkernelex"></span><h2><span class="section-number">3.1.1. </span>cudaLaunchKernelEx<a class="headerlink" href="advanced-host-programming.html#cudalaunchkernelex" title="Link to this heading">#</a></h2>
-<p>When the <a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html#intro-cpp-launching-kernels-triple-chevron"><span class="std std-ref">triple chevron notation</span></a> was introduced in first versions of, the <a class="reference internal" href="../05-appendices/cpp-language-extensions.html#execution-configuration"><span class="std std-ref">Kernel Configuration</span></a> of a kernel had only four programmable parameters:
-- thread block dimensions
-- grid dimensions
-- dynamic shared-memory (optional, 0 if unspecified)
-- stream (default stream used if unspecified)</p>
-<p>Some CUDA features can benefit from additional attributes and hints provided with a kernel launch. The <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code> enables a program to set the above mentioned execution configuration parameters via the <code class="docutils literal notranslate"><span class="pre">cudaLaunchConfig_t</span></code> structure.  In addition, the <code class="docutils literal notranslate"><span class="pre">cudaLaunchConfig_t</span></code> structure allows the program to pass in zero or more <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributes</span></code> to control or suggest other parameters for the kernel launch. For example, the <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributePreferredSharedMemoryCarveout</span></code> discussed later in this chapter (see <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernel-l1-shared-config"><span class="std std-ref">Configuring L1/Shared Memory Balance</span></a>) is specified using <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code>. The <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeClusterDimension</span></code> attribute, discussed later in this chapter, is used to specify the desired cluster size for the kernel launch.</p>
+<span id="advanced-host-cudalaunchkernelex"></span><h2><span class="section-number">3.1.1. </span>cudaLaunchKernelEx<a class="headerlink" href="advanced-host-programming.html#cudalaunchkernelex" title="跳转到此标题">#</a></h2>
+<p>当最初版本引入<a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html#intro-cpp-launching-kernels-triple-chevron"><span class="std std-ref">三重尖括号语法</span></a>时，内核的<a class="reference internal" href="../05-appendices/cpp-language-extensions.html#execution-configuration"><span class="std std-ref">执行配置</span></a>仅有四个可编程参数：
+- 线程块维度
+- 网格维度
+- 动态共享内存（可选，未指定时为 0）
+- 流（未指定时使用默认流）</p>
+<p>某些 CUDA 特性可受益于内核启动时提供的额外属性与提示。<code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code> 允许程序通过 <code class="docutils literal notranslate"><span class="pre">cudaLaunchConfig_t</span></code> 结构设置上述执行配置参数。此外，<code class="docutils literal notranslate"><span class="pre">cudaLaunchConfig_t</span></code> 还允许传入 0 个或多个 <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributes</span></code>，用于控制或建议其他启动参数。例如，本章稍后讨论的 <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributePreferredSharedMemoryCarveout</span></code>（见<a class="reference internal" href="advanced-kernel-programming.html#advanced-kernel-l1-shared-config"><span class="std std-ref">配置 L1/共享内存平衡</span></a>）就是通过 <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code> 指定的。本章后文还会介绍 <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeClusterDimension</span></code> 属性，用于指定期望的集群大小。</p>
 <p>The complete list of supported attributes and their meaning is captured in the <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html#group__CUDART__TYPES_1gfc5ed48085f05863b1aeebb14934b056">CUDA Runtime API Reference Documentation</a>.</p>
 </section>
 <section id="launching-clusters">
-<h2><span class="section-number">3.1.2. </span>Launching Clusters:<a class="headerlink" href="advanced-host-programming.html#launching-clusters" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">3.1.2. </span>启动集群：<a class="headerlink" href="advanced-host-programming.html#launching-clusters" title="跳转到此标题">#</a></h2>
 <p><a class="reference internal" href="../01-introduction/programming-model.html#programming-model-thread-block-clusters"><span class="std std-ref">Thread block clusters</span></a>, introduced in previous sections, are an optional level of thread block organization available in compute capability 9.0 and higher which enable applications to guarantee that thread blocks of a cluster are simultaneously executed on single GPC. This enables larger groups of threads than those that fit in a single SM to exchange data and synchronize with each other.</p>
 <p>Section <a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html#intro-cpp-launching-cluster-triple-chevron"><span class="std std-numref">Section 2.1.10.1</span></a> showed how a kernel which uses clusters can be specified and launched using triple chevron notation. In this section, the <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code> annotation was used to specify the dimensions of the cluster which must be used to launch the kernel. When using triple chevron notation, the size of the clusters is determined implicitly.</p>
 <section id="launching-with-clusters-using-cudalaunchkernelex">
-<span id="advanced-host-clusters-cudalaunchkernelex"></span><h3><span class="section-number">3.1.2.1. </span>Launching with Clusters using cudaLaunchKernelEx<a class="headerlink" href="advanced-host-programming.html#launching-with-clusters-using-cudalaunchkernelex" title="Link to this heading">#</a></h3>
+<span id="advanced-host-clusters-cudalaunchkernelex"></span><h3><span class="section-number">3.1.2.1. </span>使用 cudaLaunchKernelEx 启动集群<a class="headerlink" href="advanced-host-programming.html#launching-with-clusters-using-cudalaunchkernelex" title="跳转到此标题">#</a></h3>
 <p>Unlike <a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html#intro-cpp-launching-cluster-triple-chevron"><span class="std std-ref">launching kernels using clusters with triple chevron notation</span></a>, the size of the thread block cluster can be configured on a per-launch basis. The code example below shows how to launch a cluster kernel using <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code>.</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// Kernel definition</span>
 <span class="c1">// No compile time attribute attached to the kernel</span>
@@ -548,7 +548,7 @@
 <p>All thread blocks will execute in clusters of at least the minimum cluster dimension. Where possible, clusters of the preferred dimension will be used, but not all clusters are guaranteed to execute with the preferred dimensions. All thread blocks will execute in clusters with either the minimum or preferred cluster dimension. Kernels which use a preferred cluster dimension must be written to operate correctly in either the minimum or the preferred cluster dimension.</p>
 </section>
 <section id="blocks-as-clusters">
-<span id="advanced-host-block-as-cluster"></span><h3><span class="section-number">3.1.2.2. </span>Blocks as Clusters<a class="headerlink" href="advanced-host-programming.html#blocks-as-clusters" title="Link to this heading">#</a></h3>
+<span id="advanced-host-block-as-cluster"></span><h3><span class="section-number">3.1.2.2. </span>将线程块视为集群<a class="headerlink" href="advanced-host-programming.html#blocks-as-clusters" title="跳转到此标题">#</a></h3>
 <p>When a kernel is defined with the  <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code> annotation, the number of clusters in the grid is implicit and can be calculated from the size of the grid divided into the specified cluster size.</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">__cluster_dims__</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">))</span><span class="w"> </span><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">foo</span><span class="p">();</span>
 
@@ -567,11 +567,11 @@
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> requires two fields each being a tuple of 3 elements. The first tuple denotes block dimension and second cluster size. The second tuple is assumed to be <code class="docutils literal notranslate"><span class="pre">(1,1,1)</span></code> if it’s not passed. To specify the stream, one must pass <code class="docutils literal notranslate"><span class="pre">1</span></code> and <code class="docutils literal notranslate"><span class="pre">0</span></code> as the second and third arguments within <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;&gt;&gt;&gt;</span></code> and lastly the stream. Passing other values would lead to undefined behavior.</p>
-<p>Note that it is illegal for the second tuple of <code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> and <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code> to be specified at the same time. It’s also illegal to use <code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> with an empty <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code>. When the second tuple of <code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> is specified, it implies the “Blocks as Clusters” being enabled and the compiler would recognize the first argument inside <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;&gt;&gt;&gt;</span></code> as the number of clusters instead of thread blocks.</p>
+<p>Note that it is illegal for the second tuple of <code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> and <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code> to be specified at the same time. It’s also illegal to use <code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> with an empty <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code>. When the second tuple of <code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> is specified, it implies the “将线程块视为集群” being enabled and the compiler would recognize the first argument inside <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;&gt;&gt;&gt;</span></code> as the number of clusters instead of thread blocks.</p>
 </section>
 </section>
 <section id="more-on-streams-and-events">
-<span id="advanced-host-streams-and-events"></span><h2><span class="section-number">3.1.3. </span>More on Streams and Events<a class="headerlink" href="advanced-host-programming.html#more-on-streams-and-events" title="Link to this heading">#</a></h2>
+<span id="advanced-host-streams-and-events"></span><h2><span class="section-number">3.1.3. </span>关于流与事件的更多内容<a class="headerlink" href="advanced-host-programming.html#more-on-streams-and-events" title="跳转到此标题">#</a></h2>
 <p><a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-streams"><span class="std std-ref">CUDA Streams</span></a> introduced the basics of CUDA streams. By default, operations submitted on a given CUDA stream are serialized: one cannot start executing until the previous one has completed. The only exception is the recently added <a class="reference internal" href="../04-special-topics/programmatic-dependent-launch.html#programmatic-dependent-launch-and-synchronization"><span class="std std-ref">Programmatic Dependent Launch and Synchronization</span></a> feature. Having multiple CUDA streams is a way to enable concurrent execution; another way is using <a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs"><span class="std std-ref">CUDA Graphs</span></a>. The two approaches can also be combined.</p>
 <p>Work submitted on different CUDA streams <cite>may</cite> execute concurrently under specific circumstances, e.g., if there are no event dependencies, if there is no implicit synchronization, if there are sufficient resources, etc.</p>
 <p>Independent operations from different CUDA streams cannot run concurrently if any CUDA operation on the NULL stream is submitted in between them, unless the streams are non-blocking CUDA streams. These are streams created with <code class="docutils literal notranslate"><span class="pre">cudaStreamCreateWithFlags()</span></code> runtime API with the <code class="docutils literal notranslate"><span class="pre">cudaStreamNonBlocking</span></code> flag. To improve potential for concurrent GPU work execution, it is recommended that the user creates non-blocking CUDA streams.</p>
@@ -623,7 +623,7 @@ However, a CUDA event that is solely used to express dependencies across streams
 For such cases, it is recommended to create events with timing information disabled for improved performance. This is possible using <code class="docutils literal notranslate"><span class="pre">cudaEventCreateWithFlags()</span></code> API
 with the <code class="docutils literal notranslate"><span class="pre">cudaEventDisableTiming</span></code> flag.</p>
 <section id="stream-priorities">
-<h3><span class="section-number">3.1.3.1. </span>Stream Priorities<a class="headerlink" href="advanced-host-programming.html#stream-priorities" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">3.1.3.1. </span>流优先级<a class="headerlink" href="advanced-host-programming.html#stream-priorities" title="跳转到此标题">#</a></h3>
 <p>The relative priorities of streams can be specified at creation time using <code class="docutils literal notranslate"><span class="pre">cudaStreamCreateWithPriority()</span></code>. The range of allowable priorities, ordered as [greatest priority, least priority] can be obtained using the <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetStreamPriorityRange()</span></code> function. At runtime, the GPU scheduler utilizes stream priorities to determine task execution order, but these priorities serve as hints rather than guarantees. When selecting work to launch, pending tasks in higher-priority streams take precedence over those in lower-priority streams. Higher-priority tasks do not preempt already running lower-priority tasks. The GPU does not reassess work queues during task execution, and increasing a stream’s priority will not interrupt ongoing work. Stream priorities influence task execution without enforcing strict ordering, so users can leverage stream priorities to influence task execution without relying on strict ordering guarantees.</p>
 <p>The following code sample obtains the allowable range of priorities for the current device, and creates two non-blocking CUDA streams with the highest and lowest available priorities.</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// get the range of stream priorities for this device</span>
@@ -638,7 +638,7 @@ with the <code class="docutils literal notranslate"><span class="pre">cudaEventD
 </div>
 </section>
 <section id="explicit-synchronization">
-<span id="advanced-host-explicit-synchronization"></span><h3><span class="section-number">3.1.3.2. </span>Explicit Synchronization<a class="headerlink" href="advanced-host-programming.html#explicit-synchronization" title="Link to this heading">#</a></h3>
+<span id="advanced-host-explicit-synchronization"></span><h3><span class="section-number">3.1.3.2. </span>显式同步<a class="headerlink" href="advanced-host-programming.html#explicit-synchronization" title="跳转到此标题">#</a></h3>
 <p>As previously outlined, there are a number of ways that streams can synchronize with other streams. The following provides common methods at different levels of granularity:
 - <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code> waits until all preceding commands in all streams of all host threads have completed.
 - <code class="docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code>takes a stream as a parameter and waits until all preceding commands in the given stream have completed. It can be used to synchronize the host with a specific stream, allowing other streams to continue executing on the device.
@@ -646,7 +646,7 @@ with the <code class="docutils literal notranslate"><span class="pre">cudaEventD
 - <code class="docutils literal notranslate"><span class="pre">cudaStreamQuery()</span></code>provides applications with a way to know if all preceding commands in a stream have completed.</p>
 </section>
 <section id="implicit-synchronization">
-<span id="advanced-host-implicit-synchronization"></span><h3><span class="section-number">3.1.3.3. </span>Implicit Synchronization<a class="headerlink" href="advanced-host-programming.html#implicit-synchronization" title="Link to this heading">#</a></h3>
+<span id="advanced-host-implicit-synchronization"></span><h3><span class="section-number">3.1.3.3. </span>隐式同步<a class="headerlink" href="advanced-host-programming.html#implicit-synchronization" title="跳转到此标题">#</a></h3>
 <p>Two commands from different streams cannot run concurrently if any one of the following operations is issued in-between them by the host thread:</p>
 <ul class="simple">
 <li><p>a page-locked host memory allocation</p></li>
@@ -666,15 +666,15 @@ their potential for concurrent kernel execution:</p>
 <span class="target" id="overlapping-behavior"></span></section>
 </section>
 <section id="programmatic-dependent-kernel-launch">
-<h2><span class="section-number">3.1.4. </span>Programmatic Dependent Kernel Launch<a class="headerlink" href="advanced-host-programming.html#programmatic-dependent-kernel-launch" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">3.1.4. </span>编程式依赖内核启动<a class="headerlink" href="advanced-host-programming.html#programmatic-dependent-kernel-launch" title="跳转到此标题">#</a></h2>
 <p>As we have discussed earlier, the semantics of CUDA Streams are such that kernels execute in order. This is so that if we have two successive kernels, where the second kernel depends on results from the first one, the programmer can be safe in the knowledge that by the time the second kernel starts executing the dependent data will be available. However, it may be the case that the first kernel can have the data on which a subsequent kernel depends already written to global memory and it still has more work to do. Likewise the dependent second kernel may have some independent work before it needs the data from the first kernel. In such a situation it is possible to partially overlap the execution of the two kernels (assuming that hardware resources are available). The overlapping can also overlap the launch overheads of the second kernel too. Other than the availability of hardware resources,the degree of overlap which can be achieved is dependent on the specific structure of the kernels, such as</p>
 <ul class="simple">
 <li><p>when in its execution does the first kernel finish the work on which the second kernel depends?</p></li>
 <li><p>when in its execution does the second kernel start working on the data from the first kernel?</p></li>
 </ul>
-<p>since this is very much dependent on the specific kernels in question it is difficult to automate completely and hence CUDA provides a mechanism to allow the application developer to specify the synchronization point between the two kernels. This is done via a technique known as Programmatic Dependent Kernel Launch. The situation is depicted in the figure below.</p>
+<p>since this is very much dependent on the specific kernels in question it is difficult to automate completely and hence CUDA provides a mechanism to allow the application developer to specify the synchronization point between the two kernels. This is done via a technique known as 编程式依赖内核启动. The situation is depicted in the figure below.</p>
 <figure class="align-center" id="figure-programmatic-dependent-launch">
-<a class="reference internal image-reference" href="../_images/pdl.png"><img alt="Programmatic Dependent Kernel Launch" src="../_images/pdl.png" style="width: 50%;" />
+<a class="reference internal image-reference" href="../_images/pdl.png"><img alt="编程式依赖内核启动" src="../_images/pdl.png" style="width: 50%;" />
 </a>
 </figure>
 <p>PDL has three main components.</p>
@@ -685,7 +685,7 @@ their potential for concurrent kernel execution:</p>
 </ol>
 <p>The following code snippet shows an example of how this can be done.</p>
 <div class="literal-block-wrapper docutils container" id="pdl-example">
-<div class="code-block-caption"><span class="caption-number">Listing 3 </span><span class="caption-text">Example of Programmatic Dependent Kernel Launch with two Kernels</span><a class="headerlink" href="advanced-host-programming.html#pdl-example" title="Link to this code">#</a></div>
+<div class="code-block-caption"><span class="caption-number">Listing 3 </span><span class="caption-text">Example of 编程式依赖内核启动 with two Kernels</span><a class="headerlink" href="advanced-host-programming.html#pdl-example" title="Link to this code">#</a></div>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">primary_kernel</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// Initial work that should finish before starting secondary kernel</span>
 
@@ -737,7 +737,7 @@ their potential for concurrent kernel execution:</p>
 </div>
 </section>
 <section id="batched-memory-transfers">
-<h2><span class="section-number">3.1.5. </span>Batched Memory Transfers<a class="headerlink" href="advanced-host-programming.html#batched-memory-transfers" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">3.1.5. </span>Batched Memory Transfers<a class="headerlink" href="advanced-host-programming.html#batched-memory-transfers" title="跳转到此标题">#</a></h2>
 <p>A common pattern in CUDA development is to use a technique of batching. By batching we loosely mean that we have several (typically small)tasks grouped together into a single (typically bigger) operation. The components of the batch do not necessarily all have to be identical although they often are. An example of this idea is the batch matrix multiplication operation provided by cuBLAS.</p>
 <p>Generally as with CUDA Graphs, and PDL, the purpose of batching is to reduce overheads associated with dispatching the individual batch tasks separately. In terms of memory transfers launching a memory transfer can incur some CPU and driver overheads. Further, the regular <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyAsync()</span></code> function in its current form does not necessarily provide enough information for the driver to optimize the transfer, for example, in terms of hints about the source and destination. On Tegra platforms one has the choice of using SMs or Copy Engines (CEs)o perform transfers. The choice of which is currently specified by a heuristic in the driver. This can be important because using the SMs may result in a faster transfer, however it ties down some of the available compute power. On the other hand, using the CEs may result in a slower transfer but overall higher application performance, since it leaves the SMs free to perform other work.</p>
 <p>These considerations motivated the design of the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyBatchAsync()</span></code> function (and its relative <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyBatch3DAsync()</span></code>).  These functions allow batched memory transfers to be optimized. Apart from the lists of source and destination pointers, the API uses memory copy attributes to specify expectations of orderings, with hints for source and destination locations, as well as for whether one prefers to overlap the transfer with compute (something that is currently only supported on Tegra platforms with CEs).</p>
@@ -870,7 +870,7 @@ The field for this is the  <code class="docutils literal notranslate"><span clas
 </ul>
 </section>
 <section id="environment-variables">
-<h2><span class="section-number">3.1.6. </span>Environment Variables<a class="headerlink" href="advanced-host-programming.html#environment-variables" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">3.1.6. </span>Environment Variables<a class="headerlink" href="advanced-host-programming.html#environment-variables" title="跳转到此标题">#</a></h2>
 <p>CUDA provides various environment variables (see <a class="reference internal" href="../05-appendices/environment-variables.html#cuda-environment-variables"><span class="std std-numref">Section 5.2</span></a>), which can affect execution and performance.
 If they are not explicitly set, CUDA uses reasonable default values for them, but
 special handling may be required on a per-case basis, e.g., for debugging purposes or to get improved performance.</p>
@@ -941,18 +941,18 @@ may have no effect.</p>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#cudalaunchkernelex">3.1.1. cudaLaunchKernelEx</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#launching-clusters">3.1.2. Launching Clusters:</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#launching-with-clusters-using-cudalaunchkernelex">3.1.2.1. Launching with Clusters using cudaLaunchKernelEx</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#blocks-as-clusters">3.1.2.2. Blocks as Clusters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#launching-clusters">3.1.2. 启动集群：</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#launching-with-clusters-using-cudalaunchkernelex">3.1.2.1. 使用 cudaLaunchKernelEx 启动集群</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#blocks-as-clusters">3.1.2.2. 将线程块视为集群</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#more-on-streams-and-events">3.1.3. More on Streams and Events</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#stream-priorities">3.1.3.1. Stream Priorities</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#explicit-synchronization">3.1.3.2. Explicit Synchronization</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#implicit-synchronization">3.1.3.3. Implicit Synchronization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#more-on-streams-and-events">3.1.3. 关于流与事件的更多内容</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#stream-priorities">3.1.3.1. 流优先级</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#explicit-synchronization">3.1.3.2. 显式同步</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#implicit-synchronization">3.1.3.3. 隐式同步</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#programmatic-dependent-kernel-launch">3.1.4. Programmatic Dependent Kernel Launch</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#programmatic-dependent-kernel-launch">3.1.4. 编程式依赖内核启动</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#batched-memory-transfers">3.1.5. Batched Memory Transfers</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#environment-variables">3.1.6. Environment Variables</a></li>
 </ul>
