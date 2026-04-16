@@ -3,13 +3,13 @@
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="../" >
+<html lang="zh-CN" data-content_root="../" >
 
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>2.4. Unified and System Memory &#8212; CUDA Programming Guide</title>
+    <title>2.4. 统一内存与系统内存 &#8212; CUDA 编程指南</title>
   
   
   
@@ -357,7 +357,7 @@
 
 <nav class="bd-docs-nav bd-links"
      aria-label="Table of Contents">
-  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
+  <p class="bd-links__title" role="heading" aria-level="1">目录</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA Programming Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. Introduction to CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -488,10 +488,10 @@
                 <article class="bd-article">
                   
   <section id="unified-and-system-memory">
-<span id="id1"></span><h1><span class="section-number">2.4. </span>Unified and System Memory<a class="headerlink" href="understanding-memory.html#unified-and-system-memory" title="Link to this heading">#</a></h1>
-<p>Heterogeneous systems have multiple physical memories where data can be stored. The host CPU has attached DRAM, and every GPU in a system has its own attached DRAM. Performance is best when data is resident in the memory of the processor accessing it. CUDA provides APIs to <a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-explicit-memory-management"><span class="std std-ref">explicitly manage memory placement</span></a>, but this can be verbose and complicate software design. CUDA provides features and capabilities aimed at easing allocation, placement, and migration of data between different physical memories.</p>
+<span id="id1"></span><h1><span class="section-number">2.4. </span>统一内存与系统内存<a class="headerlink" href="understanding-memory.html#unified-and-system-memory" title="跳转到此标题">#</a></h1>
+<p>异构系统中存在多个可存储数据的物理内存。主机 CPU 连接主机 DRAM，而系统中的每块 GPU 也有各自连接的 DRAM。当数据驻留在访问它的处理器本地内存中时，性能最佳。CUDA 提供了用于<a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-explicit-memory-management"><span class="std std-ref">显式管理内存放置</span></a>的 API，但这往往较为冗长并增加软件设计复杂度。CUDA 也提供了多种特性来简化不同物理内存间的数据分配、放置与迁移。</p>
 <p>The purpose of this chapter is to introduce and explain these features and what they mean to application developers for both functionality and performance. Unified memory has several different manifestations which depend upon the OS, driver version, and GPU used. This chapter will show how to determine which unified memory paradigm applies and how the features of unified memory behave in each. The later <a class="reference internal" href="../04-special-topics/unified-memory.html#um-details-intro"><span class="std std-ref">chapter on unified memory</span></a> explains unified memory in more detail.</p>
-<p>The following concepts will be defined and explained in this chapter:</p>
+<p>本章将定义并解释以下概念：</p>
 <ul>
 <li><p><a class="reference internal" href="understanding-memory.html#memory-unified-virtual-address-space"><span class="std std-ref">Unified Virtual Address Space</span></a> - CPU memory and each GPU’s memory have a distinct range within a single virtual address space</p></li>
 <li><p><a class="reference internal" href="understanding-memory.html#memory-unified-memory"><span class="std std-ref">Unified Memory</span></a> - A CUDA feature that enables managed memory which can be automatically migrated between CPU and GPUs</p>
@@ -512,13 +512,13 @@
 </div></blockquote>
 </li>
 </ul>
-<p>Additionally, the following terms used when discussing unified and system memory are introduced here:</p>
+<p>此外，本章还会介绍讨论统一内存与系统内存时常见的术语：</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="understanding-memory.html#memory-heterogeneous-memory-management"><span class="std std-ref">Heterogeneous Managed Memory</span></a> (HMM) - A feature of the Linux kernel that enables software coherency for full unified memory</p></li>
 <li><p><a class="reference internal" href="understanding-memory.html#memory-unified-address-translation-services"><span class="std std-ref">Address Translation Services</span></a> (ATS) - A hardware feature, available when GPUs are connected to the CPU by the NVLink Chip-to-Chip (C2C) interconnect, which provides hardware coherency for full unified memory</p></li>
 </ul>
 <section id="unified-virtual-address-space">
-<span id="memory-unified-virtual-address-space"></span><h2><span class="section-number">2.4.1. </span>Unified Virtual Address Space<a class="headerlink" href="understanding-memory.html#unified-virtual-address-space" title="Link to this heading">#</a></h2>
+<span id="memory-unified-virtual-address-space"></span><h2><span class="section-number">2.4.1. </span>统一虚拟地址空间<a class="headerlink" href="understanding-memory.html#unified-virtual-address-space" title="跳转到此标题">#</a></h2>
 <p>A single virtual address space is used for all host memory and all global memory on all GPUs in the system within a single OS process. All memory allocations on the host and on all devices lie in this virtual address space. This is true whether allocations are made with CUDA APIs (e.g. <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaMallocHost</span></code>) or with system allocation APIs (e.g. <code class="docutils literal notranslate"><span class="pre">new</span></code>, <code class="docutils literal notranslate"><span class="pre">malloc</span></code>, <code class="docutils literal notranslate"><span class="pre">mmap</span></code>). The CPU and each GPU has a unique range within the unified virtual address space.</p>
 <p>This means:</p>
 <ul class="simple">
@@ -527,7 +527,7 @@
 </ul>
 </section>
 <section id="unified-memory">
-<span id="memory-unified-memory"></span><h2><span class="section-number">2.4.2. </span>Unified Memory<a class="headerlink" href="understanding-memory.html#unified-memory" title="Link to this heading">#</a></h2>
+<span id="memory-unified-memory"></span><h2><span class="section-number">2.4.2. </span>统一内存<a class="headerlink" href="understanding-memory.html#unified-memory" title="跳转到此标题">#</a></h2>
 <p><em>Unified memory</em> is a CUDA memory feature which allows memory allocations called <em>managed memory</em> to be accessed from code running on either the CPU or the GPU. Unified memory was shown in <a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-unified-memory"><span class="std std-ref">the intro to CUDA in C++</span></a>. Unified memory is available on all systems supported by CUDA.</p>
 <p>On some systems, managed memory must be explicitly allocated. Managed memory can be explicitly allocated in CUDA in a few different ways:</p>
 <ul class="simple">
@@ -537,7 +537,7 @@
 </ul>
 <p>On systems with <a class="reference internal" href="understanding-memory.html#memory-heterogeneous-memory-management"><span class="std std-ref">HMM</span></a> or <a class="reference internal" href="understanding-memory.html#memory-unified-address-translation-services"><span class="std std-ref">ATS</span></a>, all system memory is implicitly managed memory, regardless of how it is allocated. No special allocation is needed.</p>
 <section id="unified-memory-paradigms">
-<h3><span class="section-number">2.4.2.1. </span>Unified Memory Paradigms<a class="headerlink" href="understanding-memory.html#unified-memory-paradigms" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">2.4.2.1. </span>统一内存范式<a class="headerlink" href="understanding-memory.html#unified-memory-paradigms" title="跳转到此标题">#</a></h3>
 <p>The features and behavior of unified memory vary between operating systems, kernel versions on Linux, GPU hardware, and the GPU-CPU interconnect. The form of unified memory available can be determined by using <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetAttribute</span></code> to query a few attributes:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">cudaDevAttrConcurrentManagedAccess</span></code> - 1 for full unified memory support, 0 for limited support</p></li>
@@ -621,7 +621,7 @@
 </table>
 </div>
 <section id="unified-memory-paradigm-code-example">
-<span id="memory-unified-querying-code"></span><h4><span class="section-number">2.4.2.1.1. </span>Unified Memory Paradigm: Code Example<a class="headerlink" href="understanding-memory.html#unified-memory-paradigm-code-example" title="Link to this heading">#</a></h4>
+<span id="memory-unified-querying-code"></span><h4><span class="section-number">2.4.2.1.1. </span>统一内存范式：代码示例<a class="headerlink" href="understanding-memory.html#unified-memory-paradigm-code-example" title="跳转到此标题">#</a></h4>
 <p>The following code example demonstrates querying the device attributes and determining the unified memory paradigm, following the logic of <a class="reference internal" href="understanding-memory.html#unified-memory-flow-chart"><span class="std std-numref">Figure 18</span></a>, for each GPU in a system.</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">queryDevices</span><span class="p">()</span>
 <span class="p">{</span>
@@ -661,7 +661,7 @@
 </section>
 </section>
 <section id="full-unified-memory-feature-support">
-<span id="memory-unified-memory-full"></span><h3><span class="section-number">2.4.2.2. </span>Full Unified Memory Feature Support<a class="headerlink" href="understanding-memory.html#full-unified-memory-feature-support" title="Link to this heading">#</a></h3>
+<span id="memory-unified-memory-full"></span><h3><span class="section-number">2.4.2.2. </span>完整统一内存特性支持<a class="headerlink" href="understanding-memory.html#full-unified-memory-feature-support" title="跳转到此标题">#</a></h3>
 <p>Most Linux systems have full unified memory support.  If device attribute <code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccess</span></code> is 1, then all system memory, whether allocated by CUDA APIs or system APIs, operates as unified memory with full feature support. This includes file-backed memory allocations created with <code class="docutils literal notranslate"><span class="pre">mmap</span></code>.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccess</span></code> is 0, then only memory allocated as managed memory by CUDA behaves as unified memory. Memory allocated with system APIs is not managed and is not necessarily accessible from GPU kernels.</p>
 <p>In general, for unified allocations with full support:</p>
@@ -673,7 +673,7 @@
 </ul>
 <p>Allocation and migration behavior can deviate from the above. This can by influenced the programmer using <a class="reference internal" href="understanding-memory.html#memory-mem-advise-prefetch"><span class="std std-ref">hints and prefetches</span></a>.  Full coverage of full unified memory support can be found in <a class="reference internal" href="../04-special-topics/unified-memory.html#um-pageable-systems"><span class="std std-ref">Unified Memory on Devices with Full CUDA Unified Memory Support</span></a>.</p>
 <section id="full-unified-memory-with-hardware-coherency">
-<span id="memory-unified-address-translation-services"></span><h4><span class="section-number">2.4.2.2.1. </span>Full Unified Memory with Hardware Coherency<a class="headerlink" href="understanding-memory.html#full-unified-memory-with-hardware-coherency" title="Link to this heading">#</a></h4>
+<span id="memory-unified-address-translation-services"></span><h4><span class="section-number">2.4.2.2.1. </span>具备硬件一致性的完整统一内存<a class="headerlink" href="understanding-memory.html#full-unified-memory-with-hardware-coherency" title="跳转到此标题">#</a></h4>
 <p>On hardware such as Grace Hopper and Grace Blackwell, where an NVIDIA CPU is used and the interconnect between the CPU and GPU is NVLink Chip-to-Chip (C2C), address translation services (ATS) are available. <code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccessUsesHostPageTables</span></code> is 1 when ATS is available.</p>
 <p>With ATS, in addition to full unified memory support for all host allocations:</p>
 <ul class="simple">
@@ -684,7 +684,7 @@
 <p>ATS provides all capabilities of <a class="reference internal" href="understanding-memory.html#memory-heterogeneous-memory-management"><span class="std std-ref">HMM</span></a>. When ATS is available, HMM is automatically disabled. Further discussion of hardware vs. software coherency is found in <a class="reference internal" href="../04-special-topics/unified-memory.html#um-hw-coherency"><span class="std std-ref">CPU and GPU Page Tables: Hardware Coherency vs. Software Coherency</span></a>.</p>
 </section>
 <section id="hmm-full-unified-memory-with-software-coherency">
-<span id="memory-heterogeneous-memory-management"></span><h4><span class="section-number">2.4.2.2.2. </span>HMM - Full Unified Memory with Software Coherency<a class="headerlink" href="understanding-memory.html#hmm-full-unified-memory-with-software-coherency" title="Link to this heading">#</a></h4>
+<span id="memory-heterogeneous-memory-management"></span><h4><span class="section-number">2.4.2.2.2. </span>HMM：具备软件一致性的完整统一内存<a class="headerlink" href="understanding-memory.html#hmm-full-unified-memory-with-software-coherency" title="跳转到此标题">#</a></h4>
 <p><em>Heterogeneous Memory Management</em> (HMM) is a feature available on Linux operating systems (with appropriate kernel versions) which enables software-coherent <a class="reference internal" href="understanding-memory.html#memory-unified-memory-full"><span class="std std-ref">full unified memory support</span></a>. Heterogeneous memory management brings some of the capabilities and convenience provided by ATS to PCIe-connected GPUs.</p>
 <p>On Linux with at least Linux Kernel 6.1.24, 6.2.11, or 6.3 or later, heterogeneous memory management (HMM) may be available. The following command can be used to find if the addressing mode is <code class="docutils literal notranslate"><span class="pre">HMM</span></code>.</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">$</span><span class="w"> </span><span class="n">nvidia</span><span class="o">-</span><span class="n">smi</span><span class="w"> </span><span class="o">-</span><span class="n">q</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">grep</span><span class="w"> </span><span class="n">Addressing</span>
@@ -695,7 +695,7 @@
 </section>
 </section>
 <section id="limited-unified-memory-support">
-<span id="memory-limited-unified-memory-support"></span><h3><span class="section-number">2.4.2.3. </span>Limited Unified Memory Support<a class="headerlink" href="understanding-memory.html#limited-unified-memory-support" title="Link to this heading">#</a></h3>
+<span id="memory-limited-unified-memory-support"></span><h3><span class="section-number">2.4.2.3. </span>有限统一内存支持<a class="headerlink" href="understanding-memory.html#limited-unified-memory-support" title="跳转到此标题">#</a></h3>
 <p>On Windows, including Windows Subsystem for Linux (WSL), and on some Tegra systems, a limited subset of unified memory functionality is available. On these systems, managed memory is available, but migration between CPU and GPUs behaves differently.</p>
 <ul class="simple">
 <li><p>Managed memory is first allocated in the CPU’s physical memory</p></li>
@@ -709,14 +709,14 @@
 <p>Full coverage of this paradigm can be found in <a class="reference internal" href="../04-special-topics/unified-memory.html#um-legacy-devices"><span class="std std-ref">Unified Memory on Windows, WSL, and Tegra</span></a>.</p>
 </section>
 <section id="memory-advise-and-prefetch">
-<span id="memory-mem-advise-prefetch"></span><h3><span class="section-number">2.4.2.4. </span>Memory Advise and Prefetch<a class="headerlink" href="understanding-memory.html#memory-advise-and-prefetch" title="Link to this heading">#</a></h3>
+<span id="memory-mem-advise-prefetch"></span><h3><span class="section-number">2.4.2.4. </span>内存建议与预取<a class="headerlink" href="understanding-memory.html#memory-advise-and-prefetch" title="跳转到此标题">#</a></h3>
 <p>The programmer can provide hints to the NVIDIA Driver managing unified memory to help it maximize application performance. The CUDA API <code class="docutils literal notranslate"><span class="pre">cudaMemAdvise</span></code> allows the programmer to specify properties of allocations that affect where they are placed and whether or not the memory is migrated when accessed from another device.</p>
 <p><code class="docutils literal notranslate"><span class="pre">cudaMemPrefetchAsync</span></code> allows the programmer to suggest an asynchronous migration of a specific allocation to a different location be started. A common use is starting the transfer of data a kernel will use before the kernel is launched. This enables the copy of data to occur while other GPU kernels are executing.</p>
 <p>The section on <a class="reference internal" href="../04-special-topics/unified-memory.html#um-perf-hints"><span class="std std-ref">Performance Hints</span></a> covers the different hints that can be passed to <code class="docutils literal notranslate"><span class="pre">cudaMemAdvise</span></code> and shows examples of using <code class="docutils literal notranslate"><span class="pre">cudaMemPrefetchAsync</span></code>.</p>
 </section>
 </section>
 <section id="page-locked-host-memory">
-<span id="memory-page-locked-host-memory"></span><h2><span class="section-number">2.4.3. </span>Page-Locked Host Memory<a class="headerlink" href="understanding-memory.html#page-locked-host-memory" title="Link to this heading">#</a></h2>
+<span id="memory-page-locked-host-memory"></span><h2><span class="section-number">2.4.3. </span>页锁定主机内存<a class="headerlink" href="understanding-memory.html#page-locked-host-memory" title="跳转到此标题">#</a></h2>
 <p>In <a class="reference internal" href="intro-to-cuda-cpp.html#intro-cuda-cpp-all-together"><span class="std std-ref">introductory code examples</span></a>, <code class="docutils literal notranslate"><span class="pre">cudaMallocHost</span></code> was used to allocate memory on the CPU. This allocates <em>page-locked</em> memory (also known as <em>pinned</em> memory) on the host. Host allocations made through traditional allocation mechanisms like <code class="docutils literal notranslate"><span class="pre">malloc</span></code>, <code class="docutils literal notranslate"><span class="pre">new</span></code>, or <code class="docutils literal notranslate"><span class="pre">mmap</span></code> are not page-locked, which means they may be swapped to disk or physically relocated by the operating system.</p>
 <p>Page-locked host memory is required for <a class="reference internal" href="asynchronous-execution.html#async-execution-memory-transfers"><span class="std std-ref">asynchronous copies between the CPU and GPU</span></a>. Page-locked host memory also improves performance of synchronous copies. Page-locked memory can be <a class="reference internal" href="understanding-memory.html#memory-mapped-memory"><span class="std std-ref">mapped</span></a> to the GPU for direct access from GPU kernels.</p>
 <p>The CUDA runtime provides APIs to allocate page-locked host memory or to page-lock existing allocations:</p>
@@ -728,12 +728,12 @@
 </ul>
 <p><code class="docutils literal notranslate"><span class="pre">cudaHostRegister</span></code> enables host memory allocated by 3rd party libraries or other code outside of a developer’s control to be page-locked so that it can be used in asynchronous copies or mapped.</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
+<p class="admonition-title">注意</p>
 <p>Page-locked host memory can be used for asynchronous copies and mapped-memory by all GPUs in the system.</p>
 <p>Page-locked host memory is not cached on non I/O coherent Tegra devices. Also, <code class="docutils literal notranslate"><span class="pre">cudaHostRegister()</span></code> is not supported on non I/O coherent Tegra devices.</p>
 </div>
 <section id="mapped-memory">
-<span id="memory-mapped-memory"></span><h3><span class="section-number">2.4.3.1. </span>Mapped Memory<a class="headerlink" href="understanding-memory.html#mapped-memory" title="Link to this heading">#</a></h3>
+<span id="memory-mapped-memory"></span><h3><span class="section-number">2.4.3.1. </span>映射内存<a class="headerlink" href="understanding-memory.html#mapped-memory" title="跳转到此标题">#</a></h3>
 <p>On systems with <a class="reference internal" href="understanding-memory.html#memory-heterogeneous-memory-management"><span class="std std-ref">HMM</span></a> or <a class="reference internal" href="understanding-memory.html#memory-unified-address-translation-services"><span class="std std-ref">ATS</span></a>, all host memory is directly accessible from the GPU using the host pointers.  When ATS or HMM are not available, host allocations can be made accessible to the GPU by <em>mapping</em> the memory into the GPU’s memory space. Mapped memory is always page-locked.</p>
 <p>The code examples which follow will illustrate the following array copy kernel operating directly on mapped host memory.</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">copyKernel</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
@@ -745,7 +745,7 @@
 </div>
 <p>While mapped memory may be useful in some cases where certain data which is not copied to the GPU needs to be accessed from a kernel, accessing mapped memory in a kernel requires transactions across the CPU-GPU interconnect, PCIe, or NVLink C2C. These operations have higher latency and lower bandwidth compared to accessing device memory. Mapped memory should not be considered a performant alternative to <a class="reference internal" href="understanding-memory.html#memory-unified-memory"><span class="std std-ref">unified memory</span></a> or <a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-explicit-memory-management"><span class="std std-ref">explicit memory management</span></a> for the majority of a kernel’s memory needs.</p>
 <section id="cudamallochost-and-cudahostalloc">
-<h4><span class="section-number">2.4.3.1.1. </span>cudaMallocHost and cudaHostAlloc<a class="headerlink" href="understanding-memory.html#cudamallochost-and-cudahostalloc" title="Link to this heading">#</a></h4>
+<h4><span class="section-number">2.4.3.1.1. </span>cudaMallocHost 与 cudaHostAlloc<a class="headerlink" href="understanding-memory.html#cudamallochost-and-cudahostalloc" title="跳转到此标题">#</a></h4>
 <p>Host memory allocated with <code class="docutils literal notranslate"><span class="pre">cudaHostMalloc</span></code> or <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc</span></code> is automatically mapped. The pointers returned by these APIs can be directly used in kernel code to access the memory on the host. The host memory is accessed over the CPU-GPU interconnect.</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
@@ -838,7 +838,7 @@ cudaAllocHost</label><div class="sd-tab-content docutils">
 <p>Mapped memory remains in CPU memory, which means all GPU accesses must go through the connection between the CPU and GPU: PCIe or NVLink. Latency of accesses made across these links are significantly higher than access to GPU memory, and total available bandwidth is lower. As such, using mapped memory for all kernel memory accesses is unlikely to fully utilize GPU computing resources.</p>
 <p>Unified memory is most often migrated to the physical memory of the processor accessing it. After the first migration, repeated access to the same memory page or cache line by a kernel can utilize the full GPU memory bandwidth.</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
+<p class="admonition-title">注意</p>
 <p>Mapped memory has also been referred to as <em>zero-copy</em> memory in previous documents.</p>
 <p>Prior to all CUDA applications using a <a class="reference internal" href="understanding-memory.html#memory-unified-virtual-address-space"><span class="std std-ref">unified virtual address space</span></a>, additional APIs were needed to enable memory mapping (<code class="docutils literal notranslate"><span class="pre">cudaSetDeviceFlags</span></code> with <code class="docutils literal notranslate"><span class="pre">cudaDeviceMapHost</span></code>).  These APIs are no longer needed.</p>
 <p>Atomic functions (see <a class="reference internal" href="../05-appendices/cpp-language-extensions.html#atomic-functions"><span class="std std-ref">Atomic Functions</span></a>) operating on mapped host memory are not atomic from the point of view of the host or other GPUs.</p>
@@ -911,7 +911,7 @@ cudaAllocHost</label><div class="sd-tab-content docutils">
 <div
     id="pst-page-navigation-heading-2"
     class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
+    <i class="fa-solid fa-list"></i> 本页内容
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
