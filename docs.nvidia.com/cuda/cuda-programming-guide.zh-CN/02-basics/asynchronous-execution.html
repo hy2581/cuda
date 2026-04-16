@@ -871,20 +871,20 @@ Similarly to the <code class="xref cpp cpp-func docutils literal notranslate"><s
 </section>
 <section id="cuda-stream-ordering">
 <h2><span class="section-number">2.3.5. </span>CUDA 流的顺序语义<a class="headerlink" href="asynchronous-execution.html#cuda-stream-ordering" title="跳转到此标题">#</a></h2>
-<p>Now that we have discussed the basic mechanisms of streams, events and callback functions it is important to consider the ordering semantics of asynchronous operations in a stream. These semantics are to allow application programmers to think about the ordering of operations in a stream in a safe way. There are some special cases where these semantics may be relaxed for purposes of performance optimization such as in the case of a <em>Programmatic Dependent Kernel Launch</em> scenario, which allows the overlap of two kernels through the use of special attributes and kernel launch mechanisms, or in the case of batching memory transfers using the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyBatchAsync()</span></code> function when the runtime can perform non-overlapping batch copies concurrently. We will discuss these optimizations later on <em>link needed</em>.</p>
-<p>Most importantly CUDA streams are what are known as in-order streams. This means that the order of execution of the operations in a stream is the same as the order in which those operations were enqueued. An operation in a stream cannot leap-frog other operations. Memory operations (such as copies) are tracked by the runtime and will always complete before the next operation in order to allow dependent kernels safe access to the data being transferred.</p>
+<p>在了解了流、事件与回调函数的基础机制后，我们还需关注流中异步操作的顺序语义。这些语义让应用开发者能够以安全方式推理流内操作顺序。在某些性能优化场景下，这些语义会被适当放宽，例如 <em>程序化依赖内核启动</em> 场景可借助特定属性与启动机制让两个内核重叠执行；又如使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyBatchAsync()</span></code> 批量传输时，运行时可并发执行互不重叠的批拷贝。相关优化将在后文讨论。</p>
+<p>最关键的是，CUDA 流属于“按序流（in-order stream）”。这意味着流中操作的执行顺序与其入队顺序一致，后续操作不能“插队”越过前序操作。内存操作（如拷贝）会由运行时跟踪，并保证在后续操作执行前完成，以确保依赖内核能安全访问正在传输的数据。</p>
 </section>
 <section id="blocking-and-non-blocking-streams-and-the-default-stream">
 <span id="async-execution-blocking-non-blocking-default-stream"></span><h2><span class="section-number">2.3.6. </span>阻塞/非阻塞流与默认流<a class="headerlink" href="asynchronous-execution.html#blocking-and-non-blocking-streams-and-the-default-stream" title="跳转到此标题">#</a></h2>
-<p>In CUDA there are two types of streams: blocking and non-blocking. The name can be a little misleading as the blocking and non-blocking semantics refer only to how the streams synchronize with the default stream. By default, streams created with <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamCreate()</span></code> are blocking streams. In order to create a non-blocking stream, the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamCreateWithFlags()</span></code> function must be used with the <code class="docutils literal notranslate"><span class="pre">cudaStreamNonBlocking</span></code> flag:</p>
+<p>在 CUDA 中，流分为阻塞流与非阻塞流两类。这个命名容易误解，因为其语义仅指这些流与默认流之间的同步关系。默认情况下，使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamCreate()</span></code> 创建的是阻塞流。若要创建非阻塞流，需使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamCreateWithFlags()</span></code> 并传入 <code class="docutils literal notranslate"><span class="pre">cudaStreamNonBlocking</span></code> 标志：</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">;</span>
 <span class="n">cudaStreamCreateWithFlags</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamNonBlocking</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>and non-blocking streams can be destroyed in the usual way with <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamDestroy()</span></code>.</p>
+<p>非阻塞流可按常规方式通过 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamDestroy()</span></code> 销毁。</p>
 <section id="legacy-default-stream">
 <span id="async-execution-default-stream"></span><h3><span class="section-number">2.3.6.1. </span>传统默认流<a class="headerlink" href="asynchronous-execution.html#legacy-default-stream" title="跳转到此标题">#</a></h3>
-<p>The key difference between the blocking and non-blocking streams is how they synchronize with the <strong>default stream</strong>. CUDA provides a legacy default stream ( also known as the NULL stream or the stream with stream ID 0) which is used when no stream is specified in kernel launches or in blocking <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code> calls. This default stream, which was shared amongst all host threads, is a blocking stream. When an operation is launched into this default stream, it will synchronize with all other blocking streams, in other words it will wait for all other blocking streams to complete before it can execute.</p>
+<p>阻塞流与非阻塞流的关键差异在于它们如何与<strong>默认流</strong>同步。CUDA 提供传统默认流（又称 NULL 流或流 ID 0），当内核启动未指定流或调用阻塞式 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code> 时会使用它。该默认流由所有主机线程共享，且属于阻塞流。当操作被发射到该默认流时，它会与所有其他阻塞流同步，即需等待其他阻塞流完成后才能执行。</p>
 <div class="highlight-c notranslate" id="legacy-default-stream-example"><div class="highlight"><pre><span></span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream1</span><span class="p">,</span><span class="w"> </span><span class="n">stream2</span><span class="p">;</span>
 <span class="n">cudaStreamCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream1</span><span class="p">);</span>
 <span class="n">cudaStreamCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream2</span><span class="p">);</span>
@@ -896,7 +896,7 @@ Similarly to the <code class="xref cpp cpp-func docutils literal notranslate"><s
 <span class="n">cudaDeviceSynchronize</span><span class="p">();</span>
 </pre></div>
 </div>
-<p>The default stream behavior means that in the above code snippet above, <cite>kernel2</cite> will wait for <cite>kernel1</cite> to complete, and <cite>kernel3</cite> will wait for <cite>kernel2</cite> to complete, even if in principle all three kernels could execute concurrently. By creating a non-blocking stream we can avoid this synchronization behavior. In the code snippet below we create two non-blocking streams. The default stream will no longer synchronize with these streams and in principle all three kernels could execute concurrently. As such we cannot assume any ordering of execution of the kernels and should perform explicit synchronization ( such as with the rather heavy handed <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code> call) in order to ensure that the kernels have completed.</p>
+<p>上述默认流行为意味着：在前面的代码中，<cite>kernel2</cite> 会等待 <cite>kernel1</cite>，而 <cite>kernel3</cite> 会等待 <cite>kernel2</cite>，即便理论上三者可并发执行。通过创建非阻塞流可避免这种同步。在下方示例中我们创建两个非阻塞流，默认流将不再与它们同步，因此三者原则上可并发执行。也因此不能再假设三者存在固定顺序，需使用显式同步（例如较为“重”的 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code>）来保证内核完成。</p>
 <div class="highlight-c notranslate" id="non-blocking-stream-example"><div class="highlight"><pre><span></span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream1</span><span class="p">,</span><span class="w"> </span><span class="n">stream2</span><span class="p">;</span>
 <span class="n">cudaStreamCreateWithFlags</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream1</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamNonBlocking</span><span class="p">);</span>
 <span class="n">cudaStreamCreateWithFlags</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream2</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamNonBlocking</span><span class="p">);</span>
@@ -911,12 +911,12 @@ Similarly to the <code class="xref cpp cpp-func docutils literal notranslate"><s
 </section>
 <section id="per-thread-default-stream">
 <h3><span class="section-number">2.3.6.2. </span>每线程默认流<a class="headerlink" href="asynchronous-execution.html#per-thread-default-stream" title="跳转到此标题">#</a></h3>
-<p>Starting in CUDA-7, CUDA allows for each host thread to have its own independent default stream, rather than the shared legacy default stream. In order to enable this behavior one must either use the <cite>nvcc</cite> compiler option <code class="docutils literal notranslate"><span class="pre">--default-stream</span> <span class="pre">per-thread</span></code> or define the <code class="docutils literal notranslate"><span class="pre">CUDA_API_PER_THREAD_DEFAULT_STREAM</span></code> preprocessor macro. When this behavior is enabled, each host thread will have its own independent default stream which will not synchronize with other streams in the same way the legacy default stream does. In such a situation the <a class="reference internal" href="asynchronous-execution.html#legacy-default-stream-example"><span class="std std-ref">legacy default stream example</span></a> will now exhibit the same synchronization behavior as the <a class="reference internal" href="asynchronous-execution.html#non-blocking-stream-example"><span class="std std-ref">non-blocking stream example</span></a>.</p>
+<p>从 CUDA 7 开始，CUDA 支持“每个主机线程拥有独立默认流”，而不再必须共享传统默认流。要启用该行为，可使用 <cite>nvcc</cite> 选项 <code class="docutils literal notranslate"><span class="pre">--default-stream</span> <span class="pre">per-thread</span></code>，或定义预处理宏 <code class="docutils literal notranslate"><span class="pre">CUDA_API_PER_THREAD_DEFAULT_STREAM</span></code>。启用后，每个主机线程的默认流彼此独立，不再按传统默认流方式与其他流同步。在这种情况下，<a class="reference internal" href="asynchronous-execution.html#legacy-default-stream-example"><span class="std std-ref">传统默认流示例</span></a> 将表现出与 <a class="reference internal" href="asynchronous-execution.html#non-blocking-stream-example"><span class="std std-ref">非阻塞流示例</span></a> 相同的同步特性。</p>
 </section>
 </section>
 <section id="explicit-synchronization">
 <span id="id4"></span><h2><span class="section-number">2.3.7. </span>显式同步<a class="headerlink" href="asynchronous-execution.html#explicit-synchronization" title="跳转到此标题">#</a></h2>
-<p>There are various ways to explicitly synchronize streams with each other.</p>
+<p>流之间可以通过多种方式进行显式同步。</p>
 <p><code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code> waits until all preceding commands in all streams of all host threads have completed.</p>
 <p><code class="docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code>takes a stream as a parameter and waits until all preceding commands in the given stream have completed. It can be used to synchronize the host with a specific stream, allowing other streams to continue executing on the device.</p>
 <p><code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code>takes a stream and an event as parameters (see <a class="reference internal" href="asynchronous-execution.html#cuda-events"><span class="std std-ref">CUDA Events</span></a> for a description of events)and makes all the commands added to the given stream after the call to <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code>delay their execution until the given event has completed.</p>
@@ -926,10 +926,10 @@ Similarly to the <code class="xref cpp cpp-func docutils literal notranslate"><s
 <span id="id5"></span><h2><span class="section-number">2.3.8. </span>隐式同步<a class="headerlink" href="asynchronous-execution.html#implicit-synchronization" title="跳转到此标题">#</a></h2>
 <p>Two operations from different streams cannot run concurrently if any CUDA operation on the NULL stream is submitted
 in-between them, unless the streams are non-blocking streams (created with the <code class="docutils literal notranslate"><span class="pre">cudaStreamNonBlocking</span></code> flag).</p>
-<p>Applications should follow these guidelines to improve their potential for concurrent kernel execution:</p>
+<p>为提升内核并发执行潜力，应用应遵循以下原则：</p>
 <ul class="simple">
-<li><p>All independent operations should be issued before dependent operations,</p></li>
-<li><p>Synchronization of any kind should be delayed as long as possible.</p></li>
+<li><p>先发出彼此独立的操作，再发出存在依赖关系的操作；</p></li>
+<li><p>尽可能推迟各类同步操作的发生时机。</p></li>
 </ul>
 </section>
 <section id="miscellaneous-and-advanced-topics">
@@ -953,20 +953,20 @@ can be queried using the <code class="xref cpp cpp-func docutils literal notrans
 <span class="n">cudaStreamCreateWithPriority</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream2</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamDefault</span><span class="p">,</span><span class="w"> </span><span class="n">maxPriority</span><span class="p">);</span><span class="w">  </span><span class="c1">// Highest priority</span>
 </pre></div>
 </div>
-<p>We should note that a priority of a stream is only a hint to the runtime and generally applies primarily to kernel launches, and may not be respected for memory transfers. Stream priorities will not preempt already executing work, or guarantee any specific execution order.</p>
+<p>需要注意，流优先级只是给运行时的提示，通常主要作用于内核发射，对内存传输未必生效。流优先级不会抢占已在执行的工作，也不保证特定执行顺序。</p>
 </section>
 <section id="introduction-to-cuda-graphs-with-stream-capture">
-<span id="async-execution-cuda-graphs"></span><h3><span class="section-number">2.3.9.2. </span>Introduction to CUDA Graphs with Stream Capture<a class="headerlink" href="asynchronous-execution.html#introduction-to-cuda-graphs-with-stream-capture" title="Link to this heading">#</a></h3>
-<p>CUDA streams allow programs to specify a sequence of operations, kernels or memory copies, in order. Using multiple streams and cross-stream dependencies with <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent</span></code>, an application can specify a full directed acyclic graph (DAG) of operations. Some applications may have a sequence or DAG of operations that needs to be run many times throughout execution.</p>
-<p>For this situation, CUDA provides a feature known as CUDA graphs. This section introduces CUDA graphs and one mechanism of creating them called <em>stream capture</em>. A more detailed discussion of CUDA graphs is presented in <a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs"><span class="std std-ref">CUDA Graphs</span></a>. Capturing or creating a graph can help reduce latency and CPU overhead of repeatedly invoking the same chain of API calls from the host thread. Instead, the APIs to specify the graph operations can be called once, and then the resulting graph executed many times.</p>
-<p>CUDA Graphs work in the following way:</p>
+<span id="async-execution-cuda-graphs"></span><h3><span class="section-number">2.3.9.2. </span>通过流捕获入门 CUDA 图<a class="headerlink" href="asynchronous-execution.html#introduction-to-cuda-graphs-with-stream-capture" title="跳转到此标题">#</a></h3>
+<p>CUDA 流允许程序按顺序指定一系列操作（如内核或内存拷贝）。借助多流与 <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent</span></code> 跨流依赖，应用可描述完整的有向无环图（DAG）操作流。有些应用在运行期间需要反复执行同一序列或 DAG。</p>
+<p>针对这种场景，CUDA 提供了 CUDA 图功能。本节介绍 CUDA 图及其一种构建机制——<em>流捕获</em>。更详细内容见 <a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs"><span class="std std-ref">CUDA 图</span></a>。捕获或创建图可减少主机线程重复调用同一 API 链带来的延迟与 CPU 开销：图定义一次，之后可重复执行多次。</p>
+<p>CUDA 图的一般工作流程如下：</p>
 <ol class="lowerroman simple">
-<li><p>The graph is <em>captured</em> by the application. This step is done once the first time the graph is executed. The graph can also be manually composed using the CUDA graph API.</p></li>
-<li><p>The graph is <em>instantiated</em>. This step is done one time, after the graph is captured. This step can set up all the various runtime structures needed to execute the graph, in order to make launching its components as fast as possible.</p></li>
-<li><p>In the remaining steps, the pre-instantiated graph is executed as many times as required. Since all the runtime structures needed to execute the graph operations are already in place, the CPU overheads of the graph execution are minimized.</p></li>
+<li><p>应用先对图进行<em>捕获</em>（通常在首次执行时完成）；也可通过 CUDA Graph API 手工构建图。</p></li>
+<li><p>随后对图进行<em>实例化</em>（一次性步骤）。该步骤会建立执行图所需的运行时结构，以尽可能加快各组件启动。</p></li>
+<li><p>之后按需反复执行已实例化图。由于运行时结构已就绪，图执行的 CPU 开销可显著降低。</p></li>
 </ol>
 <div class="literal-block-wrapper docutils container" id="id7">
-<div class="code-block-caption"><span class="caption-number">Listing 2 </span><span class="caption-text">The stages of capturing, instantiating and executing a simple linear graph using CUDA Graphs (from <a class="reference external" href="https://developer.nvidia.com/blog/cuda-graphs/">CUDA Developer Technical Blog</a>, A. Gray, 2019)</span><a class="headerlink" href="asynchronous-execution.html#id7" title="Link to this code">#</a></div>
+<div class="code-block-caption"><span class="caption-number">代码清单 2 </span><span class="caption-text">使用 CUDA 图对简单线性图执行“捕获-实例化-执行”阶段（摘自 <a class="reference external" href="https://developer.nvidia.com/blog/cuda-graphs/">CUDA 开发者技术博客</a>，A. Gray，2019）</span><a class="headerlink" href="asynchronous-execution.html#id7" title="跳转到此代码">#</a></div>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#define N 500000 </span><span class="c1">// tuned such that kernel takes a few microseconds</span>
 
 <span class="c1">// A very lightweight kernel</span>
@@ -1007,21 +1007,21 @@ can be queried using the <code class="xref cpp cpp-func docutils literal notrans
 </pre></div>
 </div>
 </div>
-<p>Much more detail on CUDA graph is provided in <a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs"><span class="std std-ref">CUDA Graphs</span></a>.</p>
+<p>关于 CUDA 图的更多细节请参见 <a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs"><span class="std std-ref">CUDA 图</span></a>。</p>
 </section>
 </section>
 <section id="summary-of-asynchronous-execution">
-<h2><span class="section-number">2.3.10. </span>Summary of Asynchronous Execution<a class="headerlink" href="asynchronous-execution.html#summary-of-asynchronous-execution" title="Link to this heading">#</a></h2>
-<p>The key points of this section are:</p>
+<h2><span class="section-number">2.3.10. </span>异步执行总结<a class="headerlink" href="asynchronous-execution.html#summary-of-asynchronous-execution" title="跳转到此标题">#</a></h2>
+<p>本节要点如下：</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>Asynchronous APIs allow us to express concurrent execution of tasks providing the way to express overlapping of various operations. The actual concurrency achieved is dependent on available hardware resources and compute-capabilities.</p></li>
-<li><p>The key abstractions in CUDA for asynchronous execution are streams, events and callback functions.</p></li>
-<li><p>Synchronization is possible at the event, stream and device level</p></li>
-<li><p>The default stream is a blocking stream which synchronizes with all other blocking streams, but does not synchronize with non-blocking streams</p></li>
-<li><p>The default stream behavior can be avoided using per-thread default streams via the <code class="docutils literal notranslate"><span class="pre">--default-stream</span> <span class="pre">per-thread</span></code> compiler option or the CUDA_API_PER_THREAD_DEFAULT_STREAM preprocessor macro.</p></li>
-<li><p>Streams can be created with different priorities, which are hints to the runtime and may not be respected for memory transfers.</p></li>
-<li><p>CUDA provides API functions to reduce, or overlap overheads of kernel launches and memory transfers such as CUDA Graphs, Batched Memory Transfers and Programmatic Dependent Kernel Launch.</p></li>
+<li><p>异步 API 使我们能够表达任务并发执行与操作重叠；实际并发度取决于可用硬件资源与计算能力。</p></li>
+<li><p>CUDA 异步执行的关键抽象是：流、事件与回调函数。</p></li>
+<li><p>可在事件级、流级与设备级进行同步。</p></li>
+<li><p>默认流属于阻塞流，会与其他阻塞流同步，但不会与非阻塞流同步。</p></li>
+<li><p>可通过编译选项 <code class="docutils literal notranslate"><span class="pre">--default-stream</span> <span class="pre">per-thread</span></code> 或预处理宏 CUDA_API_PER_THREAD_DEFAULT_STREAM 启用每线程默认流，以避免传统默认流行为。</p></li>
+<li><p>流可配置不同优先级，但这只是对运行时的提示，对内存传输不一定生效。</p></li>
+<li><p>CUDA 提供了用于降低或重叠内核启动与内存传输开销的 API，例如 CUDA 图、批量内存传输和程序化依赖内核启动。</p></li>
 </ul>
 </div></blockquote>
 </section>
@@ -1106,7 +1106,7 @@ can be queried using the <code class="xref cpp cpp-func docutils literal notrans
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#implicit-synchronization">2.3.8. 隐式同步</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#miscellaneous-and-advanced-topics">2.3.9. 杂项与高级主题</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#stream-prioritization">2.3.9.1. 流优先级</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#introduction-to-cuda-graphs-with-stream-capture">2.3.9.2. Introduction to CUDA Graphs with Stream Capture</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#introduction-to-cuda-graphs-with-stream-capture">2.3.9.2. 通过流捕获入门 CUDA 图</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#summary-of-asynchronous-execution">2.3.10. 异步执行总结</a></li>
