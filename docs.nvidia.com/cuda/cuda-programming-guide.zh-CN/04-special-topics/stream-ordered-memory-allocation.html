@@ -565,47 +565,21 @@
 </section>
 </section>
 <section id="memory-pools">
-<span id="stream-ordered-memory-pools"></span><h2><span class="section-number">4.3.3. </span>Memory Pools<a class="headerlink" href="stream-ordered-memory-allocation.html#memory-pools" title="Link to this heading">#</a></h2>
-<p>Memory pools encapsulate virtual address and physical memory resources that
-are allocated and managed according to the pools attributes and properties.
-The primary aspect of a memory pool is the kind and location of memory it
-manages.</p>
-<p>All calls to <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> use resources from memory pool. If
-a memory pool is not specified, <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> uses the current
-memory pool of the supplied stream’s device. The current memory pool for a
-device may be set with <code class="docutils literal notranslate"><span class="pre">cudaDeviceSetMempool</span></code> and queried with
-<code class="docutils literal notranslate"><span class="pre">cudaDeviceGetMempool</span></code>. Each device has a default memory pool, which is
-active if <code class="docutils literal notranslate"><span class="pre">cudaDeviceSetMempool</span></code> has not been called.</p>
-<p>The API <code class="docutils literal notranslate"><span class="pre">cudaMallocFromPoolAsync</span></code> and <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__HIGHLEVEL.html#group__CUDART__HIGHLEVEL_1ga31efcffc48981621feddd98d71a0feb">c++ overloads of
-cudaMallocAsync</a>
-allow a user to specify the pool to be used for an allocation without setting
-it as the current pool. The APIs <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetDefaultMempool</span></code> and
-<code class="docutils literal notranslate"><span class="pre">cudaMemPoolCreate</span></code> return handles to memory pools. <code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAttribute</span></code>
-and <code class="docutils literal notranslate"><span class="pre">cudaMemPoolGetAttribute</span></code> control the attributes of memory pools.</p>
+<span id="stream-ordered-memory-pools"></span><h2><span class="section-number">4.3.3. </span>内存池<a class="headerlink" href="stream-ordered-memory-allocation.html#memory-pools" title="Link to this heading">#</a></h2>
+<p>内存池封装了虚拟地址与物理内存资源，这些资源会按照内存池属性与配置进行分配和管理。内存池最核心的特征是其管理内存的类型与位置。</p>
+<p>所有 <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 调用都从内存池获取资源。若未显式指定内存池，<code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 会使用所给流对应设备的当前内存池。设备当前内存池可通过 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSetMempool</span></code> 设置，并通过 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetMempool</span></code> 查询。每个设备都有一个默认内存池；若未调用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSetMempool</span></code>，该默认池即为活动池。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaMallocFromPoolAsync</span></code> 以及 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__HIGHLEVEL.html#group__CUDART__HIGHLEVEL_1ga31efcffc48981621feddd98d71a0feb">cudaMallocAsync 的 C++ 重载</a> 允许用户在不切换当前池的情况下，为某次分配指定目标内存池。<code class="docutils literal notranslate"><span class="pre">cudaDeviceGetDefaultMempool</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolCreate</span></code> 可返回内存池句柄；<code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAttribute</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolGetAttribute</span></code> 用于配置和查询内存池属性。</p>
 <div class="admonition note">
 <p class="admonition-title">注意</p>
-<p>The mempool current to a device will be local to that device. So allocating
-without specifying a memory pool will always yield an allocation local to
-the stream’s device.</p>
+<p>设备当前内存池始终是该设备本地的。因此，不指定内存池进行分配时，得到的分配总是位于该流所属设备本地。</p>
 </div>
 <section id="default-implicit-pools">
-<span id="stream-ordered-default-implicit"></span><h3><span class="section-number">4.3.3.1. </span>Default/Implicit Pools<a class="headerlink" href="stream-ordered-memory-allocation.html#default-implicit-pools" title="Link to this heading">#</a></h3>
-<p>The default memory pool of a device can be retrieved by calling
-<code class="docutils literal notranslate"><span class="pre">cudaDeviceGetDefaultMempool</span></code>. Allocations from the default memory pool
-of a device are non-migratable device allocation located on that device. These
-allocations will always be accessible from that device. The accessibility of
-the default memory pool can be modified with <code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAccess</span></code> and
-queried with <code class="docutils literal notranslate"><span class="pre">cudaMemPoolGetAccess</span></code>. Since the default pools do not need to be
-explicitly created, they are sometimes referred to as implicit pools. The
-default memory pool of a device does not support IPC.</p>
+<span id="stream-ordered-default-implicit"></span><h3><span class="section-number">4.3.3.1. </span>默认/隐式内存池<a class="headerlink" href="stream-ordered-memory-allocation.html#default-implicit-pools" title="Link to this heading">#</a></h3>
+<p>设备默认内存池可通过 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetDefaultMempool</span></code> 获取。设备默认池中的分配是驻留在该设备上的不可迁移设备分配，并始终可被该设备访问。默认池可访问性可通过 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAccess</span></code> 修改，通过 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolGetAccess</span></code> 查询。由于默认池无需显式创建，也常称为隐式池。设备默认内存池不支持 IPC。</p>
 </section>
 <section id="explicit-pools">
-<span id="stream-ordered-explicit-pools"></span><h3><span class="section-number">4.3.3.2. </span>Explicit Pools<a class="headerlink" href="stream-ordered-memory-allocation.html#explicit-pools" title="Link to this heading">#</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">cudaMemPoolCreate</span></code> creates an explicit pool. This allows
-applications to request properties for their allocation beyond what is
-provided by the default/implicit pools. These include properties such as IPC
-capability, maximum pool size, allocations resident on a specific CPU NUMA
-node on supported platforms etc.</p>
+<span id="stream-ordered-explicit-pools"></span><h3><span class="section-number">4.3.3.2. </span>显式内存池<a class="headerlink" href="stream-ordered-memory-allocation.html#explicit-pools" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">cudaMemPoolCreate</span></code> 可创建显式内存池。这样应用就能请求默认/隐式池之外的分配属性，例如 IPC 能力、池最大容量、在支持平台上驻留于特定 CPU NUMA 节点的分配等。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// create a pool similar to the implicit pool on device 0</span>
 <span class="kt">int</span><span class="w"> </span><span class="n">device</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="n">cudaMemPoolProps</span><span class="w"> </span><span class="n">poolProps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">};</span>
@@ -616,8 +590,7 @@ node on supported platforms etc.</p>
 <span class="n">cudaMemPoolCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">memPool</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">poolProps</span><span class="p">));</span>
 </pre></div>
 </div>
-<p>The following code snippet illustrates an example of creating an IPC capable
-memory pool on a valid CPU NUMA node.</p>
+<p>下面代码示例展示了在有效 CPU NUMA 节点上创建具备 IPC 能力的内存池。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// create a pool resident on a CPU NUMA node that is capable of IPC sharing (via a file descriptor).</span>
 <span class="kt">int</span><span class="w"> </span><span class="n">cpu_numa_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="n">cudaMemPoolProps</span><span class="w"> </span><span class="n">poolProps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">};</span>
@@ -631,26 +604,9 @@ memory pool on a valid CPU NUMA node.</p>
 </div>
 </section>
 <section id="device-accessibility-for-multi-gpu-support">
-<span id="stream-ordered-deviceaccessibility"></span><h3><span class="section-number">4.3.3.3. </span>Device Accessibility for Multi-GPU Support<a class="headerlink" href="stream-ordered-memory-allocation.html#device-accessibility-for-multi-gpu-support" title="Link to this heading">#</a></h3>
-<p>Like allocation accessibility controlled through the virtual memory
-management APIs, memory pool allocation accessibility does not follow
-<code class="docutils literal notranslate"><span class="pre">cudaDeviceEnablePeerAccess</span></code> or <code class="docutils literal notranslate"><span class="pre">cuCtxEnablePeerAccess</span></code>. For memory pools, the API
-<code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAccess</span></code> modifies what devices can access allocations from a
-pool. By default, allocations are accessible only from the device where the
-allocations are located. This access cannot be revoked. To enable access from
-other devices, the accessing device must be peer capable with the memory
-pool’s device. This can be verified with <code class="docutils literal notranslate"><span class="pre">cudaDeviceCanAccessPeer</span></code>. If the peer capability
-is not checked, the set access may fail with <code class="docutils literal notranslate"><span class="pre">cudaErrorInvalidDevice</span></code>. However, if no
-allocations had been made from the pool, the <code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAccess</span></code> call may
-succeed even when the devices are not peer capable. In this case, the next
-allocation from the pool will fail.</p>
-<p>It is worth noting that <code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAccess</span></code> affects all allocations from
-the memory pool, not just future ones. Likewise, the accessibility reported by
-<code class="docutils literal notranslate"><span class="pre">cudaMemPoolGetAccess</span></code> applies to all allocations from the pool, not just
-future ones. Changing the accessibility settings of a pool for a
-given GPU frequently is not recommended. That is, once a pool is made accessible from a
-given GPU, it should remain accessible from that GPU for the lifetime of the
-pool.</p>
+<span id="stream-ordered-deviceaccessibility"></span><h3><span class="section-number">4.3.3.3. </span>面向多 GPU 支持的设备可访问性<a class="headerlink" href="stream-ordered-memory-allocation.html#device-accessibility-for-multi-gpu-support" title="Link to this heading">#</a></h3>
+<p>与通过虚拟内存管理 API 控制分配可访问性类似，内存池分配可访问性并不遵循 <code class="docutils literal notranslate"><span class="pre">cudaDeviceEnablePeerAccess</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cuCtxEnablePeerAccess</span></code>。对内存池而言，<code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAccess</span></code> 用于修改哪些设备可访问该池分配。默认情况下，分配仅能被其所在设备访问，且此默认访问不可撤销。若要允许其他设备访问，访问设备必须与内存池所在设备具备 peer 能力，可用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceCanAccessPeer</span></code> 验证。若未检查 peer 能力，设置访问可能失败并返回 <code class="docutils literal notranslate"><span class="pre">cudaErrorInvalidDevice</span></code>。但若该池尚无分配，即使设备不具备 peer 能力，<code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAccess</span></code> 也可能暂时成功；这种情况下该池下一次分配会失败。</p>
+<p>需要注意，<code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAccess</span></code> 作用于该内存池的全部分配，而不仅是未来分配。类似地，<code class="docutils literal notranslate"><span class="pre">cudaMemPoolGetAccess</span></code> 报告的可访问性也适用于池内全部分配。对于某个 GPU，不建议频繁切换池可访问性设置。也就是说，一旦某池对某 GPU 开放访问，通常应在池生命周期内保持该可访问性。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// snippet showing usage of cudaMemPoolSetAccess:</span>
 <span class="n">cudaError_t</span><span class="w"> </span><span class="nf">setAccessOnDevice</span><span class="p">(</span><span class="n">cudaMemPool_t</span><span class="w"> </span><span class="n">memPool</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">residentDevice</span><span class="p">,</span>
 <span class="w">              </span><span class="kt">int</span><span class="w"> </span><span class="n">accessingDevice</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -675,30 +631,13 @@ pool.</p>
 </div>
 </section>
 <section id="enabling-memory-pools-for-ipc">
-<span id="stream-ordered-ipc-memory-pools"></span><h3><span class="section-number">4.3.3.4. </span>Enabling Memory Pools for IPC<a class="headerlink" href="stream-ordered-memory-allocation.html#enabling-memory-pools-for-ipc" title="Link to this heading">#</a></h3>
-<p>Memory pools can be enabled for interprocess communication (IPC) to
-allow easy, efficient and secure sharing of GPU
-memory between processes. CUDA’s IPC memory pools provide the same security
-benefits as CUDA’s <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/#virtual-memory-management">virtual memory management APIs</a>.</p>
-<p>There are two steps to sharing memory between processes with memory pools:
-the processes first needs to share access to the pool, then share specific
-allocations from that pool. The first step establishes and enforces security.
-The second step coordinates what virtual addresses are used in each process
-and when mappings need to be valid in the importing process.</p>
+<span id="stream-ordered-ipc-memory-pools"></span><h3><span class="section-number">4.3.3.4. </span>为 IPC 启用内存池<a class="headerlink" href="stream-ordered-memory-allocation.html#enabling-memory-pools-for-ipc" title="Link to this heading">#</a></h3>
+<p>内存池可启用进程间通信（IPC），以便在进程间便捷、高效且安全地共享 GPU 内存。CUDA 的 IPC 内存池提供与 CUDA <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/#virtual-memory-management">虚拟内存管理 API</a> 相同级别的安全收益。</p>
+<p>通过内存池在进程间共享内存分两步：先共享内存池访问权限，再共享该池中的具体分配。第一步用于建立并执行安全策略；第二步用于协调各进程使用的虚拟地址，以及导入进程中映射何时需要有效。</p>
 <section id="creating-and-sharing-ipc-memory-pools">
-<span id="stream-ordered-creating-and-sharing-ipc-memory-pools"></span><h4><span class="section-number">4.3.3.4.1. </span>Creating and Sharing IPC Memory Pools<a class="headerlink" href="stream-ordered-memory-allocation.html#creating-and-sharing-ipc-memory-pools" title="Link to this heading">#</a></h4>
-<p>Sharing access to a pool involves retrieving an OS-native handle to the pool
-with  <code class="docutils literal notranslate"><span class="pre">cudaMemPoolExportToShareableHandle()</span></code>, transferring the
-handle to the importing process using OS-native IPC mechanisms, and then
-creating an imported memory pool with the
-<code class="docutils literal notranslate"><span class="pre">cudaMemPoolImportFromShareableHandle()</span></code> API. For
-<code class="docutils literal notranslate"><span class="pre">cudaMemPoolExportToShareableHandle</span></code> to succeed, the memory pool must have been
-created with the requested handle type specified in the pool properties
-structure.</p>
-<p>Please reference <a class="reference external" href="https://github.com/NVIDIA/cuda-samples/tree/master/Samples/2_Concepts_and_Techniques/streamOrderedAllocationIPC">samples</a>
-for the appropriate IPC mechanisms to
-transfer the OS-native handle between processes. The rest of the procedure can
-be found in the following code snippets.</p>
+<span id="stream-ordered-creating-and-sharing-ipc-memory-pools"></span><h4><span class="section-number">4.3.3.4.1. </span>创建并共享 IPC 内存池<a class="headerlink" href="stream-ordered-memory-allocation.html#creating-and-sharing-ipc-memory-pools" title="Link to this heading">#</a></h4>
+<p>共享内存池访问权限的流程包括：通过 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolExportToShareableHandle()</span></code> 获取池的 OS 原生句柄；使用 OS 原生 IPC 机制将该句柄传给导入进程；再通过 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolImportFromShareableHandle()</span></code> 创建导入内存池。要让 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolExportToShareableHandle</span></code> 成功，内存池必须在创建时于池属性结构中指定所请求的句柄类型。</p>
+<p>请参考 <a class="reference external" href="https://github.com/NVIDIA/cuda-samples/tree/master/Samples/2_Concepts_and_Techniques/streamOrderedAllocationIPC">samples</a> 了解在进程间传递 OS 原生句柄所需的 IPC 机制。其余步骤可见下方代码片段。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// in exporting process</span>
 <span class="c1">// create an exportable IPC capable pool on device 0</span>
 <span class="n">cudaMemPoolProps</span><span class="w"> </span><span class="n">poolProps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">};</span>
