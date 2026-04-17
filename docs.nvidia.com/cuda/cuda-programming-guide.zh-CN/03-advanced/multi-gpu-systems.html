@@ -496,7 +496,7 @@
 <li><p>系统内所有处理器的统一内存寻址</p></li>
 <li><p>GPU 间点对点批量内存传输</p></li>
 <li><p>细粒度 GPU 点对点 load/store 内存访问</p></li>
-<li><p>Higher level abstractions and supporting system software such as CUDA interprocess communication, parallel reductions using <a class="reference external" href="https://developer.nvidia.com/nccl">NCCL</a>, and communication using NVLink and/or GPU-Direct RDMA with APIs such as <a class="reference external" href="https://developer.nvidia.com/nvshmem">NVSHMEM</a> and MPI</p></li>
+<li><p>更高层抽象与配套系统软件，例如 CUDA 进程间通信、使用 <a class="reference external" href="https://developer.nvidia.com/nccl">NCCL</a> 进行并行归约，以及通过 <a class="reference external" href="https://developer.nvidia.com/nvshmem">NVSHMEM</a>、MPI 等 API 利用 NVLink 和/或 GPU-Direct RDMA 进行通信</p></li>
 </ul>
 <p>在最基本层面，多 GPU 编程要求应用能够并发管理多个活动 CUDA 上下文、将数据分发到各 GPU、在 GPU 上启动内核完成计算，并进行结果通信或汇聚，以便应用后续处理。
 具体实现细节取决于如何将应用算法、可用并行性与现有代码结构高效映射到合适的多 GPU 编程方案。
@@ -508,42 +508,27 @@
 <li><p>多个包含多线程的主机进程分别驱动各自 GPU</p></li>
 <li><p>多节点 NVLink 互连集群，GPU 由跨节点多个操作系统实例中的线程与进程共同驱动</p></li>
 </ul>
-<p>GPUs can communicate with each other
-through memory transfers and peer accesses between device memories,
-covering each of the multi-device work distribution approaches listed above.
-High performance, low-latency GPU communications are supported
-by querying for and enabling the use of peer-to-peer GPU memory access,
-and leveraging NVLink to achieve high bandwidth transfers and
-finer-grained load/store operations between devices.</p>
-<p>CUDA unified virtual addressing permits communication between multiple GPUs
-within the same host process with minimal additional steps to query and enable
-the use of high performance peer-to-peer memory access and transfers,
-e.g., via NVLink.</p>
-<p>Communication between multiple GPUs managed by different host processes
-is supported through the use of interprocess communication (IPC) and
-Virtual memory Management (VMM) APIs.
-An introduction to high level IPC concepts and intra-node CUDA IPC APIs
-are discussed in the <a class="reference internal" href="../04-special-topics/inter-process-communication.html#interprocess-communication"><span class="std std-ref">Interprocess Communication</span></a> section.
-AdvancedVirtual Memory Management (VMM) APIs support both intra-node and
-multi-node IPC, are usable on both Linux and Windows
-operating systems, and allow per-allocation granularity control
-over IPC sharing of memory buffers as described in
-<a class="reference internal" href="../04-special-topics/virtual-memory-management.html#virtual-memory-management"><span class="std std-ref">Virtual Memory Management</span></a>.</p>
-<p>CUDA itself provides the APIs needed to implement collective operations
-within a group of GPUs, potentially including the host, but it does not
-provide high level multi-GPU collective APIs itself.
-Multi-GPU collectives are provided by higher abstraction CUDA communication
-libraries such as
+<p>GPU 之间可通过设备内存间的数据传输与点对点访问进行通信，
+覆盖上文列出的各种多设备任务分配方式。
+通过查询并启用 GPU 点对点内存访问，再结合 NVLink，
+可以实现高带宽传输以及设备间更细粒度的 load/store 操作，
+从而获得高性能、低时延的 GPU 通信能力。</p>
+<p>CUDA 统一虚拟寻址允许同一主机进程内的多个 GPU 进行通信，
+只需极少额外步骤即可查询并启用高性能点对点内存访问与传输（例如经由 NVLink）。</p>
+<p>由不同主机进程管理的多个 GPU 之间通信，可通过进程间通信（IPC）与虚拟内存管理（VMM）API 实现。
+高层 IPC 概念及节点内 CUDA IPC API 的介绍见<a class="reference internal" href="../04-special-topics/inter-process-communication.html#interprocess-communication"><span class="std std-ref">进程间通信</span></a>章节。
+高级虚拟内存管理（VMM）API 同时支持节点内与多节点 IPC，可用于 Linux 与 Windows，并可按分配粒度控制内存缓冲区的 IPC 共享，详见<a class="reference internal" href="../04-special-topics/virtual-memory-management.html#virtual-memory-management"><span class="std std-ref">虚拟内存管理</span></a>。</p>
+<p>CUDA 本身提供了在一组 GPU（以及可能包含主机）内实现集合通信所需的 API，
+但并不直接提供高层多 GPU 集合通信 API。
+多 GPU 集合通信通常由更高抽象层的 CUDA 通信库提供，例如
 <a class="reference external" href="https://developer.nvidia.com/nccl">NCCL</a>
-and
-<a class="reference external" href="https://developer.nvidia.com/nvshmem">NVSHMEM</a>.</p>
+和
+<a class="reference external" href="https://developer.nvidia.com/nvshmem">NVSHMEM</a>。</p>
 <section id="multi-device-context-and-execution-management">
 <span id="multi-gpu-context-execution"></span><h2><span class="section-number">3.4.1. </span>多设备上下文与执行管理<a class="headerlink" href="multi-gpu-systems.html#multi-device-context-and-execution-management" title="跳转到此标题">#</a></h2>
-<p>The first steps that are required to for an application to use multiple GPUs
-are to enumerate the available GPU devices,
-select among the available devices as appropriate based on their
-hardware properties, CPU affinity, and connectivity to peers,
-and to create CUDA contexts for each device that the application will use.</p>
+<p>应用使用多 GPU 的第一步通常是：枚举可用 GPU 设备；
+根据硬件属性、CPU 亲和性及与其他设备的互连关系选择合适设备；
+并为应用将使用的每个设备创建 CUDA 上下文。</p>
 <section id="device-enumeration">
 <span id="multi-gpu-device-enumeration"></span><h3><span class="section-number">3.4.1.1. </span>设备枚举<a class="headerlink" href="multi-gpu-systems.html#device-enumeration" title="跳转到此标题">#</a></h3>
 <p>以下代码示例展示如何查询支持 CUDA 的设备数量、遍历各设备并读取其属性。</p>
@@ -580,7 +565,7 @@ and to create CUDA contexts for each device that the application will use.</p>
 </section>
 <section id="multi-device-stream-event-and-memory-copy-behavior">
 <span id="multi-gpu-stream-and-event-behavior"></span><h3><span class="section-number">3.4.1.3. </span>多设备流、事件与内存拷贝行为<a class="headerlink" href="multi-gpu-systems.html#multi-device-stream-event-and-memory-copy-behavior" title="跳转到此标题">#</a></h3>
-<p>A kernel launch will fail if it is issued to a stream that is not associated to the current device as illustrated in the following code sample.</p>
+<p>如果将内核启动提交到与当前设备无关联的流中，启动会失败，如下代码示例所示。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaSetDevice</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w">               </span><span class="c1">// Set device 0 as current</span>
 <span class="n">cudaStream_t</span><span class="w"> </span><span class="n">s0</span><span class="p">;</span>
 <span class="n">cudaStreamCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">s0</span><span class="p">);</span><span class="w">          </span><span class="c1">// Create stream s0 on device 0</span>
@@ -595,23 +580,21 @@ and to create CUDA contexts for each device that the application will use.</p>
 <span class="n">MyKernel</span><span class="o">&lt;&lt;&lt;</span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">s0</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span><span class="w"> </span><span class="c1">// Launch kernel on device 1 in s0</span>
 </pre></div>
 </div>
-<p>A memory copy will succeed even if it is issued to a stream that is not associated to the current device.</p>
+<p>即使内存拷贝提交到与当前设备无关联的流中，也会成功。</p>
 <p><code class="docutils literal notranslate"><span class="pre">cudaEventRecord()</span></code> will fail if the input event and input stream are associated to different devices.</p>
 <p><code class="docutils literal notranslate"><span class="pre">cudaEventElapsedTime()</span></code> will fail if the two input events are associated to different devices.</p>
 <p><code class="docutils literal notranslate"><span class="pre">cudaEventSynchronize()</span></code> and <code class="docutils literal notranslate"><span class="pre">cudaEventQuery()</span></code> will succeed even if the input event is associated to a device that is different from the current device.</p>
 <p><code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code> will succeed even if the input stream and input event are associated to different devices. <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code> can therefore be used to synchronize multiple devices with each other.</p>
-<p>Each device has its own <a class="reference internal" href="../02-basics/asynchronous-execution.html#async-execution-blocking-non-blocking-default-stream"><span class="std std-ref">default stream</span></a>, so commands issued to the default stream of a device may execute out of order or concurrently with respect to commands issued to the default stream of any other device.</p>
+<p>每个设备都有自己的<a class="reference internal" href="../02-basics/asynchronous-execution.html#async-execution-blocking-non-blocking-default-stream"><span class="std std-ref">默认流</span></a>，因此某设备默认流上的命令相对于其他设备默认流上的命令，可能乱序执行或并发执行。</p>
 </section>
 </section>
 <section id="multi-device-peer-to-peer-transfers-and-memory-access">
 <span id="multi-gpu-peer-memory-access"></span><h2><span class="section-number">3.4.2. </span>多设备点对点传输与内存访问<a class="headerlink" href="multi-gpu-systems.html#multi-device-peer-to-peer-transfers-and-memory-access" title="跳转到此标题">#</a></h2>
 <section id="peer-to-peer-memory-transfers">
 <span id="multi-gpu-peer-to-peer-transfers"></span><h3><span class="section-number">3.4.2.1. </span>点对点内存传输<a class="headerlink" href="multi-gpu-systems.html#peer-to-peer-memory-transfers" title="跳转到此标题">#</a></h3>
-<p>CUDA can perform memory transfers between devices and will take advantage
-of dedicated copy engines and NVLink hardware to maximize performance
-when peer-to-peer memory access is possible.</p>
+<p>CUDA 可以执行设备间内存传输；在可进行点对点内存访问时，会利用专用拷贝引擎与 NVLink 硬件以最大化性能。</p>
 <p><code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code> can be used with the copy type <code class="docutils literal notranslate"><span class="pre">cudaMemcpyDeviceToDevice</span></code> or <code class="docutils literal notranslate"><span class="pre">cudaMemcpyDefault</span></code>.</p>
-<p>Otherwise, copies must be performed using <code class="docutils literal notranslate"><span class="pre">cudaMemcpyPeer()</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaMemcpyPeerAsync()</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaMemcpy3DPeer()</span></code>, or <code class="docutils literal notranslate"><span class="pre">cudaMemcpy3DPeerAsync()</span></code> as illustrated in the following code sample.</p>
+<p>否则，应使用 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyPeer()</span></code>、<code class="docutils literal notranslate"><span class="pre">cudaMemcpyPeerAsync()</span></code>、<code class="docutils literal notranslate"><span class="pre">cudaMemcpy3DPeer()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy3DPeerAsync()</span></code> 进行拷贝，如下代码示例所示。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaSetDevice</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w">                   </span><span class="c1">// Set device 0 as current</span>
 <span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">p0</span><span class="p">;</span>
 <span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1024</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">);</span>
@@ -629,20 +612,20 @@ when peer-to-peer memory access is possible.</p>
 <span class="n">MyKernel</span><span class="o">&lt;&lt;&lt;</span><span class="mi">1000</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">p1</span><span class="p">);</span><span class="w">        </span><span class="c1">// Launch kernel on device 1</span>
 </pre></div>
 </div>
-<p>A copy (in the implicit <em>NULL</em> stream) between the memories of two different devices:</p>
+<p>两个不同设备内存之间的拷贝（在隐式 <em>NULL</em> 流中）具有如下行为：</p>
 <ul class="simple">
-<li><p>does not start until all commands previously issued to either device have completed and</p></li>
-<li><p>runs to completion before any commands (see <a class="reference internal" href="../02-basics/asynchronous-execution.html#asynchronous-execution"><span class="std std-ref">Asynchronous Execution</span></a>) issued after the copy to either device can start.</p></li>
+<li><p>在任一设备上此前提交的所有命令完成之前不会开始；并且</p></li>
+<li><p>会先于拷贝后提交到任一设备的任何命令（参见<a class="reference internal" href="../02-basics/asynchronous-execution.html#asynchronous-execution"><span class="std std-ref">异步执行</span></a>）执行完毕。</p></li>
 </ul>
-<p>Consistent with the normal behavior of streams, an asynchronous copy between the memories of two devices may overlap with copies or kernels in another stream.</p>
-<p>If peer-to-peer access is enabled between two devices, e.g., as described in <a class="reference internal" href="multi-gpu-systems.html#multi-gpu-peer-to-peer-memory-access"><span class="std std-ref">点对点内存访问</span></a>, peer-to-peer memory copies between these two devices no longer need to be staged through the host and are therefore faster.</p>
+<p>与流的常规行为一致，两个设备内存间的异步拷贝可以与其他流中的拷贝或内核重叠执行。</p>
+<p>若两个设备间已启用点对点访问（例如按<a class="reference internal" href="multi-gpu-systems.html#multi-gpu-peer-to-peer-memory-access"><span class="std std-ref">点对点内存访问</span></a>所述），两者之间的点对点内存拷贝无需再经主机中转，因此速度更快。</p>
 </section>
 <section id="peer-to-peer-memory-access">
 <span id="multi-gpu-peer-to-peer-memory-access"></span><h3><span class="section-number">3.4.2.2. </span>点对点内存访问<a class="headerlink" href="multi-gpu-systems.html#peer-to-peer-memory-access" title="跳转到此标题">#</a></h3>
-<p>Depending on the system properties, specifically the PCIe and/or NVLink topology, devices are able to address each other’s memory (i.e., a kernel executing on one device can dereference a pointer to the memory of the other device).
-Peer-to-peer memory access is supported between two devices if <code class="docutils literal notranslate"><span class="pre">cudaDeviceCanAccessPeer()</span></code> returns true for the specified devices.</p>
-<p>Peer-to-peer memory access must be enabled between two devices by calling <code class="docutils literal notranslate"><span class="pre">cudaDeviceEnablePeerAccess()</span></code> as illustrated in the following code sample. On non-NVSwitch enabled systems, each device can support a system-wide maximum of eight peer connections.</p>
-<p>A unified virtual address space is used for both devices (see <a class="reference internal" href="../02-basics/understanding-memory.html#memory-unified-virtual-address-space"><span class="std std-ref">Unified Virtual Address Space</span></a>), so the same pointer can be used to address memory from both devices as shown in the code sample below.</p>
+<p>根据系统属性，尤其是 PCIe 和/或 NVLink 拓扑，不同设备可能能够互相寻址对方内存（即在一个设备上执行的内核可解引用指向另一设备内存的指针）。
+当 <code class="docutils literal notranslate"><span class="pre">cudaDeviceCanAccessPeer()</span></code> 对指定设备返回 true 时，这两个设备支持点对点内存访问。</p>
+<p>两个设备间的点对点内存访问必须通过调用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceEnablePeerAccess()</span></code> 启用，如下代码示例所示。在未启用 NVSwitch 的系统上，每个设备在全系统范围最多支持 8 个对等连接。</p>
+<p>两个设备使用统一虚拟地址空间（见<a class="reference internal" href="../02-basics/understanding-memory.html#memory-unified-virtual-address-space"><span class="std std-ref">统一虚拟地址空间</span></a>），因此如下面代码所示，可用同一指针访问两侧设备内存。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaSetDevice</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w">                   </span><span class="c1">// Set device 0 as current</span>
 <span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">p0</span><span class="p">;</span>
 <span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1024</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">);</span>
@@ -660,42 +643,35 @@ Peer-to-peer memory access is supported between two devices if <code class="docu
 </div>
 <div class="admonition note">
 <p class="admonition-title">注意</p>
-<p>The use of <code class="docutils literal notranslate"><span class="pre">cudaDeviceEnablePeerAccess()</span></code> to enable peer memory access operates globally on all previous and subsequent GPU memory allocations on the peer device.
-Enabling peer access to a device via <code class="docutils literal notranslate"><span class="pre">cudaDeviceEnablePeerAccess()</span></code> adds runtime cost to device memory allocation operations on that peer due to the need make the allocations immediately accessible to the current device and any other peers that also have access, adding multiplicative overhead that scales with the number of peer devices.</p>
-<p>A more scalable alternative to enabling peer memory access for all device memory allocations is to make use of CUDA Virtual Memory Management APIs to explicitly allocate peer-accessible memory regions only as-needed, at allocation time.
-By requesting peer-accessibility explicitly during memory allocation, the runtime cost of memory allocations are unharmed for allocations not accessible to peers, and peer-accessible data structures are correctly scoped for improved software debugging and reliability (see ref::<cite>virtual-memory-management</cite>).</p>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceEnablePeerAccess()</span></code> 启用点对点内存访问时，其作用范围覆盖该对等设备过去与未来的所有 GPU 内存分配。
+通过 <code class="docutils literal notranslate"><span class="pre">cudaDeviceEnablePeerAccess()</span></code> 启用设备对等访问，会给该对等设备上的内存分配带来额外运行时开销，因为这些分配需要立即对当前设备及其他已获访问权限的设备可见，且该开销会随对等设备数量增加而放大。</p>
+<p>相比对所有设备内存分配统一启用点对点访问，更可扩展的做法是使用 CUDA 虚拟内存管理 API，在分配时按需显式创建可对等访问的内存区域。
+通过在分配阶段显式声明对等可访问性，不需要对等访问的分配不会承担额外运行时开销，同时可对对等可访问数据结构进行更准确作用域管理，从而提升软件调试性与可靠性（见 ref::<cite>virtual-memory-management</cite>）。</p>
 </div>
 </section>
 <section id="peer-to-peer-memory-consistency">
 <span id="multi-gpu-peer-to-peer-memory-consistency-synchronization"></span><h3><span class="section-number">3.4.2.3. </span>点对点内存一致性<a class="headerlink" href="multi-gpu-systems.html#peer-to-peer-memory-consistency" title="跳转到此标题">#</a></h3>
-<p>Synchronization operations must be used to enforce the ordering and
-correctness of memory accesses by concurrently executing threads in grids
-distributed across multiple devices.
-Threads synchronizing across devices operate at the <code class="docutils literal notranslate"><span class="pre">thread_scope_system</span></code>
-<a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_model.html#thread-scopes">synchronization scope</a>.
-Similarly, memory operations fall within
-the <code class="docutils literal notranslate"><span class="pre">thread_scope_system</span></code> <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/#memory-synchronization-domains">memory synchronization domain</a>.</p>
-<p>CUDA ref::<cite>atomic-functions</cite> can perform read-modify-write operations
-on an object in peer device memory when only a single GPU is
-accessing that object.
-The requirements and limitations for peer atomicity are described in the CUDA memory model <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_model.html#atomicity">atomicity requirements</a> discussion.</p>
+<p>必须使用同步操作来保证跨多个设备分布执行的网格中并发线程的内存访问顺序与正确性。
+跨设备同步的线程在 <code class="docutils literal notranslate"><span class="pre">thread_scope_system</span></code> <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_model.html#thread-scopes">同步作用域</a>内工作。
+同样，相关内存操作也属于 <code class="docutils literal notranslate"><span class="pre">thread_scope_system</span></code> <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/#memory-synchronization-domains">内存同步域</a>。</p>
+<p>CUDA ref::<cite>atomic-functions</cite> 可以在仅有单个 GPU 访问该对象时，对对等设备内存中的对象执行读-改-写操作。
+关于对等原子性的要求与限制，请参见 CUDA 内存模型中关于<a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_model.html#atomicity">原子性要求</a>的讨论。</p>
 </section>
 <section id="multi-device-managed-memory">
 <span id="multi-gpu-managed-memory"></span><h3><span class="section-number">3.4.2.4. </span>多设备托管内存<a class="headerlink" href="multi-gpu-systems.html#multi-device-managed-memory" title="跳转到此标题">#</a></h3>
-<p>Managed memory can be used on multi-GPU systems with peer-to-peer support.
-The detailed requirements for concurrent multi-device managed memory access
-and APIs for GPU-exclusive access to managed memory are described in <a class="reference internal" href="../04-special-topics/unified-memory.html#um-legacy-multi-gpu"><span class="std std-ref">Multi-GPU</span></a>.</p>
+<p>在支持点对点访问的多 GPU 系统上可使用托管内存。
+关于并发多设备托管内存访问的详细要求，以及 GPU 独占访问托管内存的 API，请参见 <a class="reference internal" href="../04-special-topics/unified-memory.html#um-legacy-multi-gpu"><span class="std std-ref">多 GPU</span></a>。</p>
 </section>
 <section id="host-iommu-hardware-pci-access-control-services-and-vms">
 <span id="multi-gpu-host-iommu-acs-vm"></span><h3><span class="section-number">3.4.2.5. </span>主机 IOMMU 硬件、PCI ACS 与虚拟机<a class="headerlink" href="multi-gpu-systems.html#host-iommu-hardware-pci-access-control-services-and-vms" title="跳转到此标题">#</a></h3>
-<p>On Linux specifically, CUDA and the display driver do not support IOMMU-enabled bare-metal PCIe peer-to-peer memory transfer.
-However, CUDA and the display driver do support IOMMU via virtual machine pass through.
-The IOMMU must be disabled when running Linux on a bare metal system to prevent silent device memory corruption.
-Conversely, the IOMMU should be enabled and the VFIO driver be used for PCIe pass through for virtual machines.</p>
-<p>On Windows the IOMMU limitation above does not exist.</p>
-<p>See also <a class="reference external" href="https://download.nvidia.com/XFree86/Linux-x86_64/510.85.02/README/dma_issues.html">Allocating DMA Buffers on 64-bit Platforms</a>.</p>
-<p>Additionally, PCI Access Control Services (ACS) can be enabled on systems that support IOMMU.
-The PCI ACS feature redirects all PCI point-to-point traffic through the CPU root complex, which can cause significant performance loss due to the reduction in overall bisection bandwidth.</p>
+<p>在 Linux 上，CUDA 与显示驱动不支持启用 IOMMU 的裸机 PCIe 点对点内存传输。
+但 CUDA 与显示驱动支持通过虚拟机直通方式使用 IOMMU。
+在裸机 Linux 系统上必须禁用 IOMMU，以防止设备内存发生静默损坏。
+相应地，在虚拟机 PCIe 直通场景中应启用 IOMMU 并使用 VFIO 驱动。</p>
+<p>在 Windows 上，不存在上述 IOMMU 限制。</p>
+<p>另见：<a class="reference external" href="https://download.nvidia.com/XFree86/Linux-x86_64/510.85.02/README/dma_issues.html">64 位平台上的 DMA 缓冲区分配</a>。</p>
+<p>此外，在支持 IOMMU 的系统上还可能启用 PCI Access Control Services（ACS）。
+PCI ACS 会将所有 PCI 点对点流量重定向到 CPU 根复合体，这会因整体双向带宽下降而导致显著性能损失。</p>
 </section>
 </section>
 </section>
