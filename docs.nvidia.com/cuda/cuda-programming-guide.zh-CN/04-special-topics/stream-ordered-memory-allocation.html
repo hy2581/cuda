@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>4.3. Stream-Ordered Memory Allocator &#8212; CUDA Programming Guide</title>
+    <title>4.3. 流有序内存分配器 &#8212; CUDA 编程指南</title>
   
   
   
@@ -75,8 +75,8 @@
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="4.4. Cooperative Groups" href="cooperative-groups.html" />
-    <link rel="prev" title="4.2. CUDA Graphs" href="cuda-graphs.html" />
+    <link rel="next" title="4.4. 协作组" href="cooperative-groups.html" />
+    <link rel="prev" title="4.2. CUDA 图" href="cuda-graphs.html" />
 
 <link rel="preload" as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png">
 
@@ -457,9 +457,9 @@
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">CUDA Programming Guide</a></li>
     
     
-    <li class="breadcrumb-item"><a href="../part4.html" class="nav-link"><span class="section-number">4. </span>CUDA Features</a></li>
+    <li class="breadcrumb-item"><a href="../part4.html" class="nav-link"><span class="section-number">4. </span>CUDA 特性</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">4.3. </span>Stream-Ordered Memory Allocator</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">4.3. </span>流有序内存分配器</span></li>
   </ul>
 </nav>
 </div>
@@ -488,67 +488,35 @@
                 <article class="bd-article">
                   
   <section id="stream-ordered-memory-allocator">
-<span id="id1"></span><h1><span class="section-number">4.3. </span>Stream-Ordered Memory Allocator<a class="headerlink" href="stream-ordered-memory-allocation.html#stream-ordered-memory-allocator" title="Link to this heading">#</a></h1>
+<span id="id1"></span><h1><span class="section-number">4.3. </span>流有序内存分配器<a class="headerlink" href="stream-ordered-memory-allocation.html#stream-ordered-memory-allocator" title="Link to this heading">#</a></h1>
 <section id="introduction">
-<span id="stream-ordered-memory-allocator-intro"></span><h2><span class="section-number">4.3.1. </span>Introduction<a class="headerlink" href="stream-ordered-memory-allocation.html#introduction" title="Link to this heading">#</a></h2>
-<p>Managing memory allocations using <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code> and <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code> causes the GPU
-to synchronize across all executing CUDA streams. The stream-ordered memory
-allocator enables applications to order memory allocation and deallocation
-with other work launched into a CUDA stream such as kernel launches and
-asynchronous copies. This improves application memory use by taking advantage
-of stream-ordering semantics to reuse memory allocations. The allocator also
-allows applications to control the allocator’s memory caching behavior. When
-set up with an appropriate release threshold, the caching behavior allows the
-allocator to avoid expensive calls into the OS when the application indicates
-it is willing to accept a bigger memory footprint. The allocator also supports
-easy and secure allocation sharing between processes.</p>
-<p>Stream-Ordered Memory Allocator:</p>
+<span id="stream-ordered-memory-allocator-intro"></span><h2><span class="section-number">4.3.1. </span>简介<a class="headerlink" href="stream-ordered-memory-allocation.html#introduction" title="Link to this heading">#</a></h2>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code> 管理内存分配，会导致 GPU 在所有正在执行的 CUDA 流之间发生同步。流有序内存分配器使应用能够将内存分配与释放，与同一 CUDA 流中的其他工作（如内核启动、异步拷贝）按顺序组织。借助流有序语义复用分配，可改进应用内存使用效率。该分配器还允许应用控制其内存缓存行为。设置合适释放阈值后，当应用愿意接受更大内存占用时，缓存机制可避免代价较高的 OS 调用。分配器还支持进程间便捷且安全的分配共享。</p>
+<p>流有序内存分配器：</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>Reduces the need for custom memory management abstractions, and makes it
-easier to create high-performance custom memory management for
-applications that need it.</p></li>
-<li><p>Enables multiple libraries to share a common memory pool managed by the
-driver. This can reduce excess memory consumption.</p></li>
-<li><p>Allows, the driver to perform optimizations based on its awareness of the
-allocator and other stream management APIs.</p></li>
+<li><p>减少对自定义内存管理抽象的依赖，并让有需求的应用更容易构建高性能的定制内存管理方案。</p></li>
+<li><p>支持多个库共享由驱动管理的统一内存池，从而降低冗余内存消耗。</p></li>
+<li><p>允许驱动基于其对分配器及其他流管理 API 的全局认知执行优化。</p></li>
 </ul>
 </div></blockquote>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Nsight Compute and the Next-Gen CUDA debugger is aware of the allocator
-since CUDA 11.3.</p>
+<p class="admonition-title">注意</p>
+<p>从 CUDA 11.3 开始，Nsight Compute 与下一代 CUDA 调试器已支持识别该分配器。</p>
 </div>
 </section>
 <section id="memory-management">
-<span id="stream-ordered-api-fundamentals"></span><h2><span class="section-number">4.3.2. </span>Memory Management<a class="headerlink" href="stream-ordered-memory-allocation.html#memory-management" title="Link to this heading">#</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> and <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code> are the APIs which enable stream-ordered memory management.
-<code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> returns an allocation and <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code> frees an
-allocation. Both APIs accept stream arguments to define when the allocation
-will become and stop being available for use.
-These functions allow memory operations to be tied to specific CUDA streams,
-enabling them to occur without blocking the host or other
-streams.  Application performance can be improved by avoiding potentially
-costly synchronization of <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code> and <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code>.</p>
-<p>These APIs can be used for further performance optimization through
-memory pools, which manage and reuse large blocks of memory for more efficient
-allocation and deallocation. Memory pools help reduce overhead and prevent
-fragmentation, improving performance in scenarios with frequent memory
-allocation operations.</p>
+<span id="stream-ordered-api-fundamentals"></span><h2><span class="section-number">4.3.2. </span>内存管理<a class="headerlink" href="stream-ordered-memory-allocation.html#memory-management" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code> 是实现流有序内存管理的核心 API。<code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 返回一段分配，<code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code> 释放该分配。两者都接收流参数，用于定义分配从何时开始可用、何时停止可用。这些函数可将内存操作绑定到特定 CUDA 流，从而在不阻塞主机或其他流的情况下执行。避免 <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code>/<code class="docutils literal notranslate"><span class="pre">cudaFree</span></code> 的高开销同步，可提升应用性能。</p>
+<p>这些 API 还可结合内存池实现进一步优化。内存池通过管理并复用大块内存，使分配与释放更高效。其有助于降低开销并减少碎片，在频繁分配场景下提升性能。</p>
 <section id="allocating-memory">
-<span id="stream-ordered-api-fundamentals-allocation"></span><h3><span class="section-number">4.3.2.1. </span>Allocating Memory<a class="headerlink" href="stream-ordered-memory-allocation.html#allocating-memory" title="Link to this heading">#</a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> function triggers asynchronous memory allocation on the
-GPU, linked to a specific CUDA stream. <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> allows memory
-allocation to occur without hindering the host or other
-streams, eliminating the need for expensive synchronization.</p>
+<span id="stream-ordered-api-fundamentals-allocation"></span><h3><span class="section-number">4.3.2.1. </span>分配内存<a class="headerlink" href="stream-ordered-memory-allocation.html#allocating-memory" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 会在 GPU 上触发异步内存分配，并与指定 CUDA 流绑定。借助该 API，可在不影响主机或其他流的前提下完成分配，避免昂贵同步。</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p><code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> ignores the current device/context when determining where
-the allocation will reside. Instead, <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> determines the
-appropriate device based on the specified memory pool or the supplied stream.</p>
+<p class="admonition-title">注意</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 在决定分配驻留位置时会忽略当前 device/context。它会根据指定内存池或给定流来确定目标设备。</p>
 </div>
-<p>The listing below illustrates a fundamental use pattern: the memory is
-allocated, used, and then freed back into the same stream.</p>
+<p>下面示例展示了基本用法：在同一流中完成分配、使用与释放。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">ptr</span><span class="p">;</span>
 <span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">512</span><span class="p">;</span>
 <span class="n">cudaMallocAsync</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamPerThread</span><span class="p">);</span>
@@ -559,23 +527,15 @@ allocated, used, and then freed back into the same stream.</p>
 </pre></div>
 </div>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>When accessing allocation from a stream other than the stream that made the allocation, the
-user must guarantee that the access occurs after the allocation
-operation, otherwise the behavior is undefined.</p>
+<p class="admonition-title">注意</p>
+<p>若在非分配流中访问该分配，用户必须保证访问发生在分配操作之后，否则行为未定义。</p>
 </div>
 </section>
 <section id="freeing-memory">
-<span id="stream-ordered-api-fundamentals-deallocation"></span><h3><span class="section-number">4.3.2.2. </span>Freeing Memory<a class="headerlink" href="stream-ordered-memory-allocation.html#freeing-memory" title="Link to this heading">#</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">cudaFreeAsync()</span></code> asynchronously frees device memory in a stream-ordered
-fashion, meaning the memory deallocation is assigned to a specific CUDA stream
-and does not block the host or other streams.</p>
-<p>The user must guarantee that the free operation happens after the allocation
-operation and any uses of the allocation. Any use of the allocation
-after the free operation starts results in undefined behavior.</p>
-<p>Events and/or stream synchronizing operations should be used to guarantee any
-access to the allocation from other streams is complete before the free operation
-begins, as illustrated in the following example.</p>
+<span id="stream-ordered-api-fundamentals-deallocation"></span><h3><span class="section-number">4.3.2.2. </span>释放内存<a class="headerlink" href="stream-ordered-memory-allocation.html#freeing-memory" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">cudaFreeAsync()</span></code> 以流有序方式异步释放设备内存，即释放动作绑定到特定 CUDA 流，不会阻塞主机或其他流。</p>
+<p>用户必须保证释放操作发生在分配操作及所有使用该分配的操作之后。释放开始后再访问该分配会导致未定义行为。</p>
+<p>应使用事件和/或流同步操作，保证来自其他流的访问在释放开始前全部完成，如下例所示。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaMallocAsync</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">stream1</span><span class="p">);</span>
 <span class="n">cudaEventRecord</span><span class="p">(</span><span class="n">event1</span><span class="p">,</span><span class="w"> </span><span class="n">stream1</span><span class="p">);</span>
 <span class="c1">//stream2 must wait for the allocation to be ready before accessing</span>
@@ -588,21 +548,13 @@ begins, as illustrated in the following example.</p>
 <span class="n">cudaFreeAsync</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">stream3</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>Memory allocated with <code class="docutils literal notranslate"><span class="pre">cudaMalloc()</span></code> can be freed with with
-<code class="docutils literal notranslate"><span class="pre">cudaFreeAsync()</span></code>. As above, all accesses to the memory must be
-complete before the free operation begins.</p>
+<p>由 <code class="docutils literal notranslate"><span class="pre">cudaMalloc()</span></code> 分配的内存也可通过 <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync()</span></code> 释放。同样，释放开始前必须确保所有访问已完成。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
 <span class="n">kernel</span><span class="o">&lt;&lt;&lt;</span><span class="p">...,</span><span class="w"> </span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
 <span class="n">cudaFreeAsync</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>Likewise, memory allocated with <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> can be freed with
-<code class="docutils literal notranslate"><span class="pre">cudaFree()</span></code>. When freeing such allocations through the <code class="docutils literal notranslate"><span class="pre">cudaFree()</span></code> API,
-the driver assumes that all accesses to the allocation are complete and
-performs no further synchronization. The user can use <code class="docutils literal notranslate"><span class="pre">cudaStreamQuery</span></code> /
-<code class="docutils literal notranslate"><span class="pre">cudaStreamSynchronize</span></code> / <code class="docutils literal notranslate"><span class="pre">cudaEventQuery</span></code> / <code class="docutils literal notranslate"><span class="pre">cudaEventSynchronize</span></code> /
-<code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize</span></code> to guarantee that the appropriate asynchronous work
-is complete and that the GPU will not try to access the allocation.</p>
+<p>同样地，由 <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 分配的内存也可用 <code class="docutils literal notranslate"><span class="pre">cudaFree()</span></code> 释放。通过 <code class="docutils literal notranslate"><span class="pre">cudaFree()</span></code> 释放这类分配时，驱动会假定所有访问已完成，不再额外同步。用户可通过 <code class="docutils literal notranslate"><span class="pre">cudaStreamQuery</span></code> / <code class="docutils literal notranslate"><span class="pre">cudaStreamSynchronize</span></code> / <code class="docutils literal notranslate"><span class="pre">cudaEventQuery</span></code> / <code class="docutils literal notranslate"><span class="pre">cudaEventSynchronize</span></code> / <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize</span></code> 保证相应异步工作已完成，且 GPU 不会再访问该分配。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaMallocAsync</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="n">stream</span><span class="p">);</span>
 <span class="n">kernel</span><span class="o">&lt;&lt;&lt;</span><span class="p">...,</span><span class="w"> </span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
 <span class="c1">// synchronize is needed to avoid prematurely freeing the memory</span>
@@ -631,7 +583,7 @@ it as the current pool. The APIs <code class="docutils literal notranslate"><spa
 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolCreate</span></code> return handles to memory pools. <code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAttribute</span></code>
 and <code class="docutils literal notranslate"><span class="pre">cudaMemPoolGetAttribute</span></code> control the attributes of memory pools.</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
+<p class="admonition-title">注意</p>
 <p>The mempool current to a device will be local to that device. So allocating
 without specifying a memory pool will always yield an allocation local to
 the stream’s device.</p>
