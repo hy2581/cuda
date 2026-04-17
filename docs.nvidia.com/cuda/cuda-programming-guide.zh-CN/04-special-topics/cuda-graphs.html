@@ -488,29 +488,29 @@
                 <article class="bd-article">
                   
   <section id="cuda-graphs">
-<span id="id1"></span><h1><span class="section-number">4.2. </span>CUDA Graphs<a class="headerlink" href="cuda-graphs.html#cuda-graphs" title="Link to this heading">#</a></h1>
-<p>CUDA Graphs present another model for work submission in CUDA. A graph is a series of operations such as kernel launches, data movement, etc., connected by dependencies, which is defined separately from its execution. This allows a graph to be defined once and then launched repeatedly. Separating out the definition of a graph from its execution enables a number of optimizations: first, CPU launch costs are reduced compared to streams, because much of the setup is done in advance; second, presenting the whole workflow to CUDA enables optimizations which might not be possible with the piecewise work submission mechanism of streams.</p>
-<p>To see the optimizations possible with graphs, consider what happens in a stream: when you place a kernel into a stream, the host driver performs a sequence of operations in preparation for the execution of the kernel on the GPU. These operations, necessary for setting up and launching the kernel, are an overhead cost which must be paid for each kernel that is issued. For a GPU kernel with a short execution time, this overhead cost can be a significant fraction of the overall end-to-end execution time.  By creating a CUDA graph that encompasses a workflow that will be launched many times, these overhead costs can be paid once for the entire graph during instantiation, and the graph itself can then be launched repeatedly with very little overhead.</p>
+<span id="id1"></span><h1><span class="section-number">4.2. </span>CUDA 图<a class="headerlink" href="cuda-graphs.html#cuda-graphs" title="Link to this heading">#</a></h1>
+<p>CUDA 图为 CUDA 中的工作提交提供了另一种模型。图由一系列操作（如 kernel 启动、数据搬运等）及其依赖关系构成，并且其定义与执行相分离。这样图可以定义一次、反复启动。将“图定义”与“图执行”分离可带来多项优化：其一，由于大量准备工作提前完成，相比流可降低 CPU 启动开销；其二，向 CUDA 提供完整工作流后，可启用一些在流的分段提交机制下难以实现的优化。</p>
+<p>要理解图可实现的优化，可以先看流中的情形：当你把一个 kernel 放入流时，主机驱动会执行一系列准备步骤，以便在 GPU 上执行该 kernel。这些设置与启动所需操作属于每次发射 kernel 都必须支付的开销。对于执行时间很短的 GPU kernel，这类开销可能占端到端总时长的很大比例。若把会被重复启动的完整工作流封装为 CUDA 图，就可以在实例化阶段为整张图一次性支付这些开销，之后图本身可用极低额外开销反复启动。</p>
 <section id="graph-structure">
-<span id="cuda-graphs-graph-structure"></span><h2><span class="section-number">4.2.1. </span>Graph Structure<a class="headerlink" href="cuda-graphs.html#graph-structure" title="Link to this heading">#</a></h2>
-<p>An operation forms a node in a graph. The dependencies between the operations are the edges. These dependencies constrain the execution sequence of the operations.</p>
-<p>An operation may be scheduled at any time once the nodes on which it depends are complete. Scheduling is left up to the CUDA system.</p>
+<span id="cuda-graphs-graph-structure"></span><h2><span class="section-number">4.2.1. </span>图结构<a class="headerlink" href="cuda-graphs.html#graph-structure" title="Link to this heading">#</a></h2>
+<p>图中的一个操作对应一个节点，操作之间的依赖关系对应边。这些依赖关系约束了操作的执行顺序。</p>
+<p>当某操作所依赖节点都完成后，该操作可在任意时机被调度执行。具体调度由 CUDA 系统负责。</p>
 <section id="node-types">
-<span id="cuda-graphs-node-types"></span><h3><span class="section-number">4.2.1.1. </span>Node Types<a class="headerlink" href="cuda-graphs.html#node-types" title="Link to this heading">#</a></h3>
-<p>A graph node can be one of:</p>
+<span id="cuda-graphs-node-types"></span><h3><span class="section-number">4.2.1.1. </span>节点类型<a class="headerlink" href="cuda-graphs.html#node-types" title="Link to this heading">#</a></h3>
+<p>图节点可以是以下类型之一：</p>
 <ul class="simple">
 <li><p>kernel</p></li>
-<li><p>CPU function call</p></li>
-<li><p>memory copy</p></li>
+<li><p>CPU 函数调用</p></li>
+<li><p>内存拷贝</p></li>
 <li><p>memset</p></li>
-<li><p>empty node</p></li>
+<li><p>空节点</p></li>
 <li><p>waiting on a <a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-events"><span class="std std-ref">CUDA Event</span></a></p></li>
 <li><p>recording a <a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-events"><span class="std std-ref">CUDA Event</span></a></p></li>
 <li><p>signalling an <a class="reference internal" href="graphics-interop.html#external-resource-interoperability"><span class="std std-ref">external semaphore</span></a></p></li>
 <li><p>waiting on an <a class="reference internal" href="graphics-interop.html#external-resource-interoperability"><span class="std std-ref">external semaphore</span></a></p></li>
 <li><p><a class="reference internal" href="cuda-graphs.html#cuda-graphs-conditional-graph-nodes"><span class="std std-ref">conditional node</span></a></p></li>
 <li><p><a class="reference internal" href="cuda-graphs.html#cuda-graphs-graph-memory-nodes"><span class="std std-ref">memory node</span></a></p></li>
-<li><p>child graph: To execute a separate nested graph, as shown in the following figure.</p></li>
+<li><p>子图：用于执行独立嵌套图，如下图所示。</p></li>
 </ul>
 <figure class="align-center" id="cuda-graphs-node-types-fig-child-graph">
 <a class="reference internal image-reference" href="../_images/child-graph.png"><img alt="Child Graph Example" src="../_images/child-graph.png" style="width: 200px;" />
@@ -521,7 +521,7 @@
 </figure>
 </section>
 <section id="edge-data">
-<span id="cuda-graphs-edge-data"></span><h3><span class="section-number">4.2.1.2. </span>Edge Data<a class="headerlink" href="cuda-graphs.html#edge-data" title="Link to this heading">#</a></h3>
+<span id="cuda-graphs-edge-data"></span><h3><span class="section-number">4.2.1.2. </span>边数据<a class="headerlink" href="cuda-graphs.html#edge-data" title="Link to this heading">#</a></h3>
 <p>CUDA 12.3 introduced edge data on CUDA Graphs. At this time, the only use for non-default edge data is enabling
 <a class="reference internal" href="programmatic-dependent-launch.html#programmatic-dependent-launch-and-synchronization"><span class="std std-ref">Programmatic Dependent Launch</span></a>.</p>
 <p>Generally speaking, edge data modifies a dependency specified by an edge and consists of three parts:
@@ -543,18 +543,18 @@ one non-default dependency type, <code class="docutils literal notranslate"><spa
 </section>
 </section>
 <section id="building-and-running-graphs">
-<span id="cuda-graphs-building-and-running-graphs"></span><h2><span class="section-number">4.2.2. </span>Building and Running Graphs<a class="headerlink" href="cuda-graphs.html#building-and-running-graphs" title="Link to this heading">#</a></h2>
-<p>Work submission using graphs is separated into three distinct stages: definition, instantiation, and execution.</p>
+<span id="cuda-graphs-building-and-running-graphs"></span><h2><span class="section-number">4.2.2. </span>图的构建与运行<a class="headerlink" href="cuda-graphs.html#building-and-running-graphs" title="Link to this heading">#</a></h2>
+<p>使用图进行工作提交可分为三个明确阶段：定义、实例化、执行。</p>
 <ul class="simple">
 <li><p>During the <strong>definition</strong> or <strong>creation</strong> phase, a program creates a description of the operations in the graph along with the dependencies between them.</p></li>
 <li><p><strong>Instantiation</strong> takes a snapshot of the graph template, validates it, and performs much of the setup and initialization of work with the aim of minimizing what needs to be done at launch. The resulting instance is known as an <em>executable graph.</em></p></li>
 <li><p>An <strong>executable</strong> graph may be launched into a stream, similar to any other CUDA work. It may be launched any number of times without repeating the instantiation.</p></li>
 </ul>
 <section id="graph-creation">
-<span id="cuda-graphs-graph-creation-methods"></span><h3><span class="section-number">4.2.2.1. </span>Graph Creation<a class="headerlink" href="cuda-graphs.html#graph-creation" title="Link to this heading">#</a></h3>
-<p>Graphs can be created via two mechanisms: using the explicit Graph API and via stream capture.</p>
+<span id="cuda-graphs-graph-creation-methods"></span><h3><span class="section-number">4.2.2.1. </span>图创建<a class="headerlink" href="cuda-graphs.html#graph-creation" title="Link to this heading">#</a></h3>
+<p>图可通过两种机制创建：显式 Graph API 与流捕获。</p>
 <section id="graph-apis">
-<span id="cuda-graphs-creating-a-graph-using-graph-apis"></span><h4><span class="section-number">4.2.2.1.1. </span>Graph APIs<a class="headerlink" href="cuda-graphs.html#graph-apis" title="Link to this heading">#</a></h4>
+<span id="cuda-graphs-creating-a-graph-using-graph-apis"></span><h4><span class="section-number">4.2.2.1.1. </span>图 API<a class="headerlink" href="cuda-graphs.html#graph-apis" title="Link to this heading">#</a></h4>
 <p>The following is an example (omitting declarations and other boilerplate code) of creating the below graph.  Note the use of <code class="docutils literal notranslate"><span class="pre">cudaGraphCreate()</span></code> to create the graph and <code class="docutils literal notranslate"><span class="pre">cudaGraphAddNode()</span></code> to add the kernel nodes and their dependencies. <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html">The CUDA Runtime API documentation</a> lists all the functions available for adding nodes and dependencies.</p>
 <figure class="align-center" id="cuda-graphs-creating-a-graph-using-api-fig-creating-using-graph-apis">
 <a class="reference internal image-reference" href="../_images/create-a-graph.png"><img alt="Creating a Graph Using Graph APIs Example" src="../_images/create-a-graph.png" style="width: 200px;" />
@@ -582,7 +582,7 @@ one non-default dependency type, <code class="docutils literal notranslate"><spa
 <p>The example above shows four kernel nodes with dependencies between them to illustrate the creation of a very simple graph.  In a typical user application there would also need to be nodes added for memory operations, such as <code class="docutils literal notranslate"><span class="pre">cudaGraphAddMemcpyNode()</span></code> and the like.  For full reference of all graph API functions to add nodes, see <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html">The CUDA Runtime API documentation</a> .</p>
 </section>
 <section id="stream-capture">
-<span id="cuda-graphs-creating-a-graph-using-stream-capture"></span><h4><span class="section-number">4.2.2.1.2. </span>Stream Capture<a class="headerlink" href="cuda-graphs.html#stream-capture" title="Link to this heading">#</a></h4>
+<span id="cuda-graphs-creating-a-graph-using-stream-capture"></span><h4><span class="section-number">4.2.2.1.2. </span>流捕获<a class="headerlink" href="cuda-graphs.html#stream-capture" title="Link to this heading">#</a></h4>
 <p>Stream capture provides a mechanism to create a graph from existing stream-based APIs. A section of code which launches work into streams, including existing code, can be bracketed with calls to <code class="docutils literal notranslate"><span class="pre">cudaStreamBeginCapture()</span></code> and <code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code>. See below.</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="n">cudaGraph_t</span><span class="w"> </span><span class="n">graph</span><span class="p">;</span>
 
