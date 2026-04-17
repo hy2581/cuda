@@ -1037,22 +1037,22 @@ CUDA C primitives</label><div class="sd-tab-content docutils">
 </section>
 </section>
 <section id="asynchronous-data-copies">
-<span id="advanced-kernels-async-copies"></span><h2><span class="section-number">3.2.5. </span>Asynchronous Data Copies<a class="headerlink" href="advanced-kernel-programming.html#asynchronous-data-copies" title="跳转到此标题">#</a></h2>
-<p>Efficient data movement within the memory hierarchy is fundamental to achieving high performance in GPU computing. Traditional synchronous memory operations force threads to wait idle during data transfers. GPUs inherently hide memory latency through parallelism. That is, the SM switches to execute another warp while memory operations complete. Even with this latency hiding through parallelism, it is still possible for memory latency to be a bottleneck on both memory bandwidth utilization and compute resource efficiency. To address these bottlenecks, modern GPU architectures provide hardware-accelerated asynchronous data copy mechanisms that allow memory transfers to proceed independently while threads continue executing other work.</p>
-<p>Asynchronous data copies enable overlapping of computation with data movement, by decoupling the initiation of a memory transfer from waiting for its completion. This way, threads can perform useful work during memory latency periods, leading to improved overall throughput and resource utilization.</p>
+<span id="advanced-kernels-async-copies"></span><h2><span class="section-number">3.2.5. </span>异步数据拷贝<a class="headerlink" href="advanced-kernel-programming.html#asynchronous-data-copies" title="跳转到此标题">#</a></h2>
+<p>在内存层次中高效移动数据，是实现高性能 GPU 计算的基础。传统同步内存操作会让线程在数据传输期间空等。GPU 虽可借助并行性天然隐藏内存延迟（即在内存操作完成期间，SM 切换去执行其他 warp），但即便如此，内存延迟仍可能成为内存带宽利用率和计算资源效率的瓶颈。为解决这些瓶颈，现代 GPU 架构提供了硬件加速的异步数据拷贝机制，使数据传输可独立推进，同时线程继续执行其他工作。</p>
+<p>异步数据拷贝通过将“发起传输”与“等待传输完成”解耦，实现计算与数据移动重叠。这样线程可在内存延迟期间执行有用工作，从而提升整体吞吐与资源利用率。</p>
 <div class="admonition note">
 <p class="admonition-title">注意</p>
-<p>While concepts and principles underlying this section are similar to those discussed in the earlier chapter on <a class="reference internal" href="../02-basics/asynchronous-execution.html#asynchronous-execution"><span class="std std-ref">Asynchronous Execution</span></a>, that chapter covered asynchronous execution of kernels and memory transfers such as those invoked by <code class="docutils literal notranslate"><span class="pre">cudaMemcpyAsync</span></code>. That can be considered asynchrony of different components of the application.</p>
-<p>The asynchrony described in this section refers to enabling transfer of data between the GPU’s DRAM, i.e. global memory, and on-SM memory such as shared memory or tensor memory without blocking the GPU threads. This is an asynchrony within the execution of a single kernel launch.</p>
+<p>本节的概念与原理与前文<a class="reference internal" href="../02-basics/asynchronous-execution.html#asynchronous-execution"><span class="std std-ref">异步执行</span></a>一章相近，但那一章主要讨论 kernel 执行与 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyAsync</span></code> 等内存传输的异步行为，可视作应用不同组件之间的异步。</p>
+<p>本节所述异步是指：在不阻塞 GPU 线程的前提下，实现 GPU DRAM（即全局内存）与 SM 上内存（如共享内存或张量内存）之间的数据传输。这属于单次 kernel 启动内部的异步。</p>
 </div>
-<p>To understand how asynchronous copies can improve performance, it is helpful to examine a common GPU computing pattern. CUDA applications often employ a <em>copy and compute</em> pattern that:</p>
+<p>要理解异步拷贝为何能提升性能，可以先看一种常见的 GPU 计算模式。CUDA 应用常采用<em>复制并计算（copy and compute）</em>模式：</p>
 <ul class="simple">
-<li><p>fetches data from global memory,</p></li>
-<li><p>stores data to shared memory, and</p></li>
-<li><p>performs computations on shared memory data, and potentially writes results back to global memory.</p></li>
+<li><p>从全局内存取数，</p></li>
+<li><p>将数据写入共享内存，并且</p></li>
+<li><p>在共享内存数据上执行计算，并可能将结果写回全局内存。</p></li>
 </ul>
-<p>The <em>copy</em> phase of this pattern is typically expressed as <code class="docutils literal notranslate"><span class="pre">shared[local_idx]</span> <span class="pre">=</span> <span class="pre">global[global_idx]</span></code>. This global to shared memory copy is expanded by the compiler to a read from global memory into a register followed by a write to shared memory from the register.</p>
-<p>When this pattern occurs within an iterative algorithm, each thread block needs to synchronize after the <code class="docutils literal notranslate"><span class="pre">shared[local_idx]</span> <span class="pre">=</span> <span class="pre">global[global_idx]</span></code> assignment, to ensure all writes to shared memory have completed before the compute phase can begin. The thread block also needs to synchronize again after the compute phase, to prevent overwriting shared memory before all threads have completed their computations. This pattern is illustrated in the following code snippet.</p>
+<p>该模式的<em>复制</em>阶段通常写作 <code class="docutils literal notranslate"><span class="pre">shared[local_idx]</span> <span class="pre">=</span> <span class="pre">global[global_idx]</span></code>。这种从全局内存到共享内存的复制会被编译器展开为：先从全局内存读入寄存器，再由寄存器写入共享内存。</p>
+<p>当该模式出现在迭代算法中时，每个线程块都需要在 <code class="docutils literal notranslate"><span class="pre">shared[local_idx]</span> <span class="pre">=</span> <span class="pre">global[global_idx]</span></code> 赋值后进行同步，以保证计算阶段开始前共享内存写入已全部完成。计算阶段结束后还需再次同步，防止在所有线程完成计算前就覆盖共享内存。下方代码示例展示了这一模式。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cooperative_groups.h&gt;</span>
 
 <span class="n">__device__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">compute</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="w"> </span><span class="n">global_out</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="k">const</span><span class="o">*</span><span class="w"> </span><span class="n">shared_in</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -1087,7 +1087,7 @@ CUDA C primitives</label><div class="sd-tab-content docutils">
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>With asynchronous data copies, data movement from global memory to shared memory can be done asynchronously to enable more efficient use of the SM while waiting for data to arrive.</p>
+<p>使用异步数据拷贝后，从全局内存到共享内存的数据移动可异步执行，从而在等待数据到达期间更高效地利用 SM。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cooperative_groups.h&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cooperative_groups/memcpy_async.h&gt;</span>
 
@@ -1126,25 +1126,25 @@ CUDA C primitives</label><div class="sd-tab-content docutils">
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The <a class="reference internal" href="../05-appendices/device-callable-apis.html#cg-api-async-memcpy"><span class="std std-ref">cooperative_groups::memcpy_async</span></a> function copies <code class="docutils literal notranslate"><span class="pre">block.size()</span></code> elements from global memory to the <code class="docutils literal notranslate"><span class="pre">shared</span></code> data. This operation happens as-if performed by another thread, which synchronizes with the current thread’s call to <a class="reference internal" href="../05-appendices/device-callable-apis.html#cg-api-async-wait"><span class="std std-ref">cooperative_groups::wait</span></a> after the copy has completed. Until the copy operation completes, modifying the global data or reading or writing the shared data introduces a data race.</p>
-<p>This example illustrates the fundamental concept behind all asynchronous copy operations: they decouple memory transfer initiation from completion, allowing threads to perform other work while data moves in the background. The CUDA programming model provides several APIs to access these capabilities, including <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> functions available in <a class="reference internal" href="../05-appendices/device-callable-apis.html#cg-api-async-memcpy"><span class="std std-ref">Cooperative Groups</span></a> and the <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/asynchronous_operations/memcpy_async.html">libcu++</a> library, as well as lower-level <code class="docutils literal notranslate"><span class="pre">cuda::ptx</span></code> and primitives APIs. These APIs share similar semantics: they copy objects from source to destination as-if performed by another thread which, on completion of the copy, can be synchronized using different completion mechanisms.</p>
-<p>Modern GPU architectures provide multiple hardware mechanisms for asynchronous data movement.</p>
+<p><a class="reference internal" href="../05-appendices/device-callable-apis.html#cg-api-async-memcpy"><span class="std std-ref">cooperative_groups::memcpy_async</span></a> 会把 <code class="docutils literal notranslate"><span class="pre">block.size()</span></code> 个元素从全局内存复制到 <code class="docutils literal notranslate"><span class="pre">shared</span></code> 数据区。该操作可视为由“另一线程”执行，并在复制完成后与当前线程对 <a class="reference internal" href="../05-appendices/device-callable-apis.html#cg-api-async-wait"><span class="std std-ref">cooperative_groups::wait</span></a> 的调用同步。在复制完成前修改全局数据，或读写共享数据，都会引入数据竞争。</p>
+<p>该示例展示了所有异步拷贝操作背后的核心思想：将内存传输的发起与完成解耦，使线程可在后台搬运数据时执行其他工作。CUDA 编程模型提供了多套 API 来使用这一能力，包括 <a class="reference internal" href="../05-appendices/device-callable-apis.html#cg-api-async-memcpy"><span class="std std-ref">Cooperative Groups</span></a> 与 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/asynchronous_operations/memcpy_async.html">libcu++</a> 中的 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code>，以及更底层的 <code class="docutils literal notranslate"><span class="pre">cuda::ptx</span></code> 与原语 API。这些 API 语义相近：都将对象从源复制到目标，行为可视为由另一线程执行，并在复制完成后通过不同机制进行同步。</p>
+<p>现代 GPU 架构为异步数据搬运提供了多种硬件机制。</p>
 <ul class="simple">
-<li><p>LDGSTS (compute capability 8.0+) allows for efficient small-scale asynchronous transfers from global to shared memory.</p></li>
-<li><p>The tensor memory accelerator (TMA, compute capability 9.0+) extends these capabilities, providing bulk-asynchronous copy operations optimized for large multi-dimensional data transfers</p></li>
-<li><p>STAS instructions (compute capability 9.0+) enable small-scale asynchronous transfers from registers to distributed shared memory within a cluster.</p></li>
+<li><p>LDGSTS（计算能力 8.0+）支持从全局内存到共享内存的高效小规模异步传输。</p></li>
+<li><p>张量内存加速器（TMA，计算能力 9.0+）扩展了上述能力，提供针对大规模多维数据传输优化的批量异步拷贝操作。</p></li>
+<li><p>STAS 指令（计算能力 9.0+）支持在 cluster 内从寄存器到分布式共享内存的小规模异步传输。</p></li>
 </ul>
-<p>These mechanisms support different data paths, transfer sizes, and alignment requirements, allowing developers to choose the most appropriate approach for their specific data access patterns. The following table gives an overview of the supported data paths for asynchronous copies within the GPU.</p>
+<p>这些机制支持不同的数据路径、传输规模与对齐要求，使开发者可针对具体数据访问模式选择最合适的方法。下表概览了 GPU 内异步拷贝支持的数据路径。</p>
 <div class="pst-scrollable-table-container"><table class="small table table-center" id="table-async-source-dest-state-spaces">
-<caption><span class="caption-number">Table 5 </span><span class="caption-text">Asynchronous copies with possible source and destination memory spaces. An empty cell indicates that a source-destination pair is not supported.</span><a class="headerlink" href="advanced-kernel-programming.html#table-async-source-dest-state-spaces" title="Link to this table">#</a></caption>
+<caption><span class="caption-number">表 5 </span><span class="caption-text">异步拷贝可用的源与目标内存空间。空单元格表示该源-目标组合不受支持。</span><a class="headerlink" href="advanced-kernel-programming.html#table-async-source-dest-state-spaces" title="链接到该表">#</a></caption>
 <thead>
-<tr class="row-odd"><th class="head" colspan="2"><p>Direction</p></th>
-<th class="head" colspan="2"><p>Copy Mechanism</p></th>
+<tr class="row-odd"><th class="head" colspan="2"><p>方向</p></th>
+<th class="head" colspan="2"><p>拷贝机制</p></th>
 </tr>
-<tr class="row-even"><th class="head"><p>Source</p></th>
-<th class="head"><p>Destination</p></th>
-<th class="head"><p>Asynchronous Copy</p></th>
-<th class="head"><p>Bulk-Asynchronous Copy</p></th>
+<tr class="row-even"><th class="head"><p>源</p></th>
+<th class="head"><p>目标</p></th>
+<th class="head"><p>异步拷贝</p></th>
+<th class="head"><p>批量异步拷贝</p></th>
 </tr>
 </thead>
 <tbody>
@@ -1156,22 +1156,22 @@ CUDA C primitives</label><div class="sd-tab-content docutils">
 <tr class="row-even"><td><p>shared::cta</p></td>
 <td><p>global</p></td>
 <td></td>
-<td><p>supported (TMA, 9.0+)</p></td>
+<td><p>支持（TMA，9.0+）</p></td>
 </tr>
 <tr class="row-odd"><td><p>global</p></td>
 <td><p>shared::cta</p></td>
-<td><p>supported (LDGSTS, 8.0+)</p></td>
-<td><p>supported (TMA, 9.0+)</p></td>
+<td><p>支持（LDGSTS，8.0+）</p></td>
+<td><p>支持（TMA，9.0+）</p></td>
 </tr>
 <tr class="row-even"><td><p>global</p></td>
 <td><p>shared::cluster</p></td>
 <td></td>
-<td><p>supported (TMA, 9.0+)</p></td>
+<td><p>支持（TMA，9.0+）</p></td>
 </tr>
 <tr class="row-odd"><td><p>shared::cluster</p></td>
 <td><p>shared::cta</p></td>
 <td></td>
-<td><p>supported (TMA, 9.0+)</p></td>
+<td><p>支持（TMA，9.0+）</p></td>
 </tr>
 <tr class="row-even"><td><p>shared::cta</p></td>
 <td><p>shared::cta</p></td>
@@ -1180,13 +1180,13 @@ CUDA C primitives</label><div class="sd-tab-content docutils">
 </tr>
 <tr class="row-odd"><td><p>registers</p></td>
 <td><p>shared::cluster</p></td>
-<td><p>supported (STAS, 9.0+)</p></td>
+<td><p>支持（STAS，9.0+）</p></td>
 <td></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>Sections <a class="reference internal" href="../04-special-topics/async-copies.html#async-copies-ldgsts"><span class="std std-ref">Using LDGSTS</span></a>, <a class="reference internal" href="../04-special-topics/async-copies.html#async-copies-tma"><span class="std std-ref">Using the Tensor Memory Accelerator (TMA)</span></a> and <a class="reference internal" href="../04-special-topics/async-copies.html#async-copies-stas"><span class="std std-ref">Using STAS</span></a> will go into more details about each mechanism.</p>
+<p><a class="reference internal" href="../04-special-topics/async-copies.html#async-copies-ldgsts"><span class="std std-ref">使用 LDGSTS</span></a>、<a class="reference internal" href="../04-special-topics/async-copies.html#async-copies-tma"><span class="std std-ref">使用张量内存加速器（TMA）</span></a>与<a class="reference internal" href="../04-special-topics/async-copies.html#async-copies-stas"><span class="std std-ref">使用 STAS</span></a>章节将进一步详细介绍各机制。</p>
 </section>
 <section id="configuring-l1-shared-memory-balance">
 <span id="advanced-kernel-l1-shared-config"></span><h2><span class="section-number">3.2.6. </span>Configuring L1/Shared Memory Balance<a class="headerlink" href="advanced-kernel-programming.html#configuring-l1-shared-memory-balance" title="跳转到此标题">#</a></h2>
@@ -1291,14 +1291,14 @@ CUDA C primitives</label><div class="sd-tab-content docutils">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#advanced-synchronization-primitives">3.2.4. 高级同步原语</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#scoped-atomics">3.2.4.1. 作用域原子操作</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#thread-scope-and-memory-ordering">3.2.4.1.1. 线程作用域与内存顺序</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#performance-considerations">3.2.4.1.2. Performance Considerations</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#performance-considerations">3.2.4.1.2. 性能注意事项</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#asynchronous-barriers">3.2.4.2. Asynchronous Barriers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#asynchronous-barriers">3.2.4.2. 异步屏障</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#pipelines">3.2.4.3. Pipelines</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#asynchronous-data-copies">3.2.5. Asynchronous Data Copies</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#asynchronous-data-copies">3.2.5. 异步数据拷贝</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#configuring-l1-shared-memory-balance">3.2.6. Configuring L1/Shared Memory Balance</a></li>
 </ul>
   </nav></div>
