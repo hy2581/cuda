@@ -613,14 +613,13 @@
 </tbody>
 </table>
 </div>
-<p>For synchronization, i.e., to express dependencies, between CUDA streams, use of non-timing CUDA events is recommended, as described in <a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-events"><span class="std std-ref">CUDA Events</span></a>.
-A user can call <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code> to force future submitted operations on a specific stream to wait for the completion of a previously recorded event (e.g., on another stream).
-Note that for any CUDA API waiting or querying an event, it is the responsibility of the user to ensure the cudaEventRecord API has been already called,
-as a non-recorded event will always return success.</p>
-<p>CUDA events carry, by default, timing information, as they can be used in <code class="docutils literal notranslate"><span class="pre">cudaEventElapsedTime()</span></code> API calls.
-However, a CUDA event that is solely used to express dependencies across streams does not need timing information.
-For such cases, it is recommended to create events with timing information disabled for improved performance. This is possible using <code class="docutils literal notranslate"><span class="pre">cudaEventCreateWithFlags()</span></code> API
-with the <code class="docutils literal notranslate"><span class="pre">cudaEventDisableTiming</span></code> flag.</p>
+<p>在 CUDA 流之间做同步（即表达依赖关系）时，建议使用非计时事件，具体见 <a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-events"><span class="std std-ref">CUDA 事件</span></a>。
+用户可调用 <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code>，让某个特定流上后续提交的操作等待此前已记录事件（例如其他流上的事件）完成。
+请注意：对于任何等待或查询事件的 CUDA API，用户有责任确保已先调用 cudaEventRecord；
+未记录的事件总会返回 success。</p>
+<p>CUDA 事件默认携带计时信息，因为它们可用于 <code class="docutils literal notranslate"><span class="pre">cudaEventElapsedTime()</span></code>。
+但若事件仅用于表达流间依赖，则不需要计时信息。
+在这种情况下，为提升性能，建议创建“禁用计时”的事件。这可通过 <code class="docutils literal notranslate"><span class="pre">cudaEventCreateWithFlags()</span></code> 并指定 <code class="docutils literal notranslate"><span class="pre">cudaEventDisableTiming</span></code> 标志实现。</p>
 <section id="stream-priorities">
 <h3><span class="section-number">3.1.3.1. </span>流优先级<a class="headerlink" href="advanced-host-programming.html#stream-priorities" title="跳转到此标题">#</a></h3>
 <p>可在创建流时通过 <code class="docutils literal notranslate"><span class="pre">cudaStreamCreateWithPriority()</span></code> 指定流的相对优先级。允许优先级范围（按 [最高优先级, 最低优先级] 排序）可通过 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetStreamPriorityRange()</span></code> 获取。运行时 GPU 调度器会利用流优先级决定任务执行顺序，但这些优先级是提示而非保证。选择待启动工作时，高优先级流中的待执行任务优先于低优先级流中的任务。高优先级任务不会抢占已在运行的低优先级任务。GPU 在任务执行中不会重新评估工作队列，提高流优先级也不会打断正在执行的工作。流优先级可影响执行，但不强制严格顺序；用户应将其作为调度倾向，而非严格顺序保证。</p>
@@ -638,51 +637,49 @@ with the <code class="docutils literal notranslate"><span class="pre">cudaEventD
 </section>
 <section id="explicit-synchronization">
 <span id="advanced-host-explicit-synchronization"></span><h3><span class="section-number">3.1.3.2. </span>显式同步<a class="headerlink" href="advanced-host-programming.html#explicit-synchronization" title="跳转到此标题">#</a></h3>
-<p>As previously outlined, there are a number of ways that streams can synchronize with other streams. The following provides common methods at different levels of granularity:
-- <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code> waits until all preceding commands in all streams of all host threads have completed.
-- <code class="docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code>takes a stream as a parameter and waits until all preceding commands in the given stream have completed. It can be used to synchronize the host with a specific stream, allowing other streams to continue executing on the device.
-- <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code>takes a stream and an event as parameters (see <a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-events"><span class="std std-ref">CUDA Events</span></a> for a description of events) and makes all the commands added to the given stream after the call to <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code>delay their execution until the given event has completed.
-- <code class="docutils literal notranslate"><span class="pre">cudaStreamQuery()</span></code>provides applications with a way to know if all preceding commands in a stream have completed.</p>
+<p>如前所述，流与流之间可通过多种方式同步。按粒度不同，常见方法如下：
+- <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code>：等待所有主机线程的所有流中、此前提交的命令全部完成。
+- <code class="docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code>：以某个流为参数，等待该流中此前提交的命令完成。可用于仅同步主机与特定流，同时让设备上的其他流继续执行。
+- <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code>：以流和事件为参数（事件见<a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-events"><span class="std std-ref">CUDA 事件</span></a>），使该调用后加入该流的所有命令延迟执行，直到给定事件完成。
+- <code class="docutils literal notranslate"><span class="pre">cudaStreamQuery()</span></code>：用于查询某个流中此前命令是否已全部完成。</p>
 </section>
 <section id="implicit-synchronization">
 <span id="advanced-host-implicit-synchronization"></span><h3><span class="section-number">3.1.3.3. </span>隐式同步<a class="headerlink" href="advanced-host-programming.html#implicit-synchronization" title="跳转到此标题">#</a></h3>
-<p>Two commands from different streams cannot run concurrently if any one of the following operations is issued in-between them by the host thread:</p>
+<p>若主机线程在两条不同流的两条命令之间插入以下任一操作，这两条命令将无法并发运行：</p>
 <ul class="simple">
-<li><p>a page-locked host memory allocation</p></li>
-<li><p>a device memory allocation</p></li>
-<li><p>a device memory set</p></li>
-<li><p>a memory copy between two addresses to the same device memory</p></li>
-<li><p>any CUDA command to the NULL stream</p></li>
-<li><p>a switch between the L1/shared memory configurations</p></li>
+<li><p>分配页锁定（pinned）主机内存</p></li>
+<li><p>分配设备内存</p></li>
+<li><p>设备内存置值（memset）</p></li>
+<li><p>在同一设备内存上的两地址间执行内存拷贝</p></li>
+<li><p>向 NULL 流提交任意 CUDA 命令</p></li>
+<li><p>切换 L1/共享内存配置</p></li>
 </ul>
-<p>Operations that require a dependency check include any other commands within the same stream as the launch being checked
-and any call to <code class="docutils literal notranslate"><span class="pre">cudaStreamQuery()</span></code> on that stream. Therefore, applications should follow these guidelines to improve
-their potential for concurrent kernel execution:</p>
+<p>需要进行依赖检查的操作包括：与被检查 launch 同一流中的其他任意命令，以及在该流上对 <code class="docutils literal notranslate"><span class="pre">cudaStreamQuery()</span></code> 的任何调用。因此，为提升 kernel 并发执行潜力，应用应遵循以下准则：</p>
 <ul class="simple">
-<li><p>All independent operations should be issued before dependent operations,</p></li>
-<li><p>Synchronization of any kind should be delayed as long as possible.</p></li>
+<li><p>先提交所有独立操作，再提交依赖操作；</p></li>
+<li><p>尽可能推迟任何形式的同步。</p></li>
 </ul>
 <span class="target" id="overlapping-behavior"></span></section>
 </section>
 <section id="programmatic-dependent-kernel-launch">
 <h2><span class="section-number">3.1.4. </span>编程式依赖内核启动<a class="headerlink" href="advanced-host-programming.html#programmatic-dependent-kernel-launch" title="跳转到此标题">#</a></h2>
-<p>As we have discussed earlier, the semantics of CUDA Streams are such that kernels execute in order. This is so that if we have two successive kernels, where the second kernel depends on results from the first one, the programmer can be safe in the knowledge that by the time the second kernel starts executing the dependent data will be available. However, it may be the case that the first kernel can have the data on which a subsequent kernel depends already written to global memory and it still has more work to do. Likewise the dependent second kernel may have some independent work before it needs the data from the first kernel. In such a situation it is possible to partially overlap the execution of the two kernels (assuming that hardware resources are available). The overlapping can also overlap the launch overheads of the second kernel too. Other than the availability of hardware resources,the degree of overlap which can be achieved is dependent on the specific structure of the kernels, such as</p>
+<p>如前所述，CUDA 流的语义决定了 kernels 按顺序执行。这样当两个 kernel 连续执行且第二个依赖第一个结果时，程序员可以确信：第二个 kernel 开始执行时，其依赖数据已经就绪。但在某些情况下，第一个 kernel 可能已经把后续 kernel 依赖的数据写入全局内存，却仍有其他工作未完成；同样，第二个依赖 kernel 在真正使用这些数据前也可能有一部分独立工作可先执行。此时（在硬件资源允许的前提下）可让两个 kernel 的执行部分重叠，这种重叠还可覆盖第二个 kernel 的部分启动开销。除硬件资源可用性外，可实现的重叠程度还取决于 kernel 的具体结构，例如：</p>
 <ul class="simple">
-<li><p>when in its execution does the first kernel finish the work on which the second kernel depends?</p></li>
-<li><p>when in its execution does the second kernel start working on the data from the first kernel?</p></li>
+<li><p>第一个 kernel 在执行到何时完成了第二个 kernel 所依赖的工作？</p></li>
+<li><p>第二个 kernel 在执行到何时开始处理来自第一个 kernel 的数据？</p></li>
 </ul>
-<p>since this is very much dependent on the specific kernels in question it is difficult to automate completely and hence CUDA provides a mechanism to allow the application developer to specify the synchronization point between the two kernels. This is done via a technique known as 编程式依赖内核启动. The situation is depicted in the figure below.</p>
+<p>由于这高度依赖具体 kernel，很难完全自动化；因此 CUDA 提供了机制，允许应用开发者显式指定两个 kernel 之间的同步点。这一技术称为“编程式依赖内核启动（PDL）”。下图展示了该情形。</p>
 <figure class="align-center" id="figure-programmatic-dependent-launch">
 <a class="reference internal image-reference" href="../_images/pdl.png"><img alt="编程式依赖内核启动" src="../_images/pdl.png" style="width: 50%;" />
 </a>
 </figure>
-<p>PDL has three main components.</p>
+<p>PDL 主要包含三个组成部分：</p>
 <ol class="lowerroman simple">
-<li><p>The first kernel (the so called <em>primary kernel</em>) needs to call a special function to indicate that it is done with the everything that the subsequent dependent kernels (also called <em>secondary kernel</em>) will need. This is done by calling the function  <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaTriggerProgrammaticLaunchCompletion()</span></code>.</p></li>
-<li><p>In turn, the dependent secondary kernel needs to indicate that it has reached the portion of the its work which is independent of the primary kernel and that it is now waiting on the primary kernel to finish the work on which it depends. This is done with the function <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaGridDependencySynchronize()</span></code>.</p></li>
-<li><p>THe second kernel needs to be launched with a special attribute <cite>cudaLaunchAttributeProgrammaticStreamSerialization</cite> with its <cite>programmaticStreamSerializationAllowed</cite> field set to ‘1’.</p></li>
+<li><p>第一个 kernel（即 <em>primary kernel</em>）需要调用一个特殊函数，表明“后续依赖 kernel（即 <em>secondary kernel</em>）所需的数据/工作”已就绪。通过调用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaTriggerProgrammaticLaunchCompletion()</span></code> 实现。</p></li>
+<li><p>随后，依赖的 secondary kernel 需要表明自己已执行到“与 primary kernel 无关”的部分，并开始等待 primary kernel 完成其所依赖工作。通过 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaGridDependencySynchronize()</span></code> 实现。</p></li>
+<li><p>第二个 kernel 启动时需要附带特殊属性 <cite>cudaLaunchAttributeProgrammaticStreamSerialization</cite>，并将其 <cite>programmaticStreamSerializationAllowed</cite> 字段设为 ‘1’。</p></li>
 </ol>
-<p>The following code snippet shows an example of how this can be done.</p>
+<p>下面代码片段展示了实现方式示例。</p>
 <div class="literal-block-wrapper docutils container" id="pdl-example">
 <div class="code-block-caption"><span class="caption-number">Listing 3 </span><span class="caption-text">Example of 编程式依赖内核启动 with two Kernels</span><a class="headerlink" href="advanced-host-programming.html#pdl-example" title="Link to this code">#</a></div>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">primary_kernel</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
@@ -736,11 +733,11 @@ their potential for concurrent kernel execution:</p>
 </div>
 </section>
 <section id="batched-memory-transfers">
-<h2><span class="section-number">3.1.5. </span>Batched Memory Transfers<a class="headerlink" href="advanced-host-programming.html#batched-memory-transfers" title="跳转到此标题">#</a></h2>
-<p>A common pattern in CUDA development is to use a technique of batching. By batching we loosely mean that we have several (typically small)tasks grouped together into a single (typically bigger) operation. The components of the batch do not necessarily all have to be identical although they often are. An example of this idea is the batch matrix multiplication operation provided by cuBLAS.</p>
-<p>Generally as with CUDA Graphs, and PDL, the purpose of batching is to reduce overheads associated with dispatching the individual batch tasks separately. In terms of memory transfers launching a memory transfer can incur some CPU and driver overheads. Further, the regular <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyAsync()</span></code> function in its current form does not necessarily provide enough information for the driver to optimize the transfer, for example, in terms of hints about the source and destination. On Tegra platforms one has the choice of using SMs or Copy Engines (CEs)o perform transfers. The choice of which is currently specified by a heuristic in the driver. This can be important because using the SMs may result in a faster transfer, however it ties down some of the available compute power. On the other hand, using the CEs may result in a slower transfer but overall higher application performance, since it leaves the SMs free to perform other work.</p>
-<p>These considerations motivated the design of the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyBatchAsync()</span></code> function (and its relative <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyBatch3DAsync()</span></code>).  These functions allow batched memory transfers to be optimized. Apart from the lists of source and destination pointers, the API uses memory copy attributes to specify expectations of orderings, with hints for source and destination locations, as well as for whether one prefers to overlap the transfer with compute (something that is currently only supported on Tegra platforms with CEs).</p>
-<p>Let us first consider the simplest case of a simple batch transfer of data from pinned host memory to pinned device memory</p>
+<h2><span class="section-number">3.1.5. </span>批量内存传输<a class="headerlink" href="advanced-host-programming.html#batched-memory-transfers" title="跳转到此标题">#</a></h2>
+<p>CUDA 开发中的常见模式是“批处理（batching）”。所谓批处理，是将若干（通常较小）任务打包为一次（通常更大）操作。批内各组件不一定完全相同，尽管在实践中常常相似。cuBLAS 提供的批量矩阵乘法就是典型示例。</p>
+<p>与 CUDA 图和 PDL 类似，批处理的目标是降低将批内任务逐个分发带来的额外开销。就内存传输而言，单次传输启动会产生一定 CPU 与驱动开销。并且当前形态的常规 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyAsync()</span></code> 不一定为驱动提供足够信息来优化传输（例如源/目的位置提示）。在 Tegra 平台上，可选择用 SM 或拷贝引擎（CE）执行传输，当前由驱动启发式决定。该选择很关键：使用 SM 可能传输更快，但会占用部分计算能力；使用 CE 可能传输更慢，但因释放了 SM 去做其他工作，整体应用性能可能更高。</p>
+<p>基于上述考虑，设计了 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyBatchAsync()</span></code>（及其同类 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyBatch3DAsync()</span></code>）。这些函数允许对批量内存传输进行优化。除源/目的指针列表外，API 还通过内存拷贝属性描述顺序预期、源/目的位置提示，以及是否偏好“传输与计算重叠”（当前仅 Tegra + CE 支持）。</p>
+<p>先看最简单情形：从页锁定主机内存到页锁定设备内存的简单批量传输。</p>
 <div class="literal-block-wrapper docutils container" id="id1">
 <div class="code-block-caption"><span class="caption-number">Listing 4 </span><span class="caption-text">Example of Homogeneous Batched Memory Transfer from Pinned Host Memory to Pinned Device Memory</span><a class="headerlink" href="advanced-host-programming.html#id1" title="Link to this code">#</a></div>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">void</span><span class="w"> </span><span class="o">*&gt;</span><span class="w"> </span><span class="n">srcs</span><span class="p">(</span><span class="n">batch_size</span><span class="p">);</span>
@@ -768,11 +765,10 @@ their potential for concurrent kernel execution:</p>
 </pre></div>
 </div>
 </div>
-<p>The first few parameters to the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyBatchAsync()</span></code> function seem immediately sensible. The are comprised of arrays containing the source and destination pointers, as well as the transfer sizes. Each array has to have``batch_size`` elements. The new information comes from the attributes. The function needs a pointer to an array of attributes, and a corresponding array of attribute indices. In principle it is also possible to pass an array of <code class="docutils literal notranslate"><span class="pre">size_t</span></code> and in this array the indices of an failed transfers can be recorded, however it is safe to pass a <code class="docutils literal notranslate"><span class="pre">nullptr</span></code> here, in this case the indices of failures will simply not be recorded.</p>
-<p>Turning to the attributes, in this instance the transfers are homogeneous. So we use only one attribute, which will apply to
-all the transfers. This is controlled by the <cite>attrIndex</cite> parameter. In principle this can be an array. Element <em>i</em> of the array contains the index of the first transfer to which the <em>i</em>-th element of the attribute array applies.  In this case, <cite>attrIndex</cite> is treated as a single element array, with the value ‘0’ meaning that <code class="docutils literal notranslate"><span class="pre">attribute[0]</span></code> will apply to all transfers with index 0 and up, in other words all the transfers.</p>
-<p>Finally, we note that we have set the <code class="docutils literal notranslate"><span class="pre">srcAccessOrder</span></code> attribute to <code class="docutils literal notranslate"><span class="pre">cudaMemcpySrcAccessOrderStream</span></code>. This means that the source data will be accessed in regular stream order. In other words, the memcpy will block until previous kernels dealing with the data from any of these source and destination pointers are completed.</p>
-<p>In the next example we will consider a more complex case of a heterogeneous batch transfer.</p>
+<p><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyBatchAsync()</span></code> 的前几个参数直观易懂：分别是源指针数组、目标指针数组以及传输大小数组，每个数组都需包含 <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> 个元素。新增信息来自属性：函数需要属性数组指针及其对应的属性索引数组。原则上还可传入一个 <code class="docutils literal notranslate"><span class="pre">size_t</span></code> 数组记录失败传输的索引；若传 <code class="docutils literal notranslate"><span class="pre">nullptr</span></code> 也安全，只是不会记录失败索引。</p>
+<p>再看属性：此例中的传输是同质的，因此只用一个属性并应用于全部传输。其作用范围由 <cite>attrIndex</cite> 控制。原则上它可以是数组，数组第 <em>i</em> 个元素表示“属性数组第 <em>i</em> 项”开始生效的首个传输索引。本例将 <cite>attrIndex</cite> 视为单元素数组，值为 ‘0’，表示 <code class="docutils literal notranslate"><span class="pre">attribute[0]</span></code> 对索引 0 及之后的所有传输生效，即覆盖全部传输。</p>
+<p>最后，本例将 <code class="docutils literal notranslate"><span class="pre">srcAccessOrder</span></code> 设为 <code class="docutils literal notranslate"><span class="pre">cudaMemcpySrcAccessOrderStream</span></code>，表示源数据按常规流顺序访问。换言之，memcpy 会阻塞，直到此前处理这些源/目标指针对应数据的 kernel 完成。</p>
+<p>下一个示例展示更复杂的异质批量传输场景。</p>
 <div class="literal-block-wrapper docutils container" id="id2">
 <div class="code-block-caption"><span class="caption-number">Listing 5 </span><span class="caption-text">Example of Heterogeneous Batched Memory Transfer using some Ephemeral Host Memory to Pinned Device Memory</span><a class="headerlink" href="advanced-host-programming.html#id2" title="Link to this code">#</a></div>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">void</span><span class="w"> </span><span class="o">*&gt;</span><span class="w"> </span><span class="n">srcs</span><span class="p">(</span><span class="n">batch_size</span><span class="p">);</span>
@@ -807,11 +803,10 @@ all the transfers. This is controlled by the <cite>attrIndex</cite> parameter. I
 </pre></div>
 </div>
 </div>
-<p>Here we have two kinds of transfers: <code class="docutils literal notranslate"><span class="pre">batch_size-10</span></code> transfer from pinned host memory to pinned device memory,
-and 10 transfers from a host array to pinned device memory. Further, the <cite>buffer</cite> array is not only on the host but is only in existence in the current scope – its address is what is known as an <em>ephemeral pointer</em>. This pointer may not be valid after the API call completes (it is asynchronous). To perform the copies with such ephemeral pointers, the <cite>srcAccessOrder</cite> in the attribute must be set to  <cite>cudaMemcpySrcAccessOrderDuringApiCall</cite>.</p>
-<p>We now have two attributes, the first one applies to all transfers with indices starting at 0, and less than <code class="docutils literal notranslate"><span class="pre">batch_size-10</span></code>. The second one applies to all transfers with indices starting at <code class="docutils literal notranslate"><span class="pre">batch_size-10</span></code> and less than <code class="docutils literal notranslate"><span class="pre">batch_size</span></code>.</p>
-<p>If instead of allocating the <cite>buffer</cite> array from the stack, we had allocated it from the heap using <cite>malloc</cite> the data would not be ephemeral any more. It would be valid until the pointer was explicitly freed. In such a case the best option for how to stage the copies would depend on whether the system had hardware managed memory or coherent GPU access to host memory via address translation in which case it would be best to use stream ordering, or whether it did not in which case staging the transfers immediately would make most sense. In this situation, one should use the value <code class="docutils literal notranslate"><span class="pre">cudaMemcpyAccessOrderAny</span></code> for the <code class="docutils literal notranslate"><span class="pre">srcAccessOrder</span></code> of the attribute.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">cudaMemcpyBatchAsync</span></code> function also allows the programmer to provide hints about the source and destination locations. This is done by setting the <code class="docutils literal notranslate"><span class="pre">srcLocation</span></code> and <code class="docutils literal notranslate"><span class="pre">dstLocation</span></code> fields of the <code class="docutils literal notranslate"><span class="pre">cudaMemcpyAttributes</span></code> structure. The <code class="docutils literal notranslate"><span class="pre">srcLocation``and</span> <span class="pre">``dstLocation</span></code> fields are both of type <code class="docutils literal notranslate"><span class="pre">cudaMemLocation</span></code> which is a structure that contains the type of the location and the ID of the location. This is the same <code class="docutils literal notranslate"><span class="pre">cudaMemLocation</span></code> structure that can be used to give prefetching hints to the runtime when using <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemPrefetchAsync()</span></code>. We illustrate how to set up the hints for a transfer from the device, to a specific NUMA node of the host in the code example below:</p>
+<p>这里有两类传输：<code class="docutils literal notranslate"><span class="pre">batch_size-10</span></code> 次从页锁定主机内存到页锁定设备内存，以及 10 次从主机数组到页锁定设备内存。并且 <cite>buffer</cite> 数组不仅位于主机端，还只在当前作用域内存在——其地址属于所谓 <em>ephemeral pointer</em>（短生命周期指针）。由于 API 为异步调用，该指针在调用返回后可能失效。对这类指针做拷贝时，属性中的 <cite>srcAccessOrder</cite> 必须设为 <cite>cudaMemcpySrcAccessOrderDuringApiCall</cite>。</p>
+<p>此时我们有两个属性：第一个作用于索引从 0 到小于 <code class="docutils literal notranslate"><span class="pre">batch_size-10</span></code> 的传输；第二个作用于索引从 <code class="docutils literal notranslate"><span class="pre">batch_size-10</span></code> 到小于 <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> 的传输。</p>
+<p>如果 <cite>buffer</cite> 不是栈上分配而是用 <cite>malloc</cite> 在堆上分配，则其数据不再是 ephemeral，会一直有效直到显式释放指针。此时最佳分阶段策略取决于系统是否具备硬件托管内存，或能否通过地址转换实现 GPU 对主机内存的一致访问：若具备，宜采用流顺序；若不具备，则立即分阶段传输更合理。在这种场景下，属性的 <code class="docutils literal notranslate"><span class="pre">srcAccessOrder</span></code> 应使用 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyAccessOrderAny</span></code>。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaMemcpyBatchAsync</span></code> 还允许程序员提供源与目标位置提示。方法是在 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyAttributes</span></code> 结构中设置 <code class="docutils literal notranslate"><span class="pre">srcLocation</span></code> 与 <code class="docutils literal notranslate"><span class="pre">dstLocation</span></code> 字段。这两个字段均为 <code class="docutils literal notranslate"><span class="pre">cudaMemLocation</span></code> 类型，其中包含位置类型与位置 ID。该结构与 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemPrefetchAsync()</span></code> 使用的预取位置提示结构相同。下面代码示例展示了如何为“从设备传到主机特定 NUMA 节点”设置提示。</p>
 <div class="literal-block-wrapper docutils container" id="id3">
 <div class="code-block-caption"><span class="caption-number">Listing 6 </span><span class="caption-text">Example of Setting Source and Destination Location Hints</span><a class="headerlink" href="advanced-host-programming.html#id3" title="Link to this code">#</a></div>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// Allocate the source and destination buffers</span>
@@ -855,38 +850,30 @@ and 10 transfers from a host array to pinned device memory. Further, the <cite>b
 </pre></div>
 </div>
 </div>
-<p>THe last thing to cover is the flag for hinting whether we want to use SM’s or CEs for the transfers.
-The field for this is the  <code class="docutils literal notranslate"><span class="pre">cudaMemcpyAttributesflags::flags</span></code> and the possible values are:</p>
+<p>最后要说明的是：可通过标志位提示传输更倾向使用 SM 还是 CE。
+对应字段为 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyAttributesflags::flags</span></code>，可取值如下：</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">cudaMemcpyFlagDefault</span></code> – default behavior</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cudaMemcpyFlagPreferOverlapWithCompute</span></code> – this hints that the system should prefer to use CEs for the transfers overlapping the transfer with computations. This flag is ignored on non-Tegra platforms</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaMemcpyFlagDefault</span></code> - 默认行为</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaMemcpyFlagPreferOverlapWithCompute</span></code> - 提示系统优先使用 CE 来让传输与计算重叠。该标志在非 Tegra 平台会被忽略。</p></li>
 </ul>
-<p>In summary, the main points regarding “cudaMemcpyBatchAsync” are as follows:</p>
+<p>总结来说，关于 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyBatchAsync</span></code> 的要点如下：</p>
 <ul class="simple">
-<li><p>The <code class="docutils literal notranslate"><span class="pre">cudaMemcpyBatchAsync</span></code> function (and its 3D variant) allows the programmer to specify a batch of memory transfers, allowing the amortization of transfer setup overheads.</p></li>
-<li><p>Other than the source and destination pointers and the transfer sizes, the function can take one or more memory copy attributes providing information about the kind of memory being transferred and the corresponding stream ordering behavior of the source pointers, hints about the source and destination locations, and hints as to whether to prefer to overlap the transfer with compute (if possible) or whether to use SMs for the transfer.</p></li>
-<li><p>Given the above information the runtime can attempt to optimize the transfer to the maximum degree possible..</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaMemcpyBatchAsync</span></code>（及其 3D 变体）允许一次指定一批内存传输，从而摊销传输初始化开销。</p></li>
+<li><p>除源/目标指针和传输大小外，函数还能接收一个或多个拷贝属性，用于描述传输内存类型、源指针对应的流顺序行为、源/目标位置提示，以及是否偏好传输与计算重叠（若可行）或使用 SM 执行传输。</p></li>
+<li><p>有了上述信息，运行时即可尽可能对传输进行最大化优化。</p></li>
 </ul>
 </section>
 <section id="environment-variables">
-<h2><span class="section-number">3.1.6. </span>Environment Variables<a class="headerlink" href="advanced-host-programming.html#environment-variables" title="跳转到此标题">#</a></h2>
-<p>CUDA provides various environment variables (see <a class="reference internal" href="../05-appendices/environment-variables.html#cuda-environment-variables"><span class="std std-numref">Section 5.2</span></a>), which can affect execution and performance.
-If they are not explicitly set, CUDA uses reasonable default values for them, but
-special handling may be required on a per-case basis, e.g., for debugging purposes or to get improved performance.</p>
-<p>For example, increasing the value of the <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_CONNECTIONS</span></code> environment variable may be necessary to reduce the possibility that
-independent work from different CUDA streams gets serialized due to false dependencies. Such false dependencies may be introduced when
-the same underlying resource(s) are used.
-It is recommended to start by using the default value and only explore the impact of this environment variable in case of performance issues (e.g., unexpected serialization of independent
-work across CUDA streams that cannot be attributed to other factors like lack of available SM resources).
-Worth noting that this environment variable has a different (lower) default value in case of MPS.</p>
-<p>Similarly, setting the <code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_LOADING</span></code> environment variable to <code class="docutils literal notranslate"><span class="pre">EAGER</span></code> may be preferable
-for latency-sensitive applications, in order to move all overhead
-due to module loading to the application initialization phase and outside its critical phase. The current default mode is lazy module loading.
-In this default mode, a similar effect to eager module loading could be achieved
-by adding “warm-up” calls of the various kernels during the application’s initialization phase, to force module loading to happen sooner.</p>
-<p>Please refer to <a class="reference internal" href="../05-appendices/environment-variables.html#cuda-environment-variables"><span class="std std-ref">CUDA Environment Variables</span></a> for more details about the various CUDA environment variables.
-It is recommended that you set the environment variables to new values <em>before</em> you launch the application; attempting to set them within your application
-may have no effect.</p>
+<h2><span class="section-number">3.1.6. </span>环境变量<a class="headerlink" href="advanced-host-programming.html#environment-variables" title="跳转到此标题">#</a></h2>
+<p>CUDA 提供了多种环境变量（见<a class="reference internal" href="../05-appendices/environment-variables.html#cuda-environment-variables"><span class="std std-numref">第 5.2 节</span></a>），会影响执行行为与性能。
+若未显式设置，CUDA 会采用合理默认值；但在某些场景下（如调试或性能优化）可能需要按具体情况做特殊配置。</p>
+<p>例如，适当提高 <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_CONNECTIONS</span></code> 的值，可能有助于降低不同 CUDA 流中的独立工作因“伪依赖”而被串行化的概率。此类伪依赖可能在复用同一底层资源时出现。
+建议先使用默认值，只有在出现性能问题时再评估该环境变量的影响（例如跨流独立工作出现意外串行化，且不能归因于 SM 资源不足等因素）。
+还需注意：在 MPS 场景下，该变量默认值不同（且更低）。</p>
+<p>同样，对于延迟敏感型应用，将 <code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_LOADING</span></code> 设为 <code class="docutils literal notranslate"><span class="pre">EAGER</span></code> 往往更合适，可把模块加载开销前移到应用初始化阶段，避开关键路径。当前默认模式是懒加载。
+在默认懒加载模式下，也可通过在初始化阶段增加各类 kernel 的“预热”调用，促使模块更早加载，从而达到类似 eager 的效果。</p>
+<p>关于各 CUDA 环境变量的更多细节，请参考 <a class="reference internal" href="../05-appendices/environment-variables.html#cuda-environment-variables"><span class="std std-ref">CUDA 环境变量</span></a>。
+建议在启动应用<em>之前</em>设置这些环境变量；在应用内部尝试设置，可能不会生效。</p>
 </section>
 </section>
 
@@ -905,16 +892,16 @@ may have no effect.</p>
        title="上一页">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><span class="section-number">3. </span>Advanced CUDA</p>
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title"><span class="section-number">3. </span>高级 CUDA</p>
       </div>
     </a>
     <a class="right-next"
        href="advanced-kernel-programming.html"
        title="下一页">
       <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><span class="section-number">3.2. </span>Advanced Kernel Programming</p>
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title"><span class="section-number">3.2. </span>高级内核编程</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -952,8 +939,8 @@ may have no effect.</p>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#programmatic-dependent-kernel-launch">3.1.4. 编程式依赖内核启动</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#batched-memory-transfers">3.1.5. Batched Memory Transfers</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#environment-variables">3.1.6. Environment Variables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#batched-memory-transfers">3.1.5. 批量内存传输</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#environment-variables">3.1.6. 环境变量</a></li>
 </ul>
   </nav></div>
 
