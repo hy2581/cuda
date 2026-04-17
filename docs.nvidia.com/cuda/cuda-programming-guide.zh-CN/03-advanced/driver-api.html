@@ -514,7 +514,7 @@
 <td><p>CUmodule</p></td>
 <td><p>大致等同于动态库</p></td>
 </tr>
-<tr class="row-odd"><td><p>函数</p></td>
+<tr class="row-odd"><td><p>函数（Function）</p></td>
 <td><p>CUfunction</p></td>
 <td><p>内核</p></td>
 </tr>
@@ -522,7 +522,7 @@
 <td><p>CUdeviceptr</p></td>
 <td><p>指向设备内存的指针</p></td>
 </tr>
-<tr class="row-odd"><td><p>CUDA 数组</p></td>
+<tr class="row-odd"><td><p>CUDA 数组（CUDA array）</p></td>
 <td><p>CUarray</p></td>
 <td><p>设备端一维或二维数据的不透明容器，可通过纹理或表面引用读取</p></td>
 </tr>
@@ -721,11 +721,11 @@
 </section>
 <section id="kernel-execution">
 <span id="driver-api-kernel-execution"></span><h2><span class="section-number">3.3.3. </span>内核执行<a class="headerlink" href="driver-api.html#kernel-execution" title="跳转到此标题">#</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">cuLaunchKernel()</span></code> launches a kernel with a given execution configuration.</p>
+<p><code class="docutils literal notranslate"><span class="pre">cuLaunchKernel()</span></code> 使用给定的执行配置启动一个内核。</p>
 <p>参数可通过两种方式传递：其一是指针数组（<code class="docutils literal notranslate"><span class="pre">cuLaunchKernel()</span></code> 的倒数第二个参数），其中第 n 个指针对应第 n 个形参并指向用于拷贝该参数的内存区域；其二是通过额外选项（<code class="docutils literal notranslate"><span class="pre">cuLaunchKernel()</span></code> 的最后一个参数）传递。</p>
 <p>当参数通过额外选项（<code class="docutils literal notranslate"><span class="pre">CU_LAUNCH_PARAM_BUFFER_POINTER</span></code>）传递时，它们会以“单一缓冲区指针”的形式传入。该缓冲区内各参数必须按设备代码中对应参数类型的对齐要求进行正确偏移。</p>
-<p>Alignment requirements in device code for the built-in vector types are listed in <a class="reference internal" href="../05-appendices/cpp-language-extensions.html#vector-types-alignment-requirements-in-device-code"><span class="std std-numref">Table 42</span></a>. For all other basic types, the alignment requirement in device code matches the alignment requirement in host code and can therefore be obtained using <code class="docutils literal notranslate"><span class="pre">__alignof()</span></code>. The only exception is when the host compiler aligns <code class="docutils literal notranslate"><span class="pre">double</span></code> and <code class="docutils literal notranslate"><span class="pre">long</span> <span class="pre">long</span></code> (and <code class="docutils literal notranslate"><span class="pre">long</span></code> on a 64-bit system) on a one-word boundary instead of a two-word boundary (for example, using <code class="docutils literal notranslate"><span class="pre">gcc</span></code>’s compilation flag <code class="docutils literal notranslate"><span class="pre">-mno-align-double</span></code>) since in device code these types are always aligned on a two-word boundary.</p>
-<p><code class="docutils literal notranslate"><span class="pre">CUdeviceptr</span></code> is an integer, but represents a pointer, so its alignment requirement is <code class="docutils literal notranslate"><span class="pre">__alignof(void*)</span></code>.</p>
+<p>设备代码中内建向量类型的对齐要求见 <a class="reference internal" href="../05-appendices/cpp-language-extensions.html#vector-types-alignment-requirements-in-device-code"><span class="std std-numref">表 42</span></a>。对于其他基础类型，设备代码中的对齐要求与主机代码一致，因此可通过 <code class="docutils literal notranslate"><span class="pre">__alignof()</span></code> 获取。唯一例外是主机编译器将 <code class="docutils literal notranslate"><span class="pre">double</span></code> 与 <code class="docutils literal notranslate"><span class="pre">long</span> <span class="pre">long</span></code>（以及 64 位系统上的 <code class="docutils literal notranslate"><span class="pre">long</span></code>）按单字边界而非双字边界对齐时（例如使用 <code class="docutils literal notranslate"><span class="pre">gcc</span></code> 编译参数 <code class="docutils literal notranslate"><span class="pre">-mno-align-double</span></code>）。而在设备代码中，这些类型始终按双字边界对齐。</p>
+<p><code class="docutils literal notranslate"><span class="pre">CUdeviceptr</span></code> 本质是整数类型，但语义上表示指针，因此其对齐要求为 <code class="docutils literal notranslate"><span class="pre">__alignof(void*)</span></code>。</p>
 <p>下例使用宏 <code class="docutils literal notranslate"><span class="pre">ALIGN_UP()</span></code> 调整每个参数的偏移以满足对齐要求，并使用另一个宏 <code class="docutils literal notranslate"><span class="pre">ADD_TO_PARAM_BUFFER()</span></code> 将参数加入传给 <code class="docutils literal notranslate"><span class="pre">CU_LAUNCH_PARAM_BUFFER_POINTER</span></code> 选项的参数缓冲区。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#define ALIGN_UP(offset, alignment) \</span>
 <span class="cp">      (offset) = ((offset) + (alignment) - 1) &amp; ~((alignment) - 1)</span>
@@ -779,7 +779,7 @@
 <p>若上下文由驱动 API 创建并设为当前上下文，后续运行时调用会复用该上下文，而不会新建上下文。</p>
 <p>如果运行时已初始化，可通过 <code class="docutils literal notranslate"><span class="pre">cuCtxGetCurrent()</span></code> 获取初始化时创建的上下文，该上下文可供后续驱动 API 调用使用。</p>
 <p>运行时隐式创建的上下文称为主上下文（见<a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html#intro-cpp-runtime-initialization"><span class="std std-ref">运行时初始化</span></a>）。可通过驱动 API 的 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__PRIMARY__CTX.html">主上下文管理</a>函数进行管理。</p>
-<p>设备 memory can be allocated and freed using either API. <code class="docutils literal notranslate"><span class="pre">CUdeviceptr</span></code> can be cast to regular pointers and vice-versa:</p>
+<p>设备内存可通过任一 API 进行分配与释放。<code class="docutils literal notranslate"><span class="pre">CUdeviceptr</span></code> 可与普通指针互相转换：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">CUdeviceptr</span><span class="w"> </span><span class="n">devPtr</span><span class="p">;</span>
 <span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">d_data</span><span class="p">;</span>
 
