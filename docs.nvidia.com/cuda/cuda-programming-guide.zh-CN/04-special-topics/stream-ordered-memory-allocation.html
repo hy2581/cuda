@@ -679,33 +679,15 @@
 </div>
 </section>
 <section id="set-access-in-the-importing-process">
-<span id="stream-ordered-set-access-importing-process"></span><h4><span class="section-number">4.3.3.4.2. </span>Set Access in the Importing Process<a class="headerlink" href="stream-ordered-memory-allocation.html#set-access-in-the-importing-process" title="Link to this heading">#</a></h4>
-<p>Imported memory pools are initially only accessible from their resident
-device. The imported memory pool does not inherit any accessibility set by the
-exporting process. The importing process needs to enable access with
-<code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAccess</span></code> from any GPU it plans to access the memory from.</p>
-<p>If the imported memory pool belongs to a device that is not visible to importing
-process, the user must use the <code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAccess</span></code> API to enable access
-from the GPUs the allocations will be used on.
-(See <a class="reference internal" href="stream-ordered-memory-allocation.html#stream-ordered-deviceaccessibility"><span class="std std-ref">Device Accessibility for Multi-GPU Support</span></a>)</p>
+<span id="stream-ordered-set-access-importing-process"></span><h4><span class="section-number">4.3.3.4.2. </span>在导入进程中设置访问权限<a class="headerlink" href="stream-ordered-memory-allocation.html#set-access-in-the-importing-process" title="Link to this heading">#</a></h4>
+<p>导入内存池初始仅可由其驻留设备访问。导入池不会继承导出进程设置的可访问性。导入进程需要通过 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAccess</span></code> 为计划访问该内存的 GPU 显式开启访问权限。</p>
+<p>若导入内存池所属设备对导入进程不可见，用户必须使用 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAccess</span></code> 为实际使用这些分配的 GPU 启用访问。
+（参见 <a class="reference internal" href="stream-ordered-memory-allocation.html#stream-ordered-deviceaccessibility"><span class="std std-ref">面向多 GPU 支持的设备可访问性</span></a>）</p>
 </section>
 <section id="creating-and-sharing-allocations-from-an-exported-pool">
-<span id="stream-ordered-allocations-from-exported-pool"></span><h4><span class="section-number">4.3.3.4.3. </span>Creating and Sharing Allocations from an Exported Pool<a class="headerlink" href="stream-ordered-memory-allocation.html#creating-and-sharing-allocations-from-an-exported-pool" title="Link to this heading">#</a></h4>
-<p>Once the pool has been shared, allocations made with <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync()</span></code>
-from the pool in the exporting process can be shared with processes that
-have imported the pool. Since the pool’s security policy is established and
-verified at the pool level, the OS does not need extra bookkeeping to provide
-security for specific pool allocations. In other words, the opaque
-<code class="docutils literal notranslate"><span class="pre">cudaMemPoolPtrExportData</span></code> required to import a pool allocation may be sent
-to the importing process using any mechanism.</p>
-<p>While allocations may be exported and imported without synchronizing with
-the allocating stream in any way, the importing process must follow the same
-rules as the exporting process when accessing the allocation. Specifically, access
-to the allocation must happen after the allocation
-operation in the allocating stream executes. The two following code snippets show
-<code class="docutils literal notranslate"><span class="pre">cudaMemPoolExportPointer()</span></code> and <code class="docutils literal notranslate"><span class="pre">cudaMemPoolImportPointer()</span></code> sharing the
-allocation with an IPC event used to guarantee that the allocation isn’t
-accessed in the importing process before the allocation is ready.</p>
+<span id="stream-ordered-allocations-from-exported-pool"></span><h4><span class="section-number">4.3.3.4.3. </span>从导出内存池创建并共享分配<a class="headerlink" href="stream-ordered-memory-allocation.html#creating-and-sharing-allocations-from-an-exported-pool" title="Link to this heading">#</a></h4>
+<p>内存池完成共享后，导出进程中通过 <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync()</span></code> 从该池获得的分配，可共享给已导入该池的进程。由于安全策略在内存池级别建立并校验，OS 无需为具体池分配做额外安全账务管理。换言之，用于导入池分配的不透明数据 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolPtrExportData</span></code> 可通过任意机制发送到导入进程。</p>
+<p>尽管导出/导入分配时无需与分配流显式同步，导入进程在访问该分配时仍必须遵循与导出进程相同的规则。具体来说，访问必须发生在分配流中的分配操作执行之后。下方两段代码展示了如何使用 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolExportPointer()</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolImportPointer()</span></code> 配合 IPC 事件共享分配，以保证导入进程不会在分配就绪前访问该分配。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// preparing an allocation in the exporting process</span>
 <span class="n">cudaMemPoolPtrExportData</span><span class="w"> </span><span class="n">exportData</span><span class="p">;</span>
 <span class="n">cudaEvent_t</span><span class="w"> </span><span class="n">readyIpcEvent</span><span class="p">;</span>
@@ -752,14 +734,7 @@ accessed in the importing process before the allocation is ready.</p>
 <span class="n">kernel</span><span class="o">&lt;&lt;&lt;</span><span class="p">...,</span><span class="w"> </span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
 </pre></div>
 </div>
-<p>When freeing the allocation, the allocation must be freed in the importing
-process before it is freed in the exporting process. The following code
-snippet demonstrates the use of CUDA IPC events to provide the required
-synchronization between the <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code> operations in both processes.
-Access to the allocation from the importing process is obviously restricted by
-the free operation in the importing process side. It is worth noting that
-<code class="docutils literal notranslate"><span class="pre">cudaFree</span></code> can be used to free the allocation in both processes and that
-other stream synchronization APIs may be used instead of CUDA IPC events.</p>
+<p>释放分配时，必须先在导入进程释放，再在导出进程释放。下方代码示例演示了如何使用 CUDA IPC 事件，在两个进程的 <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code> 操作之间建立所需同步。导入进程对该分配的访问显然受其本侧释放操作约束。还需注意，两侧都可以用 <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code> 释放该分配，也可使用其他流同步 API 替代 CUDA IPC 事件。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// The free must happen in importing process before the exporting process</span>
 <span class="n">kernel</span><span class="o">&lt;&lt;&lt;</span><span class="p">...,</span><span class="w"> </span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
 
@@ -783,36 +758,23 @@ other stream synchronization APIs may be used instead of CUDA IPC events.</p>
 </div>
 </section>
 <section id="ipc-export-pool-limitations">
-<span id="stream-ordered-export-pool-limitations"></span><h4><span class="section-number">4.3.3.4.4. </span>IPC Export Pool Limitations<a class="headerlink" href="stream-ordered-memory-allocation.html#ipc-export-pool-limitations" title="Link to this heading">#</a></h4>
-<p>IPC pools currently do not support releasing physical blocks back to the OS.
-As a result the <code class="docutils literal notranslate"><span class="pre">cudaMemPoolTrimTo</span></code> API has no effect and the
-<code class="docutils literal notranslate"><span class="pre">cudaMemPoolAttrReleaseThreshold</span></code> is effectively ignored. This behavior is
-controlled by the driver, not the runtime and may change in a future driver
-update.</p>
+<span id="stream-ordered-export-pool-limitations"></span><h4><span class="section-number">4.3.3.4.4. </span>IPC 导出池限制<a class="headerlink" href="stream-ordered-memory-allocation.html#ipc-export-pool-limitations" title="Link to this heading">#</a></h4>
+<p>IPC 池当前不支持将物理内存块归还给 OS。因此 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolTrimTo</span></code> API 不生效，<code class="docutils literal notranslate"><span class="pre">cudaMemPoolAttrReleaseThreshold</span></code> 也会被实际忽略。该行为由驱动而非运行时控制，未来驱动版本可能变化。</p>
 </section>
 <section id="ipc-import-pool-limitations">
-<span id="stream-ordered-import-pool-limitations"></span><h4><span class="section-number">4.3.3.4.5. </span>IPC Import Pool Limitations<a class="headerlink" href="stream-ordered-memory-allocation.html#ipc-import-pool-limitations" title="Link to this heading">#</a></h4>
-<p>Allocating from an import pool is not allowed; specifically, import pools
-cannot be set current and cannot be used in the <code class="docutils literal notranslate"><span class="pre">cudaMallocFromPoolAsync</span></code>
-API. As such, the allocation reuse policy attributes do not have meaning for these
-pools.</p>
-<p>IPC Import pools, like IPC export pools, currently do not support releasing physical blocks back to the OS.</p>
-<p>The resource usage stat attribute queries only reflect the allocations
-imported into the process and the associated physical memory.</p>
+<span id="stream-ordered-import-pool-limitations"></span><h4><span class="section-number">4.3.3.4.5. </span>IPC 导入池限制<a class="headerlink" href="stream-ordered-memory-allocation.html#ipc-import-pool-limitations" title="Link to this heading">#</a></h4>
+<p>不允许从导入池进行分配；具体而言，导入池不能设为当前池，也不能用于 <code class="docutils literal notranslate"><span class="pre">cudaMallocFromPoolAsync</span></code>。因此，分配复用策略相关属性对这类池不具备实际意义。</p>
+<p>IPC 导入池与 IPC 导出池一样，当前都不支持将物理内存块归还给 OS。</p>
+<p>资源使用统计属性查询仅反映“导入到当前进程”的分配及其关联物理内存。</p>
 </section>
 </section>
 </section>
 <section id="best-practices-and-tuning">
 <span id="stream-ordered-fine-tuning"></span><h2><span class="section-number">4.3.4. </span>Best Practices and Tuning<a class="headerlink" href="stream-ordered-memory-allocation.html#best-practices-and-tuning" title="Link to this heading">#</a></h2>
 <section id="query-for-support">
-<span id="stream-ordered-querying-memory-support"></span><h3><span class="section-number">4.3.4.1. </span>Query for Support<a class="headerlink" href="stream-ordered-memory-allocation.html#query-for-support" title="Link to this heading">#</a></h3>
-<p>An application can determine whether or not a device supports the stream-ordered
-memory allocator by calling <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetAttribute()</span></code> (see <a class="reference external" href="https://developer.nvidia.com/blog/cuda-pro-tip-the-fast-way-to-query-device-properties/">developer blog</a>)
-with the device attribute <code class="docutils literal notranslate"><span class="pre">cudaDevAttrMemoryPoolsSupported</span></code>.</p>
-<p>IPC memory pool support can be queried with the
-<code class="docutils literal notranslate"><span class="pre">cudaDevAttrMemoryPoolSupportedHandleTypes</span></code> device attribute. This attribute was added
-in CUDA 11.3, and older drivers will return <code class="docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code> when this attribute
-is queried.</p>
+<span id="stream-ordered-querying-memory-support"></span><h3><span class="section-number">4.3.4.1. </span>支持性查询<a class="headerlink" href="stream-ordered-memory-allocation.html#query-for-support" title="Link to this heading">#</a></h3>
+<p>应用可通过 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetAttribute()</span></code>（参见 <a class="reference external" href="https://developer.nvidia.com/blog/cuda-pro-tip-the-fast-way-to-query-device-properties/">developer blog</a>）查询设备属性 <code class="docutils literal notranslate"><span class="pre">cudaDevAttrMemoryPoolsSupported</span></code>，以判断设备是否支持流有序内存分配器。</p>
+<p>IPC 内存池支持情况可通过设备属性 <code class="docutils literal notranslate"><span class="pre">cudaDevAttrMemoryPoolSupportedHandleTypes</span></code> 查询。该属性在 CUDA 11.3 引入，更旧驱动查询该属性时会返回 <code class="docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code>。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">driverVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="kt">int</span><span class="w"> </span><span class="n">deviceSupportsMemoryPools</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="kt">int</span><span class="w"> </span><span class="n">poolSupportedHandleTypes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
@@ -834,34 +796,17 @@ is queried.</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>Performing the driver version check before the query avoids hitting a
-<code class="docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code> error on drivers where the attribute was not yet
-defined. One can use <code class="docutils literal notranslate"><span class="pre">cudaGetLastError</span></code> to clear the error instead of
-avoiding it.</p>
+<p>在查询前先检查驱动版本，可避免在尚未定义该属性的旧驱动上触发 <code class="docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code>。也可通过 <code class="docutils literal notranslate"><span class="pre">cudaGetLastError</span></code> 清除此错误，而不是预先规避。</p>
 </section>
 <section id="physical-page-caching-behavior">
-<span id="stream-ordered-physical-page-caching-behavior"></span><h3><span class="section-number">4.3.4.2. </span>Physical Page Caching Behavior<a class="headerlink" href="stream-ordered-memory-allocation.html#physical-page-caching-behavior" title="Link to this heading">#</a></h3>
-<p>By default, the allocator tries to minimize the physical memory owned by a
-pool. To minimize the OS calls to allocate and free physical memory,
-applications must configure a memory footprint for each pool. Applications can
-do this with the release threshold attribute
-(<code class="docutils literal notranslate"><span class="pre">cudaMemPoolAttrReleaseThreshold</span></code>).</p>
-<p>The release threshold is the amount of memory in bytes a pool should hold onto
-before trying to release memory back to the OS. When more than the release
-threshold bytes of memory are held by the memory pool, the allocator will try
-to release memory back to the OS on the next call to stream, event or device
-synchronize. Setting the release threshold to UINT64_MAX will prevent the
-driver from attempting to shrink the pool after every synchronization.</p>
+<span id="stream-ordered-physical-page-caching-behavior"></span><h3><span class="section-number">4.3.4.2. </span>物理页缓存行为<a class="headerlink" href="stream-ordered-memory-allocation.html#physical-page-caching-behavior" title="Link to this heading">#</a></h3>
+<p>默认情况下，分配器会尽量最小化内存池持有的物理内存。为减少向 OS 申请/释放物理内存的调用次数，应用需为每个内存池配置目标内存占用，可通过释放阈值属性（<code class="docutils literal notranslate"><span class="pre">cudaMemPoolAttrReleaseThreshold</span></code>）实现。</p>
+<p>释放阈值表示内存池在尝试向 OS 归还内存前应保留的字节数。当内存池持有内存超过该阈值时，分配器会在下一次流/事件/设备同步调用时尝试向 OS 回收内存。将释放阈值设为 UINT64_MAX 可阻止驱动在每次同步后尝试收缩内存池。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">Cuuint64_t</span><span class="w"> </span><span class="n">setVal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UINT64_MAX</span><span class="p">;</span>
 <span class="n">cudaMemPoolSetAttribute</span><span class="p">(</span><span class="n">memPool</span><span class="p">,</span><span class="w"> </span><span class="n">cudaMemPoolAttrReleaseThreshold</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">setVal</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>Applications that set <code class="docutils literal notranslate"><span class="pre">cudaMemPoolAttrReleaseThreshold</span></code> high enough to
-effectively disable memory pool shrinking may wish to explicitly shrink a
-memory pool’s memory footprint. <code class="docutils literal notranslate"><span class="pre">cudaMemPoolTrimTo</span></code> allows applications
-to do so. When trimming a memory pool’s footprint, the <code class="docutils literal notranslate"><span class="pre">minBytesToKeep</span></code>
-parameter allows an application to hold onto a specified amount of memory,
-for example the amount it expects to need in a subsequent phase of execution.</p>
+<p>若应用将 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolAttrReleaseThreshold</span></code> 设得很高（等效于禁用池收缩），可能仍希望在特定时机显式收缩内存池占用，此时可使用 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolTrimTo</span></code>。执行 trim 时，<code class="docutils literal notranslate"><span class="pre">minBytesToKeep</span></code> 参数允许应用保留指定数量内存，例如为后续执行阶段预留所需容量。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">Cuuint64_t</span><span class="w"> </span><span class="n">setVal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UINT64_MAX</span><span class="p">;</span>
 <span class="n">cudaMemPoolSetAttribute</span><span class="p">(</span><span class="n">memPool</span><span class="p">,</span><span class="w"> </span><span class="n">cudaMemPoolAttrReleaseThreshold</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">setVal</span><span class="p">);</span>
 
