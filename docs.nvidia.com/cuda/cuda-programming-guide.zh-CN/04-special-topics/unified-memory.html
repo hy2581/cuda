@@ -488,27 +488,25 @@
                 <article class="bd-article">
                   
   <section id="unified-memory">
-<span id="um-details-intro"></span><h1><span class="section-number">4.1. </span>Unified Memory<a class="headerlink" href="unified-memory.html#unified-memory" title="Link to this heading">#</a></h1>
-<p>This section explains the detailed behavior and use of each of the different paradigms of unified memory available. <a class="reference internal" href="../02-basics/understanding-memory.html#memory-unified-memory"><span class="std std-ref">The earlier section on unified memory</span></a> showed how to determine which unified memory paradigm applies and briefly introduced each.</p>
-<p>As discussed previously there are four paradigms of unified memory programming:</p>
+<span id="um-details-intro"></span><h1><span class="section-number">4.1. </span>统一内存<a class="headerlink" href="unified-memory.html#unified-memory" title="Link to this heading">#</a></h1>
+<p>本节说明可用统一内存各类范式的详细行为与使用方式。<a class="reference internal" href="../02-basics/understanding-memory.html#memory-unified-memory"><span class="std std-ref">前文关于统一内存的小节</span></a>介绍了如何判断适用哪种统一内存范式，并对各范式做了简要说明。</p>
+<p>如前所述，统一内存编程共有四种范式：</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="unified-memory.html#um-pageable-systems"><span class="std std-ref">Full support for explicit managed memory allocations</span></a></p></li>
-<li><p><a class="reference internal" href="unified-memory.html#um-pageable-systems"><span class="std std-ref">Full support for all allocations with software coherence</span></a></p></li>
-<li><p><a class="reference internal" href="unified-memory.html#um-pageable-systems"><span class="std std-ref">Full support for all allocations with hardware coherence</span></a></p></li>
-<li><p><a class="reference internal" href="unified-memory.html#um-legacy-devices"><span class="std std-ref">Limited unified memory support</span></a></p></li>
+<li><p><a class="reference internal" href="unified-memory.html#um-pageable-systems"><span class="std std-ref">显式托管内存分配的完整支持</span></a></p></li>
+<li><p><a class="reference internal" href="unified-memory.html#um-pageable-systems"><span class="std std-ref">具备软件一致性的全部分配完整支持</span></a></p></li>
+<li><p><a class="reference internal" href="unified-memory.html#um-pageable-systems"><span class="std std-ref">具备硬件一致性的全部分配完整支持</span></a></p></li>
+<li><p><a class="reference internal" href="unified-memory.html#um-legacy-devices"><span class="std std-ref">受限的统一内存支持</span></a></p></li>
 </ul>
-<p>The first three paradigms involving full unified memory support have very similar behavior and programming model and are covered in <a class="reference internal" href="unified-memory.html#um-pageable-systems"><span class="std std-ref">Unified Memory on Devices with Full CUDA Unified Memory Support</span></a> with any differences highlighted.</p>
-<p>The last paradigm, where unified memory support is limited, is discussed in detail in <a class="reference internal" href="unified-memory.html#um-legacy-devices"><span class="std std-ref">Unified Memory on Windows, WSL, and Tegra</span></a>.</p>
+<p>前 3 种“完整统一内存支持”范式在行为与编程模型上非常相近，统一在 <a class="reference internal" href="unified-memory.html#um-pageable-systems"><span class="std std-ref">具备完整 CUDA 统一内存支持设备上的统一内存</span></a> 一节说明，并标注其中差异。</p>
+<p>最后一种“统一内存支持受限”的范式，将在 <a class="reference internal" href="unified-memory.html#um-legacy-devices"><span class="std std-ref">Windows、WSL 与 Tegra 上的统一内存</span></a> 中详细讨论。</p>
 <section id="unified-memory-on-devices-with-full-cuda-unified-memory-support">
-<span id="um-pageable-systems"></span><h2><span class="section-number">4.1.1. </span>Unified Memory on Devices with Full CUDA Unified Memory Support<a class="headerlink" href="unified-memory.html#unified-memory-on-devices-with-full-cuda-unified-memory-support" title="Link to this heading">#</a></h2>
-<p>These systems include hardware-coherent memory systems, such as NVIDIA Grace Hopper and modern Linux systems with Heterogeneous Memory Management (HMM) enabled.
-HMM is a software-based memory management system, providing the same programming model as hardware-coherent memory systems.</p>
-<p>Linux HMM requires Linux kernel version 6.1.24+, 6.2.11+ or 6.3+, devices with compute capability 7.5 or higher and a CUDA driver version 535+ installed with <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#nvidia-open-gpu-kernel-modules">Open Kernel Modules</a>.</p>
+<span id="um-pageable-systems"></span><h2><span class="section-number">4.1.1. </span>具备完整 CUDA 统一内存支持设备上的统一内存<a class="headerlink" href="unified-memory.html#unified-memory-on-devices-with-full-cuda-unified-memory-support" title="Link to this heading">#</a></h2>
+<p>这类系统包括硬件一致性内存系统（如 NVIDIA Grace Hopper），以及启用异构内存管理（HMM）的现代 Linux 系统。
+HMM 是一种基于软件的内存管理机制，提供与硬件一致性内存系统相同的编程模型。</p>
+<p>Linux HMM 需要 Linux 内核版本 6.1.24+、6.2.11+ 或 6.3+，设备计算能力 7.5 及以上，并安装 535+ 版本 CUDA 驱动及 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#nvidia-open-gpu-kernel-modules">Open Kernel Modules</a>。</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>We refer to systems with a combined page table for both CPUs and GPUs as <em>hardware
-coherent</em> systems. Systems with separate page tables for CPUs and GPUs are
-referred to as <em>software-coherent</em>.</p>
+<p class="admonition-title">注意</p>
+<p>我们将 CPU 与 GPU 共享同一页表的系统称为<em>硬件一致性</em>系统；CPU 与 GPU 各自拥有独立页表的系统称为<em>软件一致性</em>系统。</p>
 </div>
 <p>Hardware-coherent systems such as NVIDIA Grace Hopper offer a logically combined page table for both CPUs and GPUs, see <a class="reference internal" href="unified-memory.html#um-hw-coherency"><span class="std std-ref">CPU and GPU Page Tables: Hardware Coherency vs. Software Coherency</span></a>.
 The following section only applies to hardware-coherent systems:</p>
@@ -518,11 +516,10 @@ The following section only applies to hardware-coherent systems:</p>
 </ul>
 </div></blockquote>
 <section id="unified-memory-in-depth-examples">
-<span id="um-system-allocator"></span><h3><span class="section-number">4.1.1.1. </span>Unified Memory: In-Depth Examples<a class="headerlink" href="unified-memory.html#unified-memory-in-depth-examples" title="Link to this heading">#</a></h3>
+<span id="um-system-allocator"></span><h3><span class="section-number">4.1.1.1. </span>统一内存：深入示例<a class="headerlink" href="unified-memory.html#unified-memory-in-depth-examples" title="Link to this heading">#</a></h3>
 <p>Systems with full CUDA unified memory support, see table <a class="reference internal" href="../02-basics/understanding-memory.html#table-unified-memory-levels"><span class="std std-ref">Overview of Unified Memory Paradigms</span></a>,
 allow the device to access any memory owned by the host process interacting with the device.</p>
-<p>This section shows a few advanced use-cases, using a kernel that simply prints
-the first 8 characters of an input character array to the standard output stream:</p>
+<p>本节展示若干高级用例，示例 kernel 会将输入字符数组的前 8 个字符打印到标准输出流：</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">kernel</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n_char</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span>
 <span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%s - first %d characters: &#39;&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="n">n_char</span><span class="p">);</span>
@@ -531,7 +528,7 @@ the first 8 characters of an input character array to the standard output stream
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The following tabs show various ways of how this kernel may be called with system-allocated memory:</p>
+<p>下列标签页展示了使用系统分配内存调用该 kernel 的多种方式：</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-0">
@@ -687,7 +684,7 @@ Global-scope extern variable</label><div class="sd-tab-content docutils">
 <section id="inter-process-communication-ipc-with-unified-memory">
 <span id="um-fork-managed-memory"></span><h4><span class="section-number">4.1.1.1.2. </span>Inter-Process Communication (IPC) with Unified Memory<a class="headerlink" href="unified-memory.html#inter-process-communication-ipc-with-unified-memory" title="Link to this heading">#</a></h4>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
+<p class="admonition-title">注意</p>
 <p>As of now, using IPC with unified memory can have significant performance implications.</p>
 </div>
 <p>Many applications prefer to manage one GPU per process, but still need to use unified memory,
@@ -1234,7 +1231,7 @@ with the notable exception that system allocators cannot be used to allocate mem
 <section id="unified-memory-on-windows-wsl-and-tegra">
 <span id="um-legacy-devices"></span><h2><span class="section-number">4.1.3. </span>Unified Memory on Windows, WSL, and Tegra<a class="headerlink" href="unified-memory.html#unified-memory-on-windows-wsl-and-tegra" title="Link to this heading">#</a></h2>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
+<p class="admonition-title">注意</p>
 <p>This section is only looking at devices with compute capability lower than 6.0 or Windows platforms, devices with  <code class="docutils literal notranslate"><span class="pre">concurrentManagedAccess</span></code> property set to 0.</p>
 </div>
 <p>Devices with compute capability lower than 6.0 or Windows platforms, devices with  <code class="docutils literal notranslate"><span class="pre">concurrentManagedAccess</span></code> property set to 0, see <a class="reference internal" href="../02-basics/understanding-memory.html#table-unified-memory-levels"><span class="std std-ref">Overview of Unified Memory Paradigms</span></a>,  support CUDA managed memory with the following limitations:</p>
@@ -1345,11 +1342,11 @@ In effect, this constrains exclusive ownership of the managed memory region by a
 Most importantly, if an allocation is not associated with a specific stream, it is visible to all running kernels regardless of their stream.
 This is the default visibility for a <code class="docutils literal notranslate"><span class="pre">cudaMallocManaged()</span></code> allocation or a <code class="docutils literal notranslate"><span class="pre">__managed__</span></code> variable; hence, the simple-case rule that the CPU may not touch the data while any kernel is running.</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
+<p class="admonition-title">注意</p>
 <p>By associating an allocation with a specific stream, the program makes a guarantee that only kernels launched into that stream will touch that data. No error checking is performed by the unified memory system.</p>
 </div>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
+<p class="admonition-title">注意</p>
 <p>In addition to allowing greater concurrency, the use of <code class="docutils literal notranslate"><span class="pre">cudaStreamAttachMemAsync()</span></code> can enable data transfer optimizations within the unified memory system that may affect latencies and other overhead.</p>
 </div>
 <p>The following example shows how to explicitly associate <code class="docutils literal notranslate"><span class="pre">y</span></code> with host accessibility, thus enabling access at all times from the CPU. (Note the absence of <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code> after the kernel call.) Accesses to <code class="docutils literal notranslate"><span class="pre">y</span></code> by the GPU running kernel will now produce undefined results.</p>
@@ -1437,7 +1434,7 @@ CUDA uses performance hints to managed memory more efficiently and improve appli
 Performance hints never impact the correctness of an application.
 Performance hints only affect performance.</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
+<p class="admonition-title">注意</p>
 <p>Applications should only use unified memory performance hints if they improve performance.</p>
 </div>
 <p>Performance hints may be used on any unified memory allocation, including CUDA managed memory.
