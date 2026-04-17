@@ -498,22 +498,15 @@
 <li><p>细粒度 GPU 点对点 load/store 内存访问</p></li>
 <li><p>Higher level abstractions and supporting system software such as CUDA interprocess communication, parallel reductions using <a class="reference external" href="https://developer.nvidia.com/nccl">NCCL</a>, and communication using NVLink and/or GPU-Direct RDMA with APIs such as <a class="reference external" href="https://developer.nvidia.com/nvshmem">NVSHMEM</a> and MPI</p></li>
 </ul>
-<p>At the most basic level, multi-GPU programming requires the application
-to manage multiple active CUDA contexts concurrently,
-distribute data to the GPUs,
-launch kernels on the GPUs to complete their work,
-and to communicate or collect the results so that they can be acted upon
-by the application.
-The details of how this is done differ depending on the most effective
-mapping of an application’s algorithms, available parallelism,
-and existing code structure to a suitable multi-GPU programming approach.
-Some of the most common multi-GPU programming approaches include:</p>
+<p>在最基本层面，多 GPU 编程要求应用能够并发管理多个活动 CUDA 上下文、将数据分发到各 GPU、在 GPU 上启动内核完成计算，并进行结果通信或汇聚，以便应用后续处理。
+具体实现细节取决于如何将应用算法、可用并行性与现有代码结构高效映射到合适的多 GPU 编程方案。
+常见多 GPU 编程方式包括：</p>
 <ul class="simple">
-<li><p>A single host thread driving multiple GPUs</p></li>
-<li><p>Multiple host threads, each driving their own GPU</p></li>
-<li><p>Multiple single-threaded host processes, each driving their own GPU</p></li>
-<li><p>Multiple host processes containing multiple threads, each driving their own GPU</p></li>
-<li><p>Multi-node NVLink-connected clusters, with GPUs driven by threads and processes running within multiple operating system instances across the cluster nodes</p></li>
+<li><p>单个主机线程驱动多个 GPU</p></li>
+<li><p>多个主机线程分别驱动各自 GPU</p></li>
+<li><p>多个单线程主机进程分别驱动各自 GPU</p></li>
+<li><p>多个包含多线程的主机进程分别驱动各自 GPU</p></li>
+<li><p>多节点 NVLink 互连集群，GPU 由跨节点多个操作系统实例中的线程与进程共同驱动</p></li>
 </ul>
 <p>GPUs can communicate with each other
 through memory transfers and peer accesses between device memories,
@@ -553,8 +546,7 @@ hardware properties, CPU affinity, and connectivity to peers,
 and to create CUDA contexts for each device that the application will use.</p>
 <section id="device-enumeration">
 <span id="multi-gpu-device-enumeration"></span><h3><span class="section-number">3.4.1.1. </span>设备枚举<a class="headerlink" href="multi-gpu-systems.html#device-enumeration" title="跳转到此标题">#</a></h3>
-<p>The following code sample shows how to query number of CUDA-enabled devices,
-enumerate each of the devices, and query their properties.</p>
+<p>以下代码示例展示如何查询支持 CUDA 的设备数量、遍历各设备并读取其属性。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">deviceCount</span><span class="p">;</span>
 <span class="n">cudaGetDeviceCount</span><span class="p">(</span><span class="o">&amp;</span><span class="n">deviceCount</span><span class="p">);</span>
 <span class="kt">int</span><span class="w"> </span><span class="n">device</span><span class="p">;</span>
@@ -569,10 +561,10 @@ enumerate each of the devices, and query their properties.</p>
 </section>
 <section id="device-selection">
 <span id="id1"></span><h3><span class="section-number">3.4.1.2. </span>设备选择<a class="headerlink" href="multi-gpu-systems.html#device-selection" title="跳转到此标题">#</a></h3>
-<p>A host thread can set the device it is currently operating on at any time by calling <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code>.
-Device memory allocations and kernel launches are made on the current device; streams and events are created in association with the currently set device.
-Until a call to <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code> is made by the host thread, the current device defaults to device 0.</p>
-<p>The following code sample illustrates how setting the current device affects subsequent memory allocation and kernel execution operations.</p>
+<p>主机线程可在任意时刻调用 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code> 设置当前操作设备。
+设备内存分配与内核启动均发生在当前设备上；流和事件也与当前设置的设备关联。
+在主机线程首次调用 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code> 之前，当前设备默认为设备 0。</p>
+<p>以下代码示例说明设置当前设备后，后续内存分配与内核执行行为如何受到影响。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1024</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">);</span>
 <span class="n">cudaSetDevice</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w">            </span><span class="c1">// Set device 0 as current</span>
 <span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">p0</span><span class="p">;</span>
