@@ -654,7 +654,7 @@
 <p>必须使用同步操作来保证跨多个设备分布执行的网格中并发线程的内存访问顺序与正确性。
 跨设备同步的线程在 <code class="docutils literal notranslate"><span class="pre">thread_scope_system</span></code> <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_model.html#thread-scopes">同步作用域</a>内工作。
 同样，相关内存操作也属于 <code class="docutils literal notranslate"><span class="pre">thread_scope_system</span></code> <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/#memory-synchronization-domains">内存同步域</a>。</p>
-<p>CUDA ref::<cite>atomic-functions</cite> 可以在仅有单个 GPU 访问该对象时，对对等设备内存中的对象执行读-改-写操作。
+<p>当仅有单个 GPU 访问该对象时，可使用 CUDA 的 <cite>atomic-functions</cite> 对对等设备内存中的对象执行读-改-写操作。
 关于对等原子性的要求与限制，请参见 CUDA 内存模型中关于<a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_model.html#atomicity">原子性要求</a>的讨论。</p>
 </section>
 <section id="multi-device-managed-memory">
@@ -692,7 +692,7 @@ PCI ACS 会将所有 PCI 点对点流量重定向到 CPU 根复合体，这会�
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><span class="section-number">3.3. </span>The CUDA Driver API</p>
+        <p class="prev-next-title"><span class="section-number">3.3. </span>CUDA 驱动 API</p>
       </div>
     </a>
     <a class="right-next"
@@ -700,7 +700,7 @@ PCI ACS 会将所有 PCI 点对点流量重定向到 CPU 根复合体，这会�
        title="下一页">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><span class="section-number">3.5. </span>A Tour of CUDA Features</p>
+        <p class="prev-next-title"><span class="section-number">3.5. </span>CUDA 特性概览</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

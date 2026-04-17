@@ -509,7 +509,7 @@
 </section>
 <section id="work-stealing-with-cluster-launch-control">
 <h3><span class="section-number">3.5.1.4. </span>使用集群启动控制的工作窃取<a class="headerlink" href="feature-survey.html#work-stealing-with-cluster-launch-control" title="跳转到此标题">#</a></h3>
-<p>Work stealing is a technique for maintaining utilization in uneven workloads where workers that have completed their work can ‘steal’ tasks from other workers. Cluster launch control, a feature introduced in compute capability 10.0 (Blackwell), gives kernels direct control over in-flight block scheduling so they can adapt to uneven workloads in real time. A thread block can cancel the launch of another thread block or cluster that has not yet started, claim its index, and immediately begin executing the stolen work. This work-stealing flow keeps SMs busy and cuts idle time under irregular data or runtime variation—delivering finer-grained load balancing without relying on the hardware scheduler alone.</p>
+<p>工作窃取是一种在负载不均场景下维持利用率的技术：已完成工作的执行单元可从其他执行单元“窃取”任务。计算能力 10.0（Blackwell）引入的集群启动控制特性，使 kernel 能直接控制飞行中的线程块调度，从而实时适应不均匀负载。线程块可取消尚未启动的其他线程块或集群的启动、接管其索引，并立即执行被窃取工作。该流程可在数据不规则或运行时波动下保持 SM 忙碌、减少空闲时间，在不完全依赖硬件调度器的情况下实现更细粒度的负载均衡。</p>
 <p><a class="reference internal" href="../04-special-topics/cluster-launch-control.html#cluster-launch-control"><span class="std std-numref">第 4 章.12</span></a> provides details on how to use this feature.</p>
 </section>
 </section>
@@ -518,27 +518,27 @@
 <p>本节特性有一个共同主题：降低某类时延，但不同特性针对的时延类型并不相同。总体而言，它们主要关注内核启动层面及以上的时延，而不涉及内核内部 GPU 内存访问时延。</p>
 <section id="green-contexts">
 <h3><span class="section-number">3.5.2.1. </span>绿色上下文<a class="headerlink" href="feature-survey.html#green-contexts" title="跳转到此标题">#</a></h3>
-<p><a class="reference internal" href="../04-special-topics/green-contexts.html#green-contexts"><span class="std std-ref">Green contexts</span></a>, also called <em>execution contexts</em>,  is the name given to a CUDA feature which enables a program to create <a class="reference internal" href="driver-api.html#driver-api-context"><span class="std std-ref">CUDA contexts</span></a> which will execute work only on a subset of the SMs of a GPU. By default, the thread blocks of a kernel launch are dispatched to any SM within the GPU which can fulfill the resource requirements of the kernel. There are a large number of factors which can affect which SMs can execute a thread block, including but not necessarily limited to: shared memory use, register use, use of clusters, and total number of threads in the thread block.</p>
-<p>Execution contexts allow a kernel to be launched into a specially created context which further limits the number of SMs available to execute the kernel. Importantly, when a program creates a green context which uses some set of SMs, other contexts on the GPU will not schedule thread blocks onto the SMs allocated to the green context. This includes the primary context, which is the default context used by the CUDA runtime. This allows these SMs to be reserved for workloads which are high priority or latency-sensitive.</p>
-<p><a class="reference internal" href="../04-special-topics/green-contexts.html#green-contexts"><span class="std std-numref">第 4 章.6</span></a> gives full details on the use of green contexts. Green contexts are available in the CUDA runtime in CUDA 13.1 and later.</p>
+<p><a class="reference internal" href="../04-special-topics/green-contexts.html#green-contexts"><span class="std std-ref">绿色上下文</span></a>（亦称<em>执行上下文</em>）是 CUDA 的一项特性，允许程序创建仅在 GPU 的部分 SM 子集上执行工作的 <a class="reference internal" href="driver-api.html#driver-api-context"><span class="std std-ref">CUDA 上下文</span></a>。默认情况下，kernel 启动的线程块会被分发到 GPU 内任意可满足其资源需求的 SM。影响哪些 SM 能执行线程块的因素很多，包括但不限于：共享内存使用量、寄存器使用量、是否使用集群，以及线程块总线程数。</p>
+<p>执行上下文允许将 kernel 启动到专门创建的上下文中，并可进一步限制可用于执行该 kernel 的 SM 数量。关键在于：当程序创建了使用某组 SM 的绿色上下文后，GPU 上其他上下文将不会把线程块调度到这些已分配给绿色上下文的 SM 上。这也包括 CUDA 运行时默认使用的主上下文。由此可将这些 SM 预留给高优先级或时延敏感的工作负载。</p>
+<p><a class="reference internal" href="../04-special-topics/green-contexts.html#green-contexts"><span class="std std-numref">第 4 章.6</span></a> 详细介绍了绿色上下文的使用方式。绿色上下文在 CUDA 13.1 及之后版本的 CUDA 运行时中可用。</p>
 </section>
 <section id="stream-ordered-memory-allocation">
 <h3><span class="section-number">3.5.2.2. </span>流有序内存分配<a class="headerlink" href="feature-survey.html#stream-ordered-memory-allocation" title="跳转到此标题">#</a></h3>
-<p>The <a class="reference internal" href="../04-special-topics/stream-ordered-memory-allocation.html#stream-ordered-memory-allocator"><span class="std std-ref">stream-ordered memory allocator</span></a> allows programs to sequence allocation and freeing of GPU memory into a <a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-streams"><span class="std std-ref">CUDA stream</span></a>. Unlike <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code> and <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code> which execute immediately, <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> and <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code> inserts a memory allocation  or free operation into a CUDA stream. <a class="reference internal" href="../04-special-topics/stream-ordered-memory-allocation.html#stream-ordered-memory-allocator"><span class="std std-numref">第 4 章.3</span></a> covers all the details of these APIs.</p>
+<p><a class="reference internal" href="../04-special-topics/stream-ordered-memory-allocation.html#stream-ordered-memory-allocator"><span class="std std-ref">流有序内存分配器</span></a>允许程序把 GPU 内存分配与释放编排到 <a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-streams"><span class="std std-ref">CUDA 流</span></a>中。不同于立即执行的 <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code>/<code class="docutils literal notranslate"><span class="pre">cudaFree</span></code>，<code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code>/<code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code> 会将分配或释放操作插入到 CUDA 流中。关于这些 API 的全部细节，请见 <a class="reference internal" href="../04-special-topics/stream-ordered-memory-allocation.html#stream-ordered-memory-allocator"><span class="std std-numref">第 4 章.3</span></a>。</p>
 </section>
 <section id="cuda-graphs">
-<h3><span class="section-number">3.5.2.3. </span>CUDA Graphs<a class="headerlink" href="feature-survey.html#cuda-graphs" title="跳转到此标题">#</a></h3>
-<p><a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs"><span class="std std-ref">CUDA graphs</span></a> enable an application to specify a sequence of CUDA operations such as kernel launches or memory copies and the dependencies between these operations so that they can be executed efficiently on the GPU. Similar behavior can be attained by using <a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-streams"><span class="std std-ref">CUDA streams</span></a>, and indeed one of the mechanisms for creating a graph is called <a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs-creating-a-graph-using-stream-capture"><span class="std std-ref">stream capture</span></a>, which enables the operations on a stream to be recorded into a CUDA graph. Graphs can also be created using the <a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs-creating-a-graph-using-graph-apis"><span class="std std-ref">CUDA graphs API</span></a>.</p>
-<p>Once a graph has been created, it can be instantiated and executed many times. This is useful for specifying workloads that will be repeated. Graphs offer some performance benefits in reducing CPU launch costs associated with invoking CUDA operations as well as enabling optimizations only available when the whole workload is specified in advance.</p>
-<p><a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs"><span class="std std-numref">第 4 章.2</span></a> describes and demonstrates how to use CUDA graphs.</p>
+<h3><span class="section-number">3.5.2.3. </span>CUDA 图<a class="headerlink" href="feature-survey.html#cuda-graphs" title="跳转到此标题">#</a></h3>
+<p><a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs"><span class="std std-ref">CUDA 图</span></a>允许应用指定一系列 CUDA 操作（如 kernel 启动、内存拷贝）及其依赖关系，从而在 GPU 上高效执行。类似行为也可通过 <a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-streams"><span class="std std-ref">CUDA 流</span></a> 实现；实际上，创建图的一种机制称为 <a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs-creating-a-graph-using-stream-capture"><span class="std std-ref">流捕获</span></a>，可将流上的操作记录为 CUDA 图。图还可通过 <a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs-creating-a-graph-using-graph-apis"><span class="std std-ref">CUDA 图 API</span></a> 创建。</p>
+<p>图创建后可被实例化并重复执行多次，这对重复型工作负载尤其有用。图可降低调用 CUDA 操作时的 CPU 启动开销，并启用仅在“预先给定完整工作负载”时可用的优化，从而带来性能收益。</p>
+<p><a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs"><span class="std std-numref">第 4 章.2</span></a> 介绍并演示了 CUDA 图的使用方法。</p>
 </section>
 <section id="programmatic-dependent-launch">
 <h3><span class="section-number">3.5.2.4. </span>编程式依赖启动<a class="headerlink" href="feature-survey.html#programmatic-dependent-launch" title="跳转到此标题">#</a></h3>
-<p><a class="reference internal" href="../04-special-topics/programmatic-dependent-launch.html#programmatic-dependent-launch-and-synchronization"><span class="std std-ref">Programmatic dependent launch</span></a> is a CUDA feature which allows a dependent kernel, i.e. a kernel which depends on the output of a prior kernel, to begin execution before the primary kernel on which it depends has completed. The dependent kernel can execute setup code and unrelated work up until it requires data from the primary kernel and block there. The primary kernel can signal when the data required by the dependent kernel is ready, which will release the dependent kernel to continue executing. This enables some overlap between the kernels which can help keep GPU utilization high while minimizing the latency of the critical data path. <a class="reference internal" href="../04-special-topics/programmatic-dependent-launch.html#programmatic-dependent-launch-and-synchronization"><span class="std std-numref">第 4 章.5</span></a> covers programmatic dependent launch.</p>
+<p><a class="reference internal" href="../04-special-topics/programmatic-dependent-launch.html#programmatic-dependent-launch-and-synchronization"><span class="std std-ref">编程式依赖启动</span></a>是 CUDA 的一项特性，允许依赖 kernel（即依赖前序 kernel 输出的 kernel）在其依赖的主 kernel 完成前就开始执行。依赖 kernel 可先执行初始化与无关工作，直到需要主 kernel 数据时再阻塞。主 kernel 可在依赖数据就绪时发出信号，释放依赖 kernel 继续执行。这使两个 kernel 可部分重叠，有助于在降低关键数据路径时延的同时保持较高 GPU 利用率。详见 <a class="reference internal" href="../04-special-topics/programmatic-dependent-launch.html#programmatic-dependent-launch-and-synchronization"><span class="std std-numref">第 4 章.5</span></a>。</p>
 </section>
 <section id="lazy-loading">
 <h3><span class="section-number">3.5.2.5. </span>惰性加载<a class="headerlink" href="feature-survey.html#lazy-loading" title="跳转到此标题">#</a></h3>
-<p><a class="reference internal" href="../04-special-topics/lazy-loading.html#lazy-loading"><span class="std std-ref">Lazy loading</span></a> is a feature which allows control over how the JIT compiler operates at application startup. Applications which have many kernels which need to be JIT compiled from PTX to cubin may experience long startup times if all kernels are JIT compiled as part of application startup. The default behavior is that modules are not compiled until they are needed. This can be changed by the use of <a class="reference internal" href="../05-appendices/environment-variables.html#cuda-environment-variables"><span class="std std-ref">environment variables</span></a>, as detailed in <a class="reference internal" href="../04-special-topics/lazy-loading.html#lazy-loading"><span class="std std-numref">第 4 章.7</span></a>.</p>
+<p><a class="reference internal" href="../04-special-topics/lazy-loading.html#lazy-loading"><span class="std std-ref">惰性加载</span></a>特性允许控制 JIT 编译器在应用启动阶段的工作方式。若应用包含大量需从 PTX JIT 编译到 cubin 的 kernel，而又在启动阶段一次性完成编译，启动时间可能很长。默认行为是模块按需编译。该行为可通过<a class="reference internal" href="../05-appendices/environment-variables.html#cuda-environment-variables"><span class="std std-ref">环境变量</span></a>调整，详见 <a class="reference internal" href="../04-special-topics/lazy-loading.html#lazy-loading"><span class="std std-numref">第 4 章.7</span></a>。</p>
 </section>
 </section>
 <section id="functionality-features">
@@ -546,41 +546,41 @@
 <p>此处介绍的特性有共同点：它们旨在提供额外能力或功能。</p>
 <section id="extended-gpu-memory">
 <h3><span class="section-number">3.5.3.1. </span>扩展 GPU 内存<a class="headerlink" href="feature-survey.html#extended-gpu-memory" title="跳转到此标题">#</a></h3>
-<p><a class="reference internal" href="../04-special-topics/extended-gpu-memory.html#extended-gpu-memory"><span class="std std-ref">Extended GPU memory</span></a> is a feature available in NVLink-C2C connected systems that enables efficient access to all memory within the system from within a GPU. EGM is covered in detail in <a class="reference internal" href="../04-special-topics/extended-gpu-memory.html#extended-gpu-memory"><span class="std std-numref">第 4 章.17</span></a>.</p>
+<p><a class="reference internal" href="../04-special-topics/extended-gpu-memory.html#extended-gpu-memory"><span class="std std-ref">扩展 GPU 内存（EGM）</span></a>是 NVLink-C2C 互连系统中的一项特性，可让 GPU 高效访问系统内全部内存。详见 <a class="reference internal" href="../04-special-topics/extended-gpu-memory.html#extended-gpu-memory"><span class="std std-numref">第 4 章.17</span></a>。</p>
 </section>
 <section id="dynamic-parallelism">
 <h3><span class="section-number">3.5.3.2. </span>动态并行<a class="headerlink" href="feature-survey.html#dynamic-parallelism" title="跳转到此标题">#</a></h3>
-<p>CUDA applications most commonly launch kernels from code running on the CPU. It is also possible to create new kernel invocations from a kernel running on the GPU. This feature is referred to as <a class="reference internal" href="../04-special-topics/dynamic-parallelism.html#cuda-dynamic-parallelism"><span class="std std-ref">CUDA dynamic parallelism</span></a>. <a class="reference internal" href="../04-special-topics/dynamic-parallelism.html#cuda-dynamic-parallelism"><span class="std std-numref">第 4 章.18</span></a> covers the details of creating new GPU kernel launches from code running on the GPU.</p>
+<p>CUDA 应用最常见的是由 CPU 端代码启动 kernel；也可以由运行在 GPU 上的 kernel 再发起新的 kernel 调用。这一特性称为 <a class="reference internal" href="../04-special-topics/dynamic-parallelism.html#cuda-dynamic-parallelism"><span class="std std-ref">CUDA 动态并行</span></a>。关于如何在 GPU 端代码中创建新的 GPU kernel 启动，详见 <a class="reference internal" href="../04-special-topics/dynamic-parallelism.html#cuda-dynamic-parallelism"><span class="std std-numref">第 4 章.18</span></a>。</p>
 </section>
 </section>
 <section id="cuda-interoperability">
 <h2><span class="section-number">3.5.4. </span>CUDA 互操作性<a class="headerlink" href="feature-survey.html#cuda-interoperability" title="跳转到此标题">#</a></h2>
 <section id="cuda-interoperability-with-other-apis">
-<h3><span class="section-number">3.5.4.1. </span>CUDA 互操作性 with other APIs<a class="headerlink" href="feature-survey.html#cuda-interoperability-with-other-apis" title="跳转到此标题">#</a></h3>
-<p>There are other mechanisms than CUDA for running code on GPUs. The application GPUs were originally built to accelerate, computer graphics, uses its own set of APIs such as Direct3D and Vulkan. Applications may wish to use one of the graphics APIs for 3D rendering while performing computations in CUDA. CUDA provides mechanisms for exchanging data stored on the GPU between the CUDA contexts and the GPU contexts used by the 3D APIs. For example, an application may perform a simulation using CUDA, and then use a 3D API to create visualizations of the results. This is achieved by making some buffers readable and/or writeable from both CUDA and the graphics API.</p>
-<p>The same mechanisms which allow sharing of buffers with graphics APIs are also used to share buffers with communications mechanisms which can enable rapid, direct GPU-to-GPU communication within multi-node environments.</p>
-<p><a class="reference internal" href="../04-special-topics/graphics-interop.html#cuda-interoperability"><span class="std std-numref">第 4 章.19</span></a> describes how CUDA interoperates with other GPU APIs and how to share data between CUDA and other APIs, providing specific examples for a number of different APIs.</p>
+<h3><span class="section-number">3.5.4.1. </span>CUDA 与其他 API 的互操作性<a class="headerlink" href="feature-survey.html#cuda-interoperability-with-other-apis" title="跳转到此标题">#</a></h3>
+<p>在 GPU 上运行代码并不只有 CUDA 这一机制。GPU 最初用于加速计算机图形，因此有其图形 API 体系，如 Direct3D 与 Vulkan。应用可能希望一边使用图形 API 进行 3D 渲染，一边在 CUDA 中执行计算。CUDA 提供机制，用于在 CUDA 上下文与图形 API 使用的 GPU 上下文之间交换驻留在 GPU 上的数据。例如，应用可先用 CUDA 做模拟，再用 3D API 将结果可视化。这通过让部分缓冲区同时可被 CUDA 与图形 API 读取和/或写入来实现。</p>
+<p>与图形 API 共享缓冲区所用的同一套机制，也可用于与通信机制共享缓冲区，从而在多节点环境中实现快速、直接的 GPU 到 GPU 通信。</p>
+<p><a class="reference internal" href="../04-special-topics/graphics-interop.html#cuda-interoperability"><span class="std std-numref">第 4 章.19</span></a> 介绍了 CUDA 如何与其他 GPU API 互操作，以及如何在 CUDA 与其他 API 间共享数据，并给出了多种 API 的具体示例。</p>
 </section>
 <section id="interprocess-communication">
 <h3><span class="section-number">3.5.4.2. </span>进程间通信<a class="headerlink" href="feature-survey.html#interprocess-communication" title="跳转到此标题">#</a></h3>
-<p>For very large computations, it is common to use multiple GPUs together to make use of more memory and more compute resources working together on a problem. Within a single system, or node in cluster computing terminology, multiple GPUs can be used in a single host process. This is described in <a class="reference internal" href="multi-gpu-systems.html#multi-gpu-introduction"><span class="std std-numref">Section 3.4</span></a>.</p>
-<p>It is also common to use separate host processes spanning either a single computer or multiple computers. When multiple processes are working together, communication between them is known as interprocess communication. CUDA interprocess communication (CUDA IPC) provides mechanisms to share GPU buffers between different processes. <a class="reference internal" href="../04-special-topics/inter-process-communication.html#interprocess-communication"><span class="std std-numref">第 4 章.15</span></a> explains and demonstrates how CUDA IPC can be used to coordinate and communicate between different host processes.</p>
+<p>在超大规模计算中，常会联合使用多块 GPU，以利用更大内存与更多计算资源协同求解问题。在单个系统（集群术语中的单节点）内，可在一个主机进程中使用多块 GPU，这在 <a class="reference internal" href="multi-gpu-systems.html#multi-gpu-introduction"><span class="std std-numref">第 3.4 节</span></a> 已说明。</p>
+<p>也常见跨单机或多机使用多个独立主机进程协同工作。多个进程协同时，它们之间的通信称为进程间通信（IPC）。CUDA 进程间通信（CUDA IPC）提供了在不同进程间共享 GPU 缓冲区的机制。<a class="reference internal" href="../04-special-topics/inter-process-communication.html#interprocess-communication"><span class="std std-numref">第 4 章.15</span></a> 解释并演示了如何利用 CUDA IPC 在不同主机进程间进行协调与通信。</p>
 </section>
 </section>
 <section id="fine-grained-control">
 <h2><span class="section-number">3.5.5. </span>细粒度控制<a class="headerlink" href="feature-survey.html#fine-grained-control" title="跳转到此标题">#</a></h2>
 <section id="virtual-memory-management">
 <h3><span class="section-number">3.5.5.1. </span>虚拟内存管理<a class="headerlink" href="feature-survey.html#virtual-memory-management" title="跳转到此标题">#</a></h3>
-<p>As mentioned in <a class="reference internal" href="../02-basics/understanding-memory.html#memory-unified-virtual-address-space"><span class="std std-numref">Section 2.4.1</span></a>, all GPUs in a system, along with the CPU memory, share a single unified virtual address space. Most applications can use the default memory management provided by CUDA without the need to change its behavior. However,  <a class="reference internal" href="driver-api.html#driver-api"><span class="std std-ref">the CUDA driver API</span></a> provides advanced and detailed controls over the layout of this virtual memory space for those that need it. This is mostly applicable for controlling the behavior of buffers when sharing between GPUs both within and across multiple systems.</p>
-<p><a class="reference internal" href="../04-special-topics/virtual-memory-management.html#virtual-memory-management"><span class="std std-numref">第 4 章.16</span></a> covers the controls offered by the CUDA driver API, how they work and when a developer may find them advantageous.</p>
+<p>如 <a class="reference internal" href="../02-basics/understanding-memory.html#memory-unified-virtual-address-space"><span class="std std-numref">第 2.4.1 节</span></a> 所述，系统内所有 GPU 与 CPU 内存共享同一统一虚拟地址空间。大多数应用可直接使用 CUDA 默认内存管理而无需改变其行为。不过，对有需要的场景，<a class="reference internal" href="driver-api.html#driver-api"><span class="std std-ref">CUDA 驱动 API</span></a> 提供了对该虚拟内存空间布局更高级、细粒度的控制能力。这主要用于控制缓冲区在单系统内或跨系统 GPU 共享时的行为。</p>
+<p><a class="reference internal" href="../04-special-topics/virtual-memory-management.html#virtual-memory-management"><span class="std std-numref">第 4 章.16</span></a> 介绍了 CUDA 驱动 API 提供的这些控制能力、其工作方式，以及开发者在何种场景下可从中受益。</p>
 </section>
 <section id="driver-entry-point-access">
 <h3><span class="section-number">3.5.5.2. </span>驱动入口点访问<a class="headerlink" href="feature-survey.html#driver-entry-point-access" title="跳转到此标题">#</a></h3>
-<p><a class="reference internal" href="../04-special-topics/driver-entry-point-access.html#driver-entry-point-access"><span class="std std-ref">Driver entry point access</span></a> refers to the ability, starting in CUDA 11.3, to retrieve function pointers to the CUDA Driver and CUDA Runtime APIs. It also allows developers to retrieve function pointers for specific variants of driver functions, and to access driver functions from drivers newer than those available in the CUDA toolkit. <a class="reference internal" href="../04-special-topics/driver-entry-point-access.html#driver-entry-point-access"><span class="std std-numref">第 4 章.20</span></a> covers driver entry point access.</p>
+<p><a class="reference internal" href="../04-special-topics/driver-entry-point-access.html#driver-entry-point-access"><span class="std std-ref">驱动入口点访问</span></a>是指从 CUDA 11.3 开始可获取 CUDA Driver 与 CUDA Runtime API 函数指针的能力。它还允许开发者获取特定变体驱动函数的函数指针，并访问比 CUDA toolkit 内置版本更新的驱动函数。详见 <a class="reference internal" href="../04-special-topics/driver-entry-point-access.html#driver-entry-point-access"><span class="std std-numref">第 4 章.20</span></a>。</p>
 </section>
 <section id="error-log-management">
 <h3><span class="section-number">3.5.5.3. </span>错误日志管理<a class="headerlink" href="feature-survey.html#error-log-management" title="跳转到此标题">#</a></h3>
-<p><a class="reference internal" href="../04-special-topics/error-log-management.html#error-log-management"><span class="std std-ref">Error log management</span></a> provides utilities for handling and logging errors from CUDA APIs. Setting a single environment variable <code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code> enables capturing CUDA errors directly to stderr, stdout, or a file.  Error log management also enables applications to register a callback which is triggered when CUDA encounters an error. <a class="reference internal" href="../04-special-topics/error-log-management.html#error-log-management"><span class="std std-numref">第 4 章.8</span></a> provides more details on error log management.</p>
+<p><a class="reference internal" href="../04-special-topics/error-log-management.html#error-log-management"><span class="std std-ref">错误日志管理</span></a>提供了处理与记录 CUDA API 错误的工具。只需设置一个环境变量 <code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code>，即可将 CUDA 错误直接输出到 stderr、stdout 或文件。错误日志管理还支持应用注册回调，在 CUDA 遇到错误时触发。更多细节见 <a class="reference internal" href="../04-special-topics/error-log-management.html#error-log-management"><span class="std std-numref">第 4 章.8</span></a>。</p>
 </section>
 </section>
 </section>
@@ -601,7 +601,7 @@
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">上一项</p>
-        <p class="prev-next-title"><span class="section-number">3.4. </span>Programming Systems with Multiple GPUs</p>
+        <p class="prev-next-title"><span class="section-number">3.4. </span>多 GPU 系统编程</p>
       </div>
     </a>
     <a class="right-next"
@@ -609,7 +609,7 @@
        title="下一页">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">下一项</p>
-        <p class="prev-next-title"><span class="section-number">4. </span>CUDA Features</p>
+        <p class="prev-next-title"><span class="section-number">4. </span>CUDA 特性</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -644,7 +644,7 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#improving-latencies">3.5.2. 降低时延</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#green-contexts">3.5.2.1. 绿色上下文</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#stream-ordered-memory-allocation">3.5.2.2. 流有序内存分配</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#cuda-graphs">3.5.2.3. CUDA Graphs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#cuda-graphs">3.5.2.3. CUDA 图</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#programmatic-dependent-launch">3.5.2.4. 编程式依赖启动</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#lazy-loading">3.5.2.5. 惰性加载</a></li>
 </ul>
@@ -655,7 +655,7 @@
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#cuda-interoperability">3.5.4. CUDA 互操作性</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#cuda-interoperability-with-other-apis">3.5.4.1. CUDA 互操作性 with other APIs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#cuda-interoperability-with-other-apis">3.5.4.1. CUDA 与其他 API 的互操作性</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="feature-survey.html#interprocess-communication">3.5.4.2. 进程间通信</a></li>
 </ul>
 </li>
