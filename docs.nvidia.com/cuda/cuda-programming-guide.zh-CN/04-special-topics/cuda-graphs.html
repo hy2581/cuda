@@ -844,20 +844,20 @@ Stream Capture</label><div class="sd-tab-content docutils">
 </section>
 </section>
 <section id="graph-instantiation">
-<span id="cuda-graphs-graph-instantiation"></span><h3><span class="section-number">4.2.2.2. </span>Graph Instantiation<a class="headerlink" href="cuda-graphs.html#graph-instantiation" title="Link to this heading">#</a></h3>
-<p>Once a graph has been created, either by the use of the graph API or stream capture, the graph must be instantiated to create an executable graph, which can then be launched.  Assuming the <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span> <span class="pre">graph</span></code> has been created successfully, the following code will instantiate the graph and create the executable graph <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span> <span class="pre">graphExec</span></code>:</p>
+<span id="cuda-graphs-graph-instantiation"></span><h3><span class="section-number">4.2.2.2. </span>图实例化<a class="headerlink" href="cuda-graphs.html#graph-instantiation" title="Link to this heading">#</a></h3>
+<p>图通过 Graph API 或流捕获创建后，必须先进行实例化，生成可执行图，之后才能启动。假设 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span> <span class="pre">graph</span></code> 已成功创建，以下代码会实例化该图并创建可执行图 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span> <span class="pre">graphExec</span></code>：</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="n">cudaGraphExec_t</span><span class="w"> </span><span class="n">graphExec</span><span class="p">;</span>
 <span class="n">cudaGraphInstantiate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">graphExec</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 </pre></div>
 </div>
 </section>
 <section id="graph-execution">
-<span id="cuda-graphs-graph-execution"></span><h3><span class="section-number">4.2.2.3. </span>Graph Execution<a class="headerlink" href="cuda-graphs.html#graph-execution" title="Link to this heading">#</a></h3>
-<p>After a graph has been created and instantiated to create an executable graph, it can be launched. Assuming the <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span> <span class="pre">graphExec</span></code> has been created successfully, the following code snippet will launch the graph into the specified stream:</p>
+<span id="cuda-graphs-graph-execution"></span><h3><span class="section-number">4.2.2.3. </span>图执行<a class="headerlink" href="cuda-graphs.html#graph-execution" title="Link to this heading">#</a></h3>
+<p>图创建并实例化为可执行图后，即可启动。假设 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span> <span class="pre">graphExec</span></code> 已成功创建，以下代码会将图启动到指定流中：</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="n">cudaGraphLaunch</span><span class="p">(</span><span class="n">graphExec</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>Pulling it all together and using the stream capture example from <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-stream-capture"><span class="std std-numref">Section 4.2.2.1.2</span></a>, the following code snippet will create a graph, instantiate it, and launch it:</p>
+<p>综合来看，沿用 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-stream-capture"><span class="std std-numref">4.2.2.1.2 节</span></a> 的流捕获示例，下面代码展示了如何创建图、实例化图并启动图：</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="n">cudaGraph_t</span><span class="w"> </span><span class="n">graph</span><span class="p">;</span>
 
 <span class="n">cudaStreamBeginCapture</span><span class="p">(</span><span class="n">stream</span><span class="p">);</span>
@@ -877,29 +877,29 @@ Stream Capture</label><div class="sd-tab-content docutils">
 </section>
 </section>
 <section id="updating-instantiated-graphs">
-<span id="cuda-graphs-updating-instantiated-graphs"></span><h2><span class="section-number">4.2.3. </span>Updating Instantiated Graphs<a class="headerlink" href="cuda-graphs.html#updating-instantiated-graphs" title="Link to this heading">#</a></h2>
-<p>When a workflow changes, the graph becomes out of date and must be modified. Major changes to graph structure (such as topology or node types) require re-instantiation because topology-related optimizations must be re-applied. However, it is common for only node parameters (such as kernel parameters and memory addresses) to change while the graph topology remains the same. For this case, CUDA provides a lightweight “Graph Update” mechanism that allows certain node parameters to be modified in-place without rebuilding the entire graph, which is much more efficient than re-instantiation.</p>
-<p>Updates take effect the next time the graph is launched, so they do not impact previous graph launches, even if they are running at the time of the update. A graph may be updated and relaunched repeatedly, so multiple updates/launches can be queued on a stream.</p>
-<p>CUDA provides two mechanisms for updating instantiated graph parameters, whole graph update and individual node update. Whole graph update allows the user to supply a topologically identical <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> object whose nodes contain updated parameters. Individual node update allows the user to explicitly update the parameters of individual nodes. Using an updated <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> is more convenient when a large number of nodes are being updated, or when the graph topology is unknown to the caller (i.e., The graph resulted from stream capture of a library call). Using individual node update is preferred when the number of changes is small and the user has the handles to the nodes requiring updates. Individual node update skips the topology checks and comparisons for unchanged nodes, so it can be more efficient in many cases.</p>
-<p>CUDA also provides a mechanism for enabling and disabling individual nodes without affecting their current parameters.</p>
-<p>The following sections explain each approach in more detail.</p>
+<span id="cuda-graphs-updating-instantiated-graphs"></span><h2><span class="section-number">4.2.3. </span>更新已实例化图<a class="headerlink" href="cuda-graphs.html#updating-instantiated-graphs" title="Link to this heading">#</a></h2>
+<p>当工作流发生变化时，图会过时并需要修改。若图结构发生重大变化（如拓扑或节点类型变化），就需要重新实例化，因为必须重新应用与拓扑相关的优化。不过，更常见的情况是图拓扑不变，仅节点参数（如内核参数、内存地址）变化。针对这种场景，CUDA 提供了轻量级的“图更新（Graph Update）”机制，可原地修改特定节点参数，而无需重建整张图，效率通常高于重新实例化。</p>
+<p>更新会在图下一次启动时生效，因此不会影响此前已提交的图启动，即使这些启动在更新发生时仍在运行。图可以反复更新并重新启动，因此同一条流上可以排队多个“更新/启动”序列。</p>
+<p>CUDA 为已实例化图参数更新提供两种机制：整图更新与单节点更新。整图更新允许用户提供一个拓扑完全一致、但节点参数已更新的 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 对象；单节点更新则允许显式更新某个节点的参数。当需要更新的节点较多，或调用方并不掌握图拓扑（例如图来自库调用的流捕获）时，使用更新后的 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 更方便。当变更点较少且用户持有目标节点句柄时，更推荐单节点更新。单节点更新会跳过未变化节点的拓扑检查与比较，因此在许多场景下更高效。</p>
+<p>CUDA 还提供了在不改变节点当前参数的前提下，启用或禁用单个节点的机制。</p>
+<p>下文将分别详细说明这些方式。</p>
 <section id="whole-graph-update">
-<span id="cuda-graphs-whole-graph-update"></span><h3><span class="section-number">4.2.3.1. </span>Whole Graph Update<a class="headerlink" href="cuda-graphs.html#whole-graph-update" title="Link to this heading">#</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code> allows an instantiated graph (the “original graph”) to be updated with the parameters from a topologically identical graph (the “updating” graph). The topology of the updating graph must be identical to the original graph used to instantiate the <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code>. In addition, the order in which the dependencies are specified must match. Finally, CUDA needs to consistently order the sink nodes (nodes with no dependencies). CUDA relies on the order of specific api calls to achieve consistent sink node ordering.</p>
-<p>More explicitly, following the following rules will cause <code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code> to pair the nodes in the original graph and the updating graph deterministically:</p>
+<span id="cuda-graphs-whole-graph-update"></span><h3><span class="section-number">4.2.3.1. </span>整图更新<a class="headerlink" href="cuda-graphs.html#whole-graph-update" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code> 允许用一个拓扑完全一致的“更新图”中的参数，去更新已实例化图（“原始图”）。更新图的拓扑必须与用于实例化 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 的原始图完全一致。此外，依赖关系的指定顺序也必须一致。最后，CUDA 还需要对汇点节点（无后继依赖的节点）进行一致排序；这一点通过特定 API 调用顺序来保证。</p>
+<p>更具体地说，遵循以下规则可使 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code> 以确定性方式将原始图与更新图中的节点正确配对：</p>
 <ol class="arabic simple">
-<li><p>For any capturing stream, the API calls operating on that stream must be made in the same order, including event wait and other api calls not directly corresponding to node creation.</p></li>
-<li><p>The API calls which directly manipulate a given graph node’s incoming edges (including captured stream APIs, node add APIs, and edge addition / removal APIs) must be made in the same order. Moreover, when dependencies are specified in arrays to these APIs, the order in which the dependencies are specified inside those arrays must match.</p></li>
-<li><p>Sink nodes must be consistently ordered. Sink nodes are nodes without dependent nodes / outgoing edges in the final graph at the time of the <code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code> invocation. The following operations affect sink node ordering (if present) and must (as a combined set) be made in the same order:</p>
+<li><p>对于任意参与捕获的流，作用于该流的 API 调用顺序必须一致，包括事件等待以及其他不直接对应节点创建的 API 调用。</p></li>
+<li><p>直接操作某个图节点入边的 API 调用（包括捕获流 API、节点添加 API、边添加/删除 API）必须保持相同顺序。此外，若这些 API 通过数组传入依赖关系，数组内部依赖项顺序也必须一致。</p></li>
+<li><p>汇点节点必须保持一致排序。汇点节点是指在调用 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code> 时，最终图中没有后继节点/出边的节点。以下操作（若存在）会影响汇点排序，且整体顺序必须一致：</p>
 <ul class="simple">
-<li><p>Node add APIs resulting in a sink node.</p></li>
-<li><p>Edge removal resulting in a node becoming a sink node.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cudaStreamUpdateCaptureDependencies()</span></code>, if it removes a sink node from a capturing stream’s dependency set.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code>.</p></li>
+<li><p>会产生汇点节点的节点添加 API。</p></li>
+<li><p>使某节点变为汇点节点的边删除操作。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaStreamUpdateCaptureDependencies()</span></code>（当其将某汇点节点从捕获流依赖集中移除时）。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code>。</p></li>
 </ul>
 </li>
 </ol>
-<p>The following example shows how the API could be used to update an instantiated graph:</p>
+<p>下面示例演示如何使用该 API 更新已实例化图：</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="n">cudaGraphExec_t</span><span class="w"> </span><span class="n">graphExec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
 
 <span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -945,48 +945,48 @@ Stream Capture</label><div class="sd-tab-content docutils">
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>A typical workflow is to create the initial <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> using either the stream capture or graph API. The <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> is then instantiated and launched as normal. After the initial launch, a new <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> is created using the same method as the initial graph and <code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code> is called. If the graph update is successful, indicated by the <code class="docutils literal notranslate"><span class="pre">updateResult</span></code> parameter in the above example, the updated <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> is launched. If the update fails for any reason, the <code class="docutils literal notranslate"><span class="pre">cudaGraphExecDestroy()</span></code> and <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiate()</span></code> are called to destroy the original <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> and instantiate a new one.</p>
-<p>It is also possible to update the <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> nodes directly (i.e., Using <code class="docutils literal notranslate"><span class="pre">cudaGraphKernelNodeSetParams()</span></code>) and subsequently update the <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code>, however it is more efficient to use the explicit node update APIs covered in the next section.</p>
-<p>Conditional handle flags and default values are updated as part of the graph update.</p>
+<p>典型流程是：先通过流捕获或 Graph API 创建初始 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code>，再按常规实例化并启动。首次启动后，用与初始图相同的方法创建新的 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code>，并调用 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code>。若更新成功（如上例中由 <code class="docutils literal notranslate"><span class="pre">updateResult</span></code> 指示），即可启动更新后的 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code>。若更新失败，则调用 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecDestroy()</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiate()</span></code>，销毁原有 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 并重新实例化。</p>
+<p>也可以直接更新 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 中的节点（例如使用 <code class="docutils literal notranslate"><span class="pre">cudaGraphKernelNodeSetParams()</span></code>），随后再更新 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code>；但通常使用下一节介绍的显式节点更新 API 效率更高。</p>
+<p>条件句柄的标志位与默认值也会作为图更新的一部分被同步更新。</p>
 <p>Please see the <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH">Graph API</a> for more information on usage and current limitations.</p>
 </section>
 <section id="individual-node-update">
-<span id="cuda-graphs-individual-node-update"></span><h3><span class="section-number">4.2.3.2. </span>Individual Node Update<a class="headerlink" href="cuda-graphs.html#individual-node-update" title="Link to this heading">#</a></h3>
-<p>Instantiated graph node parameters can be updated directly. This eliminates the overhead of instantiation as well as the overhead of creating a new <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code>. If the number of nodes requiring update is small relative to the total number of nodes in the graph, it is better to update the nodes individually. The following methods are available for updating <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> nodes:</p>
+<span id="cuda-graphs-individual-node-update"></span><h3><span class="section-number">4.2.3.2. </span>单节点更新<a class="headerlink" href="cuda-graphs.html#individual-node-update" title="Link to this heading">#</a></h3>
+<p>已实例化图中的节点参数可以直接更新。这样可避免重新实例化的开销，也无需创建新的 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code>。当需要更新的节点数量相对整图较少时，逐节点更新更合适。可用于更新 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 节点的方法如下：</p>
 <div class="pst-scrollable-table-container"><table class="table-no-stripes table" id="id4">
-<caption><span class="caption-number">Table 8 </span><span class="caption-text">Individual Node Update APIs</span><a class="headerlink" href="cuda-graphs.html#id4" title="Link to this table">#</a></caption>
+<caption><span class="caption-number">Table 8 </span><span class="caption-text">单节点更新 API</span><a class="headerlink" href="cuda-graphs.html#id4" title="Link to this table">#</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>API</p></th>
-<th class="head"><p>Node Type</p></th>
+<th class="head"><p>节点类型</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cudaGraphExecKernelNodeSetParams()</span></code></p></td>
-<td><p>Kernel node</p></td>
+<td><p>内核节点</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cudaGraphExecMemcpyNodeSetParams()</span></code></p></td>
-<td><p>Memory copy node</p></td>
+<td><p>内存拷贝节点</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cudaGraphExecMemsetNodeSetParams()</span></code></p></td>
-<td><p>Memory set node</p></td>
+<td><p>内存置值节点</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cudaGraphExecHostNodeSetParams()</span></code></p></td>
-<td><p>Host node</p></td>
+<td><p>主机节点</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cudaGraphExecChildGraphNodeSetParams()</span></code></p></td>
-<td><p>Child graph node</p></td>
+<td><p>子图节点</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cudaGraphExecEventRecordNodeSetEvent()</span></code></p></td>
-<td><p>Event record node</p></td>
+<td><p>事件记录节点</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cudaGraphExecEventWaitNodeSetEvent()</span></code></p></td>
-<td><p>Event wait node</p></td>
+<td><p>事件等待节点</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cudaGraphExecExternalSemaphoresSignalNodeSetParams()</span></code></p></td>
-<td><p>External semaphore signal node</p></td>
+<td><p>外部信号量 signal 节点</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cudaGraphExecExternalSemaphoresWaitNodeSetParams()</span></code></p></td>
-<td><p>External semaphore wait node</p></td>
+<td><p>外部信号量 wait 节点</p></td>
 </tr>
 </tbody>
 </table>
@@ -994,81 +994,81 @@ Stream Capture</label><div class="sd-tab-content docutils">
 <p>Please see the <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH">Graph API</a> for more information on usage and current limitations.</p>
 </section>
 <section id="individual-node-enable">
-<span id="cuda-graphs-individual-node-enable"></span><h3><span class="section-number">4.2.3.3. </span>Individual Node Enable<a class="headerlink" href="cuda-graphs.html#individual-node-enable" title="Link to this heading">#</a></h3>
-<p>Kernel, memset and memcpy nodes in an instantiated graph can be enabled or disabled using the <code class="docutils literal notranslate"><span class="pre">cudaGraphNodeSetEnabled()</span></code> API. This allows the creation of a graph which contains a superset of the desired functionality which can be customized for each launch. The enable state of a node can be queried using the <code class="docutils literal notranslate"><span class="pre">cudaGraphNodeGetEnabled()</span></code> API.</p>
-<p>A disabled node is functionally equivalent to empty node until it is re-enabled. Node parameters are not affected by enabling/disabling a node. Enable state is unaffected by individual node update or whole graph update with <code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code>. Parameter updates while the node is disabled will take effect when the node is re-enabled.</p>
+<span id="cuda-graphs-individual-node-enable"></span><h3><span class="section-number">4.2.3.3. </span>单节点启用控制<a class="headerlink" href="cuda-graphs.html#individual-node-enable" title="Link to this heading">#</a></h3>
+<p>已实例化图中的内核、memset、memcpy 节点可通过 <code class="docutils literal notranslate"><span class="pre">cudaGraphNodeSetEnabled()</span></code> API 启用或禁用。这样可以先构建一个覆盖所需功能超集的图，再在每次启动前按需定制。节点启用状态可通过 <code class="docutils literal notranslate"><span class="pre">cudaGraphNodeGetEnabled()</span></code> API 查询。</p>
+<p>被禁用的节点在功能上等价于空节点，直到重新启用。启用/禁用不会改变节点参数。节点启用状态也不会被单节点更新或通过 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code> 进行的整图更新覆盖。若节点禁用期间参数发生更新，这些更新会在重新启用后生效。</p>
 <p>Refer to the <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH">Graph API</a> for more information on usage and current limitations.</p>
 </section>
 <section id="graph-update-limitations">
-<span id="cuda-graphs-graph-update-limitations"></span><h3><span class="section-number">4.2.3.4. </span>Graph Update Limitations<a class="headerlink" href="cuda-graphs.html#graph-update-limitations" title="Link to this heading">#</a></h3>
-<p>Kernel nodes:</p>
+<span id="cuda-graphs-graph-update-limitations"></span><h3><span class="section-number">4.2.3.4. </span>图更新限制<a class="headerlink" href="cuda-graphs.html#graph-update-limitations" title="Link to this heading">#</a></h3>
+<p>内核节点：</p>
 <ul class="simple">
-<li><p>The owning context of the function cannot change.</p></li>
-<li><p>A node whose function originally did not use CUDA dynamic parallelism cannot be updated to a function which uses CUDA dynamic parallelism.</p></li>
+<li><p>函数所属上下文不能改变。</p></li>
+<li><p>原本不使用 CUDA 动态并行的节点函数，不能更新为使用 CUDA 动态并行的函数。</p></li>
 </ul>
-<p><code class="docutils literal notranslate"><span class="pre">cudaMemset</span></code> and <code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code> nodes:</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaMemset</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code> 节点：</p>
 <ul class="simple">
-<li><p>The CUDA device(s) to which the operand(s) was allocated/mapped cannot change.</p></li>
-<li><p>The source/destination memory must be allocated from the same context as the original source/destination memory.</p></li>
-<li><p>Only 1D <code class="docutils literal notranslate"><span class="pre">cudaMemset</span></code>/<code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code> nodes can be changed.</p></li>
+<li><p>操作数分配/映射到的 CUDA 设备不能改变。</p></li>
+<li><p>源/目标内存必须与原始源/目标内存来自同一上下文分配。</p></li>
+<li><p>仅支持修改一维 <code class="docutils literal notranslate"><span class="pre">cudaMemset</span></code>/<code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code> 节点。</p></li>
 </ul>
-<p>Additional memcpy node restrictions:</p>
+<p>Memcpy 节点的附加限制：</p>
 <ul class="simple">
-<li><p>Changing either the source or destination memory type (i.e., <code class="docutils literal notranslate"><span class="pre">cudaPitchedPtr</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaArray_t</span></code>, etc.), or the type of transfer (i.e., <code class="docutils literal notranslate"><span class="pre">cudaMemcpyKind</span></code>) is not supported.</p></li>
+<li><p>不支持更改源或目标内存类型（如 <code class="docutils literal notranslate"><span class="pre">cudaPitchedPtr</span></code>、<code class="docutils literal notranslate"><span class="pre">cudaArray_t</span></code> 等），也不支持更改传输类型（即 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyKind</span></code>）。</p></li>
 </ul>
-<p>External semaphore wait nodes and record nodes:</p>
+<p>外部信号量 wait/record 节点：</p>
 <ul class="simple">
-<li><p>Changing the number of semaphores is not supported.</p></li>
+<li><p>不支持更改信号量数量。</p></li>
 </ul>
-<p>Conditional nodes:</p>
+<p>条件节点：</p>
 <ul class="simple">
-<li><p>The order of handle creation and assignment must match between the graphs.</p></li>
-<li><p>Changing node parameters is not supported (i.e. number of graphs in the conditional, node context, etc).</p></li>
-<li><p>Changing parameters of nodes within the conditional body graph is subject to the rules above.</p></li>
+<li><p>图之间句柄创建与赋值顺序必须一致。</p></li>
+<li><p>不支持更改节点参数（如条件中的图数量、节点上下文等）。</p></li>
+<li><p>条件体图内部节点参数的修改，受上述规则约束。</p></li>
 </ul>
-<p>Memory nodes:</p>
+<p>内存节点：</p>
 <ul class="simple">
-<li><p>It is not possible to update a <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> with a <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> if the <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> is currently instantiated as a different <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code>.</p></li>
+<li><p>若某个 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 当前已被实例化为另一个 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code>，则不能再用它去更新当前 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code>。</p></li>
 </ul>
-<p>There are no restrictions on updates to host nodes, event record nodes, or event wait nodes.</p>
+<p>主机节点、事件记录节点与事件等待节点的更新不受上述限制。</p>
 </section>
 </section>
 <section id="conditional-graph-nodes">
-<span id="cuda-graphs-conditional-graph-nodes"></span><h2><span class="section-number">4.2.4. </span>Conditional Graph Nodes<a class="headerlink" href="cuda-graphs.html#conditional-graph-nodes" title="Link to this heading">#</a></h2>
-<p>Conditional nodes allow conditional execution and looping of a graph contained within the conditional node. This allows dynamic and iterative workflows to be represented completely within a graph and frees up the host CPU to perform other work in parallel.</p>
-<p>Evaluation of the condition value is performed on the device when the dependencies of the conditional node have been met. Conditional nodes can be one of the following types:</p>
+<span id="cuda-graphs-conditional-graph-nodes"></span><h2><span class="section-number">4.2.4. </span>条件图节点<a class="headerlink" href="cuda-graphs.html#conditional-graph-nodes" title="Link to this heading">#</a></h2>
+<p>条件节点允许对其内部包含的图进行条件执行与循环执行。这使动态图与迭代型工作流能够完全在图内表达，从而释放主机 CPU 去并行执行其他工作。</p>
+<p>当条件节点依赖满足后，条件值会在设备端进行求值。条件节点可以是以下类型之一：</p>
 <ul class="simple">
-<li><p>Conditional <a class="reference internal" href="cuda-graphs.html#cuda-graphs-conditional-if-nodes"><span class="std std-ref">IF nodes</span></a> execute their body graph once if the condition value is non-zero when the node is executed. An optional second body graph can be provided and this will be executed once if the condition value is zero when the node is executed.</p></li>
-<li><p>Conditional <a class="reference internal" href="cuda-graphs.html#cuda-graphs-conditional-while-nodes"><span class="std std-ref">WHILE nodes</span></a> execute their body graph if the condition value is non-zero when the node is executed and will continue to execute their body graph until the condition value is zero.</p></li>
-<li><p>Conditional <a class="reference internal" href="cuda-graphs.html#cuda-graphs-conditional-switch-nodes"><span class="std std-ref">SWITCH nodes</span></a> execute the zero-indexed nth body graph once if the condition value is equal to n.  If the condition value does not correspond to a body graph, no body graph is launched.</p></li>
+<li><p>条件 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-conditional-if-nodes"><span class="std std-ref">IF 节点</span></a> 会在节点执行时条件值非 0 的情况下执行其体图一次。还可提供可选的第二个体图，在条件值为 0 时执行一次。</p></li>
+<li><p>条件 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-conditional-while-nodes"><span class="std std-ref">WHILE 节点</span></a> 会在节点执行时条件值非 0 的情况下执行体图，并持续执行直到条件值变为 0。</p></li>
+<li><p>条件 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-conditional-switch-nodes"><span class="std std-ref">SWITCH 节点</span></a> 会在条件值等于 n 时执行从 0 开始编号的第 n 个体图一次；若条件值不对应任何体图，则不启动体图。</p></li>
 </ul>
-<p>A condition value is accessed by a <a class="reference internal" href="cuda-graphs.html#cuda-graphs-conditional-handles"><span class="std std-ref">conditional handle</span></a> , which must be created before the node. The condition value can be set by device code using <code class="docutils literal notranslate"><span class="pre">cudaGraphSetConditional()</span></code>. A default value, applied on each graph launch, can also be specified when the handle is created.</p>
-<p>When the conditional node is created, an empty graph is created and the handle is returned to the user so that the graph can be populated.  This conditional body graph can be populated using either the <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-graph-apis"><span class="std std-ref">graph APIs</span></a> or <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-stream-capture"><span class="std std-ref">cudaStreamBeginCaptureToGraph()</span></a>.</p>
-<p>Conditional nodes can be nested.</p>
+<p>条件值通过<a class="reference internal" href="cuda-graphs.html#cuda-graphs-conditional-handles"><span class="std std-ref">条件句柄</span></a>访问，且该句柄必须先于条件节点创建。设备端代码可使用 <code class="docutils literal notranslate"><span class="pre">cudaGraphSetConditional()</span></code> 设置条件值。创建句柄时还可指定默认值，该默认值会在每次图启动时应用。</p>
+<p>创建条件节点时，会同时创建一个空图并将句柄返回给用户，以便后续填充图内容。这个条件体图可通过 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-graph-apis"><span class="std std-ref">Graph API</span></a> 或 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-stream-capture"><span class="std std-ref">cudaStreamBeginCaptureToGraph()</span></a> 进行构建。</p>
+<p>条件节点可以嵌套。</p>
 <section id="conditional-handles">
-<span id="cuda-graphs-conditional-handles"></span><h3><span class="section-number">4.2.4.1. </span>Conditional Handles<a class="headerlink" href="cuda-graphs.html#conditional-handles" title="Link to this heading">#</a></h3>
-<p>A condition value is represented by <code class="docutils literal notranslate"><span class="pre">cudaGraphConditionalHandle</span></code> and is created by <code class="docutils literal notranslate"><span class="pre">cudaGraphConditionalHandleCreate()</span></code>.</p>
-<p>The handle must be associated with a single conditional node. Handles cannot be destroyed and as such there is no need to keep track of them.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">cudaGraphCondAssignDefault</span></code> is specified when the handle is created, the condition value will be initialized to the specified default at the beginning of each graph execution. If this flag is not provided, the condition value is undefined at the start of each graph execution and code should not assume that the condition value persists across executions.</p>
-<p>The default value and flags associated with a handle will be updated during <a class="reference internal" href="cuda-graphs.html#cuda-graphs-whole-graph-update"><span class="std std-ref">whole graph update</span></a>.</p>
+<span id="cuda-graphs-conditional-handles"></span><h3><span class="section-number">4.2.4.1. </span>条件句柄<a class="headerlink" href="cuda-graphs.html#conditional-handles" title="Link to this heading">#</a></h3>
+<p>条件值由 <code class="docutils literal notranslate"><span class="pre">cudaGraphConditionalHandle</span></code> 表示，并通过 <code class="docutils literal notranslate"><span class="pre">cudaGraphConditionalHandleCreate()</span></code> 创建。</p>
+<p>该句柄必须绑定到单个条件节点。句柄不能被销毁，因此应用无需维护其生命周期管理。</p>
+<p>若创建句柄时指定 <code class="docutils literal notranslate"><span class="pre">cudaGraphCondAssignDefault</span></code>，则每次图执行开始时，条件值都会初始化为指定默认值。若未指定该标志，则每次图执行开始时条件值未定义，代码不应假设条件值会跨执行保持。</p>
+<p>句柄关联的默认值与标志位会在<a class="reference internal" href="cuda-graphs.html#cuda-graphs-whole-graph-update"><span class="std std-ref">整图更新</span></a>期间同步更新。</p>
 </section>
 <section id="conditional-node-body-graph-requirements">
-<span id="cuda-graphs-conditional-node-body-graph-requirements"></span><h3><span class="section-number">4.2.4.2. </span>Conditional Node Body Graph Requirements<a class="headerlink" href="cuda-graphs.html#conditional-node-body-graph-requirements" title="Link to this heading">#</a></h3>
-<p>General requirements:</p>
+<span id="cuda-graphs-conditional-node-body-graph-requirements"></span><h3><span class="section-number">4.2.4.2. </span>条件节点体图要求<a class="headerlink" href="cuda-graphs.html#conditional-node-body-graph-requirements" title="Link to this heading">#</a></h3>
+<p>通用要求：</p>
 <ul class="simple">
-<li><p>The graph’s nodes must all reside on a single device.</p></li>
-<li><p>The graph can only contain kernel nodes, empty nodes, memcpy nodes, memset nodes, child graph nodes, and conditional nodes.</p></li>
+<li><p>图中的所有节点必须位于同一设备上。</p></li>
+<li><p>图中仅可包含内核节点、空节点、memcpy 节点、memset 节点、子图节点和条件节点。</p></li>
 </ul>
-<p>Kernel nodes:</p>
+<p>内核节点：</p>
 <ul class="simple">
-<li><p>Use of CUDA Dynamic Parallelism or Device Graph Launch by kernels in the graph is not permitted.</p></li>
-<li><p>Cooperative launches are permitted so long as MPS is not in use.</p></li>
+<li><p>图中内核不允许使用 CUDA 动态并行或 Device Graph Launch。</p></li>
+<li><p>在未使用 MPS 的前提下，允许协作式启动。</p></li>
 </ul>
-<p>Memcpy/Memset nodes:</p>
+<p>Memcpy/Memset 节点：</p>
 <ul class="simple">
-<li><p>Only copies/memsets involving device memory and/or pinned device-mapped host memory are permitted.</p></li>
-<li><p>Copies/memsets involving CUDA arrays are not permitted.</p></li>
-<li><p>Both operands must be accessible from the current device at time of instantiation. Note that the copy operation will be performed from the device on which the graph resides, even if it is targeting memory on another device.</p></li>
+<li><p>仅允许涉及设备内存和/或固定（pinned）设备映射主机内存的拷贝/置值操作。</p></li>
+<li><p>不允许涉及 CUDA 数组的拷贝/置值操作。</p></li>
+<li><p>在实例化时，两个操作数都必须可被当前设备访问。请注意，即使目标内存在其他设备上，拷贝操作也会由图所在设备发起执行。</p></li>
 </ul>
 </section>
 <section id="conditional-if-nodes">
@@ -1776,21 +1776,21 @@ The following code shows the use of <code class="docutils literal notranslate"><
 <p>In order for a graph to be launched from the device, it must be instantiated explicitly for device launch. This is achieved by passing the <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiateFlagDeviceLaunch</span></code> flag to the <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiate()</span></code> call. As is the case for host graphs, device graph structure is fixed at time of instantiation and cannot be updated without re-instantiation, and instantiation can only be performed on the host. In order for a graph to be able to be instantiated for device launch, it must adhere to various requirements.</p>
 <section id="device-graph-requirements">
 <span id="cuda-graphs-device-graph-requirements"></span><h4><span class="section-number">4.2.6.1.1. </span>Device Graph Requirements<a class="headerlink" href="cuda-graphs.html#device-graph-requirements" title="Link to this heading">#</a></h4>
-<p>General requirements:</p>
+<p>通用要求：</p>
 <ul class="simple">
-<li><p>The graph’s nodes must all reside on a single device.</p></li>
+<li><p>图中的所有节点必须位于同一设备上。</p></li>
 <li><p>The graph can only contain kernel nodes, memcpy nodes, memset nodes, and child graph nodes.</p></li>
 </ul>
-<p>Kernel nodes:</p>
+<p>内核节点：</p>
 <ul class="simple">
 <li><p>Use of CUDA Dynamic Parallelism by kernels in the graph is not permitted.</p></li>
-<li><p>Cooperative launches are permitted so long as MPS is not in use.</p></li>
+<li><p>在未使用 MPS 的前提下，允许协作式启动。</p></li>
 </ul>
 <p>Memcpy nodes:</p>
 <ul class="simple">
 <li><p>Only copies involving device memory and/or pinned device-mapped host memory are permitted.</p></li>
 <li><p>Copies involving CUDA arrays are not permitted.</p></li>
-<li><p>Both operands must be accessible from the current device at time of instantiation. Note that the copy operation will be performed from the device on which the graph resides, even if it is targeting memory on another device.</p></li>
+<li><p>在实例化时，两个操作数都必须可被当前设备访问。请注意，即使目标内存在其他设备上，拷贝操作也会由图所在设备发起执行。</p></li>
 </ul>
 </section>
 <section id="device-graph-upload">
