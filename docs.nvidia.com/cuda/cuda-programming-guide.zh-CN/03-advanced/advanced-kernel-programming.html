@@ -558,72 +558,72 @@
 <section id="async-thread-and-async-proxy">
 <span id="advanced-kernels-hardware-implementation-asynchronous-execution-features-async-thread-proxy"></span><h4><span class="section-number">3.2.2.3.1. </span>异步线程与异步代理<a class="headerlink" href="advanced-kernel-programming.html#async-thread-and-async-proxy" title="跳转到此标题">#</a></h4>
 <p>异步操作的内存访问方式可能与常规操作不同。为区分这些访问模式，CUDA 引入了 <em>async thread</em>、<em>generic proxy</em> 与 <em>async proxy</em> 概念。常规 load/store 通过 generic proxy 执行。某些异步指令（如 <a class="reference internal" href="../04-special-topics/async-copies.html#async-copies-ldgsts"><span class="std std-ref">LDGSTS</span></a>、<a class="reference internal" href="../04-special-topics/async-copies.html#async-copies-stas"><span class="std std-ref">STAS/REDAS</span></a>）可建模为“在 generic proxy 中运行的 async thread”；另一些异步指令（如 TMA 批量异步拷贝及部分张量核操作 tcgen05.*、wgmma.mma_async.*）则建模为“在 async proxy 中运行的 async thread”。</p>
-<p><strong>Async thread operating in generic proxy</strong>. When an asynchronous operation is initiated, it is associated with an async thread, which is different from the CUDA thread that initiated the operation. <em>Preceding</em> generic proxy (normal) loads and stores to the same address are guaranteed to be ordered before the asynchronous operation. However, <em>subsequent</em> normal loads and stores to the same address are not guaranteed to maintain their ordering, potentially incurring a race condition until the async thread completes.</p>
-<p><strong>Async thread operating in async proxy</strong>. When an asynchronous operation is initiated, it is associated with an async thread, which is different from the CUDA thread that initiated the operation. <em>Prior and subsequent</em> normal loads and stores to the same address are not guaranteed to maintain their ordering. A proxy fence is required to synchronize them across the different proxies to ensure proper memory ordering. Section <a class="reference internal" href="../04-special-topics/async-copies.html#async-copies-tma"><span class="std std-ref">Using the Tensor Memory Accelerator (TMA)</span></a> demonstrates use of proxy fences to ensure correctness when performing asynchronous copies with TMA.</p>
+<p><strong>在 generic proxy 中运行的 async thread</strong>：当异步操作被发起时，它会关联到一个 async thread，该线程不同于发起该操作的 CUDA 线程。对同一地址而言，异步操作之前的 generic proxy（常规）load/store 保证先于该异步操作发生；但其后的常规 load/store 不保证维持顺序，因此在 async thread 完成前可能产生竞争条件。</p>
+<p><strong>在 async proxy 中运行的 async thread</strong>：当异步操作被发起时，它会关联到一个 async thread，该线程不同于发起该操作的 CUDA 线程。对同一地址而言，异步操作之前和之后的常规 load/store 都不保证顺序。需要使用 proxy fence 在不同 proxy 间进行同步，以确保内存顺序正确。<a class="reference internal" href="../04-special-topics/async-copies.html#async-copies-tma"><span class="std std-ref">使用张量内存加速器（TMA）</span></a>一节展示了如何使用 proxy fence 来保证 TMA 异步拷贝的正确性。</p>
 <p>关于这些概念的更多细节，请参阅 <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html?highlight=proxy#proxies">PTX ISA</a> 文档。</p>
 </section>
 </section>
 </section>
 <section id="thread-scopes">
 <span id="advanced-kernels-thread-scopes"></span><h2><span class="section-number">3.2.3. </span>线程作用域<a class="headerlink" href="advanced-kernel-programming.html#thread-scopes" title="跳转到此标题">#</a></h2>
-<p>CUDA threads form a <a class="reference internal" href="../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-thread-hierarchy-review"><span class="std std-ref">Thread Hierarchy</span></a>, and using this hierarchy is essential for writing both correct and performant CUDA kernels. Within this hierarchy, the visibility and synchronization scope of memory operations can vary. To account for this non-uniformity, the CUDA programming model introduces the concept of <em>thread scopes</em>. A thread scope defines which threads can observe a thread’s loads and stores and specifies which threads can synchronize with each other using synchronization primitives such as atomic operations and barriers. Each scope has an associated point of coherency in the memory hierarchy.</p>
-<p>Thread scopes are exposed in <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html?highlight=thread%2520scopes#scope">CUDA PTX</a> and are also available as extensions in the <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_model.html#thread-scopes">libcu++</a> library. The following table defines the thread scopes available:</p>
+<p>CUDA 线程构成了<a class="reference internal" href="../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-thread-hierarchy-review"><span class="std std-ref">线程层次结构</span></a>，正确且高性能地编写 CUDA 内核都离不开这一级层次。在该层次中，内存操作的可见性与同步范围并不统一。为表达这种差异，CUDA 编程模型引入了<em>线程作用域</em>概念。线程作用域用于定义：某线程的 load/store 可被哪些线程观察到，以及哪些线程可通过原子操作、屏障等同步原语互相同步。每种作用域在内存层次中都对应一个一致性点。</p>
+<p>线程作用域在 <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html?highlight=thread%2520scopes#scope">CUDA PTX</a> 中可直接使用，也作为扩展在 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_model.html#thread-scopes">libcu++</a> 库中提供。下表给出了可用线程作用域：</p>
 <div class="pst-scrollable-table-container"><table class="table-no-stripes table">
 <thead>
-<tr class="row-odd"><th class="head"><p>CUDA C++ Thread Scope</p></th>
-<th class="head"><p>CUDA PTX Thread Scope</p></th>
-<th class="head"><p>Description</p></th>
-<th class="head"><p>Point of Coherency in Memory Hierarchy</p></th>
+<tr class="row-odd"><th class="head"><p>CUDA C++ 线程作用域</p></th>
+<th class="head"><p>CUDA PTX 线程作用域</p></th>
+<th class="head"><p>说明</p></th>
+<th class="head"><p>内存层次中的一致性点</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuda::thread_scope_thread</span></code></p></td>
 <td></td>
-<td><p>Memory operations are visible only to the local thread.</p></td>
+<td><p>内存操作仅对本地线程可见。</p></td>
 <td><p>–</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuda::thread_scope_block</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">.cta</span></code></p></td>
-<td><p>Memory operations are visible to other threads in the same thread block.</p></td>
+<td><p>内存操作对同一线程块内其他线程可见。</p></td>
 <td><p>L1</p></td>
 </tr>
 <tr class="row-even"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">.cluster</span></code></p></td>
-<td><p>Memory operations are visible to other threads in the same thread block cluster.</p></td>
+<td><p>内存操作对同一线程块集群内其他线程可见。</p></td>
 <td><p>L2</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cuda::thread_scope_device</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">.gpu</span></code></p></td>
-<td><p>Memory operations are visible to other threads in the same GPU device.</p></td>
+<td><p>内存操作对同一 GPU 设备内其他线程可见。</p></td>
 <td><p>L2</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cuda::thread_scope_system</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">.sys</span></code></p></td>
-<td><p>Memory operations are visible to other threads in the same system (CPU, other GPUs).</p></td>
+<td><p>内存操作对同一系统（CPU、其他 GPU）中的其他线程可见。</p></td>
 <td><p>L2 + connected caches</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>Sections <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-advanced-sync-primitives"><span class="std std-ref">高级同步原语</span></a> and <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-async-copies"><span class="std std-ref">Asynchronous Data Copies</span></a> demonstrate use of thread scopes.</p>
+<p><a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-advanced-sync-primitives"><span class="std std-ref">高级同步原语</span></a>与<a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-async-copies"><span class="std std-ref">异步数据拷贝</span></a>两节展示了线程作用域的具体用法。</p>
 </section>
 <section id="advanced-synchronization-primitives">
 <span id="advanced-kernels-advanced-sync-primitives"></span><h2><span class="section-number">3.2.4. </span>高级同步原语<a class="headerlink" href="advanced-kernel-programming.html#advanced-synchronization-primitives" title="跳转到此标题">#</a></h2>
-<p>This section introduces three families of synchronization primitives:</p>
+<p>本节介绍三类同步原语：</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-advanced-sync-primitives-atomics"><span class="std std-ref">作用域原子操作</span></a>, which pair C++ memory ordering with CUDA thread scopes to safely communicate across threads at block, cluster, device, or system scope (see <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-thread-scopes"><span class="std std-ref">线程作用域</span></a>).</p></li>
-<li><p><a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-advanced-sync-primitives-barriers"><span class="std std-ref">Asynchronous Barriers</span></a>, which split synchronization into arrival and wait phases, and can be used to track the progress of asynchronous operations.</p></li>
-<li><p><a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-advanced-sync-primitives-pipelines"><span class="std std-ref">Pipelines</span></a>, which stage work and coordinate multi-buffer producer–consumer patterns, commonly used to overlap compute with <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-async-copies"><span class="std std-ref">asynchronous data copies</span></a>.</p></li>
+<li><p><a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-advanced-sync-primitives-atomics"><span class="std std-ref">作用域原子操作</span></a>：将 C++ 内存顺序与 CUDA 线程作用域结合，使线程能在 block、cluster、device 或 system 作用域内安全通信（见<a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-thread-scopes"><span class="std std-ref">线程作用域</span></a>）。</p></li>
+<li><p><a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-advanced-sync-primitives-barriers"><span class="std std-ref">异步屏障</span></a>：将同步拆分为到达（arrival）与等待（wait）阶段，可用于跟踪异步操作进度。</p></li>
+<li><p><a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-advanced-sync-primitives-pipelines"><span class="std std-ref">流水线</span></a>：用于分阶段组织工作并协调多缓冲生产者-消费者模式，常用于让计算与<a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-async-copies"><span class="std std-ref">异步数据拷贝</span></a>重叠执行。</p></li>
 </ul>
 <section id="scoped-atomics">
 <span id="advanced-kernels-advanced-sync-primitives-atomics"></span><h3><span class="section-number">3.2.4.1. </span>作用域原子操作<a class="headerlink" href="advanced-kernel-programming.html#scoped-atomics" title="跳转到此标题">#</a></h3>
-<p><a class="reference internal" href="../05-appendices/cpp-language-extensions.html#atomic-functions"><span class="std std-numref">Section 5.4.5</span></a> gives an overview of atomic functions available in CUDA. In this section, we will focus on <em>scoped</em> atomics that support <a class="reference external" href="https://en.cppreference.com/w/cpp/atomic/memory_order.html">C++ standard atomic memory</a> semantics, available through the <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/synchronization_primitives.html">libcu++</a> library or through compiler built-in functions. Scoped atomics provide the tools for efficient synchronization at the appropriate level of the CUDA thread hierarchy, enabling both correctness and performance in complex parallel algorithms.</p>
+<p><a class="reference internal" href="../05-appendices/cpp-language-extensions.html#atomic-functions"><span class="std std-numref">第 5.4.5 节</span></a>概述了 CUDA 中可用的原子函数。本节聚焦支持<a class="reference external" href="https://en.cppreference.com/w/cpp/atomic/memory_order.html">C++ 标准原子内存</a>语义的<em>作用域原子操作</em>，可通过 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/synchronization_primitives.html">libcu++</a> 库或编译器内建函数使用。作用域原子操作可在 CUDA 线程层次的合适层级实现高效同步，从而在复杂并行算法中兼顾正确性与性能。</p>
 <section id="thread-scope-and-memory-ordering">
 <h4><span class="section-number">3.2.4.1.1. </span>线程作用域与内存顺序<a class="headerlink" href="advanced-kernel-programming.html#thread-scope-and-memory-ordering" title="跳转到此标题">#</a></h4>
-<p>Scoped atomics combine two key concepts:</p>
+<p>作用域原子操作结合了两个关键概念：</p>
 <ul class="simple">
-<li><p><strong>Thread Scope</strong>: defines which threads can observe the effect of the atomic operation (see <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-thread-scopes"><span class="std std-ref">线程作用域</span></a>).</p></li>
-<li><p><strong>Memory Ordering</strong>: defines the ordering constraints relative to other memory operations (see <a class="reference external" href="https://en.cppreference.com/w/cpp/atomic/memory_order.html">C++ standard atomic memory semantics</a>).</p></li>
+<li><p><strong>线程作用域（Thread Scope）</strong>：定义哪些线程能够观察到该原子操作的效果（见<a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-thread-scopes"><span class="std std-ref">线程作用域</span></a>）。</p></li>
+<li><p><strong>内存顺序（Memory Ordering）</strong>：定义其相对其他内存操作的顺序约束（见<a class="reference external" href="https://en.cppreference.com/w/cpp/atomic/memory_order.html">C++ 标准原子内存语义</a>）。</p></li>
 </ul>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
@@ -675,16 +675,16 @@ Built-in Atomic Functions</label><div class="sd-tab-content docutils">
 </div>
 </div>
 </div>
-<p>This example implements a <em>block-scoped atomic counter</em> that demonstrates the fundamental concepts of scoped atomics:</p>
+<p>此示例实现了一个<em>块作用域原子计数器</em>，用于展示作用域原子操作的基本概念：</p>
 <ul class="simple">
-<li><p><strong>Shared Variable</strong>: a single counter is shared among all threads in the block using <code class="docutils literal notranslate"><span class="pre">__shared__</span></code> memory.</p></li>
-<li><p><strong>Atomic Type Declaration</strong>: <code class="docutils literal notranslate"><span class="pre">cuda::atomic&lt;int,</span> <span class="pre">cuda::thread_scope_block&gt;</span></code> creates an atomic integer with block-level visibility.</p></li>
-<li><p><strong>Single Initialization</strong>: only thread 0 initializes the counter to prevent race conditions during setup.</p></li>
-<li><p><strong>Block Synchronization</strong>: <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> ensures all threads see the initialized counter before proceeding.</p></li>
-<li><p><strong>Atomic Increment</strong>: each thread atomically increments the counter and receives the previous value.</p></li>
+<li><p><strong>共享变量</strong>：通过 <code class="docutils literal notranslate"><span class="pre">__shared__</span></code> 内存让块内所有线程共享一个计数器。</p></li>
+<li><p><strong>原子类型声明</strong>：<code class="docutils literal notranslate"><span class="pre">cuda::atomic&lt;int,</span> <span class="pre">cuda::thread_scope_block&gt;</span></code> 创建一个块级可见的原子整数。</p></li>
+<li><p><strong>单线程初始化</strong>：仅线程 0 初始化计数器，避免初始化阶段的竞争条件。</p></li>
+<li><p><strong>块级同步</strong>：<code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 确保所有线程在继续执行前都可见初始化后的计数器。</p></li>
+<li><p><strong>原子递增</strong>：每个线程原子地递增计数器，并获取递增前的值。</p></li>
 </ul>
-<p><code class="docutils literal notranslate"><span class="pre">cuda::memory_order_relaxed</span></code> is chosen here because we only need atomicity (indivisible read-modify-write) without ordering constraints between different memory locations. Since this is a straightforward counting operation, the order of increments doesn’t matter for correctness.</p>
-<p>For producer-consumer patterns, acquire-release semantics ensure proper ordering:</p>
+<p>这里选择 <code class="docutils literal notranslate"><span class="pre">cuda::memory_order_relaxed</span></code>，因为仅需原子性（不可分割的读-改-写），而不需要不同内存位置之间的顺序约束。对于这种简单计数场景，递增顺序不影响正确性。</p>
+<p>对于生产者-消费者模式，acquire-release 语义可保证正确顺序：</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-2">
@@ -739,73 +739,73 @@ Built-in Atomic Functions</label><div class="sd-tab-content docutils">
 </div>
 </section>
 <section id="performance-considerations">
-<h4><span class="section-number">3.2.4.1.2. </span>Performance Considerations<a class="headerlink" href="advanced-kernel-programming.html#performance-considerations" title="跳转到此标题">#</a></h4>
+<h4><span class="section-number">3.2.4.1.2. </span>性能注意事项<a class="headerlink" href="advanced-kernel-programming.html#performance-considerations" title="跳转到此标题">#</a></h4>
 <ul class="simple">
-<li><p><em>Use the narrowest scope possible</em>: block-scoped atomics are much faster than system-scoped atomics.</p></li>
-<li><p><em>Prefer weaker orderings</em>: use stronger orderings only when necessary for correctness.</p></li>
-<li><p><em>Consider memory location</em>: shared memory atomics are faster than global memory atomics.</p></li>
+<li><p><em>尽量使用最窄作用域</em>：块作用域原子操作通常远快于系统作用域原子操作。</p></li>
+<li><p><em>优先使用较弱顺序</em>：仅在保证正确性确有必要时才使用更强顺序。</p></li>
+<li><p><em>关注内存位置</em>：共享内存原子操作通常比全局内存原子操作更快。</p></li>
 </ul>
 </section>
 </section>
 <section id="asynchronous-barriers">
-<span id="advanced-kernels-advanced-sync-primitives-barriers"></span><h3><span class="section-number">3.2.4.2. </span>Asynchronous Barriers<a class="headerlink" href="advanced-kernel-programming.html#asynchronous-barriers" title="跳转到此标题">#</a></h3>
-<p>An asynchronous barrier differs from a typical single-stage barrier (<code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code>) in that the notification by a thread that it has reached the barrier (the “arrival”) is separated from the operation of waiting for other threads to arrive at the barrier (the “wait”). This separation increases execution efficiency by allowing a thread to perform additional operations unrelated to the barrier, making more efficient use of the wait time. Asynchronous barriers can be used to implement producer-consumer patterns with CUDA threads or enable asynchronous data copies within the memory hierarchy by having the copy operation signal (“arrive on”) a barrier upon completion.</p>
-<p>Asynchronous barriers are available on devices of compute capability 7.0 or higher. Devices of compute capability 8.0 or higher provide hardware acceleration for asynchronous barriers in shared-memory and a significant advancement in synchronization granularity, by allowing hardware-accelerated synchronization of any subset of CUDA threads within the block. Previous architectures only accelerate synchronization at a whole-warp (<code class="docutils literal notranslate"><span class="pre">__syncwarp()</span></code>) or whole-block (<code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code>) level.</p>
-<p>The CUDA programming model provides asynchronous barriers via <code class="docutils literal notranslate"><span class="pre">cuda::std::barrier</span></code>, an ISO C++-conforming barrier available in the <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/synchronization_primitives/barrier.html">libcu++</a> library. In addition to implementing <a class="reference external" href="https://en.cppreference.com/w/cpp/thread/barrier.html">std::barrier</a>, the library offers CUDA-specific extensions to select a barrier’s thread scope to improve performance and exposes a lower-level <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/ptx_api.html">cuda::ptx</a> API. A <code class="docutils literal notranslate"><span class="pre">cuda::barrier</span></code> can interoperate with <code class="docutils literal notranslate"><span class="pre">cuda::ptx</span></code> by using the <code class="docutils literal notranslate"><span class="pre">friend</span></code> function <code class="docutils literal notranslate"><span class="pre">cuda::device::barrier_native_handle()</span></code> to retrieve the barrier’s native handle and pass it to <code class="docutils literal notranslate"><span class="pre">cuda::ptx</span></code> functions. CUDA also provides a <a class="reference internal" href="../05-appendices/device-callable-apis.html#async-barriers-primitives-api"><span class="std std-ref">primitives API</span></a> for asynchronous barriers in shared memory at thread-block scope.</p>
-<p>The following table gives an overview of asynchronous barriers available for synchronizing at different thread scopes.</p>
+<span id="advanced-kernels-advanced-sync-primitives-barriers"></span><h3><span class="section-number">3.2.4.2. </span>异步屏障<a class="headerlink" href="advanced-kernel-programming.html#asynchronous-barriers" title="跳转到此标题">#</a></h3>
+<p>异步屏障与典型的单阶段屏障（<code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code>）不同：线程声明自己到达屏障（arrival）与等待其他线程到达（wait）是分离的两个动作。这种分离允许线程在等待期间执行与屏障无关的额外工作，从而提高执行效率。异步屏障既可用于 CUDA 线程中的生产者-消费者模式，也可通过“拷贝完成即到达屏障（arrive on）”的方式支持内存层次内的异步数据拷贝。</p>
+<p>异步屏障可用于计算能力 7.0 及以上设备。计算能力 8.0 及以上设备还为共享内存中的异步屏障提供硬件加速，并显著提升同步粒度：可对线程块内任意子集的 CUDA 线程进行硬件加速同步。更早架构仅能在整 warp（<code class="docutils literal notranslate"><span class="pre">__syncwarp()</span></code>）或整块（<code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code>）层级加速同步。</p>
+<p>CUDA 编程模型通过 <code class="docutils literal notranslate"><span class="pre">cuda::std::barrier</span></code> 提供异步屏障，它是 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/synchronization_primitives/barrier.html">libcu++</a> 中符合 ISO C++ 的屏障实现。除实现 <a class="reference external" href="https://en.cppreference.com/w/cpp/thread/barrier.html">std::barrier</a> 外，库还提供 CUDA 专用扩展，可选择屏障线程作用域以提升性能，并暴露更底层的 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/ptx_api.html">cuda::ptx</a> API。<code class="docutils literal notranslate"><span class="pre">cuda::barrier</span></code> 可通过 <code class="docutils literal notranslate"><span class="pre">friend</span></code> 函数 <code class="docutils literal notranslate"><span class="pre">cuda::device::barrier_native_handle()</span></code> 获取本机句柄并传给 <code class="docutils literal notranslate"><span class="pre">cuda::ptx</span></code> 函数，从而与 <code class="docutils literal notranslate"><span class="pre">cuda::ptx</span></code> 互操作。CUDA 还提供了线程块作用域、驻留于共享内存中的异步屏障 <a class="reference internal" href="../05-appendices/device-callable-apis.html#async-barriers-primitives-api"><span class="std std-ref">primitives API</span></a>。</p>
+<p>下表概览了不同线程作用域下可用于同步的异步屏障。</p>
 <blockquote>
 <div><div class="pst-scrollable-table-container"><table class="table-no-stripes table">
 <thead>
-<tr class="row-odd"><th class="head"><p>Thread Scope</p></th>
-<th class="head"><p>Memory Location</p></th>
-<th class="head"><p>Arrive on Barrier</p></th>
-<th class="head"><p>Wait on Barrier</p></th>
-<th class="head"><p>Hardware-accelerated</p></th>
-<th class="head"><p>CUDA APIs</p></th>
+<tr class="row-odd"><th class="head"><p>线程作用域</p></th>
+<th class="head"><p>内存位置</p></th>
+<th class="head"><p>在屏障上 arrive</p></th>
+<th class="head"><p>在屏障上 wait</p></th>
+<th class="head"><p>硬件加速</p></th>
+<th class="head"><p>CUDA API</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>block</p></td>
-<td><p>local shared memory</p></td>
-<td><p>allowed</p></td>
-<td><p>allowed</p></td>
-<td><p>yes (8.0+)</p></td>
+<td><p>本地共享内存</p></td>
+<td><p>允许</p></td>
+<td><p>允许</p></td>
+<td><p>是（8.0+）</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">cuda::barrier</span></code>, <code class="docutils literal notranslate"><span class="pre">cuda::ptx</span></code>, primitives</p></td>
 </tr>
 <tr class="row-odd"><td><p>cluster</p></td>
-<td><p>local shared memory</p></td>
-<td><p>allowed</p></td>
-<td><p>allowed</p></td>
-<td><p>yes (9.0+)</p></td>
+<td><p>本地共享内存</p></td>
+<td><p>允许</p></td>
+<td><p>允许</p></td>
+<td><p>是（9.0+）</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">cuda::barrier</span></code>, <code class="docutils literal notranslate"><span class="pre">cuda::ptx</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p>cluster</p></td>
-<td><p>remote shared memory</p></td>
-<td><p>allowed</p></td>
-<td><p>not allowed</p></td>
-<td><p>yes (9.0+)</p></td>
+<td><p>远端共享内存</p></td>
+<td><p>允许</p></td>
+<td><p>不允许</p></td>
+<td><p>是（9.0+）</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">cuda::barrier</span></code>, <code class="docutils literal notranslate"><span class="pre">cuda::ptx</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p>device</p></td>
-<td><p>global memory</p></td>
-<td><p>allowed</p></td>
-<td><p>allowed</p></td>
-<td><p>no</p></td>
+<td><p>全局内存</p></td>
+<td><p>允许</p></td>
+<td><p>允许</p></td>
+<td><p>否</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">cuda::barrier</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p>system</p></td>
-<td><p>global/unified memory</p></td>
-<td><p>allowed</p></td>
-<td><p>allowed</p></td>
-<td><p>no</p></td>
+<td><p>全局/统一内存</p></td>
+<td><p>允许</p></td>
+<td><p>允许</p></td>
+<td><p>否</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">cuda::barrier</span></code></p></td>
 </tr>
 </tbody>
 </table>
 </div>
 </div></blockquote>
-<p class="rubric">Temporal Splitting of Synchronization</p>
-<p>Without the asynchronous arrive-wait barriers, synchronization within a thread block is achieved using <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> or <code class="docutils literal notranslate"><span class="pre">block.sync()</span></code> when using <a class="reference internal" href="../04-special-topics/cooperative-groups.html#cooperative-groups"><span class="std std-ref">Cooperative Groups</span></a>.</p>
+<p class="rubric">同步的时间拆分</p>
+<p>如果不使用异步 arrive-wait 屏障，线程块内同步通常通过 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 完成；在使用 <a class="reference internal" href="../04-special-topics/cooperative-groups.html#cooperative-groups"><span class="std std-ref">Cooperative Groups</span></a> 时，则可使用 <code class="docutils literal notranslate"><span class="pre">block.sync()</span></code>。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cooperative_groups.h&gt;</span>
 
 <span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">simple_sync</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">iteration_count</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -822,14 +822,14 @@ Built-in Atomic Functions</label><div class="sd-tab-content docutils">
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>Threads are blocked at the synchronization point (<code class="docutils literal notranslate"><span class="pre">block.sync()</span></code>) until all threads have reached the synchronization point. In addition, memory updates that happened before the synchronization point are guaranteed to be visible to all threads in the block after the synchronization point.</p>
-<p>This pattern has three stages:</p>
+<p>在线程同步点（<code class="docutils literal notranslate"><span class="pre">block.sync()</span></code>）处，线程会被阻塞，直到所有线程都到达该点。此外，同步点之前发生的内存更新，保证在线程块内所有线程越过该点后可见。</p>
+<p>该模式包含三个阶段：</p>
 <ul class="simple">
-<li><p>Code <strong>before</strong> the sync performs memory updates that will be read <strong>after</strong> the sync.</p></li>
-<li><p>Synchronization point.</p></li>
-<li><p>Code <strong>after</strong> the sync, with visibility of memory updates that happened <strong>before</strong> the sync.</p></li>
+<li><p>同步<strong>之前</strong>的代码执行内存更新，这些更新会在同步<strong>之后</strong>被读取。</p></li>
+<li><p>同步点。</p></li>
+<li><p>同步<strong>之后</strong>的代码可见同步<strong>之前</strong>发生的内存更新。</p></li>
 </ul>
-<p>Using asynchronous barriers instead, the temporally-split synchronization pattern is as follows.</p>
+<p>若改用异步屏障，则时间拆分同步模式如下。</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-4" name="sd-tab-set-2" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-4">
@@ -968,21 +968,21 @@ CUDA C primitives</label><div class="sd-tab-content docutils">
 </div>
 </div>
 </div>
-<p>In this pattern, the synchronization point is split into an arrive point (<code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code>) and a wait point (<code class="docutils literal notranslate"><span class="pre">bar.wait(std::move(token))</span></code>). A thread begins participating in a <code class="docutils literal notranslate"><span class="pre">cuda::barrier</span></code> with its first call to <code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code>. When a thread calls <code class="docutils literal notranslate"><span class="pre">bar.wait(std::move(token))</span></code> it will be blocked until participating threads have completed <code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code> the expected number of times, which is the expected arrival count argument passed to <code class="docutils literal notranslate"><span class="pre">init()</span></code>. Memory updates that happen before participating threads’ call to <code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code> are guaranteed to be visible to participating threads after their call to <code class="docutils literal notranslate"><span class="pre">bar.wait(std::move(token))</span></code>. 注意 that the call to <code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code> does not block a thread, it can proceed with other work that does not depend upon memory updates that happen before other participating threads’ call to <code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code>.</p>
-<p>The <em>arrive and wait</em> pattern has five stages:</p>
+<p>在该模式中，同步点被拆分为 arrive 点（<code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code>）与 wait 点（<code class="docutils literal notranslate"><span class="pre">bar.wait(std::move(token))</span></code>）。线程首次调用 <code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code> 时开始参与 <code class="docutils literal notranslate"><span class="pre">cuda::barrier</span></code>。当线程调用 <code class="docutils literal notranslate"><span class="pre">bar.wait(std::move(token))</span></code> 时，会阻塞直到参与线程完成期望次数的 <code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code>（该期望值由 <code class="docutils literal notranslate"><span class="pre">init()</span></code> 的 expected arrival count 参数给定）。参与线程在 <code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code> 之前发生的内存更新，保证在其调用 <code class="docutils literal notranslate"><span class="pre">bar.wait(std::move(token))</span></code> 后可见。注意，调用 <code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code> 本身不会阻塞线程；线程可继续执行其他不依赖于“其他参与线程在其 <code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code> 之前更新”的工作。</p>
+<p><em>arrive and wait</em> 模式包含五个阶段：</p>
 <ul class="simple">
-<li><p>Code <strong>before</strong> the arrive performs memory updates that will be read <strong>after</strong> the wait.</p></li>
-<li><p>Arrive point with implicit memory fence (i.e., equivalent to <code class="docutils literal notranslate"><span class="pre">cuda::atomic_thread_fence(cuda::memory_order_seq_cst,</span> <span class="pre">cuda::thread_scope_block)</span></code>).</p></li>
-<li><p>Code <strong>between</strong> arrive and wait.</p></li>
-<li><p>Wait point.</p></li>
-<li><p>Code <strong>after</strong> the wait, with visibility of updates that were performed <strong>before</strong> the arrive.</p></li>
+<li><p>arrive<strong>之前</strong>的代码执行内存更新，这些更新会在 wait<strong>之后</strong>被读取。</p></li>
+<li><p>带隐式内存栅栏的 arrive 点（即等价于 <code class="docutils literal notranslate"><span class="pre">cuda::atomic_thread_fence(cuda::memory_order_seq_cst,</span> <span class="pre">cuda::thread_scope_block)</span></code>）。</p></li>
+<li><p>arrive 与 wait<strong>之间</strong>的代码。</p></li>
+<li><p>wait 点。</p></li>
+<li><p>wait<strong>之后</strong>的代码可见 arrive<strong>之前</strong>执行的更新。</p></li>
 </ul>
-<p>For a comprehensive guide on how to use asynchronous barriers, see <a class="reference internal" href="../04-special-topics/async-barriers.html#asynchronous-barriers"><span class="std std-ref">Asynchronous Barriers</span></a>.</p>
+<p>关于异步屏障的完整使用指南，请参见 <a class="reference internal" href="../04-special-topics/async-barriers.html#asynchronous-barriers"><span class="std std-ref">异步屏障</span></a>。</p>
 </section>
 <section id="pipelines">
-<span id="advanced-kernels-advanced-sync-primitives-pipelines"></span><h3><span class="section-number">3.2.4.3. </span>Pipelines<a class="headerlink" href="advanced-kernel-programming.html#pipelines" title="跳转到此标题">#</a></h3>
-<p>The CUDA programming model provides the pipeline synchronization object as a coordination mechanism to sequence asynchronous memory copies into multiple stages, facilitating the implementation of double- or multi-buffering producer-consumer patterns. A pipeline is a double-ended queue with a <em>head</em> and a <em>tail</em> that processes work in a first-in first-out (FIFO) order. Producer threads commit work to the pipeline’s head, while consumer threads pull work from the pipeline’s tail.</p>
-<p>Pipelines are exposed through the <code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code> API in the <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/synchronization_primitives/pipeline.html">libcu++</a> library, as well as through a <a class="reference internal" href="../05-appendices/device-callable-apis.html#pipeline-primitives-interface"><span class="std std-ref">primitives API</span></a>. The following tables describe the main functionality of the two APIs.</p>
+<span id="advanced-kernels-advanced-sync-primitives-pipelines"></span><h3><span class="section-number">3.2.4.3. </span>流水线<a class="headerlink" href="advanced-kernel-programming.html#pipelines" title="跳转到此标题">#</a></h3>
+<p>CUDA 编程模型提供了 pipeline 同步对象，用作将异步内存拷贝编排为多阶段的协调机制，便于实现双缓冲或多缓冲的生产者-消费者模式。pipeline 是一个具有 <em>head</em> 与 <em>tail</em> 的双端队列，按先进先出（FIFO）顺序处理工作。生产者线程向 pipeline 的 head 提交工作，消费者线程从 tail 拉取工作。</p>
+<p>流水线能力可通过 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/synchronization_primitives/pipeline.html">libcu++</a> 中的 <code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code> API 使用，也可通过<a class="reference internal" href="../05-appendices/device-callable-apis.html#pipeline-primitives-interface"><span class="std std-ref">primitives API</span></a>使用。下表说明了两类 API 的主要功能。</p>
 <div class="pst-scrollable-table-container"><table class="table-no-stripes table">
 <colgroup>
 <col style="width: 30.0%" />
@@ -990,21 +990,21 @@ CUDA C primitives</label><div class="sd-tab-content docutils">
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code> API</p></th>
-<th class="head"><p>Description</p></th>
+<th class="head"><p>说明</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">producer_acquire</span></code></p></td>
-<td><p>Acquires an available stage in the pipeline’s internal queue.</p></td>
+<td><p>获取 pipeline 内部队列中的一个可用阶段。</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">producer_commit</span></code></p></td>
-<td><p>Commits the asynchronous operations issued after the <code class="docutils literal notranslate"><span class="pre">producer_acquire</span></code> call on the currently acquired stage of the pipeline.</p></td>
+<td><p>在当前已获取阶段上，提交自调用 <code class="docutils literal notranslate"><span class="pre">producer_acquire</span></code> 之后发起的异步操作。</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">consumer_wait</span></code></p></td>
-<td><p>Waits for completion of asynchronous operations in the oldest stage of the pipeline.</p></td>
+<td><p>等待 pipeline 中最老阶段的异步操作完成。</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">consumer_release</span></code></p></td>
-<td><p>Releases the oldest stage of the pipeline to the pipeline object for reuse. The released stage can be then acquired by a producer.</p></td>
+<td><p>将 pipeline 最老阶段释放回 pipeline 对象以便复用；释放后的阶段可再次被生产者获取。</p></td>
 </tr>
 </tbody>
 </table>
@@ -1015,25 +1015,25 @@ CUDA C primitives</label><div class="sd-tab-content docutils">
 <col style="width: 70.0%" />
 </colgroup>
 <thead>
-<tr class="row-odd"><th class="head"><p>Primitives API</p></th>
-<th class="head"><p>Description</p></th>
+<tr class="row-odd"><th class="head"><p>原语 API</p></th>
+<th class="head"><p>说明</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">__pipeline_memcpy_async</span></code></p></td>
-<td><p>Request a memory copy from global to shared memory to be submitted for asynchronous evaluation.</p></td>
+<td><p>请求将一次从全局内存到共享内存的拷贝提交为异步执行。</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">__pipeline_commit</span></code></p></td>
-<td><p>Commits the asynchronous operations issued before the call on the current stage of the pipeline.</p></td>
+<td><p>在 pipeline 当前阶段提交该调用之前发起的异步操作。</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">__pipeline_wait_prior(N)</span></code></p></td>
-<td><p>Waits for completion of asynchronous operations in all but the last N commits to the pipeline.</p></td>
+<td><p>等待 pipeline 中除最近 N 次提交外的所有异步操作完成。</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>The <code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code> API has a richer interface with less restrictions, while the primitives API only supports tracking asynchronous copies from global memory to shared memory with specific size and alignment requirements. The primitives API provides equivalent functionality to a <code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code> object with <code class="docutils literal notranslate"><span class="pre">cuda::thread_scope_thread</span></code>.</p>
-<p>For detailed usage patterns and examples, see <a class="reference internal" href="../04-special-topics/pipelines.html#pipelines"><span class="std std-ref">Pipelines</span></a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code> API 接口更丰富、限制更少；而原语 API 仅支持跟踪从全局内存到共享内存的异步拷贝，并要求特定的大小与对齐条件。原语 API 的能力等价于一个 <code class="docutils literal notranslate"><span class="pre">cuda::thread_scope_thread</span></code> 作用域的 <code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code> 对象。</p>
+<p>更详细的使用模式与示例请参见 <a class="reference internal" href="../04-special-topics/pipelines.html#pipelines"><span class="std std-ref">流水线</span></a>。</p>
 </section>
 </section>
 <section id="asynchronous-data-copies">
