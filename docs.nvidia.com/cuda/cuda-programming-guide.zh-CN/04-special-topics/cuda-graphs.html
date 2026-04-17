@@ -75,7 +75,7 @@
 
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="4.3. Stream-Ordered Memory Allocator" href="stream-ordered-memory-allocation.html" />
+    <link rel="next" title="4.3. 流有序内存分配器" href="stream-ordered-memory-allocation.html" />
     <link rel="prev" title="4.1. Unified Memory" href="unified-memory.html" />
 
 <link rel="preload" as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png">
@@ -2149,15 +2149,15 @@ Stream Capture</label><div class="sd-tab-content docutils">
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-structure">4.2.1. Graph Structure</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#node-types">4.2.1.1. Node Types</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#edge-data">4.2.1.2. Edge Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-structure">4.2.1. 图结构</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#node-types">4.2.1.1. 节点类型</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#edge-data">4.2.1.2. 边数据</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#building-and-running-graphs">4.2.2. Building and Running Graphs</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-creation">4.2.2.1. Graph Creation</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-apis">4.2.2.1.1. Graph APIs</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#stream-capture">4.2.2.1.2. Stream Capture</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#building-and-running-graphs">4.2.2. 构建与运行图</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-creation">4.2.2.1. 图创建</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-apis">4.2.2.1.1. 图 API</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#stream-capture">4.2.2.1.2. 流捕获</a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#cross-stream-dependencies-and-events">4.2.2.1.2.1. Cross-stream Dependencies and Events</a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#prohibited-and-unhandled-operations">4.2.2.1.2.2. Prohibited and Unhandled Operations</a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#invalidation">4.2.2.1.2.3. Invalidation</a></li>
@@ -2167,75 +2167,75 @@ Stream Capture</label><div class="sd-tab-content docutils">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#putting-it-all-together">4.2.2.1.3. Putting It All Together</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-instantiation">4.2.2.2. Graph Instantiation</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-execution">4.2.2.3. Graph Execution</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-instantiation">4.2.2.2. 图实例化</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-execution">4.2.2.3. 图执行</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#updating-instantiated-graphs">4.2.3. Updating Instantiated Graphs</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#whole-graph-update">4.2.3.1. Whole Graph Update</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#individual-node-update">4.2.3.2. Individual Node Update</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#individual-node-enable">4.2.3.3. Individual Node Enable</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-update-limitations">4.2.3.4. Graph Update Limitations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#updating-instantiated-graphs">4.2.3. 更新已实例化图</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#whole-graph-update">4.2.3.1. 整图更新</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#individual-node-update">4.2.3.2. 单节点更新</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#individual-node-enable">4.2.3.3. 单节点启用控制</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-update-limitations">4.2.3.4. 图更新限制</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#conditional-graph-nodes">4.2.4. Conditional Graph Nodes</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#conditional-handles">4.2.4.1. Conditional Handles</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#conditional-node-body-graph-requirements">4.2.4.2. Conditional Node Body Graph Requirements</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#conditional-if-nodes">4.2.4.3. Conditional IF Nodes</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#conditional-while-nodes">4.2.4.4. Conditional WHILE Nodes</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#conditional-switch-nodes">4.2.4.5. Conditional SWITCH Nodes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#conditional-graph-nodes">4.2.4. 条件图节点</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#conditional-handles">4.2.4.1. 条件句柄</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#conditional-node-body-graph-requirements">4.2.4.2. 条件节点体图要求</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#conditional-if-nodes">4.2.4.3. 条件 IF 节点</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#conditional-while-nodes">4.2.4.4. 条件 WHILE 节点</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#conditional-switch-nodes">4.2.4.5. 条件 SWITCH 节点</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-memory-nodes">4.2.5. Graph Memory Nodes</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#introduction">4.2.5.1. Introduction</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#api-fundamentals">4.2.5.2. API Fundamentals</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-node-apis">4.2.5.2.1. Graph Node APIs</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#cuda-graphs-graph-memory-nodes-stream-capture">4.2.5.2.2. Stream Capture</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#accessing-and-freeing-graph-memory-outside-of-the-allocating-graph">4.2.5.2.3. Accessing and Freeing Graph Memory Outside of the Allocating Graph</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-memory-nodes">4.2.5. 图内存节点</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#introduction">4.2.5.1. 简介</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#api-fundamentals">4.2.5.2. API 基础</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-node-apis">4.2.5.2.1. 图节点 API</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#cuda-graphs-graph-memory-nodes-stream-capture">4.2.5.2.2. 流捕获</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#accessing-and-freeing-graph-memory-outside-of-the-allocating-graph">4.2.5.2.3. 在分配图之外访问与释放图内存</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#cudagraphinstantiateflagautofreeonlaunch">4.2.5.2.4. cudaGraphInstantiateFlagAutoFreeOnLaunch</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#memory-nodes-in-child-graphs">4.2.5.2.5. Memory Nodes in Child Graphs</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#memory-nodes-in-child-graphs">4.2.5.2.5. 子图中的内存节点</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#optimized-memory-reuse">4.2.5.3. Optimized Memory Reuse</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#address-reuse-within-a-graph">4.2.5.3.1. Address Reuse within a Graph</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#physical-memory-management-and-sharing">4.2.5.3.2. Physical Memory Management and Sharing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#optimized-memory-reuse">4.2.5.3. 优化的内存复用</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#address-reuse-within-a-graph">4.2.5.3.1. 图内地址复用</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#physical-memory-management-and-sharing">4.2.5.3.2. 物理内存管理与共享</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#performance-considerations">4.2.5.4. Performance Considerations</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#first-launch-cudagraphupload">4.2.5.4.1. First Launch / cudaGraphUpload</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#performance-considerations">4.2.5.4. 性能注意事项</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#first-launch-cudagraphupload">4.2.5.4.1. 首次启动 / cudaGraphUpload</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#physical-memory-footprint">4.2.5.5. Physical Memory Footprint</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#peer-access">4.2.5.6. Peer Access</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#peer-access-with-graph-node-apis">4.2.5.6.1. Peer Access with Graph Node APIs</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#peer-access-with-stream-capture">4.2.5.6.2. Peer Access with Stream Capture</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#device-graph-launch">4.2.6. Device Graph Launch</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#device-graph-creation">4.2.6.1. Device Graph Creation</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#device-graph-requirements">4.2.6.1.1. Device Graph Requirements</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#device-graph-upload">4.2.6.1.2. Device Graph Upload</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#device-graph-update">4.2.6.1.3. Device Graph Update</a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#device-launch">4.2.6.2. Device Launch</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#fire-and-forget-launch">4.2.6.2.1. Fire and Forget Launch</a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-execution-environments">4.2.6.2.1.1. Graph Execution Environments</a></li>
-</ul>
-</li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#tail-launch">4.2.6.2.2. Tail Launch</a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#tail-self-launch">4.2.6.2.2.1. Tail Self-launch</a></li>
-</ul>
-</li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#sibling-launch">4.2.6.2.3. Sibling Launch</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#physical-memory-footprint">4.2.5.5. 物理内存占用</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#peer-access">4.2.5.6. Peer 访问</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#peer-access-with-graph-node-apis">4.2.5.6.1. 通过图节点 API 的 Peer 访问</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#peer-access-with-stream-capture">4.2.5.6.2. 通过流捕获的 Peer 访问</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#using-graph-apis">4.2.7. Using Graph APIs</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#cuda-user-objects">4.2.8. CUDA User Objects</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#device-graph-launch">4.2.6. 设备端图启动</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#device-graph-creation">4.2.6.1. 设备图创建</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#device-graph-requirements">4.2.6.1.1. 设备图要求</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#device-graph-upload">4.2.6.1.2. 设备图上传</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#device-graph-update">4.2.6.1.3. 设备图更新</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#device-launch">4.2.6.2. 设备端启动</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#fire-and-forget-launch">4.2.6.2.1. Fire-and-Forget 启动</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-execution-environments">4.2.6.2.1.1. 图执行环境</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#tail-launch">4.2.6.2.2. Tail 启动</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#tail-self-launch">4.2.6.2.2.1. Tail 自启动</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#sibling-launch">4.2.6.2.3. Sibling 启动</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#using-graph-apis">4.2.7. 使用 Graph API</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#cuda-user-objects">4.2.8. CUDA 用户对象</a></li>
 </ul>
   </nav></div>
 
