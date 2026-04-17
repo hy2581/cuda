@@ -632,7 +632,7 @@ one non-default dependency type, <code class="docutils literal notranslate"><spa
 </div>
 <p>上述代码返回的图见 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-api-fig-creating-using-graph-apis"><span class="std std-numref">图 22</span></a>。</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
+<p class="admonition-title">注意</p>
 <p>当流退出捕获模式后，该流中下一个非捕获条目（若存在）仍会依赖此前最近的非捕获条目，即使两者间的中间条目已被移除。</p>
 </div>
 </section>
@@ -642,7 +642,7 @@ one non-default dependency type, <code class="docutils literal notranslate"><spa
 <p>当同一上下文中的任意流正在被捕获，且该流并非以 <code class="docutils literal notranslate"><span class="pre">cudaStreamNonBlocking</span></code> 创建时，任何对 legacy 流的使用都无效。原因是 legacy 流句柄始终涵盖这些其他流；向 legacy 流入队会建立对被捕获流的依赖，而对其查询/同步也会间接查询/同步被捕获流。</p>
 <p>因此在此情况下调用同步 API 同样无效。一个典型同步 API 是 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code>：它会向 legacy 流入队工作，并在返回前对其同步。</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
+<p class="admonition-title">注意</p>
 <p>一般规则是：当某依赖关系会把“已捕获项”与“未捕获且已入队执行项”连接起来时，CUDA 倾向返回错误而非忽略该依赖。唯一例外是流进入或退出捕获模式时：这会切断模式切换前后紧邻条目之间的依赖关系。</p>
 </div>
 <p>若在一个正在捕获且关联到“不同捕获图”的流上，等待某个被捕获事件来合并两张独立捕获图，这是无效的。并且在被捕获流上等待一个“未捕获事件”而不指定 <code class="docutils literal notranslate"><span class="pre">cudaEventWaitExternal</span></code> 标志同样无效。</p>
@@ -1072,15 +1072,15 @@ Stream Capture</label><div class="sd-tab-content docutils">
 </ul>
 </section>
 <section id="conditional-if-nodes">
-<span id="cuda-graphs-conditional-if-nodes"></span><h3><span class="section-number">4.2.4.3. </span>Conditional IF Nodes<a class="headerlink" href="cuda-graphs.html#conditional-if-nodes" title="Link to this heading">#</a></h3>
-<p>The body graph of an IF node will be executed once if the condition is non-zero when the node is executed.  The following diagram depicts a 3 node graph where the middle node, B, is a conditional node:</p>
+<span id="cuda-graphs-conditional-if-nodes"></span><h3><span class="section-number">4.2.4.3. </span>条件 IF 节点<a class="headerlink" href="cuda-graphs.html#conditional-if-nodes" title="Link to this heading">#</a></h3>
+<p>IF 节点在执行时若条件值非 0，其体图会执行一次。下图展示了一个 3 节点图，其中中间节点 B 是条件节点：</p>
 <figure class="align-default" id="id5">
 <img alt="../_images/conditional-if-node.png" class="image" src="../_images/conditional-if-node.png" />
 <figcaption>
-<p><span class="caption-number">Figure 24 </span><span class="caption-text">Conditional IF Node</span><a class="headerlink" href="cuda-graphs.html#id5" title="Link to this image">#</a></p>
+<p><span class="caption-number">图 24 </span><span class="caption-text">条件 IF 节点</span><a class="headerlink" href="cuda-graphs.html#id5" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
-<p>The following code illustrates the creation of a graph containing an IF conditional node. The default value of the condition is set using an upstream kernel. The body of the conditional is populated using the <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-graph-apis"><span class="std std-ref">graph API</span></a>.</p>
+<p>下面代码演示了如何创建包含 IF 条件节点的图。条件默认值由上游内核设置，条件体通过 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-graph-apis"><span class="std std-ref">Graph API</span></a> 填充。</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">setHandle</span><span class="p">(</span><span class="n">cudaGraphConditionalHandle</span><span class="w"> </span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">value</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">    </span><span class="p">...</span>
@@ -1138,7 +1138,7 @@ Stream Capture</label><div class="sd-tab-content docutils">
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>IF nodes can also have an optional second body graph which is executed once when the node is executed if the condition value is zero.</p>
+<p>IF 节点还可包含可选的第二个体图：当节点执行时条件值为 0，则该体图执行一次。</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">graphSetup</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">cudaGraph_t</span><span class="w"> </span><span class="n">graph</span><span class="p">;</span>
 <span class="w">    </span><span class="n">cudaGraphExec_t</span><span class="w"> </span><span class="n">graphExec</span><span class="p">;</span>
@@ -1193,19 +1193,15 @@ Stream Capture</label><div class="sd-tab-content docutils">
 </div>
 </section>
 <section id="conditional-while-nodes">
-<span id="cuda-graphs-conditional-while-nodes"></span><h3><span class="section-number">4.2.4.4. </span>Conditional WHILE Nodes<a class="headerlink" href="cuda-graphs.html#conditional-while-nodes" title="Link to this heading">#</a></h3>
-<p>The body graph of a WHILE node will be executed as long as the condition is non-zero. The condition will be
-evaluated when the node is executed and after completion of the body graph. The following diagram depicts
-a 3 node graph where the middle node, B, is a conditional node:</p>
+<span id="cuda-graphs-conditional-while-nodes"></span><h3><span class="section-number">4.2.4.4. </span>条件 WHILE 节点<a class="headerlink" href="cuda-graphs.html#conditional-while-nodes" title="Link to this heading">#</a></h3>
+<p>WHILE 节点的体图会在条件非 0 时持续执行。条件会在节点执行时以及每次体图完成后重新求值。下图展示了一个 3 节点图，其中中间节点 B 是条件节点：</p>
 <figure class="align-default" id="id6">
 <img alt="../_images/conditional-while-node.png" class="image" src="../_images/conditional-while-node.png" />
 <figcaption>
-<p><span class="caption-number">Figure 25 </span><span class="caption-text">Conditional WHILE Node</span><a class="headerlink" href="cuda-graphs.html#id6" title="Link to this image">#</a></p>
+<p><span class="caption-number">图 25 </span><span class="caption-text">条件 WHILE 节点</span><a class="headerlink" href="cuda-graphs.html#id6" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
-<p>The following code illustrates the creation of a graph containing a WHILE conditional node. The handle
-is created using <em>cudaGraphCondAssignDefault</em> to avoid the need for an upstream kernel. The body of the
-conditional is populated using the <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-graph-apis"><span class="std std-ref">graph API</span></a>.</p>
+<p>下面代码演示了如何创建包含 WHILE 条件节点的图。句柄通过 <em>cudaGraphCondAssignDefault</em> 创建，从而避免使用上游内核初始化。条件体通过 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-graph-apis"><span class="std std-ref">Graph API</span></a> 填充。</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">loopKernel</span><span class="p">(</span><span class="n">cudaGraphConditionalHandle</span><span class="w"> </span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">dPtr</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">   </span><span class="c1">// Decrement the value of dPtr and set the condition value to 0 once dPtr is 0</span>
@@ -1266,15 +1262,15 @@ conditional is populated using the <a class="reference internal" href="cuda-grap
 </div>
 </section>
 <section id="conditional-switch-nodes">
-<span id="cuda-graphs-conditional-switch-nodes"></span><h3><span class="section-number">4.2.4.5. </span>Conditional SWITCH Nodes<a class="headerlink" href="cuda-graphs.html#conditional-switch-nodes" title="Link to this heading">#</a></h3>
-<p>The zero-indexed nth body graph of a SWITCH node will be executed once if the condition is equal to n when the node is executed.  The following diagram depicts a 3 node graph where the middle node, B, is a conditional node:</p>
+<span id="cuda-graphs-conditional-switch-nodes"></span><h3><span class="section-number">4.2.4.5. </span>条件 SWITCH 节点<a class="headerlink" href="cuda-graphs.html#conditional-switch-nodes" title="Link to this heading">#</a></h3>
+<p>SWITCH 节点在执行时，若条件值等于 n，则会执行从 0 开始编号的第 n 个体图一次。下图展示了一个 3 节点图，其中中间节点 B 是条件节点：</p>
 <figure class="align-default" id="id7">
 <img alt="../_images/conditional-switch-node.png" class="image" src="../_images/conditional-switch-node.png" />
 <figcaption>
-<p><span class="caption-number">Figure 26 </span><span class="caption-text">Conditional SWITCH Node</span><a class="headerlink" href="cuda-graphs.html#id7" title="Link to this image">#</a></p>
+<p><span class="caption-number">图 26 </span><span class="caption-text">条件 SWITCH 节点</span><a class="headerlink" href="cuda-graphs.html#id7" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
-<p>The following code illustrates the creation of a graph containing a SWITCH conditional node. The value of the condition is set using an upstream kernel. The bodies of the conditional are populated using the <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-graph-apis"><span class="std std-ref">graph API</span></a>.</p>
+<p>下面代码演示了如何创建包含 SWITCH 条件节点的图。条件值由上游内核设置，各条件分支体通过 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-graph-apis"><span class="std std-ref">Graph API</span></a> 填充。</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">setHandle</span><span class="p">(</span><span class="n">cudaGraphConditionalHandle</span><span class="w"> </span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">value</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">    </span><span class="p">...</span>
@@ -1337,43 +1333,43 @@ conditional is populated using the <a class="reference internal" href="cuda-grap
 </section>
 </section>
 <section id="graph-memory-nodes">
-<span id="cuda-graphs-graph-memory-nodes"></span><h2><span class="section-number">4.2.5. </span>Graph Memory Nodes<a class="headerlink" href="cuda-graphs.html#graph-memory-nodes" title="Link to this heading">#</a></h2>
+<span id="cuda-graphs-graph-memory-nodes"></span><h2><span class="section-number">4.2.5. </span>图内存节点<a class="headerlink" href="cuda-graphs.html#graph-memory-nodes" title="Link to this heading">#</a></h2>
 <section id="introduction">
-<span id="cuda-graphs-graph-memory-nodes-intro"></span><h3><span class="section-number">4.2.5.1. </span>Introduction<a class="headerlink" href="cuda-graphs.html#introduction" title="Link to this heading">#</a></h3>
-<p>Graph memory nodes allow graphs to create and own memory allocations. Graph memory nodes have GPU ordered lifetime semantics, which dictate when memory is allowed to be accessed on the device. These GPU ordered lifetime semantics enable driver-managed memory reuse, and match those of the stream ordered allocation APIs <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> and <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code>, which may be captured when creating a graph.</p>
-<p>Graph allocations have fixed addresses over the life of a graph including repeated instantiations and launches. This allows the memory to be directly referenced by other operations within the graph without the need of a graph update, even when CUDA changes the backing physical memory. Within a graph, allocations whose graph ordered lifetimes do not overlap may use the same underlying physical memory.</p>
-<p>CUDA may reuse the same physical memory for allocations across multiple graphs, aliasing virtual address mappings according to the GPU ordered lifetime semantics. For example when different graphs are launched into the same stream, CUDA may virtually alias the same physical memory to satisfy the needs of allocations which have single-graph lifetimes.</p>
+<span id="cuda-graphs-graph-memory-nodes-intro"></span><h3><span class="section-number">4.2.5.1. </span>简介<a class="headerlink" href="cuda-graphs.html#introduction" title="Link to this heading">#</a></h3>
+<p>图内存节点允许图创建并拥有内存分配。图内存节点采用 GPU 有序生命周期语义，用于规定设备端何时允许访问该内存。这种 GPU 有序语义支持驱动管理的内存复用，并与可在建图时被捕获的流有序分配 API <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code> 的语义一致。</p>
+<p>图分配在图的整个生命周期（包括重复实例化与重复启动）中具有固定地址。即使 CUDA 变更其底层物理内存，图内其他操作仍可直接引用该地址而无需做图更新。在同一图内，若两个分配的图有序生命周期不重叠，它们可复用同一底层物理内存。</p>
+<p>CUDA 还可在多个图之间复用同一物理内存，并按 GPU 有序生命周期语义进行虚拟地址别名映射。例如，当不同图启动到同一流中时，CUDA 可将同一物理内存虚拟别名到多个地址，以满足“仅在单图生命周期内有效”的分配需求。</p>
 </section>
 <section id="api-fundamentals">
-<span id="cuda-graphs-graph-memory-node-api-fundamentals"></span><h3><span class="section-number">4.2.5.2. </span>API Fundamentals<a class="headerlink" href="cuda-graphs.html#api-fundamentals" title="Link to this heading">#</a></h3>
-<p>Graph memory nodes are graph nodes representing either memory allocation or free actions. As a shorthand, nodes that allocate memory are called allocation nodes. Likewise, nodes that free memory are called free nodes. Allocations created by allocation nodes are called graph allocations. CUDA assigns virtual addresses for the graph allocation at node creation time. While these virtual addresses are fixed for the lifetime of the allocation node, the allocation contents are not persistent past the freeing operation and may be overwritten by accesses referring to a different allocation.</p>
-<p>Graph allocations are considered recreated every time a graph runs. A graph allocation’s lifetime, which differs from the node’s lifetime, begins when GPU execution reaches the allocating graph node and ends when one of the following occurs:</p>
+<span id="cuda-graphs-graph-memory-node-api-fundamentals"></span><h3><span class="section-number">4.2.5.2. </span>API 基础<a class="headerlink" href="cuda-graphs.html#api-fundamentals" title="Link to this heading">#</a></h3>
+<p>图内存节点是表示“内存分配”或“内存释放”动作的图节点。简写上，执行分配的称为分配节点，执行释放的称为释放节点。由分配节点创建的分配称为图分配。CUDA 在节点创建时为图分配分配虚拟地址。该虚拟地址在分配节点生命周期内固定，但分配内容在释放后不再保持，可能被其他分配对应的访问覆盖。</p>
+<p>每次图运行时，图分配都可视为“重新创建”。图分配的生命周期不同于节点生命周期：它从 GPU 执行到达分配节点时开始，并在以下任一情况发生时结束：</p>
 <ul class="simple">
-<li><p>GPU execution reaches the freeing graph node</p></li>
-<li><p>GPU execution reaches the freeing <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync()</span></code> stream call</p></li>
-<li><p>immediately upon the freeing call to <code class="docutils literal notranslate"><span class="pre">cudaFree()</span></code></p></li>
+<li><p>GPU 执行到达释放图节点</p></li>
+<li><p>GPU 执行到达释放该内存的 <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync()</span></code> 流调用</p></li>
+<li><p>调用 <code class="docutils literal notranslate"><span class="pre">cudaFree()</span></code> 时立即结束</p></li>
 </ul>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Graph destruction does not automatically free any live graph-allocated memory, even though it ends the lifetime of the allocation node. The allocation must subsequently be freed in another graph, or using <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync()</span></code><code class="docutils literal notranslate"><span class="pre">/cudaFree()</span></code>.</p>
+<p class="admonition-title">注意</p>
+<p>图销毁不会自动释放任何仍存活的图分配内存，尽管它会终止分配节点生命周期。该分配随后必须在另一张图中释放，或通过 <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync()</span></code><code class="docutils literal notranslate"><span class="pre">/cudaFree()</span></code> 释放。</p>
 </div>
-<p>Just like other <a class="reference internal" href="cuda-graphs.html#cuda-graphs-graph-structure"><span class="std std-ref">graph-structure</span></a>, graph memory nodes are ordered within a graph by dependency edges. A program must guarantee that operations accessing graph memory:</p>
+<p>与其他 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-graph-structure"><span class="std std-ref">图结构</span></a> 一样，图内存节点在图内通过依赖边排序。程序必须保证访问图内存的操作：</p>
 <ul class="simple">
-<li><p>are ordered after the allocation node</p></li>
-<li><p>are ordered before the operation freeing the memory</p></li>
+<li><p>在分配节点之后执行</p></li>
+<li><p>在释放该内存的操作之前执行</p></li>
 </ul>
-<p>Graph allocation lifetimes begin and usually end according to GPU execution (as opposed to API invocation). GPU ordering is the order that work runs on the GPU as opposed to the order that the work is enqueued or described. Thus, graph allocations are considered ‘GPU ordered.’</p>
+<p>图分配生命周期的开始与通常结束都以 GPU 执行为准（而非 API 调用时刻）。GPU 排序指工作在 GPU 上实际运行的顺序，而不是入队或描述顺序。因此，图分配被视为“GPU 有序”。</p>
 <section id="graph-node-apis">
-<span id="cuda-graphs-graph-node-apis"></span><h4><span class="section-number">4.2.5.2.1. </span>Graph Node APIs<a class="headerlink" href="cuda-graphs.html#graph-node-apis" title="Link to this heading">#</a></h4>
-<p>Graph memory nodes may be explicitly created with the node creation API, <code class="docutils literal notranslate"><span class="pre">cudaGraphAddNode</span></code>. The address allocated when adding a cudaGraphNodeTypeMemAlloc node is returned to the user in the <code class="docutils literal notranslate"><span class="pre">alloc::dptr</span></code> field of the passed <code class="docutils literal notranslate"><span class="pre">cudaGraphNodeParams</span></code> structure. All operations using graph allocations inside the allocating graph must be ordered after the allocating node. Similarly, any free nodes must be ordered after all uses of the allocation within the graph. Free nodes are created using <code class="docutils literal notranslate"><span class="pre">cudaGraphAddNode</span></code> and a node type of cudaGraphNodeTypeMemFree.</p>
-<p>In the following figure, there is an example graph with an alloc and a free node. Kernel nodes <strong>a</strong>, <strong>b</strong>, and <strong>c</strong> are ordered after the allocation node and before the free node such that the kernels can access the allocation. Kernel node <strong>e</strong> is not ordered after the alloc node and therefore cannot safely access the memory. Kernel node <strong>d</strong> is not ordered before the free node, therefore it cannot safely access the memory.</p>
+<span id="cuda-graphs-graph-node-apis"></span><h4><span class="section-number">4.2.5.2.1. </span>图节点 API<a class="headerlink" href="cuda-graphs.html#graph-node-apis" title="Link to this heading">#</a></h4>
+<p>图内存节点可通过节点创建 API <code class="docutils literal notranslate"><span class="pre">cudaGraphAddNode</span></code> 显式创建。添加 `cudaGraphNodeTypeMemAlloc` 节点时分配得到的地址，会通过传入的 <code class="docutils literal notranslate"><span class="pre">cudaGraphNodeParams</span></code> 结构中的 <code class="docutils literal notranslate"><span class="pre">alloc::dptr</span></code> 字段返回给用户。在分配图内部，所有使用该图分配的操作都必须排在分配节点之后；同样，释放节点必须排在图内所有使用该分配的操作之后。释放节点通过 <code class="docutils literal notranslate"><span class="pre">cudaGraphAddNode</span></code> 创建，节点类型为 `cudaGraphNodeTypeMemFree`。</p>
+<p>下图给出一个同时包含分配节点与释放节点的示例图。内核节点 <strong>a</strong>、<strong>b</strong>、<strong>c</strong> 排在分配节点之后、释放节点之前，因此可以安全访问该分配。内核节点 <strong>e</strong> 没有排在分配节点之后，因此不能安全访问这段内存。内核节点 <strong>d</strong> 没有排在释放节点之前，因此也不能安全访问这段内存。</p>
 <figure class="align-default" id="id8">
 <img alt="Kernel Nodes" src="../_images/kernel-nodes.png" />
 <figcaption>
-<p><span class="caption-number">Figure 27 </span><span class="caption-text">Kernel Nodes</span><a class="headerlink" href="cuda-graphs.html#id8" title="Link to this image">#</a></p>
+<p><span class="caption-number">图 27 </span><span class="caption-text">内核节点</span><a class="headerlink" href="cuda-graphs.html#id8" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
-<p>The following code snippet establishes the graph in this figure:</p>
+<p>下面代码构建了该图：</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// Create the graph - it starts out empty</span>
 <span class="n">cudaGraphCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 
@@ -1412,9 +1408,9 @@ conditional is populated using the <a class="reference internal" href="cuda-grap
 </div>
 </section>
 <section id="cuda-graphs-graph-memory-nodes-stream-capture">
-<span id="id3"></span><h4><span class="section-number">4.2.5.2.2. </span>Stream Capture<a class="headerlink" href="cuda-graphs.html#cuda-graphs-graph-memory-nodes-stream-capture" title="Link to this heading">#</a></h4>
-<p>Graph memory nodes can be created by capturing the corresponding stream ordered allocation and free calls <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> and <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code>. In this case, the virtual addresses returned by the captured allocation API can be used by other operations inside the graph. Since the stream ordered dependencies will be captured into the graph, the ordering requirements of the stream ordered allocation APIs guarantee that the graph memory nodes will be properly ordered with respect to the captured stream operations (for correctly written stream code).</p>
-<p>Ignoring kernel nodes <strong>d</strong> and <strong>e</strong>, for clarity, the following code snippet shows how to use stream capture to create the graph from the previous figure:</p>
+<span id="id3"></span><h4><span class="section-number">4.2.5.2.2. </span>流捕获<a class="headerlink" href="cuda-graphs.html#cuda-graphs-graph-memory-nodes-stream-capture" title="Link to this heading">#</a></h4>
+<p>图内存节点也可通过捕获对应的流有序分配与释放调用 <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code> 来创建。在这种情况下，被捕获分配 API 返回的虚拟地址可被图内其他操作直接使用。由于流有序依赖会被捕获进图中，只要流代码本身正确，流有序分配 API 的排序要求就能保证图内存节点相对捕获到的流操作具有正确顺序。</p>
+<p>为便于说明，先忽略内核节点 <strong>d</strong> 与 <strong>e</strong>，下面代码展示了如何通过流捕获构建前图：</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="n">cudaMallocAsync</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dptr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">stream1</span><span class="p">);</span>
 <span class="n">kernel_A</span><span class="o">&lt;&lt;&lt;</span><span class="w"> </span><span class="p">...,</span><span class="w"> </span><span class="n">stream1</span><span class="w"> </span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">dptr</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
 
@@ -1439,14 +1435,14 @@ conditional is populated using the <a class="reference internal" href="cuda-grap
 </div>
 </section>
 <section id="accessing-and-freeing-graph-memory-outside-of-the-allocating-graph">
-<span id="cuda-graphs-graph-memory-accessing-and-freeing"></span><h4><span class="section-number">4.2.5.2.3. </span>Accessing and Freeing Graph Memory Outside of the Allocating Graph<a class="headerlink" href="cuda-graphs.html#accessing-and-freeing-graph-memory-outside-of-the-allocating-graph" title="Link to this heading">#</a></h4>
-<p>Graph allocations do not have to be freed by the allocating graph. When a graph does not free an allocation, that allocation persists beyond the execution of the graph and can be accessed by subsequent CUDA operations. These allocations may be accessed in another graph or directly using a stream operation as long as the accessing operation is ordered after the allocation through CUDA events and other stream ordering mechanisms. An allocation may subsequently be freed by regular calls to <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code>, or by the launch of another graph with a corresponding free node, or a subsequent launch of the allocating graph (if it was instantiated with the <a class="reference internal" href="cuda-graphs.html#cuda-graphs-graph-memory-nodes-cudagraphinstantiateflagautofreeonlaunch"><span class="std std-ref">graph-memory-nodes-cudagraphinstantiateflagautofreeonlaunch</span></a> flag). It is illegal to access memory after it has been freed - the free operation must be ordered after all operations accessing the memory using graph dependencies, CUDA events, and other stream ordering mechanisms.</p>
+<span id="cuda-graphs-graph-memory-accessing-and-freeing"></span><h4><span class="section-number">4.2.5.2.3. </span>在分配图之外访问与释放图内存<a class="headerlink" href="cuda-graphs.html#accessing-and-freeing-graph-memory-outside-of-the-allocating-graph" title="Link to this heading">#</a></h4>
+<p>图分配不一定必须由创建它的图来释放。若分配图未释放某分配，该分配会在图执行结束后继续存活，并可被后续 CUDA 操作访问。只要通过 CUDA 事件或其他流排序机制保证“访问操作排在分配之后”，这些分配既可在其他图中访问，也可通过普通流操作访问。后续可通过常规 <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code>、<code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code>，或启动包含对应释放节点的另一张图来释放；若分配图实例化时使用了 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-graph-memory-nodes-cudagraphinstantiateflagautofreeonlaunch"><span class="std std-ref">graph-memory-nodes-cudagraphinstantiateflagautofreeonlaunch</span></a> 标志，也可在其后续启动中释放。内存被释放后继续访问是非法行为——必须通过图依赖、CUDA 事件及其他流排序机制，保证释放操作排在所有访问该内存的操作之后。</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Since graph allocations may share underlying physical memory, free operations must be ordered after all device operations complete. Out-of-band synchronization (such as memory-based synchronization within a compute kernel) is insufficient for ordering between memory writes and free operations. For more information, see the <a class="reference internal" href="virtual-memory-management.html#virtual-aliasing-support"><span class="std std-ref">Virtual Aliasing Support</span></a> rules relating to consistency and coherency.</p>
+<p class="admonition-title">注意</p>
+<p>由于图分配可能共享底层物理内存，释放操作必须排在所有设备操作完成之后。带外同步（例如计算内核内部基于内存的同步）不足以为“内存写入与释放操作”建立顺序关系。更多信息请参阅 <a class="reference internal" href="virtual-memory-management.html#virtual-aliasing-support"><span class="std std-ref">Virtual Aliasing Support</span></a> 中与一致性和相干性相关的规则。</p>
 </div>
-<p>The three following code snippets demonstrate accessing graph allocations outside of the allocating graph with ordering properly established by: using a single stream, using events between streams, and using events baked into the allocating and freeing graph.</p>
-<p>First, ordering established by using a single stream:</p>
+<p>下面三个代码片段分别演示了在分配图之外访问图分配，并通过以下方式正确建立顺序关系：单流顺序、跨流事件、以及嵌入分配图/释放图中的事件节点。</p>
+<p>第一种：通过单流建立顺序：</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// Contents of allocating graph</span>
 <span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">dptr</span><span class="p">;</span>
 <span class="n">cudaGraphNodeParams</span><span class="w"> </span><span class="n">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">cudaGraphNodeTypeMemAlloc</span><span class="w"> </span><span class="p">};</span>
@@ -1463,7 +1459,7 @@ conditional is populated using the <a class="reference internal" href="cuda-grap
 <span class="n">cudaFreeAsync</span><span class="p">(</span><span class="n">dptr</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>Second, ordering established by recording and waiting on CUDA events:</p>
+<p>第二种：通过记录并等待 CUDA 事件建立顺序：</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// Contents of allocating graph</span>
 <span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">dptr</span><span class="p">;</span>
 
@@ -1495,7 +1491,7 @@ conditional is populated using the <a class="reference internal" href="cuda-grap
 <span class="n">cudaGraphLaunch</span><span class="p">(</span><span class="n">freeGraphExec</span><span class="p">,</span><span class="w"> </span><span class="n">stream3</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>Third, ordering established by using graph external event nodes:</p>
+<p>第三种：通过图外部事件节点建立顺序：</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// Contents of allocating graph</span>
 <span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">dptr</span><span class="p">;</span>
 <span class="n">cudaEvent_t</span><span class="w"> </span><span class="n">allocEvent</span><span class="p">;</span><span class="w"> </span><span class="c1">// event indicating when the allocation will be ready for use.</span>
@@ -1549,12 +1545,12 @@ conditional is populated using the <a class="reference internal" href="cuda-grap
 </section>
 <section id="cudagraphinstantiateflagautofreeonlaunch">
 <span id="cuda-graphs-graph-memory-nodes-cudagraphinstantiateflagautofreeonlaunch"></span><h4><span class="section-number">4.2.5.2.4. </span>cudaGraphInstantiateFlagAutoFreeOnLaunch<a class="headerlink" href="cuda-graphs.html#cudagraphinstantiateflagautofreeonlaunch" title="Link to this heading">#</a></h4>
-<p>Under normal circumstances, CUDA will prevent a graph from being relaunched if it has unfreed memory allocations because multiple allocations at the same address will leak memory. Instantiating a graph with the <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiateFlagAutoFreeOnLaunch</span></code> flag allows the graph to be relaunched while it still has unfreed allocations. In this case, the launch automatically inserts an asynchronous free of the unfreed allocations.</p>
-<p>Auto free on launch is useful for single-producer multiple-consumer algorithms. At each iteration, a producer graph creates several allocations, and, depending on runtime conditions, a varying set of consumers accesses those allocations. This type of variable execution sequence means that consumers cannot free the allocations because a subsequent consumer may require access. Auto free on launch means that the launch loop does not need to track the producer’s allocations - instead, that information remains isolated to the producer’s creation and destruction logic. In general, auto free on launch simplifies an algorithm which would otherwise need to free all the allocations owned by a graph before each relaunch.</p>
+<p>在常规情况下，若图中存在未释放分配，CUDA 会阻止该图再次启动，因为同一地址上的重复分配会导致内存泄漏。若实例化时指定 <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiateFlagAutoFreeOnLaunch</span></code> 标志，则即使仍有未释放分配，也允许再次启动；此时启动过程会自动插入对这些未释放分配的异步释放。</p>
+<p>启动时自动释放对“单生产者-多消费者”算法尤为有用。每轮迭代中，生产者图会创建若干分配；依据运行时条件，不同消费者集合会访问这些分配。这种可变执行序列意味着消费者不能自行释放分配，因为后续消费者可能仍需访问。启用启动时自动释放后，启动循环无需追踪生产者分配，相关状态可封装在生产者图的创建与销毁逻辑中。总体上，这能简化原本需要在每次重启前手工释放图所有分配的算法。</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
+<p class="admonition-title">注意</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiateFlagAutoFreeOnLaunch</span></code> flag does not change the behavior of graph destruction. The application must explicitly free the unfreed memory in order to avoid memory leaks, even for graphs instantiated with the flag.
-The following code shows the use of <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiateFlagAutoFreeOnLaunch</span></code> to simplify a single-producer / multiple-consumer algorithm:</p>
+下面代码展示如何使用 <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiateFlagAutoFreeOnLaunch</span></code> 来简化单生产者/多消费者算法：</p>
 </div>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// Create producer graph which allocates memory and populates it with data</span>
 <span class="n">cudaStreamBeginCapture</span><span class="p">(</span><span class="n">cudaStreamPerThread</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamCaptureModeGlobal</span><span class="p">);</span>
