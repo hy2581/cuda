@@ -1599,14 +1599,14 @@ Stream Capture</label><div class="sd-tab-content docutils">
 </div>
 </section>
 <section id="memory-nodes-in-child-graphs">
-<span id="cuda-graphs-graph-memory-nodes-memory-nodes-in-child-graphs"></span><h4><span class="section-number">4.2.5.2.5. </span>Memory Nodes in Child Graphs<a class="headerlink" href="cuda-graphs.html#memory-nodes-in-child-graphs" title="Link to this heading">#</a></h4>
-<p>CUDA 12.9 introduces the ability to move child graph ownership to a parent graph. Child graphs which are moved to the parent are allowed to contain memory allocation and free nodes. This allows a child graph containing allocation or free nodes to be independently constructed prior to its addition in a parent graph.</p>
-<p>The following restrictions apply to child graphs after they have been moved:</p>
+<span id="cuda-graphs-graph-memory-nodes-memory-nodes-in-child-graphs"></span><h4><span class="section-number">4.2.5.2.5. </span>子图中的内存节点<a class="headerlink" href="cuda-graphs.html#memory-nodes-in-child-graphs" title="Link to this heading">#</a></h4>
+<p>CUDA 12.9 引入了将子图所有权转移给父图的能力。被移动到父图的子图允许包含内存分配节点与释放节点。这使得包含分配/释放节点的子图可以先独立构建，再加入父图。</p>
+<p>子图被移动后，需满足以下限制：</p>
 <ul class="simple">
-<li><p>Cannot be independently instantiated or destroyed.</p></li>
-<li><p>Cannot be added as a child graph of a separate parent graph.</p></li>
-<li><p>Cannot be used as an argument to cuGraphExecUpdate.</p></li>
-<li><p>Cannot have additional memory allocation or free nodes added.</p></li>
+<li><p>不能再独立实例化或销毁。</p></li>
+<li><p>不能再作为其他父图的子图添加。</p></li>
+<li><p>不能作为 `cuGraphExecUpdate` 的参数使用。</p></li>
+<li><p>不能继续添加新的内存分配/释放节点。</p></li>
 </ul>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// Create the child graph</span>
 <span class="n">cudaGraphCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">child</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
@@ -1638,72 +1638,72 @@ Stream Capture</label><div class="sd-tab-content docutils">
 </section>
 </section>
 <section id="optimized-memory-reuse">
-<span id="cuda-graphs-graph-memory-nodes-optimized-memory-reuse"></span><h3><span class="section-number">4.2.5.3. </span>Optimized Memory Reuse<a class="headerlink" href="cuda-graphs.html#optimized-memory-reuse" title="Link to this heading">#</a></h3>
-<p>CUDA reuses memory in two ways:</p>
+<span id="cuda-graphs-graph-memory-nodes-optimized-memory-reuse"></span><h3><span class="section-number">4.2.5.3. </span>优化的内存复用<a class="headerlink" href="cuda-graphs.html#optimized-memory-reuse" title="Link to this heading">#</a></h3>
+<p>CUDA 通过两种方式复用内存：</p>
 <ul class="simple">
-<li><p>Virtual and physical memory reuse within a graph is based on virtual address assignment, like in the stream ordered allocator.</p></li>
-<li><p>Physical memory reuse between graphs is done with virtual aliasing: different graphs can map the same physical memory to their unique virtual addresses.</p></li>
+<li><p>图内的虚拟/物理内存复用基于虚拟地址分配，类似流有序分配器。</p></li>
+<li><p>图间的物理内存复用通过虚拟别名实现：不同图可将同一物理内存映射到各自的虚拟地址。</p></li>
 </ul>
 <section id="address-reuse-within-a-graph">
-<span id="cuda-graphs-graph-memory-nodes-address-reuse-within-a-graph"></span><h4><span class="section-number">4.2.5.3.1. </span>Address Reuse within a Graph<a class="headerlink" href="cuda-graphs.html#address-reuse-within-a-graph" title="Link to this heading">#</a></h4>
-<p>CUDA may reuse memory within a graph by assigning the same virtual address ranges to different allocations whose lifetimes do not overlap. Since virtual addresses may be reused, pointers to different allocations with disjoint lifetimes are not guaranteed to be unique.</p>
-<p>The following figure shows adding a new allocation node (2) that can reuse the address freed by a dependent node (1).</p>
+<span id="cuda-graphs-graph-memory-nodes-address-reuse-within-a-graph"></span><h4><span class="section-number">4.2.5.3.1. </span>图内地址复用<a class="headerlink" href="cuda-graphs.html#address-reuse-within-a-graph" title="Link to this heading">#</a></h4>
+<p>在同一图中，CUDA 可把同一虚拟地址区间分配给生命周期不重叠的不同分配，从而实现内存复用。由于虚拟地址可被复用，不同且生命周期互斥的分配，其指针不保证唯一。</p>
+<p>下图展示新增分配节点 (2)，其可复用依赖节点 (1) 释放出的地址。</p>
 <figure class="align-default" id="id9">
 <img alt="Adding New Alloc Node 2" src="../_images/new-alloc-node.png" />
 <figcaption>
-<p><span class="caption-number">Figure 28 </span><span class="caption-text">Adding New Alloc Node 2</span><a class="headerlink" href="cuda-graphs.html#id9" title="Link to this image">#</a></p>
+<p><span class="caption-number">图 28 </span><span class="caption-text">新增分配节点 2</span><a class="headerlink" href="cuda-graphs.html#id9" title="Link to this image">#</a></p>
 <div class="legend">
-<p>The following figure shows adding a new alloc node (4). The new alloc node is not dependent on the free node (2) so cannot reuse the address from the associated alloc node (2). If the alloc node (2) used the address freed by free node (1), the new alloc node 3 would need a new address.</p>
+<p>下图展示新增分配节点 (4)。由于该节点不依赖释放节点 (2)，因此无法复用与分配节点 (2) 关联的地址。若分配节点 (2) 已使用释放节点 (1) 释放出的地址，则新增分配节点 3 需要新的地址。</p>
 </div>
 </figcaption>
 </figure>
 <figure class="align-default" id="id10">
 <img alt="Adding New Alloc Node 3" src="../_images/adding-new-alloc-nodes.png" />
 <figcaption>
-<p><span class="caption-number">Figure 29 </span><span class="caption-text">Adding New Alloc Node 3</span><a class="headerlink" href="cuda-graphs.html#id10" title="Link to this image">#</a></p>
+<p><span class="caption-number">图 29 </span><span class="caption-text">新增分配节点 3</span><a class="headerlink" href="cuda-graphs.html#id10" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 </section>
 <section id="physical-memory-management-and-sharing">
-<span id="cuda-graphs-graph-memory-nodes-physical-memory-mgmt"></span><h4><span class="section-number">4.2.5.3.2. </span>Physical Memory Management and Sharing<a class="headerlink" href="cuda-graphs.html#physical-memory-management-and-sharing" title="Link to this heading">#</a></h4>
-<p>CUDA is responsible for mapping physical memory to the virtual address before the allocating node is reached in GPU order. As an optimization for memory footprint and mapping overhead, multiple graphs may use the same physical memory for distinct allocations if they will not run simultaneously; however, physical pages cannot be reused if they are bound to more than one executing graph at the same time, or to a graph allocation which remains unfreed.</p>
-<p>CUDA may update physical memory mappings at any time during graph instantiation, launch, or execution. CUDA may also introduce synchronization between future graph launches in order to prevent live graph allocations from referring to the same physical memory. As for any allocate-free-allocate pattern, if a program accesses a pointer outside of an allocation’s lifetime, the erroneous access may silently read or write live data owned by another allocation (even if the virtual address of the allocation is unique). Use of compute sanitizer tools can catch this error.</p>
-<p>The following figure shows graphs sequentially launched in the same stream. In this example, each graph frees all the memory it allocates. Since the graphs in the same stream never run concurrently, CUDA can and should use the same physical memory to satisfy all the allocations.</p>
+<span id="cuda-graphs-graph-memory-nodes-physical-memory-mgmt"></span><h4><span class="section-number">4.2.5.3.2. </span>物理内存管理与共享<a class="headerlink" href="cuda-graphs.html#physical-memory-management-and-sharing" title="Link to this heading">#</a></h4>
+<p>在 GPU 执行顺序到达分配节点前，CUDA 负责将物理内存映射到对应虚拟地址。为优化内存占用与映射开销，若多个图不会并发执行，它们可为不同分配复用同一物理内存；但当物理页同时绑定到多个正在执行的图，或绑定到尚未释放的图分配时，不能复用这些物理页。</p>
+<p>在图实例化、启动或执行期间，CUDA 都可能更新物理内存映射。CUDA 也可能在后续图启动之间引入同步，以避免仍存活的图分配指向同一物理内存。与任何“分配-释放-再分配”模式一样，若程序在分配生命周期之外访问指针，这类错误访问可能静默读写到其他分配的有效数据（即使该分配的虚拟地址唯一）。可使用 compute sanitizer 工具捕获此类错误。</p>
+<p>下图展示同一流中顺序启动的多个图。在该示例中，每个图都会释放其分配的全部内存。由于同一流中的图不会并发执行，CUDA 可以且应当使用同一物理内存满足这些分配。</p>
 <figure class="align-default" id="id11">
 <img alt="Sequentially Launched Graphs" src="../_images/sequentially-launched-graphs.png" />
 <figcaption>
-<p><span class="caption-number">Figure 30 </span><span class="caption-text">Sequentially Launched Graphs</span><a class="headerlink" href="cuda-graphs.html#id11" title="Link to this image">#</a></p>
+<p><span class="caption-number">图 30 </span><span class="caption-text">顺序启动的图</span><a class="headerlink" href="cuda-graphs.html#id11" title="Link to this image">#</a></p>
 </figcaption>
 </figure>
 </section>
 </section>
 <section id="performance-considerations">
-<span id="cuda-graphs-graph-memory-nodes-performance-considerations"></span><h3><span class="section-number">4.2.5.4. </span>Performance Considerations<a class="headerlink" href="cuda-graphs.html#performance-considerations" title="Link to this heading">#</a></h3>
-<p>When multiple graphs are launched into the same stream, CUDA attempts to allocate the same physical memory to them because the execution of these graphs cannot overlap. Physical mappings for a graph are retained between launches as an optimization to avoid the cost of remapping. If, at a later time, one of the graphs is launched such that its execution may overlap with the others (for example if it is launched into a different stream) then CUDA must perform some remapping because concurrent graphs require distinct memory to avoid data corruption.</p>
-<p>In general, remapping of graph memory in CUDA is likely caused by these operations:</p>
+<span id="cuda-graphs-graph-memory-nodes-performance-considerations"></span><h3><span class="section-number">4.2.5.4. </span>性能注意事项<a class="headerlink" href="cuda-graphs.html#performance-considerations" title="Link to this heading">#</a></h3>
+<p>当多个图启动到同一流中时，由于这些图不会重叠执行，CUDA 会尽量为它们分配同一物理内存。为避免重复映射开销，图的物理映射会在多次启动间保留。若之后某个图的启动方式可能与其他图并发（例如启动到不同流），CUDA 就必须进行重新映射，因为并发图需要不同内存以避免数据损坏。</p>
+<p>一般来说，CUDA 图内存重映射常由以下操作触发：</p>
 <ul class="simple">
-<li><p>Changing the stream into which a graph is launched</p></li>
-<li><p>A trim operation on the graph memory pool, which explicitly frees unused memory (discussed in <a class="reference internal" href="cuda-graphs.html#cuda-graphs-graph-memory-nodes-physical-memory-footprint"><span class="std std-ref">graph-memory-nodes-physical-memory-footprint</span></a>)</p></li>
-<li><p>Relaunching a graph while an unfreed allocation from another graph is mapped to the same memory will cause a remap of memory before relaunch</p></li>
+<li><p>改变图的启动流</p></li>
+<li><p>对图内存池执行 trim 操作，显式释放未使用内存（见 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-graph-memory-nodes-physical-memory-footprint"><span class="std std-ref">graph-memory-nodes-physical-memory-footprint</span></a>）</p></li>
+<li><p>当另一张图仍有未释放分配映射到同一内存时重启当前图，会在重启前触发重映射</p></li>
 </ul>
-<p>Remapping must happen in execution order, but after any previous execution of that graph is complete (otherwise memory that is still in use could be unmapped). Due to this ordering dependency, as well as because mapping operations are OS calls, mapping operations can be relatively expensive. Applications can avoid this cost by launching graphs containing allocation memory nodes consistently into the same stream.</p>
+<p>重映射必须遵循执行顺序，并且只能在该图此前执行完全结束后进行（否则仍在使用的内存可能被解除映射）。由于该顺序依赖，加上映射操作本身是 OS 调用，重映射开销可能较高。应用可通过始终将包含内存分配节点的图启动到同一流来降低这类成本。</p>
 <section id="first-launch-cudagraphupload">
-<span id="cuda-graphs-graph-memory-nodes-first-launch"></span><h4><span class="section-number">4.2.5.4.1. </span>First Launch / cudaGraphUpload<a class="headerlink" href="cuda-graphs.html#first-launch-cudagraphupload" title="Link to this heading">#</a></h4>
-<p>Physical memory cannot be allocated or mapped during graph instantiation because the stream in which the graph will execute is unknown. Mapping is done instead during graph launch. Calling <code class="docutils literal notranslate"><span class="pre">cudaGraphUpload</span></code> can separate out the cost of allocation from the launch by performing all mappings for that graph immediately and associating the graph with the upload stream. If the graph is then launched into the same stream, it will launch without any additional remapping.</p>
-<p>Using different streams for graph upload and graph launch behaves similarly to switching streams, likely resulting in remap operations. In addition, unrelated memory pool management is permitted to pull memory from an idle stream, which could negate the impact of the uploads.</p>
+<span id="cuda-graphs-graph-memory-nodes-first-launch"></span><h4><span class="section-number">4.2.5.4.1. </span>首次启动 / cudaGraphUpload<a class="headerlink" href="cuda-graphs.html#first-launch-cudagraphupload" title="Link to this heading">#</a></h4>
+<p>图实例化阶段无法分配或映射物理内存，因为图将在哪条流执行尚未知晓。映射会在图启动时进行。调用 <code class="docutils literal notranslate"><span class="pre">cudaGraphUpload</span></code> 可将分配/映射成本从启动路径中分离：它会立即完成该图所需映射，并将图与上传流关联。若之后在同一流中启动该图，则无需额外重映射。</p>
+<p>若图上传与图启动使用不同流，其行为类似切换启动流，通常会触发重映射。此外，其他无关的内存池管理可能从空闲流回收内存，从而抵消上传带来的收益。</p>
 </section>
 </section>
 <section id="physical-memory-footprint">
-<span id="cuda-graphs-graph-memory-nodes-physical-memory-footprint"></span><h3><span class="section-number">4.2.5.5. </span>Physical Memory Footprint<a class="headerlink" href="cuda-graphs.html#physical-memory-footprint" title="Link to this heading">#</a></h3>
-<p>The pool-management behavior of asynchronous allocation means that destroying a graph which contains memory nodes (even if their allocations are free) will not immediately return physical memory to the OS for use by other processes. To explicitly release memory back to the OS, an application should use the <code class="docutils literal notranslate"><span class="pre">cudaDeviceGraphMemTrim</span></code> API.</p>
-<p><code class="docutils literal notranslate"><span class="pre">cudaDeviceGraphMemTrim</span></code> will unmap and release any physical memory reserved by graph memory nodes that is not actively in use. Allocations that have not been freed and graphs that are scheduled or running are considered to be actively using the physical memory and will not be impacted. Use of the trim API will make physical memory available to other allocation APIs and other applications or processes, but will cause CUDA to reallocate and remap memory when the trimmed graphs are next launched. Note that <code class="docutils literal notranslate"><span class="pre">cudaDeviceGraphMemTrim</span></code> operates on a different pool from <code class="docutils literal notranslate"><span class="pre">cudaMemPoolTrimTo()</span></code>. The graph memory pool is not exposed to the steam ordered memory allocator. CUDA allows applications to query their graph memory footprint through the <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetGraphMemAttribute</span></code> API. Querying the attribute <code class="docutils literal notranslate"><span class="pre">cudaGraphMemAttrReservedMemCurrent</span></code> returns the amount of physical memory reserved by the driver for graph allocations in the current process. Querying <code class="docutils literal notranslate"><span class="pre">cudaGraphMemAttrUsedMemCurrent</span></code> returns the amount of physical memory currently mapped by at least one graph. Either of these attributes can be used to track when new physical memory is acquired by CUDA for the sake of an allocating graph. Both of these attributes are useful for examining how much memory is saved by the sharing mechanism.</p>
+<span id="cuda-graphs-graph-memory-nodes-physical-memory-footprint"></span><h3><span class="section-number">4.2.5.5. </span>物理内存占用<a class="headerlink" href="cuda-graphs.html#physical-memory-footprint" title="Link to this heading">#</a></h3>
+<p>由于异步分配采用内存池管理，销毁包含内存节点的图（即使其分配已释放）也不会立即将物理内存归还给 OS 供其他进程使用。若需显式归还，可调用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGraphMemTrim</span></code> API。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaDeviceGraphMemTrim</span></code> 会解除映射并释放由图内存节点保留但当前未活跃使用的物理内存。尚未释放的分配，以及已调度或正在运行的图，均视为活跃使用，不受影响。调用 trim API 会让物理内存可被其他分配 API 或其他应用/进程使用，但也会导致这些被 trim 的图在下次启动时需要重新分配并重映射内存。请注意，<code class="docutils literal notranslate"><span class="pre">cudaDeviceGraphMemTrim</span></code> 作用于与 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolTrimTo()</span></code> 不同的内存池。图内存池不会暴露给流有序内存分配器。CUDA 还允许应用通过 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetGraphMemAttribute</span></code> API 查询图内存占用：查询 <code class="docutils literal notranslate"><span class="pre">cudaGraphMemAttrReservedMemCurrent</span></code> 可得当前进程中驱动为图分配保留的物理内存量；查询 <code class="docutils literal notranslate"><span class="pre">cudaGraphMemAttrUsedMemCurrent</span></code> 可得当前至少被一张图映射使用的物理内存量。两者都可用于追踪 CUDA 为分配图获取新物理内存的时机，也有助于评估共享机制节省了多少内存。</p>
 </section>
 <section id="peer-access">
-<span id="cuda-graphs-graph-memory-nodes-peer-access"></span><h3><span class="section-number">4.2.5.6. </span>Peer Access<a class="headerlink" href="cuda-graphs.html#peer-access" title="Link to this heading">#</a></h3>
-<p>Graph allocations can be configured for access from multiple GPUs, in which case CUDA will map the allocations onto the peer GPUs as required. CUDA allows graph allocations requiring different mappings to reuse the same virtual address. When this occurs, the address range is mapped onto all GPUs required by the different allocations. This means an allocation may sometimes allow more peer access than was requested during its creation; however, relying on these extra mappings is still an error.</p>
+<span id="cuda-graphs-graph-memory-nodes-peer-access"></span><h3><span class="section-number">4.2.5.6. </span>Peer 访问<a class="headerlink" href="cuda-graphs.html#peer-access" title="Link to this heading">#</a></h3>
+<p>图分配可以配置为支持多个 GPU 访问，此时 CUDA 会按需将分配映射到对等 GPU。CUDA 允许映射需求不同的图分配复用同一虚拟地址。发生这种情况时，该地址区间会被映射到这些分配所需的全部 GPU。这意味着某个分配有时会获得超出创建时请求范围的 peer 可访问性；但依赖这些“额外映射”仍属于错误用法。</p>
 <section id="peer-access-with-graph-node-apis">
-<span id="cuda-graphs-graph-memory-nodes-peer-access-with-graph-node-apis"></span><h4><span class="section-number">4.2.5.6.1. </span>Peer Access with Graph Node APIs<a class="headerlink" href="cuda-graphs.html#peer-access-with-graph-node-apis" title="Link to this heading">#</a></h4>
-<p>The <code class="docutils literal notranslate"><span class="pre">cudaGraphAddNode</span></code> API accepts mapping requests in the <code class="docutils literal notranslate"><span class="pre">accessDescs</span></code> array field of the alloc node parameters structures. The <code class="docutils literal notranslate"><span class="pre">poolProps.location</span></code> embedded structure specifies the resident device for the allocation. Access from the allocating GPU is assumed to be needed, thus the application does not need to specify an entry for the resident device in the <code class="docutils literal notranslate"><span class="pre">accessDescs</span></code> array.</p>
+<span id="cuda-graphs-graph-memory-nodes-peer-access-with-graph-node-apis"></span><h4><span class="section-number">4.2.5.6.1. </span>通过图节点 API 的 Peer 访问<a class="headerlink" href="cuda-graphs.html#peer-access-with-graph-node-apis" title="Link to this heading">#</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">cudaGraphAddNode</span></code> API 通过分配节点参数结构中的 <code class="docutils literal notranslate"><span class="pre">accessDescs</span></code> 数组接收映射请求。嵌入结构 <code class="docutils literal notranslate"><span class="pre">poolProps.location</span></code> 指定分配的驻留设备。默认认为分配所在 GPU 需要访问权限，因此应用无需在 <code class="docutils literal notranslate"><span class="pre">accessDescs</span></code> 数组中显式为驻留设备填写条目。</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="n">cudaGraphNodeParams</span><span class="w"> </span><span class="n">allocNodeParams</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">cudaGraphNodeTypeMemAlloc</span><span class="w"> </span><span class="p">};</span>
 <span class="n">allocNodeParams</span><span class="p">.</span><span class="n">alloc</span><span class="p">.</span><span class="n">poolProps</span><span class="p">.</span><span class="n">allocType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaMemAllocationTypePinned</span><span class="p">;</span>
 <span class="n">allocNodeParams</span><span class="p">.</span><span class="n">alloc</span><span class="p">.</span><span class="n">poolProps</span><span class="p">.</span><span class="n">location</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaMemLocationTypeDevice</span><span class="p">;</span>
@@ -1735,8 +1735,8 @@ Stream Capture</label><div class="sd-tab-content docutils">
 </div>
 </section>
 <section id="peer-access-with-stream-capture">
-<span id="cuda-graphs-graph-memory-nodes-peer-access-with-stream-capture"></span><h4><span class="section-number">4.2.5.6.2. </span>Peer Access with Stream Capture<a class="headerlink" href="cuda-graphs.html#peer-access-with-stream-capture" title="Link to this heading">#</a></h4>
-<p>For stream capture, the allocation node records the peer accessibility of the allocating pool at the time of the capture. Altering the peer accessibility of the allocating pool after a <code class="docutils literal notranslate"><span class="pre">cudaMallocFromPoolAsync</span></code> call is captured does not affect the mappings that the graph will make for the allocation.</p>
+<span id="cuda-graphs-graph-memory-nodes-peer-access-with-stream-capture"></span><h4><span class="section-number">4.2.5.6.2. </span>通过流捕获的 Peer 访问<a class="headerlink" href="cuda-graphs.html#peer-access-with-stream-capture" title="Link to this heading">#</a></h4>
+<p>在流捕获场景中，分配节点会记录“捕获发生时”分配池的 peer 可访问性。若在捕获了 <code class="docutils literal notranslate"><span class="pre">cudaMallocFromPoolAsync</span></code> 调用后再修改分配池的 peer 可访问性，不会影响该图后续为该分配建立的映射。</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// boilerplate for the access descs (only ReadWrite and Device access supported by the add node api)</span>
 <span class="n">accessDesc</span><span class="p">.</span><span class="n">flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaMemAccessFlagsProtReadWrite</span><span class="p">;</span>
 <span class="n">accessDesc</span><span class="p">.</span><span class="n">location</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaMemLocationTypeDevice</span><span class="p">;</span>
@@ -1762,39 +1762,39 @@ Stream Capture</label><div class="sd-tab-content docutils">
 </section>
 </section>
 <section id="device-graph-launch">
-<span id="cuda-graphs-device-graph-launch"></span><h2><span class="section-number">4.2.6. </span>Device Graph Launch<a class="headerlink" href="cuda-graphs.html#device-graph-launch" title="Link to this heading">#</a></h2>
-<p>There are many workflows which need to make data-dependent decisions during runtime and execute different operations depending on those decisions. Rather than offloading this decision-making process to the host, which may require a round-trip from the device, users may prefer to perform it on the device. To that end, CUDA provides a mechanism to launch graphs from the device.</p>
-<p>Device graph launch provides a convenient way to perform dynamic control flow from the device, be it something as simple as a loop or as complex as a device-side work scheduler.</p>
-<p>Graphs which can be launched from the device will henceforth be referred to as device graphs, and graphs which cannot be launched from the device will be referred to as host graphs.</p>
-<p>Device graphs can be launched from both the host and device, whereas host graphs can only be launched from the host. Unlike host launches, launching a device graph from the device while a previous launch of the graph is running will result in an error, returning <code class="docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code>; therefore, a device graph cannot be launched twice from the device at the same time. Launching a device graph from the host and device simultaneously will result in undefined behavior.</p>
+<span id="cuda-graphs-device-graph-launch"></span><h2><span class="section-number">4.2.6. </span>设备端图启动<a class="headerlink" href="cuda-graphs.html#device-graph-launch" title="Link to this heading">#</a></h2>
+<p>很多工作流需要在运行时基于数据做决策，并据此执行不同操作。与其把决策过程回传到主机（这通常需要设备到主机往返），用户往往更希望直接在设备端完成。为此，CUDA 提供了从设备端启动图的机制。</p>
+<p>设备端图启动为设备侧动态控制流提供了便捷手段，既可实现简单循环，也可实现复杂的设备侧任务调度器。</p>
+<p>后文将“可由设备端启动的图”称为设备图（device graph），将“不可由设备端启动的图”称为主机图（host graph）。</p>
+<p>设备图既可由主机启动，也可由设备启动；而主机图只能由主机启动。与主机启动不同，若设备端在前一次该图启动尚未结束时再次启动该设备图，会报错并返回 <code class="docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code>；因此同一设备图不能在设备端同时启动两次。若同时从主机与设备启动同一设备图，则行为未定义。</p>
 <section id="device-graph-creation">
-<span id="cuda-graphs-device-graph-creation"></span><h3><span class="section-number">4.2.6.1. </span>Device Graph Creation<a class="headerlink" href="cuda-graphs.html#device-graph-creation" title="Link to this heading">#</a></h3>
-<p>In order for a graph to be launched from the device, it must be instantiated explicitly for device launch. This is achieved by passing the <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiateFlagDeviceLaunch</span></code> flag to the <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiate()</span></code> call. As is the case for host graphs, device graph structure is fixed at time of instantiation and cannot be updated without re-instantiation, and instantiation can only be performed on the host. In order for a graph to be able to be instantiated for device launch, it must adhere to various requirements.</p>
+<span id="cuda-graphs-device-graph-creation"></span><h3><span class="section-number">4.2.6.1. </span>设备图创建<a class="headerlink" href="cuda-graphs.html#device-graph-creation" title="Link to this heading">#</a></h3>
+<p>若要让图可由设备端启动，必须在实例化时显式声明设备启动能力。这可通过在 <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiate()</span></code> 调用中传入 <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiateFlagDeviceLaunch</span></code> 标志实现。与主机图一样，设备图结构在实例化时固定，若不重新实例化则无法更新，且实例化只能在主机端执行。要使图可实例化为设备可启动图，还必须满足若干要求。</p>
 <section id="device-graph-requirements">
-<span id="cuda-graphs-device-graph-requirements"></span><h4><span class="section-number">4.2.6.1.1. </span>Device Graph Requirements<a class="headerlink" href="cuda-graphs.html#device-graph-requirements" title="Link to this heading">#</a></h4>
+<span id="cuda-graphs-device-graph-requirements"></span><h4><span class="section-number">4.2.6.1.1. </span>设备图要求<a class="headerlink" href="cuda-graphs.html#device-graph-requirements" title="Link to this heading">#</a></h4>
 <p>通用要求：</p>
 <ul class="simple">
 <li><p>图中的所有节点必须位于同一设备上。</p></li>
-<li><p>The graph can only contain kernel nodes, memcpy nodes, memset nodes, and child graph nodes.</p></li>
+<li><p>图中仅可包含内核节点、memcpy 节点、memset 节点和子图节点。</p></li>
 </ul>
 <p>内核节点：</p>
 <ul class="simple">
-<li><p>Use of CUDA Dynamic Parallelism by kernels in the graph is not permitted.</p></li>
+<li><p>图中内核不允许使用 CUDA 动态并行。</p></li>
 <li><p>在未使用 MPS 的前提下，允许协作式启动。</p></li>
 </ul>
-<p>Memcpy nodes:</p>
+<p>Memcpy 节点：</p>
 <ul class="simple">
-<li><p>Only copies involving device memory and/or pinned device-mapped host memory are permitted.</p></li>
-<li><p>Copies involving CUDA arrays are not permitted.</p></li>
+<li><p>仅允许涉及设备内存和/或固定（pinned）设备映射主机内存的拷贝。</p></li>
+<li><p>不允许涉及 CUDA 数组的拷贝。</p></li>
 <li><p>在实例化时，两个操作数都必须可被当前设备访问。请注意，即使目标内存在其他设备上，拷贝操作也会由图所在设备发起执行。</p></li>
 </ul>
 </section>
 <section id="device-graph-upload">
-<span id="cuda-graphs-device-graph-upload"></span><h4><span class="section-number">4.2.6.1.2. </span>Device Graph Upload<a class="headerlink" href="cuda-graphs.html#device-graph-upload" title="Link to this heading">#</a></h4>
-<p>In order to launch a graph on the device, it must first be uploaded to the device to populate the necessary device resources. This can be achieved in one of two ways.</p>
-<p>Firstly, the graph can be uploaded explicitly, either via <code class="docutils literal notranslate"><span class="pre">cudaGraphUpload()</span></code> or by requesting an upload as part of instantiation via <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiateWithParams()</span></code>.</p>
-<p>Alternatively, the graph can first be launched from the host, which will perform this upload step implicitly as part of the launch.</p>
-<p>Examples of all three methods can be seen below:</p>
+<span id="cuda-graphs-device-graph-upload"></span><h4><span class="section-number">4.2.6.1.2. </span>设备图上传<a class="headerlink" href="cuda-graphs.html#device-graph-upload" title="Link to this heading">#</a></h4>
+<p>要在设备端启动图，必须先将图上传到设备，准备所需设备资源。可通过两种方式实现。</p>
+<p>第一种是显式上传：可直接调用 <code class="docutils literal notranslate"><span class="pre">cudaGraphUpload()</span></code>，或通过 <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiateWithParams()</span></code> 在实例化阶段请求上传。</p>
+<p>另一种方式是先由主机启动一次图，启动过程会隐式完成上传步骤。</p>
+<p>下面给出这三种方式的示例：</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// Explicit upload after instantiation</span>
 <span class="n">cudaGraphInstantiate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">deviceGraphExec1</span><span class="p">,</span><span class="w"> </span><span class="n">deviceGraph1</span><span class="p">,</span><span class="w"> </span><span class="n">cudaGraphInstantiateFlagDeviceLaunch</span><span class="p">);</span>
 <span class="n">cudaGraphUpload</span><span class="p">(</span><span class="n">deviceGraphExec1</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
@@ -1812,8 +1812,8 @@ Stream Capture</label><div class="sd-tab-content docutils">
 </div>
 </section>
 <section id="device-graph-update">
-<span id="cuda-graphs-device-graph-update"></span><h4><span class="section-number">4.2.6.1.3. </span>Device Graph Update<a class="headerlink" href="cuda-graphs.html#device-graph-update" title="Link to this heading">#</a></h4>
-<p>Device graphs can only be updated from the host, and must be re-uploaded to the device upon executable graph update in order for the changes to take effect. This can be achieved using the same methods outlined in Section <a class="reference internal" href="cuda-graphs.html#cuda-graphs-device-graph-upload"><span class="std std-ref">device-graph-upload</span></a>. Unlike host graphs, launching a device graph from the device while an update is being applied will result in undefined behavior.</p>
+<span id="cuda-graphs-device-graph-update"></span><h4><span class="section-number">4.2.6.1.3. </span>设备图更新<a class="headerlink" href="cuda-graphs.html#device-graph-update" title="Link to this heading">#</a></h4>
+<p>设备图只能在主机端更新，且可执行图更新后必须重新上传到设备端，修改才会生效。可沿用 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-device-graph-upload"><span class="std std-ref">device-graph-upload</span></a> 节介绍的方法完成。与主机图不同，若在更新生效过程中从设备端启动该设备图，会导致未定义行为。</p>
 </section>
 </section>
 <section id="device-launch">
