@@ -1189,26 +1189,26 @@ CUDA C primitives</label><div class="sd-tab-content docutils">
 <p><a class="reference internal" href="../04-special-topics/async-copies.html#async-copies-ldgsts"><span class="std std-ref">使用 LDGSTS</span></a>、<a class="reference internal" href="../04-special-topics/async-copies.html#async-copies-tma"><span class="std std-ref">使用张量内存加速器（TMA）</span></a>与<a class="reference internal" href="../04-special-topics/async-copies.html#async-copies-stas"><span class="std std-ref">使用 STAS</span></a>章节将进一步详细介绍各机制。</p>
 </section>
 <section id="configuring-l1-shared-memory-balance">
-<span id="advanced-kernel-l1-shared-config"></span><h2><span class="section-number">3.2.6. </span>Configuring L1/Shared Memory Balance<a class="headerlink" href="advanced-kernel-programming.html#configuring-l1-shared-memory-balance" title="跳转到此标题">#</a></h2>
-<p>As mentioned in <a class="reference internal" href="../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-caches"><span class="std std-ref">L1 data cache</span></a>, the L1 and shared memory on an SM use the same physical resource, known as the unified data cache. On most architectures, if a kernel uses little or no shared memory, the unified data cache can be configured to provide the maximal amount of L1 cache allowed by the architecture.</p>
-<p>The unified data cache reserved for shared memory is configurable on a per-kernel basis.  An application can set the <code class="docutils literal notranslate"><span class="pre">carveout</span></code>, or preferred shared memory capacity, with the <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__EXECUTION.html#group__CUDART__EXECUTION_1g317e77d2657abf915fd9ed03e75f3eb0">cudaFuncSetAttribute</a> function called before the kernel is launched.</p>
+<span id="advanced-kernel-l1-shared-config"></span><h2><span class="section-number">3.2.6. </span>配置 L1/共享内存平衡<a class="headerlink" href="advanced-kernel-programming.html#configuring-l1-shared-memory-balance" title="跳转到此标题">#</a></h2>
+<p>如<a class="reference internal" href="../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-caches"><span class="std std-ref">L1 数据缓存</span></a>一节所述，SM 上的 L1 与共享内存使用同一物理资源，即统一数据缓存。在多数架构上，如果某个 kernel 几乎不使用共享内存，统一数据缓存可配置为提供该架构允许的最大 L1 容量。</p>
+<p>为共享内存预留的统一数据缓存可按 kernel 进行配置。应用可在 kernel 启动前调用 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__EXECUTION.html#group__CUDART__EXECUTION_1g317e77d2657abf915fd9ed03e75f3eb0">cudaFuncSetAttribute</a>，设置 <code class="docutils literal notranslate"><span class="pre">carveout</span></code>（即期望的共享内存容量）。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaFuncSetAttribute</span><span class="p">(</span><span class="n">kernel_name</span><span class="p">,</span><span class="w"> </span><span class="n">cudaFuncAttributePreferredSharedMemoryCarveout</span><span class="p">,</span><span class="w"> </span><span class="n">carveout</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>The application can set the <code class="docutils literal notranslate"><span class="pre">carveout</span></code> as an integer percentage of the maximum supported shared memory capacity of that architecture.  In addition to an integer percentage, three convenience enums are provided as carveout values.</p>
+<p>应用可将 <code class="docutils literal notranslate"><span class="pre">carveout</span></code> 设为该架构最大共享内存容量的整数百分比。除整数百分比外，还提供了三个便捷枚举值作为 carveout 选项。</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">cudaSharedmemCarveoutDefault</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cudaSharedmemCarveoutMaxL1</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cudaSharedmemCarveoutMaxShared</span></code></p></li>
 </ul>
-<p>The maximum supported shared memory and the supported carveout sizes vary by architecture; see <a class="reference internal" href="../05-appendices/compute-capabilities.html#compute-capabilities-table-shared-memory-capacity-per-compute-capability"><span class="std std-ref">Shared Memory Capacity per Compute Capability</span></a> for  details.</p>
-<p>Where a chosen integer percentage carveout does not map exactly to a supported shared memory capacity, the next larger capacity is used.  For example, for devices of compute capability 12.0, which have a maximum shared memory capacity of 100KB, setting the carveout to 50% will result in 64KB of shared memory, not 50KB, because devices of compute capability 12.0 support shared memory sizes of 0, 8, 16, 32, 64, and 100.</p>
-<p>The function passed to <code class="docutils literal notranslate"><span class="pre">cudaFuncSetAttribute</span></code> must be declared with the <code class="docutils literal notranslate"><span class="pre">__global__</span></code> specifier. <code class="docutils literal notranslate"><span class="pre">cudaFuncSetAttribute</span></code> is interpreted by the driver as a hint, and the driver may choose a different carveout size if required to execute the kernel.</p>
+<p>最大可用共享内存与可支持的 carveout 大小因架构而异；详情请见 <a class="reference internal" href="../05-appendices/compute-capabilities.html#compute-capabilities-table-shared-memory-capacity-per-compute-capability"><span class="std std-ref">各计算能力下的共享内存容量</span></a>。</p>
+<p>当所选整数百分比的 carveout 不能精确映射到受支持的共享内存容量时，系统会选择下一个更大的可用容量。例如，计算能力 12.0 设备的最大共享内存容量为 100KB，将 carveout 设为 50% 时得到的是 64KB 而非 50KB，因为该设备仅支持 0、8、16、32、64 和 100KB 这些容量档位。</p>
+<p>传给 <code class="docutils literal notranslate"><span class="pre">cudaFuncSetAttribute</span></code> 的函数必须以 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 声明。驱动会将 <code class="docutils literal notranslate"><span class="pre">cudaFuncSetAttribute</span></code> 视为提示；若执行该 kernel 有需要，驱动可选择不同的 carveout 大小。</p>
 <div class="admonition note">
 <p class="admonition-title">注意</p>
-<p>Another CUDA API, <code class="docutils literal notranslate"><span class="pre">cudaFuncSetCacheConfig</span></code>, also allows an application to adjust the balance between L1 and shared memory for a kernel. However, this API set a hard requirements on shared/L1 balance for kernel launch. As a result, interleaving kernels with different shared memory configurations would needlessly <a class="reference internal" href="advanced-host-programming.html#advanced-host-implicit-synchronization"><span class="std std-ref">serialize launches</span></a> behind shared memory reconfigurations. <code class="docutils literal notranslate"><span class="pre">cudaFuncSetAttribute</span></code> is preferred because driver may choose a different configuration if required to execute the function or to avoid thrashing.</p>
+<p>另一个 CUDA API——<code class="docutils literal notranslate"><span class="pre">cudaFuncSetCacheConfig</span></code>——也允许应用调整某个 kernel 的 L1 与共享内存平衡。但该 API 会对 kernel 启动施加“共享内存/L1 比例必须满足”的硬性要求。因此，交错执行共享内存配置不同的 kernels，会因共享内存重配置而不必要地<a class="reference internal" href="advanced-host-programming.html#advanced-host-implicit-synchronization"><span class="std std-ref">串行化启动</span></a>。通常更推荐 <code class="docutils literal notranslate"><span class="pre">cudaFuncSetAttribute</span></code>，因为驱动可在需要执行函数或避免抖动时选择更合适的配置。</p>
 </div>
-<p>Kernels relying on shared memory allocations over 48 KB per block are architecture-specific.  As such they must use <a class="reference internal" href="../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-dynamic-allocation-shared-memory"><span class="std std-ref">dynamic shared memory</span></a> rather than statically-sized arrays and require an explicit opt-in using <code class="docutils literal notranslate"><span class="pre">cudaFuncSetAttribute</span></code> as follows.</p>
+<p>依赖每块超过 48 KB 共享内存分配的 kernels 具有架构相关性。因此它们必须使用<a class="reference internal" href="../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-dynamic-allocation-shared-memory"><span class="std std-ref">动态共享内存</span></a>，而非静态大小数组，并需要通过 <code class="docutils literal notranslate"><span class="pre">cudaFuncSetAttribute</span></code> 显式启用，如下所示。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// Device code</span>
 <span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">MyKernel</span><span class="p">(...)</span>
 <span class="p">{</span>
@@ -1295,11 +1295,11 @@ CUDA C primitives</label><div class="sd-tab-content docutils">
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#asynchronous-barriers">3.2.4.2. 异步屏障</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#pipelines">3.2.4.3. Pipelines</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#pipelines">3.2.4.3. 流水线</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#asynchronous-data-copies">3.2.5. 异步数据拷贝</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#configuring-l1-shared-memory-balance">3.2.6. Configuring L1/Shared Memory Balance</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#configuring-l1-shared-memory-balance">3.2.6. 配置 L1/共享内存平衡</a></li>
 </ul>
   </nav></div>
 
