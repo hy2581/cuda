@@ -176,10 +176,10 @@
 <li class="toctree-l6"><a class="reference internal" href="#graph-update-limitations">6.2.8.7.5.1。图更新限制</a></li>
 <li class="toctree-l6"><a class="reference internal" href="#whole-graph-update">6.2.8.7.5.2。全图更新</a></li>
 <li class="toctree-l6"><a class="reference internal" href="#individual-node-update">6.2.8.7.5.3。单个节点更新</a></li>
-<li class="toctree-l6"><a class="reference internal" href="#individual-node-enable">6.2.8.7.5.4。单个节点启用</a></li>
+<li class="toctree-l6"><a class="reference internal" href="#individual-node-enable">6.2.8.7.5.4。单个节点的启用与禁用</a></li>
 </ul>
 </li>
-<li class="toctree-l5"><a class="reference internal" href="#using-graph-apis">6.2.8.7.6。使用图 API</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#using-graph-apis">6.2.8.7.6。使用图 API 时的注意点</a></li>
 <li class="toctree-l5">
 <a class="reference internal" href="#device-graph-launch">6.2.8.7.7。设备图启动</a><ul>
 <li class="toctree-l6">
@@ -190,17 +190,17 @@
 </ul>
 </li>
 <li class="toctree-l6">
-<a class="reference internal" href="#device-launch">6.2.8.7.7.2。设备启动</a><ul>
+<a class="reference internal" href="#device-launch">6.2.8.7.7.2。设备侧启动</a><ul>
 <li class="toctree-l7">
 <a class="reference internal" href="#device-launch-modes">6.2.8.7.7.2.1。设备启动模式</a><ul>
-<li class="toctree-l8"><a class="reference internal" href="#fire-and-forget-launch">6.2.8.7.7.2.1.1。即发即忘发射</a></li>
+<li class="toctree-l8"><a class="reference internal" href="#fire-and-forget-launch">6.2.8.7.7.2.1.1。Fire-and-forget 启动</a></li>
 <li class="toctree-l8"><a class="reference internal" href="#graph-execution-environments">6.2.8.7.7.2.1.2。图执行环境</a></li>
 <li class="toctree-l8">
-<a class="reference internal" href="#tail-launch">6.2.8.7.7.2.1.3。尾部发射</a><ul>
-<li class="toctree-l9"><a class="reference internal" href="#tail-self-launch">6.2.8.7.7.2.1.3.1。尾部自发射</a></li>
+<a class="reference internal" href="#tail-launch">6.2.8.7.7.2.1.3。Tail launch（尾启动）</a><ul>
+<li class="toctree-l9"><a class="reference internal" href="#tail-self-launch">6.2.8.7.7.2.1.3.1。Tail self-launch（尾自启动）</a></li>
 </ul>
 </li>
-<li class="toctree-l8"><a class="reference internal" href="#sibling-launch">6.2.8.7.7.2.1.4。兄弟推出</a></li>
+<li class="toctree-l8"><a class="reference internal" href="#sibling-launch">6.2.8.7.7.2.1.4。Sibling launch（兄弟启动）</a></li>
 </ul>
 </li>
 </ul>
@@ -3497,9 +3497,9 @@
 <span class="section-number">6.2.8.7.4. </span>CUDA 用户对象<a class="headerlink" href="#cuda-user-objects" title="跳转到此标题"></a>
 </h5>
 <p>CUDA 用户对象可用于帮助管理 CUDA 中异步工作所使用的资源的生命周期。该功能特别适用于 <a class="reference internal" href="#cuda-graphs"><span class="std std-ref">CUDA 图</span></a> 与 <a class="reference internal" href="#creating-a-graph-using-stream-capture"><span class="std std-ref">流捕获</span></a>。</p>
-<p>各种资源管理方案与 CUDA 图不兼容。例如，考虑基于事件的池或同步创建、异步销毁方案。</p>
+<p>不少常见的资源管理模式与 CUDA 图并不相容。例如：基于事件的资源池，或「主机侧同步创建、异步销毁」一类写法。</p>
 <div class="highlight-c++ notranslate">
-<div class="highlight"><pre><span></span><span class="c1">// Library API with pool allocation</span>
+<div class="highlight"><pre><span></span><span class="c1">// 库 API：从池中取出临时资源</span>
 <span class="kt">void</span><span class="w"> </span><span class="nf">libraryWork</span><span class="p">(</span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="o">&amp;</span><span class="n">resource</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pool</span><span class="p">.</span><span class="n">claimTemporaryResource</span><span class="p">();</span><span class="w"></span>
 <span class="w"> </span><span class="n">resource</span><span class="p">.</span><span class="n">waitOnReadyEventInStream</span><span class="p">(</span><span class="n">stream</span><span class="p">);</span><span class="w"></span>
@@ -3509,7 +3509,7 @@
 </pre></div>
 </div>
 <div class="highlight-c++ notranslate">
-<div class="highlight"><pre><span></span><span class="c1">// Library API with asynchronous resource deletion</span>
+<div class="highlight"><pre><span></span><span class="c1">// 库 API：异步销毁资源</span>
 <span class="kt">void</span><span class="w"> </span><span class="nf">libraryWork</span><span class="p">(</span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w"> </span><span class="n">Resource</span><span class="w"> </span><span class="o">*</span><span class="n">resource</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Resource</span><span class="p">(...);</span><span class="w"></span>
 <span class="w"> </span><span class="n">launchWork</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="n">resource</span><span class="p">);</span><span class="w"></span>
@@ -3520,64 +3520,56 @@
 <span class="w"> </span><span class="p">},</span><span class="w"></span>
 <span class="w"> </span><span class="n">resource</span><span class="p">,</span><span class="w"></span>
 <span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
-<span class="w"> </span><span class="c1">// Error handling considerations not shown</span>
+<span class="w"> </span><span class="c1">// 为简洁起见，此处未展示错误处理</span>
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>这些方案对于 CUDA 图来说很困难，因为资源的非固定指针或句柄需要间接或图更新，并且每次提交工作时都需要同步 CPU 代码。如果这些注意事项对库的调用者隐藏，并且由于在捕获期间使用了不允许的 API，它们也无法与流捕获一起使用。存在多种解决方案，例如将资源公开给调用者。 CUDA 用户对象提供了另一种方法。</p>
-<p>CUDA 用户对象将用户指定的析构函数回调与内部引用计数相关联，类似于 C++ <code class="docutils literal notranslate"><span class="pre">shared_ptr</span></code>。引用可能由 CPU 上的用户代码和 CUDA 图拥有。请注意，对于用户拥有的引用，与 C++ 智能指针不同，没有表示引用的对象；用户必须手动跟踪用户拥有的引用。典型的用例是在创建用户对象后立即将唯一用户拥有的引用移至 CUDA 图形。</p>
-<p>当引用与 CUDA 图关联时，CUDA 将自动管理图操作。克隆的 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 保留来源所拥有的每个参考文献的副本 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code>，具有相同的重数。一个实例化的 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 保留源中每个引用的副本 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code>。当一个 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 在没有同步的情况下被销毁，引用将保留直到执行完成。</p>
-<p>以下是一个使用示例。</p>
+<p>在图模型下，这类做法往往难以落地：资源在图实例化或重放期间可能没有稳定的指针/句柄，需要额外间接层或整图更新；且每次向图提交工作往往还要跑同步的主机代码。若库把这些细节对调用方隐藏，又常与<strong>流捕获</strong>冲突（捕获期间还会碰到不允许的 API）。可行出路包括把资源所有权交还给调用方；CUDA 用户对象则提供了另一条路径。</p>
+<p>CUDA 用户对象把<strong>用户提供的析构回调</strong>与<strong>内部引用计数</strong>绑定在一起，语义上接近 C++ 的 <code class="docutils literal notranslate"><span class="pre">shared_ptr</span></code>。引用既可由 CPU 侧用户代码持有，也可由 CUDA 图持有。与智能指针不同的是：用户持有的引用<strong>没有</strong>对应的包装对象，必须由用户自行记账。常见做法是创建用户对象后，立刻把用户侧仅存的那份引用移交给某张 CUDA 图。</p>
+<p>引用一旦与 CUDA 图关联，后续与图相关的操作（克隆、实例化等）会由 CUDA 自动维护计数语义：克隆得到的 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 会按相同重数复制源图中的各条用户对象引用；由 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 实例化得到的 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 也会持有源图中各引用的副本。若在可执行图尚未同步完成时销毁 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code>，相关引用会保留到对应执行真正结束后再释放。</p>
+<p>下面给出一个完整用法示例。</p>
 <div class="highlight-c++ notranslate">
-<div class="highlight"><pre><span></span><span class="n">cudaGraph_t</span><span class="w"> </span><span class="n">graph</span><span class="p">;</span><span class="w"> </span><span class="c1">// Preexisting graph</span>
+<div class="highlight"><pre><span></span><span class="n">cudaGraph_t</span><span class="w"> </span><span class="n">graph</span><span class="p">;</span><span class="w"> </span><span class="c1">// 预先存在的图</span>
 
-<span class="n">Object</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Object</span><span class="p">;</span><span class="w"> </span><span class="c1">// C++ object with possibly nontrivial destructor</span>
+<span class="n">Object</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Object</span><span class="p">;</span><span class="w"> </span><span class="c1">// 可能具有非平凡析构的 C++ 对象</span>
 <span class="n">cudaUserObject_t</span><span class="w"> </span><span class="n">cuObject</span><span class="p">;</span><span class="w"></span>
 <span class="n">cudaUserObjectCreate</span><span class="p">(</span><span class="w"></span>
 <span class="w"> </span><span class="o">&amp;</span><span class="n">cuObject</span><span class="p">,</span><span class="w"></span>
-<span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="c1">// Here we use a CUDA-provided template wrapper for this API,</span>
-<span class="w"> </span><span class="c1">// which supplies a callback to delete the C++ object pointer</span>
-<span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="c1">// Initial refcount</span>
-<span class="w"> </span><span class="n">cudaUserObjectNoDestructorSync</span><span class="w"> </span><span class="c1">// Acknowledge that the callback cannot be</span>
-<span class="w"> </span><span class="c1">// waited on via CUDA</span>
+<span class="w"> </span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="c1">// 此处使用 CUDA 提供的模板封装：会注册用于 delete 该 C++ 指针的回调</span>
+<span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="c1">// 初始引用计数</span>
+<span class="w"> </span><span class="n">cudaUserObjectNoDestructorSync</span><span class="w"> </span><span class="c1">// 声明：无法通过 CUDA API 等待该析构回调完成</span>
 <span class="p">);</span><span class="w"></span>
 <span class="n">cudaGraphRetainUserObject</span><span class="p">(</span><span class="w"></span>
 <span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"></span>
 <span class="w"> </span><span class="n">cuObject</span><span class="p">,</span><span class="w"></span>
-<span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="c1">// Number of references</span>
-<span class="w"> </span><span class="n">cudaGraphUserObjectMove</span><span class="w"> </span><span class="c1">// Transfer a reference owned by the caller (do</span>
-<span class="w"> </span><span class="c1">// not modify the total reference count)</span>
+<span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="c1">// 引用条数</span>
+<span class="w"> </span><span class="n">cudaGraphUserObjectMove</span><span class="w"> </span><span class="c1">// 把调用方持有的一条引用转交给图（总引用计数不变）</span>
 <span class="p">);</span><span class="w"></span>
-<span class="c1">// No more references owned by this thread; no need to call release API</span>
+<span class="c1">// 本线程不再持有引用，无需再调用 release API</span>
 <span class="n">cudaGraphExec_t</span><span class="w"> </span><span class="n">graphExec</span><span class="p">;</span><span class="w"></span>
-<span class="n">cudaGraphInstantiate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">graphExec</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="k">nullptr</span><span class="p">,</span><span class="w"> </span><span class="k">nullptr</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="c1">// Will retain a</span>
-<span class="w"> </span><span class="c1">// new reference</span>
-<span class="n">cudaGraphDestroy</span><span class="p">(</span><span class="n">graph</span><span class="p">);</span><span class="w"> </span><span class="c1">// graphExec still owns a reference</span>
-<span class="n">cudaGraphLaunch</span><span class="p">(</span><span class="n">graphExec</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="c1">// Async launch has access to the user objects</span>
-<span class="n">cudaGraphExecDestroy</span><span class="p">(</span><span class="n">graphExec</span><span class="p">);</span><span class="w"> </span><span class="c1">// Launch is not synchronized; the release</span>
-<span class="w"> </span><span class="c1">// will be deferred if needed</span>
-<span class="n">cudaStreamSynchronize</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="c1">// After the launch is synchronized, the remaining</span>
-<span class="w"> </span><span class="c1">// reference is released and the destructor will</span>
-<span class="w"> </span><span class="c1">// execute. Note this happens asynchronously.</span>
-<span class="c1">// If the destructor callback had signaled a synchronization object, it would</span>
-<span class="c1">// be safe to wait on it at this point.</span>
+<span class="n">cudaGraphInstantiate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">graphExec</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="k">nullptr</span><span class="p">,</span><span class="w"> </span><span class="k">nullptr</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="c1">// 会再保留一条引用</span>
+<span class="n">cudaGraphDestroy</span><span class="p">(</span><span class="n">graph</span><span class="p">);</span><span class="w"> </span><span class="c1">// graphExec 仍持有用户对象引用</span>
+<span class="n">cudaGraphLaunch</span><span class="p">(</span><span class="n">graphExec</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="c1">// 异步启动期间可安全访问用户对象</span>
+<span class="n">cudaGraphExecDestroy</span><span class="p">(</span><span class="n">graphExec</span><span class="p">);</span><span class="w"> </span><span class="c1">// 启动未同步：必要时释放会推迟到执行完成之后</span>
+<span class="n">cudaStreamSynchronize</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="c1">// 同步完成后，最后一条引用被释放，析构回调将运行（仍可能是异步的）</span>
+<span class="c1">// 若析构回调里已通知某个同步原语，此时等待该原语才是安全的</span>
 </pre></div>
 </div>
-<p>子图节点中的图所拥有的引用与子图相关联，而不是与父图相关联。如果更新或删除子图，引用也会相应更改。如果可执行图或子图更新为 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecChildGraphNodeSetParams</span></code>，新源图中的引用将被克隆并替换目标图中的引用。在任一情况下，如果先前的启动未同步，则将保留将释放的任何引用，直到启动完成执行。</p>
-<p>目前没有一种机制可以通过 CUDA API 等待用户对象析构函数。用户可以从析构函数代码手动发出同步对象信号。另外，从析构函数中调用CUDA API是不合法的，类似于对 <code class="docutils literal notranslate"><span class="pre">cudaLaunchHostFunc</span></code>。这是为了避免阻塞 CUDA 内部共享线程并阻止执行推进。如果依赖关系是单向的并且执行调用的线程不能阻止 CUDA 工作的前进进度，则向另一个线程发出信号以执行 API 调用是合法的。</p>
-<p>用户对象是用以下命令创建的 <code class="docutils literal notranslate"><span class="pre">cudaUserObjectCreate</span></code>，这是浏览相关 API 的良好起点。</p>
+<p>子图节点内所持有的用户对象引用归属于<strong>子图</strong>本身，而非外层父图；更新或删除子图时，引用关系随之变化。若通过 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecChildGraphNodeSetParams</span></code> 用新的源图替换可执行图/子图节点，新源图中的引用会被克隆并覆盖目标图中的旧引用。上述任一情形下，若仍有未同步完成的旧启动，本应立即释放的引用会暂存到那些启动全部结束之后。</p>
+<p>当前没有 CUDA API 可直接「等待用户对象析构完成」；用户可在析构回调里自行通知同步原语。另：与 <code class="docutils literal notranslate"><span class="pre">cudaLaunchHostFunc</span></code> 的限制类似，析构回调中<strong>不得</strong>调用 CUDA API，以免阻塞 CUDA 内部共享工作线程、妨碍整体进展。若依赖是单向的，且另起线程执行 API 不会阻塞 CUDA 工作推进，则可以由析构回调通知其他线程代为调用 API。</p>
+<p>用户对象通过 <code class="docutils literal notranslate"><span class="pre">cudaUserObjectCreate</span></code> 创建；从该 API 出发查阅文档，可顺藤摸瓜找到其余相关接口。</p>
 </section>
 <section id="updating-instantiated-graphs">
 <span id="id51"></span><h5>
 <span class="section-number">6.2.8.7.5. </span>更新实例化图<a class="headerlink" href="#updating-instantiated-graphs" title="跳转到此标题"></a>
 </h5>
-<p>使用图的工作提交分为三个不同的阶段：定义、实例化和执行。在工作流程不变的情况下，定义和实例化的开销可以在多次执行中分摊，并且图形比流具有明显的优势。</p>
-<p>图表是工作流程的快照，包括内核、参数和依赖项，以便尽可能快速有效地重放它。在工作流程发生变化的情况下，图表就会过时并且必须进行修改。对图结构（例如拓扑或节点类型）的重大更改将需要重新实例化源图，因为必须重新应用各种与拓扑相关的优化技术。</p>
-<p>重复实例化的成本会降低图执行带来的整体性能收益，但仅对于节点参数来说很常见，例如内核参数和 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code> 地址，在图形拓扑保持不变的情况下进行更改。对于这种情况，CUDA 提供了一种称为“图形更新”的轻量级机制，它允许就地修改某些节点参数，而无需重建整个图形。这比重新实例化要高效得多。</p>
-<p>更新将在下次启动图表时生效，因此它们不会影响之前的图表启动，即使它们在更新时正在运行。图表可以重复更新和重新启动，因此多个更新/启动可以在流上排队。</p>
-<p>CUDA提供了两种更新实例化图参数的机制：全图更新和单个节点更新。整个图更新允许用户提供拓扑相同的 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 其节点包含更新参数的对象。单个节点更新允许用户显式更新单个节点的参数。使用更新的 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 当更新大量节点时，或者当调用者未知图拓扑时（即，图是由库调用的流捕获产生的），这会更方便。当更改数量较小且用户拥有需要更新的节点的句柄时，首选使用单个节点更新。单个节点更新会跳过未更改节点的拓扑检查和比较，因此在许多情况下会更有效。</p>
-<p>CUDA 还提供了一种启用和禁用各个节点而不影响其当前参数的机制。</p>
-<p>以下部分更详细地解释了每种方法。</p>
+<p>基于图的工作提交同样分为定义、实例化与执行三阶段。若工作流结构长期不变，定义与实例化的成本可在多次执行中摊薄，此时图相对流式提交往往更有优势。</p>
+<p>图是对整条工作流（内核、参数、依赖等）的快照，目的是尽可能快、尽可能省开销地反复重放。工作流变化时，图会「过期」而需修改；若涉及拓扑或节点类型等重大结构变化，通常必须<strong>重新实例化</strong>源图，以便重新应用各类与拓扑相关的优化。</p>
+<p>频繁重新实例化会削弱图执行带来的收益；更常见的情形是：仅内核实参、<code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code> 地址等节点参数在变，而拓扑不变。对此 CUDA 提供轻量的「图更新（Graph Update）」机制：可在原地改写部分节点参数，而无需整图重建，通常远快于重新实例化。</p>
+<p>更新在<strong>下一次</strong>启动该可执行图时生效，不会影响此前已入队的启动，即便更新发生时旧启动仍在运行。图可反复更新并再次启动，因而可在同一条流上排队多组「更新 + 启动」。</p>
+<p>更新已实例化图参数有两种途径：<strong>整图更新</strong>与<strong>单节点更新</strong>。整图更新要求用户提供一张与当前可执行图<strong>拓扑完全相同</strong>的新 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code>，仅节点参数不同；当需批量改动、或拓扑对调用方不透明（例如库内部流捕获所得）时更方便。单节点更新则直接改写指定节点参数；当改动面很小且手头已有节点句柄时更合适，并可跳过对未改动节点的拓扑比对，往往更高效。</p>
+<p>CUDA 还支持在不改动节点参数的前提下，单独启用或禁用某些节点。</p>
+<p>下文分别展开上述做法。</p>
 <section id="graph-update-limitations">
 <span id="id52"></span><h6>
 <span class="section-number">6.2.8.7.5.1. </span>图更新限制<a class="headerlink" href="#graph-update-limitations" title="跳转到此标题"></a>
@@ -3585,17 +3577,17 @@
 <p>内核节点：</p>
 <ul class="simple">
 <li><p>函数的所属上下文不能更改。</p></li>
-<li><p>原本不使用CUDA动态并行功能的节点无法更新为使用CUDA动态并行功能的节点。</p></li>
+<li><p>若某节点原先对应的设备函数未使用 CUDA 动态并行，则不能将其更新为会使用动态并行的设备函数。</p></li>
 </ul>
 <p><code class="docutils literal notranslate"><span class="pre">cudaMemset</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code> 节点：</p>
 <ul class="simple">
-<li><p>分配/映射操作数的 CUDA 设备无法更改。</p></li>
+<li><p>操作数原先分配或映射所在的 CUDA 设备不得更换。</p></li>
 <li><p>源/目标内存必须从与原始源/目标内存相同的上下文中分配。</p></li>
-<li><p>仅一维 <code class="docutils literal notranslate"><span class="pre">cudaMemset</span></code>/<code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code> 节点可以改变。</p></li>
+<li><p>仅允许在仍为<strong>一维</strong> <code class="docutils literal notranslate"><span class="pre">cudaMemset</span></code>/<code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code> 节点的前提下更新参数。</p></li>
 </ul>
 <p>其他 memcpy 节点限制：</p>
 <ul class="simple">
-<li><p>更改源或目标内存类型（即 <code class="docutils literal notranslate"><span class="pre">cudaPitchedPtr</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaArray_t</span></code>等），或传输类型（即 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyKind</span></code>) 不支持。</p></li>
+<li><p>不得更改源端或目标端的内存类型表示（例如 <code class="docutils literal notranslate"><span class="pre">cudaPitchedPtr</span></code>、<code class="docutils literal notranslate"><span class="pre">cudaArray_t</span></code> 等），也不得更改传输类别（<code class="docutils literal notranslate"><span class="pre">cudaMemcpyKind</span></code>）。</p></li>
 </ul>
 <p>外部信号量等待节点和记录节点：</p>
 <ul class="simple">
@@ -3603,13 +3595,13 @@
 </ul>
 <p>条件节点：</p>
 <ul class="simple">
-<li><p>图形之间句柄创建和分配的顺序必须匹配。</p></li>
-<li><p>不支持更改节点参数（即条件、节点上下文中的图形数量等）。</p></li>
+<li><p>条件句柄的创建与赋值顺序在两图之间必须一致。</p></li>
+<li><p>不得更改条件节点自身的结构参数（例如所含子图数量、节点上下文等）。</p></li>
 <li><p>更改条件体图中节点的参数须遵守上述规则。</p></li>
 </ul>
 <p>内存节点：</p>
 <ul class="simple">
-<li><p>无法更新 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 与一个 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 如果 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 当前被实例化为不同的 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code>.</p></li>
+<li><p>若某张 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 正作为源码被实例化为<strong>另一张</strong> <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code>，则不能用该 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 去更新当前的 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code>。</p></li>
 </ul>
 <p>对主机节点、事件记录节点或事件等待节点的更新没有限制。</p>
 </section>
@@ -3617,18 +3609,18 @@
 <span id="id53"></span><h6>
 <span class="section-number">6.2.8.7.5.2. </span>全图更新<a class="headerlink" href="#whole-graph-update" title="跳转到此标题"></a>
 </h6>
-<p><code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code> 允许使用拓扑相同的图（“更新”图）中的参数更新实例化图（“原始图”）。更新图的拓扑必须与用于实例化的原始图相同 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code>。此外，指定依赖项的顺序必须匹配。最后，CUDA 需要对汇聚节点（没有依赖关系的节点）进行一致的排序。 CUDA依赖于特定api调用的顺序来实现一致的sink节点排序。</p>
-<p>更明确地说，遵循以下规则将导致 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code> 确定性地将原始图中的节点与更新图中的节点配对：</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code> 允许用一张与「原版」可执行图拓扑完全一致的 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code>（下称更新图）去刷新已实例化的 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 中的节点参数。更新图的拓扑必须与当初用来生成该 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 的源图一致，且<strong>依赖边的声明顺序</strong>也必须一致。此外，CUDA 还须对<strong>汇点（sink）节点</strong>（在最终图中没有后继依赖的节点）给出稳定、可复现的配对顺序，这依赖于一组特定 API 调用的先后顺序。</p>
+<p>更具体地说，若遵守下列规则，<code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code> 就能在旧图与更新图之间<strong>确定性</strong>地一一配对节点：</p>
 <ol class="arabic simple">
-<li><p>对于任何捕获流，对该流进行操作的 API 调用必须以相同的顺序进行，包括事件等待和其他与节点创建不直接对应的 API 调用。</p></li>
-<li><p>直接操作给定图节点的传入边的 API 调用（包括捕获流 API、节点添加 API 和边添加/删除 API）必须以相同的顺序进行。此外，当在数组中指定这些 API 的依赖项时，在这些数组内指定依赖项的顺序必须匹配。</p></li>
+<li><p>对任意参与捕获的流，凡作用于该流的 API 调用顺序须与建图时一致，其中包含事件等待等并不直接对应「创建节点」的调用。</p></li>
+<li><p>凡直接改动某节点<strong>入边</strong>的 API（含捕获流 API、节点添加 API、增删边 API）调用顺序须一致；若依赖以数组形式传入，数组元素顺序亦须一致。</p></li>
 <li>
-<p>接收器节点的顺序必须一致。汇节点是在最终图中没有依赖节点/传出边的节点 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code> 调用。以下操作会影响接收器节点排序（如果存在）并且必须（作为组合集）以相同的顺序进行：</p>
+<p>汇点顺序必须一致。所谓汇点，是指在调用 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code> 时所见的最终图中<strong>没有出边</strong>的节点。下列操作（若发生）会影响汇点排序，且就<strong>整体组合</strong>而言须与建图时保持相同顺序：</p>
 <ul class="simple">
-<li><p>节点添加 API 产生接收器节点。</p></li>
-<li><p>边缘移除导致节点成为汇聚节点。</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cudaStreamUpdateCaptureDependencies()</span></code>，如果它从捕获流的依赖集中删除接收节点。</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code>.</p></li>
+<li><p>通过节点添加 API 产生新的汇点；</p></li>
+<li><p>删边导致某节点变为汇点；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaStreamUpdateCaptureDependencies()</span></code> 从捕获流的依赖集合中移除某汇点；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code>。</p></li>
 </ul>
 </li>
 </ol>
@@ -3641,35 +3633,28 @@
 <span class="w"> </span><span class="n">cudaGraphExecUpdateResult</span><span class="w"> </span><span class="n">updateResult</span><span class="p">;</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaGraphNode_t</span><span class="w"> </span><span class="n">errorNode</span><span class="p">;</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">// In this example we use stream capture to create the graph.</span>
-<span class="w"> </span><span class="c1">// You can also use the Graph API to produce a graph.</span>
+<span class="w"> </span><span class="c1">// 本例用流捕获生成图；亦可改用图 API 手工构图</span>
 <span class="w"> </span><span class="n">cudaStreamBeginCapture</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamCaptureModeGlobal</span><span class="p">);</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">// Call a user-defined, stream based workload, for example</span>
+<span class="w"> </span><span class="c1">// 调用用户自定义的、基于流的工作负载，例如：</span>
 <span class="w"> </span><span class="n">do_cuda_work</span><span class="p">(</span><span class="n">stream</span><span class="p">);</span><span class="w"></span>
 
 <span class="w"> </span><span class="n">cudaStreamEndCapture</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">graph</span><span class="p">);</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">// If we've already instantiated the graph, try to update it directly</span>
-<span class="w"> </span><span class="c1">// and avoid the instantiation overhead</span>
+<span class="w"> </span><span class="c1">// 若已实例化，则先尝试原地更新，避免重复实例化开销</span>
 <span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">graphExec</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w"> </span><span class="c1">// If the graph fails to update, errorNode will be set to the</span>
-<span class="w"> </span><span class="c1">// node causing the failure and updateResult will be set to a</span>
-<span class="w"> </span><span class="c1">// reason code.</span>
+<span class="w"> </span><span class="c1">// 若更新失败：errorNode 指向问题节点，updateResult 给出原因码</span>
 <span class="w"> </span><span class="n">cudaGraphExecUpdate</span><span class="p">(</span><span class="n">graphExec</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">errorNode</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">updateResult</span><span class="p">);</span><span class="w"></span>
 <span class="w"> </span><span class="p">}</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">// Instantiate during the first iteration or whenever the update</span>
-<span class="w"> </span><span class="c1">// fails for any reason</span>
+<span class="w"> </span><span class="c1">// 首次迭代，或更新失败时，需要（重新）实例化</span>
 <span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">graphExec</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">updateResult</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">cudaGraphExecUpdateSuccess</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">// If a previous update failed, destroy the cudaGraphExec_t</span>
-<span class="w"> </span><span class="c1">// before re-instantiating it</span>
+<span class="w"> </span><span class="c1">// 若上一轮更新失败，先销毁旧的 cudaGraphExec_t</span>
 <span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">graphExec</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaGraphExecDestroy</span><span class="p">(</span><span class="n">graphExec</span><span class="p">);</span><span class="w"></span>
 <span class="w"> </span><span class="p">}</span><span class="w"></span>
-<span class="w"> </span><span class="c1">// Instantiate graphExec from graph. The error node and</span>
-<span class="w"> </span><span class="c1">// error message parameters are unused here.</span>
+<span class="w"> </span><span class="c1">// 由 graph 实例化 graphExec（此处不使用错误节点/错误信息参数）</span>
 <span class="w"> </span><span class="n">cudaGraphInstantiate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">graphExec</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
 <span class="w"> </span><span class="p">}</span><span class="w"></span>
 
@@ -3679,16 +3664,16 @@
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>典型的工作流程是创建初始 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 使用流捕获或图形 API。<code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 然后实例化并正常启动。首次推出后，新 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 使用与初始图相同的方法创建并且 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code> 被称为。如果图形更新成功，则由 <code class="docutils literal notranslate"><span class="pre">updateResult</span></code> 上例中的参数，更新后的 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 已推出。如果由于任何原因更新失败， <code class="docutils literal notranslate"><span class="pre">cudaGraphExecDestroy()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiate()</span></code> 被要求毁掉原来的 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 并实例化一个新的。</p>
-<p>也可以更新 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 直接节点（即，使用 <code class="docutils literal notranslate"><span class="pre">cudaGraphKernelNodeSetParams()</span></code>）并随后更新 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code>，但是使用下一节中介绍的显式节点更新 API 会更有效。</p>
-<p>条件句柄标志和默认值作为图形更新的一部分进行更新。</p>
-<p>有关用法和当前限制，请参阅 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH">图形 API</a>。</p>
+<p>典型流程是：先用流捕获或图 API 得到初始 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code>，再实例化并照常启动。首次启动之后，用相同方式构造一张新的 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 并调用 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code>。若更新成功（上例中由 <code class="docutils literal notranslate"><span class="pre">updateResult</span></code> 指示），即可直接启动更新后的 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code>。若因任何原因更新失败，则依次调用 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecDestroy()</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiate()</span></code>：销毁旧的 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 并重新实例化一张新的。</p>
+<p>也可以先在 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 上直接改节点（例如 <code class="docutils literal notranslate"><span class="pre">cudaGraphKernelNodeSetParams()</span></code>），再同步到 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code>；但下一节介绍的<strong>显式可执行图节点更新 API</strong>通常更高效。</p>
+<p>条件句柄的标志位与默认值会随图更新一并刷新。</p>
+<p>更多用法与限制见 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH">Graph API</a> 文档。</p>
 </section>
 <section id="individual-node-update">
 <span id="id54"></span><h6>
 <span class="section-number">6.2.8.7.5.3. </span>单个节点更新<a class="headerlink" href="#individual-node-update" title="跳转到此标题"></a>
 </h6>
-<p>实例化的图节点参数可以直接更新。这消除了实例化的开销以及创建新的开销 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code>。如果需要更新的节点数量相对于图中的节点总数而言较少，则最好单独更新节点。可以使用以下方法进行更新 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 节点：</p>
+<p>已实例化图上的节点参数可直接就地修改：既省去重新实例化的开销，也无需再建一张新的 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code>。当待改节点相对全图规模很小时，逐节点更新往往更合适。可用于更新 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 的接口包括：</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">cudaGraphExecKernelNodeSetParams()</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cudaGraphExecMemcpyNodeSetParams()</span></code></p></li>
@@ -3700,81 +3685,81 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">cudaGraphExecExternalSemaphoresSignalNodeSetParams()</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cudaGraphExecExternalSemaphoresWaitNodeSetParams()</span></code></p></li>
 </ul>
-<p>有关用法和当前限制，请参阅 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH">图形 API</a>。</p>
+<p>更多用法与限制见 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH">Graph API</a> 文档。</p>
 </section>
 <section id="individual-node-enable">
 <span id="id55"></span><h6>
-<span class="section-number">6.2.8.7.5.4. </span>单个节点启用<a class="headerlink" href="#individual-node-enable" title="跳转到此标题"></a>
+<span class="section-number">6.2.8.7.5.4. </span>单个节点的启用与禁用<a class="headerlink" href="#individual-node-enable" title="跳转到此标题"></a>
 </h6>
-<p>可以使用以下命令启用或禁用实例化图中的内核、memset 和 memcpy 节点 <code class="docutils literal notranslate"><span class="pre">cudaGraphNodeSetEnabled()</span></code> API。这允许创建一个图表，其中包含所需功能的超集，可以为每次启动进行自定义。可以使用以下命令查询节点的启用状态 <code class="docutils literal notranslate"><span class="pre">cudaGraphNodeGetEnabled()</span></code> API。</p>
-<p>禁用的节点在功能上等同于空节点，直到重新启用为止。节点参数不受启用/禁用节点的影响。启用状态不受单个节点更新或整个图更新的影响 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code>。节点禁用时的参数更新将在节点重新启用时生效。</p>
+<p>对可执行图中的内核、memset、memcpy 节点，可通过 <code class="docutils literal notranslate"><span class="pre">cudaGraphNodeSetEnabled()</span></code> 动态启用或禁用，从而先构建一张包含「功能超集」的图，再按每次启动裁剪实际执行路径。节点启用状态可用 <code class="docutils literal notranslate"><span class="pre">cudaGraphNodeGetEnabled()</span></code> 查询。</p>
+<p>被禁用的节点在语义上等价于空节点，直至再次启用；其参数本身不因禁用而改变。单节点更新或整图 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code> 均不会改变节点的启用状态。若在禁用期间修改了参数，改动会在重新启用该节点时生效。</p>
 <p>以下方法可用于启用/禁用 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 节点，以及查询其状态：</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">cudaGraphNodeSetEnabled()</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cudaGraphNodeGetEnabled()</span></code></p></li>
 </ul>
-<p>有关用法和当前限制，请参阅 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH">图形 API</a>。</p>
+<p>更多用法与限制见 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH">Graph API</a> 文档。</p>
 </section>
 </section>
 <section id="using-graph-apis">
 <span id="id56"></span><h5>
-<span class="section-number">6.2.8.7.6. </span>使用图形 API<a class="headerlink" href="#using-graph-apis" title="跳转到此标题"></a>
+<span class="section-number">6.2.8.7.6. </span>使用图 API 时的注意点<a class="headerlink" href="#using-graph-apis" title="跳转到此标题"></a>
 </h5>
-<p><code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 对象不是线程安全的。用户有责任确保多个线程不会同时访问相同的内容 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code>.</p>
-<p>一个 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 不能与其自身同时运行。推出一个 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 将在先前启动同一可执行图之后进行排序。</p>
-<p>图形执行在流中完成，以便与其他异步工作进行排序。然而，该流仅用于订购；它不限制图的内部并行性，也不影响图节点的执行位置。</p>
-<p>见 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH">图形 API</a>。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 不是线程安全的：须由用户保证多个线程不会并发访问同一张 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code>。</p>
+<p>同一张 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 不能与自身并发执行；对它的多次启动在流序上会彼此排队，后一次排在先前启动之后。</p>
+<p>图通过入队到流中来与其它异步工作排序；但该流只负责<strong>顺序约束</strong>，并不限制图内部的并行度，也不决定各节点在设备上的具体调度落点。</p>
+<p>详见 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH">Graph API</a> 文档。</p>
 </section>
 <section id="device-graph-launch">
 <span id="id57"></span><h5>
 <span class="section-number">6.2.8.7.7. </span>设备图启动<a class="headerlink" href="#device-graph-launch" title="跳转到此标题"></a>
 </h5>
-<p>有许多工作流需要在运行时做出依赖于数据的决策，并根据这些决策执行不同的操作。用户可能更愿意在设备上执行此决策过程，而不是将此决策过程卸载到主机（这可能需要从设备进行往返）。为此，CUDA 提供了一种从设备启动图形的机制。</p>
-<p>设备图启动提供了一种从设备执行动态控制流的便捷方法，无论是简单的循环还是复杂的设备端工作调度程序。此功能仅在支持的系统上可用 <a class="reference internal" href="#unified-virtual-address-space"><span class="std std-ref">统一编址</span></a>。</p>
-<p>可以从设备启动的图此后将被称为设备图，而不能从设备启动的图将被称为主机图。</p>
-<p>设备图可以从主机和设备启动，而主机图只能从主机启动。与主机启动不同，在先前启动的图正在运行时从设备启动设备图将导致错误，返回 <code class="docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code>;因此，设备图不能同时从设备启动两次。同时从主机和设备启动设备图将导致未定义的行为。</p>
+<p>不少工作流需要在运行时依据数据做分支，并执行不同路径。若把决策完全放到主机，往往意味着额外的设备↔主机往返；更自然的做法是在设备上就地决策。为此，CUDA 支持<strong>从设备侧启动图</strong>。</p>
+<p>设备图启动便于在 GPU 上表达动态控制流：既可以是简单循环，也可以是较复杂的设备端调度器。该能力仅在与 <a class="reference internal" href="#unified-virtual-address-space"><span class="std std-ref">统一虚拟地址（UVA）</span></a> 相容的系统上可用。</p>
+<p>下文把「可由设备启动」的图称为<strong>设备图</strong>；只能在主机启动的图称为<strong>主机图</strong>。</p>
+<p>设备图既可从主机启动，也可从设备启动；主机图则只能从主机启动。与主机侧行为不同：若上一轮自设备发起的启动尚未结束，又自设备再次启动同一张设备图，将报错 <code class="docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code>，即<strong>不能</strong>在设备上并发重叠两次对同一张设备图的启动。主机与设备同时对同一张设备图发起启动，则属于未定义行为。</p>
 <section id="device-graph-creation">
 <span id="id58"></span><h6>
 <span class="section-number">6.2.8.7.7.1. </span>设备图创建<a class="headerlink" href="#device-graph-creation" title="跳转到此标题"></a>
 </h6>
-<p>为了从设备启动图表，必须为设备启动显式实例化它。这是通过通过 <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiateFlagDeviceLaunch</span></code> 标志到 <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiate()</span></code> 称呼。与主机图的情况一样，设备图结构在实例化时是固定的，如果不重新实例化就无法更新，并且实例化只能在主机上执行。为了能够在设备启动时实例化图表，它必须遵守各种要求。</p>
+<p>若希望图能在设备上启动，必须在实例化时显式指定设备启动：向 <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiate()</span></code> 传入 <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiateFlagDeviceLaunch</span></code>。与主机图相同，设备图的结构在实例化时刻即被固定，若不重新实例化则无法整体更新；且实例化<strong>只能</strong>在主机完成。能用于设备启动的图还须满足若干约束。</p>
 <section id="device-graph-requirements">
 <span id="id59"></span><h7><span class="section-number">6.2.8.7.7.1.1. </span>设备图要求<a class="headerlink" href="#device-graph-requirements" title="跳转到此标题"></a></h7>
 <p>一般要求：</p>
 <ul class="simple">
-<li><p>图表的节点必须全部驻留在单个设备上。</p></li>
-<li><p>该图只能包含内核节点、memcpy 节点、memset 节点和子图节点。</p></li>
+<li><p>图中所有节点须位于同一设备。</p></li>
+<li><p>仅允许内核节点、memcpy 节点、memset 节点与子图节点。</p></li>
 </ul>
 <p>内核节点：</p>
 <ul class="simple">
-<li><p>不允许图中的内核使用 CUDA 动态并行性。</p></li>
-<li><p>只要不使用 MPS，就允许合作发射。</p></li>
+<li><p>图内内核不得使用 CUDA 动态并行。</p></li>
+<li><p>在未启用 MPS 时，允许协作式启动（cooperative launch）。</p></li>
 </ul>
 <p>Memcpy 节点：</p>
 <ul class="simple">
-<li><p>仅允许涉及设备内存和/或固定设备映射主机内存的副本。</p></li>
-<li><p>不允许涉及 CUDA 数组的副本。</p></li>
-<li><p>在实例化时，两个操作数都必须可以从当前设备访问。请注意，复制操作将从图形所在的设备执行，即使它的目标是另一个设备上的内存。</p></li>
+<li><p>仅允许设备内存之间，或设备内存与<strong>页锁定且设备可映射</strong>的主机内存之间的拷贝。</p></li>
+<li><p>涉及 CUDA 数组（<code class="docutils literal notranslate"><span class="pre">cudaArray</span></code>）的拷贝不允许。</p></li>
+<li><p>实例化时，两端操作数须对当前设备均可访问。拷贝由图所在设备发起，即便目标位于另一设备。</p></li>
 </ul>
 </section>
 <section id="device-graph-upload">
 <span id="id60"></span><h7><span class="section-number">6.2.8.7.7.1.2. </span>设备图上传<a class="headerlink" href="#device-graph-upload" title="跳转到此标题"></a></h7>
-<p>为了在设备上启动图表，必须首先将其上传到设备以填充必要的设备资源。这可以通过两种方式之一来实现。</p>
-<p>首先，可以通过以下方式显式上传图表： <code class="docutils literal notranslate"><span class="pre">cudaGraphUpload()</span></code> 或者通过请求上传作为实例化的一部分 <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiateWithParams()</span></code>.</p>
-<p>或者，可以首先从主机启动图表，主机将在启动过程中隐式执行此上传步骤。</p>
-<p>所有三种方法的示例如下：</p>
+<p>在设备上启动前，须先把图<strong>上传</strong>到设备以建立所需资源，有两种显式路径，也可借主机首次启动隐式完成。</p>
+<p>其一：实例化后调用 <code class="docutils literal notranslate"><span class="pre">cudaGraphUpload()</span></code>；其二：在 <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiateWithParams()</span></code> 中随实例化请求上传。</p>
+<p>或者先由主机侧 <code class="docutils literal notranslate"><span class="pre">cudaGraphLaunch()</span></code> 启动一次，上传会在该次启动中隐式完成。</p>
+<p>三种方式示例如下：</p>
 <div class="highlight-c++ notranslate">
-<div class="highlight"><pre><span></span><span class="c1">// Explicit upload after instantiation</span>
+<div class="highlight"><pre><span></span><span class="c1">// 实例化后再显式上传</span>
 <span class="n">cudaGraphInstantiate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">deviceGraphExec1</span><span class="p">,</span><span class="w"> </span><span class="n">deviceGraph1</span><span class="p">,</span><span class="w"> </span><span class="n">cudaGraphInstantiateFlagDeviceLaunch</span><span class="p">);</span><span class="w"></span>
 <span class="n">cudaGraphUpload</span><span class="p">(</span><span class="n">deviceGraphExec1</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span><span class="w"></span>
 
-<span class="c1">// Explicit upload as part of instantiation</span>
+<span class="c1">// 在实例化参数中请求显式上传</span>
 <span class="n">cudaGraphInstantiateParams</span><span class="w"> </span><span class="n">instantiateParams</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">};</span><span class="w"></span>
 <span class="n">instantiateParams</span><span class="p">.</span><span class="n">flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaGraphInstantiateFlagDeviceLaunch</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">cudaGraphInstantiateFlagUpload</span><span class="p">;</span><span class="w"></span>
 <span class="n">instantiateParams</span><span class="p">.</span><span class="n">uploadStream</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stream</span><span class="p">;</span><span class="w"></span>
 <span class="n">cudaGraphInstantiateWithParams</span><span class="p">(</span><span class="o">&amp;</span><span class="n">deviceGraphExec2</span><span class="p">,</span><span class="w"> </span><span class="n">deviceGraph2</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">instantiateParams</span><span class="p">);</span><span class="w"></span>
 
-<span class="c1">// Implicit upload via host launch</span>
+<span class="c1">// 借主机侧首次启动隐式上传</span>
 <span class="n">cudaGraphInstantiate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">deviceGraphExec3</span><span class="p">,</span><span class="w"> </span><span class="n">deviceGraph3</span><span class="p">,</span><span class="w"> </span><span class="n">cudaGraphInstantiateFlagDeviceLaunch</span><span class="p">);</span><span class="w"></span>
 <span class="n">cudaGraphLaunch</span><span class="p">(</span><span class="n">deviceGraphExec3</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span><span class="w"></span>
 </pre></div>
@@ -3782,21 +3767,21 @@
 </section>
 <section id="device-graph-update">
 <span id="id61"></span><h7><span class="section-number">6.2.8.7.7.1.3. </span>设备图更新<a class="headerlink" href="#device-graph-update" title="跳转到此标题"></a></h7>
-<p>设备图只能从主机更新，并且必须在可执行图更新后重新上传到设备才能使更改生效。这可以使用上一节中概述的相同方法来实现。与主机图不同，在应用更新时从设备启动设备图将导致未定义的行为。</p>
+<p>设备图只能在主机侧更新；更新可执行图后须按上一节方式<strong>重新上传</strong>到设备，改动才会生效。与主机图不同：若在应用更新的同时从设备启动该设备图，行为未定义。</p>
 </section>
 </section>
 <section id="device-launch">
 <span id="device-graph-device-launch"></span><h6>
-<span class="section-number">6.2.8.7.7.2. </span>设备启动<a class="headerlink" href="#device-launch" title="跳转到此标题"></a>
+<span class="section-number">6.2.8.7.7.2. </span>设备侧启动<a class="headerlink" href="#device-launch" title="跳转到此标题"></a>
 </h6>
-<p>设备图可以通过主机和设备启动 <code class="docutils literal notranslate"><span class="pre">cudaGraphLaunch()</span></code>，它在设备上与主机上具有相同的签名。设备图通过主机和设备上的相同句柄启动。从设备启动时，设备图必须从另一个图启动。</p>
-<p>设备端图启动是按线程进行的，不同线程可能同时发生多个启动，因此用户需要选择一个线程来启动给定图。</p>
+<p>主机与设备均可调用 <code class="docutils literal notranslate"><span class="pre">cudaGraphLaunch()</span></code> 启动设备图，设备端签名与主机侧一致，且使用同一 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 句柄。注意：自设备启动时，该启动必须嵌在<strong>另一张图</strong>的执行上下文中。</p>
+<p>设备侧启动以线程为粒度；不同线程可同时各自发起启动，因此通常应选定<strong>单个线程</strong>负责启动某一张给定图。</p>
 <section id="device-launch-modes">
-<span id="device-graph-launch-modes"></span><h7><span class="section-number">6.2.8.7.7.2.1. </span>设备启动模式<a class="headerlink" href="#device-launch-modes" title="跳转到此标题"></a></h7>
-<p>与主机启动不同，设备图不能启动到常规 CUDA 流中，只能启动到不同的命名流中，每个流都表示特定的启动模式：</p>
+<span id="device-graph-launch-modes"></span><h7><span class="section-number">6.2.8.7.7.2.1. </span>设备侧启动模式<a class="headerlink" href="#device-launch-modes" title="跳转到此标题"></a></h7>
+<p>与主机侧不同：设备图不能入队到普通 CUDA 流，只能入队到若干<strong>具名</strong>的特殊流，每种对应一种启动模式：</p>
 <table class="table-no-stripes docutils align-default" id="id456">
 <caption>
-<span class="caption-number">表5 </span><span class="caption-text">仅限设备的图形启动流</span><a class="headerlink" href="#id456" title="跳转到此表格"></a>
+<span class="caption-number">表5 </span><span class="caption-text">仅用于设备图启动的具名流</span><a class="headerlink" href="#id456" title="跳转到此表格"></a>
 </caption>
 <colgroup>
 <col style="width: 65%"/>
@@ -3804,32 +3789,32 @@
 </colgroup>
 <thead>
 <tr class="row-odd">
-<th class="head"><p>溪流</p></th>
+<th class="head"><p>流</p></th>
 <th class="head"><p>启动模式</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even">
 <td><p><code class="docutils literal notranslate"><span class="pre">cudaStreamGraphFireAndForget</span></code></p></td>
-<td><p>即发即忘发射</p></td>
+<td><p>Fire-and-forget（发射后即独立运行）</p></td>
 </tr>
 <tr class="row-odd">
 <td><p><code class="docutils literal notranslate"><span class="pre">cudaStreamGraphTailLaunch</span></code></p></td>
-<td><p>尾部发射</p></td>
+<td><p>Tail launch（尾启动）</p></td>
 </tr>
 <tr class="row-even">
 <td><p><code class="docutils literal notranslate"><span class="pre">cudaStreamGraphFireAndForgetAsSibling</span></code></p></td>
-<td><p>兄弟姐妹推出</p></td>
+<td><p>Sibling launch（兄弟启动）</p></td>
 </tr>
 </tbody>
 </table>
 <section id="fire-and-forget-launch">
-<span id="device-graph-fire-and-forget-launch"></span><h8><span class="section-number">6.2.8.7.7.2.1.1. </span>即发即忘发射<a class="headerlink" href="#fire-and-forget-launch" title="跳转到此标题"></a></h8>
-<p>顾名思义，即发即忘启动会立即提交给 GPU，并且独立于启动图运行。在“即发即忘”场景中，启动图是父图，启动图是子图。</p>
+<span id="device-graph-fire-and-forget-launch"></span><h8><span class="section-number">6.2.8.7.7.2.1.1. </span>Fire-and-forget 启动<a class="headerlink" href="#fire-and-forget-launch" title="跳转到此标题"></a></h8>
+<p>顾名思义，fire-and-forget 启动会立刻提交给 GPU，并在<strong>逻辑上独立于</strong>发起启动的那张图继续运行。此时：发起方是<strong>父图</strong>，被启动的是<strong>子图</strong>。</p>
 <figure class="align-default" id="id457">
 <a class="image reference internal image-reference" href="_images/fire-and-forget-simple.png"><img alt="_images/fire-and-forget-simple.png" class="image" src="_images/fire-and-forget-simple.png" style="width: 400px;"/></a>
 <figcaption>
-<p><span class="caption-number">图15 </span><span class="caption-text">即发即忘发射</span><a class="headerlink" href="#id457" title="跳转到此图片"></a></p>
+<p><span class="caption-number">图15 </span><span class="caption-text">Fire-and-forget 启动</span><a class="headerlink" href="#id457" title="跳转到此图片"></a></p>
 </figcaption>
 </figure>
 <p>上图可以通过下面的示例代码生成：</p>
@@ -3842,58 +3827,58 @@
 <span class="w"> </span><span class="n">cudaGraphExec_t</span><span class="w"> </span><span class="n">gExec1</span><span class="p">,</span><span class="w"> </span><span class="n">gExec2</span><span class="p">;</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaGraph_t</span><span class="w"> </span><span class="n">g1</span><span class="p">,</span><span class="w"> </span><span class="n">g2</span><span class="p">;</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">// Create, instantiate, and upload the device graph.</span>
+<span class="w"> </span><span class="c1">// 创建、实例化并上传设备图</span>
 <span class="w"> </span><span class="n">create_graph</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g2</span><span class="p">);</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaGraphInstantiate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">gExec2</span><span class="p">,</span><span class="w"> </span><span class="n">g2</span><span class="p">,</span><span class="w"> </span><span class="n">cudaGraphInstantiateFlagDeviceLaunch</span><span class="p">);</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaGraphUpload</span><span class="p">(</span><span class="n">gExec2</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">// Create and instantiate the launching graph.</span>
+<span class="w"> </span><span class="c1">// 捕获并实例化用于发起启动的（主机）图</span>
 <span class="w"> </span><span class="n">cudaStreamBeginCapture</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamCaptureModeGlobal</span><span class="p">);</span><span class="w"></span>
 <span class="w"> </span><span class="n">launchFireAndForgetGraph</span><span class="o">&lt;&lt;&lt;</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">gExec2</span><span class="p">);</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaStreamEndCapture</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">g1</span><span class="p">);</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaGraphInstantiate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">gExec1</span><span class="p">,</span><span class="w"> </span><span class="n">g1</span><span class="p">);</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">// Launch the host graph, which will in turn launch the device graph.</span>
+<span class="w"> </span><span class="c1">// 启动主机图，由其间接启动设备图</span>
 <span class="w"> </span><span class="n">cudaGraphLaunch</span><span class="p">(</span><span class="n">gExec1</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>一个图在其执行过程中最多可以有 120 个即发即弃图。此总数会在同一父图的启动之间重置。</p>
+<p>单张图在一次执行过程中，累计最多可 fire-and-forget 启动 120 张子图；该计数会在<strong>同一父图</strong>的相邻两次顶层启动之间清零重置。</p>
 </section>
 <section id="graph-execution-environments">
 <span id="device-graph-execution-environments"></span><h8><span class="section-number">6.2.8.7.7.2.1.2. </span>图执行环境<a class="headerlink" href="#graph-execution-environments" title="跳转到此标题"></a></h8>
 <p>为了充分理解设备端同步模型，首先需要理解执行环境的概念。</p>
-<p>当从设备启动图时，它会启动到自己的执行环境中。给定图的执行环境封装了图中的所有工作以及所有生成的即发即忘工作。当该图已完成执行并且所有生成的子工作都已完成时，可以认为该图已完成。</p>
-<p>下图显示了由上一节中的“即发即弃”示例代码生成的环境封装。</p>
+<p>从设备启动一张图时，该图会在<strong>自己的执行环境（execution environment）</strong> 中运行。该环境不仅包含图内全部工作，也包含由此图 fire-and-forget 派生的所有子工作。仅当图本体及其派生子工作全部结束时，才认为该图整体完成。</p>
+<p>下图示意上一节 fire-and-forget 示例所形成的环境边界。</p>
 <figure class="align-default" id="id458">
 <a class="image reference internal image-reference" href="_images/fire-and-forget-environments.png"><img alt="_images/fire-and-forget-environments.png" class="image" src="_images/fire-and-forget-environments.png" style="width: 400px;"/></a>
 <figcaption>
-<p><span class="caption-number">图16 </span><span class="caption-text">即发即忘启动，具有执行环境</span><a class="headerlink" href="#id458" title="跳转到此图片"></a></p>
+<p><span class="caption-number">图16 </span><span class="caption-text">带执行环境的 fire-and-forget 启动</span><a class="headerlink" href="#id458" title="跳转到此图片"></a></p>
 </figcaption>
 </figure>
-<p>这些环境也是分层的，因此图形环境可以包含“即发即忘”启动的多个级别的子环境。</p>
+<p>执行环境是分层嵌套的：父环境可包含由 fire-and-forget 产生的多级子环境。</p>
 <figure class="align-default" id="id459">
 <a class="image reference internal image-reference" href="_images/fire-and-forget-nested-environments.png"><img alt="_images/fire-and-forget-nested-environments.png" class="image" src="_images/fire-and-forget-nested-environments.png" style="width: 500px;"/></a>
 <figcaption>
-<p><span class="caption-number">图17 </span><span class="caption-text">嵌套的即发即忘环境</span><a class="headerlink" href="#id459" title="跳转到此图片"></a></p>
+<p><span class="caption-number">图17 </span><span class="caption-text">嵌套的 fire-and-forget 环境</span><a class="headerlink" href="#id459" title="跳转到此图片"></a></p>
 </figcaption>
 </figure>
-<p>当从主机启动图时，存在一个流环境，它是所启动图的执行环境的父级。流环境封装了作为整体启动的一部分生成的所有工作。当整个流环境被标记为完成时，流启动完成（即下游相关工作现在可以运行）。</p>
+<p>从主机启动图时，会额外存在一层<strong>流环境（stream environment）</strong>，作为被启动图执行环境的父级。流环境涵盖该次整体启动所派生的全部工作；仅当流环境整体完成，才认为这次流上的图启动结束（此后方可安全运行依赖其下游的工作）。</p>
 <figure class="align-default" id="id460">
 <a class="image reference internal image-reference" href="_images/device-graph-stream-environment.png"><img alt="_images/device-graph-stream-environment.png" class="image" src="_images/device-graph-stream-environment.png" style="width: 600px;"/></a>
 <figcaption>
-<p><span class="caption-number">图18 </span><span class="caption-text">可视化的流环境</span><a class="headerlink" href="#id460" title="跳转到此图片"></a></p>
+<p><span class="caption-number">图18 </span><span class="caption-text">流环境示意</span><a class="headerlink" href="#id460" title="跳转到此图片"></a></p>
 </figcaption>
 </figure>
 </section>
 <section id="tail-launch">
-<span id="device-graph-tail-launch"></span><h8><span class="section-number">6.2.8.7.7.2.1.3. </span>尾部发射<a class="headerlink" href="#tail-launch" title="跳转到此标题"></a></h8>
-<p>与主机不同，无法通过传统方法（例如）从 GPU 与设备图同步 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code>。相反，为了启用串行工作依赖性，提供了不同的启动模式 - 尾部启动 - 来提供类似的功能。</p>
-<p>当图的环境被认为是完整的时，即当图及其所有子图都完成时，尾部启动就会执行。当一个图完成时，尾启动列表中下一个图的环境将替换已完成的环境作为父环境的子环境。与“即发即弃”启动类似，一个图可以有多个排队等待尾部启动的图。</p>
+<span id="device-graph-tail-launch"></span><h8><span class="section-number">6.2.8.7.7.2.1.3. </span>Tail launch（尾启动）<a class="headerlink" href="#tail-launch" title="跳转到此标题"></a></h8>
+<p>与主机侧不同：在 GPU 上不能靠 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code> 这类传统手段与设备图对齐。为串接先后工作，CUDA 提供 <strong>tail launch</strong> 模式作为替代。</p>
+<p>当某张图的执行环境被视为「完结」——即该图及其子工作全部完成——tail launch 队列中的下一张图才会开始执行：其环境会取代已完成图在父环境中的子环境位置。与 fire-and-forget 类似，一张图也可排队多张待 tail launch 的后继图。</p>
 <figure class="align-default" id="id461">
 <a class="image reference internal image-reference" href="_images/tail-launch-simple.png"><img alt="_images/tail-launch-simple.png" class="image" src="_images/tail-launch-simple.png" style="width: 600px;"/></a>
 <figcaption>
-<p><span class="caption-number">图19 </span><span class="caption-text">简单的尾翼发射</span><a class="headerlink" href="#id461" title="跳转到此图片"></a></p>
+<p><span class="caption-number">图19 </span><span class="caption-text">简单的 tail launch</span><a class="headerlink" href="#id461" title="跳转到此图片"></a></p>
 </figcaption>
 </figure>
 <p>上述执行流程可以通过以下代码生成：</p>
@@ -3906,46 +3891,46 @@
 <span class="w"> </span><span class="n">cudaGraphExec_t</span><span class="w"> </span><span class="n">gExec1</span><span class="p">,</span><span class="w"> </span><span class="n">gExec2</span><span class="p">;</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaGraph_t</span><span class="w"> </span><span class="n">g1</span><span class="p">,</span><span class="w"> </span><span class="n">g2</span><span class="p">;</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">// Create, instantiate, and upload the device graph.</span>
+<span class="w"> </span><span class="c1">// 创建、实例化并上传设备图</span>
 <span class="w"> </span><span class="n">create_graph</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g2</span><span class="p">);</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaGraphInstantiate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">gExec2</span><span class="p">,</span><span class="w"> </span><span class="n">g2</span><span class="p">,</span><span class="w"> </span><span class="n">cudaGraphInstantiateFlagDeviceLaunch</span><span class="p">);</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaGraphUpload</span><span class="p">(</span><span class="n">gExec2</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">// Create and instantiate the launching graph.</span>
+<span class="w"> </span><span class="c1">// 捕获并实例化用于发起启动的（主机）图</span>
 <span class="w"> </span><span class="n">cudaStreamBeginCapture</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamCaptureModeGlobal</span><span class="p">);</span><span class="w"></span>
 <span class="w"> </span><span class="n">launchTailGraph</span><span class="o">&lt;&lt;&lt;</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">gExec2</span><span class="p">);</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaStreamEndCapture</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">g1</span><span class="p">);</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaGraphInstantiate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">gExec1</span><span class="p">,</span><span class="w"> </span><span class="n">g1</span><span class="p">);</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">// Launch the host graph, which will in turn launch the device graph.</span>
+<span class="w"> </span><span class="c1">// 启动主机图，由其间接启动设备图</span>
 <span class="w"> </span><span class="n">cudaGraphLaunch</span><span class="p">(</span><span class="n">gExec1</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>由给定图排队的尾部启动将按照排队时间一次执行一个。因此，第一个排队图将首先运行，然后是第二个，依此类推。</p>
+<p>同一张图排入 tail launch 队列的多张后继图，将严格按入队顺序依次执行：先入队者先运行，依此类推。</p>
 <figure class="align-default" id="id462">
 <img alt="_images/tail-launch-ordering-simple.png" class="image" src="_images/tail-launch-ordering-simple.png"/>
 <figcaption>
-<p><span class="caption-number">图20 </span><span class="caption-text">尾部发射顺序</span><a class="headerlink" href="#id462" title="跳转到此图片"></a></p>
+<p><span class="caption-number">图20 </span><span class="caption-text">Tail launch 的顺序</span><a class="headerlink" href="#id462" title="跳转到此图片"></a></p>
 </figcaption>
 </figure>
-<p>由尾部图排队的尾部启动将在由尾部启动列表中的先前图排队的尾部启动之前执行。这些新的尾部启动将按照它们排队的顺序执行。</p>
+<p>若某张「尾图」在运行期间又向 tail launch 队列入队新图，则这些新入队项会排在<strong>此前已由列表中更靠前图入队</strong>的 tail launch 之前执行；且它们彼此之间仍按各自入队顺序执行。</p>
 <figure class="align-default" id="id463">
 <img alt="_images/tail-launch-ordering-complex.png" class="image" src="_images/tail-launch-ordering-complex.png"/>
 <figcaption>
-<p><span class="caption-number">图21 </span><span class="caption-text">从多个图表排队时尾部启动顺序</span><a class="headerlink" href="#id463" title="跳转到此图片"></a></p>
+<p><span class="caption-number">图21 </span><span class="caption-text">多图交错入队时的 tail launch 顺序</span><a class="headerlink" href="#id463" title="跳转到此图片"></a></p>
 </figcaption>
 </figure>
-<p>一个图表最多可以有 255 个待处理的尾部启动。</p>
+<p>单张图最多可同时挂起 255 个待执行的 tail launch。</p>
 <section id="tail-self-launch">
-<span id="device-graph-tail-self-launch"></span><h9><span class="section-number">6.2.8.7.7.2.1.3.1. </span>尾部自发射<a class="headerlink" href="#tail-self-launch" title="跳转到此标题"></a></h9>
-<p>设备图可以将自身排队以进行尾部启动，尽管给定的图一次只能有一个自启动入队。为了查询当前正在运行的设备图以便可以重新启动，添加了一个新的设备端函数：</p>
+<span id="device-graph-tail-self-launch"></span><h9><span class="section-number">6.2.8.7.7.2.1.3.1. </span>Tail self-launch（尾自启动）<a class="headerlink" href="#tail-self-launch" title="跳转到此标题"></a></h9>
+<p>设备图可将<strong>自身</strong>再次排入 tail launch 队列以实现自循环，但任意时刻至多只能有<strong>一条</strong>针对自身的 self-launch 在队。为在设备代码里取得「当前正在运行的那张设备图」以便复用其句柄重入队，CUDA 新增了如下设备端 API：</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">cudaGraphExec_t</span><span class="w"> </span><span class="nf">cudaGetCurrentGraphExec</span><span class="p">();</span><span class="w"></span>
 </pre></div>
 </div>
-<p>如果当前运行的图形是设备图形，则此函数返回其句柄。如果当前执行的内核不是设备图中的节点，则该函数将返回 NULL。</p>
-<p>下面的示例代码显示了此函数在重新启动循环中的用法：</p>
+<p>若当前正在执行的是设备图，则返回其 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 句柄；若当前内核并非某张设备图中的节点，则返回 NULL。</p>
+<p>下面示例演示如何用它构成自重启循环：</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">__device__</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">relaunchCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
 
@@ -3965,12 +3950,12 @@
 </section>
 </section>
 <section id="sibling-launch">
-<span id="id62"></span><h8><span class="section-number">6.2.8.7.7.2.1.4. </span>兄弟推出<a class="headerlink" href="#sibling-launch" title="跳转到此标题"></a></h8>
-<p>同级启动是即发即忘启动的一种变体，其中图不是作为启动图执行环境的子级启动，而是作为启动图父环境的子级启动。同级启动相当于从启动图的父环境进行即发即忘启动。</p>
+<span id="id62"></span><h8><span class="section-number">6.2.8.7.7.2.1.4. </span>Sibling launch（兄弟启动）<a class="headerlink" href="#sibling-launch" title="跳转到此标题"></a></h8>
+<p>Sibling launch 是 fire-and-forget 的变体：被启动图不作为「发起图」执行环境的子环境挂入，而是挂到<strong>发起图父环境</strong>之下，等价于在父环境里做一次 fire-and-forget。</p>
 <figure class="align-default" id="id464">
 <img alt="_images/sibling-launch-simple.png" class="image" src="_images/sibling-launch-simple.png"/>
 <figcaption>
-<p><span class="caption-number">图22 </span><span class="caption-text">简单的兄弟启动</span><a class="headerlink" href="#id464" title="跳转到此图片"></a></p>
+<p><span class="caption-number">图22 </span><span class="caption-text">简单的 sibling launch</span><a class="headerlink" href="#id464" title="跳转到此图片"></a></p>
 </figcaption>
 </figure>
 <p>上图可以通过下面的示例代码生成：</p>
@@ -3983,23 +3968,23 @@
 <span class="w"> </span><span class="n">cudaGraphExec_t</span><span class="w"> </span><span class="n">gExec1</span><span class="p">,</span><span class="w"> </span><span class="n">gExec2</span><span class="p">;</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaGraph_t</span><span class="w"> </span><span class="n">g1</span><span class="p">,</span><span class="w"> </span><span class="n">g2</span><span class="p">;</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">// Create, instantiate, and upload the device graph.</span>
+<span class="w"> </span><span class="c1">// 创建、实例化并上传设备图</span>
 <span class="w"> </span><span class="n">create_graph</span><span class="p">(</span><span class="o">&amp;</span><span class="n">g2</span><span class="p">);</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaGraphInstantiate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">gExec2</span><span class="p">,</span><span class="w"> </span><span class="n">g2</span><span class="p">,</span><span class="w"> </span><span class="n">cudaGraphInstantiateFlagDeviceLaunch</span><span class="p">);</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaGraphUpload</span><span class="p">(</span><span class="n">gExec2</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">// Create and instantiate the launching graph.</span>
+<span class="w"> </span><span class="c1">// 捕获并实例化用于发起启动的（主机）图</span>
 <span class="w"> </span><span class="n">cudaStreamBeginCapture</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamCaptureModeGlobal</span><span class="p">);</span><span class="w"></span>
 <span class="w"> </span><span class="n">launchSiblingGraph</span><span class="o">&lt;&lt;&lt;</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">gExec2</span><span class="p">);</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaStreamEndCapture</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">g1</span><span class="p">);</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaGraphInstantiate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">gExec1</span><span class="p">,</span><span class="w"> </span><span class="n">g1</span><span class="p">);</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">// Launch the host graph, which will in turn launch the device graph.</span>
+<span class="w"> </span><span class="c1">// 启动主机图，由其间接启动设备图</span>
 <span class="w"> </span><span class="n">cudaGraphLaunch</span><span class="p">(</span><span class="n">gExec1</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>由于同级启动不会启动到启动图的执行环境中，因此它们不会对启动图排队的尾部启动进行门控。</p>
+<p>因 sibling launch 的子工作不在发起图自身的执行环境内，它<strong>不会</strong>阻塞发起图已排入的 tail launch 队列（二者不构成门控关系）。</p>
 </section>
 </section>
 </section>
@@ -4008,24 +3993,24 @@
 <span id="id63"></span><h5>
 <span class="section-number">6.2.8.7.8. </span>条件图节点<a class="headerlink" href="#conditional-graph-nodes" title="跳转到此标题"></a>
 </h5>
-<p>条件节点允许条件节点内包含的图的条件执行和循环。这使得动态和迭代工作流程能够在图形中完全表示，并释放主机 CPU 来并行执行其他工作。</p>
-<p>当条件节点的依赖性得到满足时，在设备上执行条件值的评估。条件节点可以是以下类型之一：</p>
+<p>条件节点用于对其内部的<strong>主体图（body graph）</strong>做条件执行或循环，从而把动态、迭代式流程完整表达在单张 CUDA 图中，减轻主机 CPU 负担。</p>
+<p>当条件节点的前置依赖满足后，在<strong>设备端</strong>求值条件变量。条件节点可为下列类型之一：</p>
 <ul class="simple">
-<li><p>有条件的 <a class="reference internal" href="#conditional-if-nodes"><span class="std std-ref">中频节点</span></a> 如果执行节点时条件值非零，则执行一次其主体图。可以提供可选的第二主体图，如果执行节点时条件值为零，则将执行一次。</p></li>
-<li><p>有条件的 <a class="reference internal" href="#conditional-while-nodes"><span class="std std-ref">WHILE 节点</span></a> 如果执行节点时条件值非零，则执行其主体图，并将继续执行其主体图，直到条件值为零。</p></li>
-<li><p>有条件的 <a class="reference internal" href="#conditional-switch-nodes"><span class="std std-ref">切换节点</span></a> 如果条件值等于 n，则执行第 n 个主体图。如果条件值不对应于身体图，则不启动身体图。</p></li>
+<li><p><a class="reference internal" href="#conditional-if-nodes"><span class="std std-ref">IF 条件节点</span></a>：执行到该节点时，若条件值非 0，则运行其主体图一次；可选地再提供第二段主体图，在条件值为 0 时执行一次。</p></li>
+<li><p><a class="reference internal" href="#conditional-while-nodes"><span class="std std-ref">WHILE 条件节点</span></a>：若条件值非 0，则反复执行主体图，直到条件值变为 0。</p></li>
+<li><p><a class="reference internal" href="#conditional-switch-nodes"><span class="std std-ref">SWITCH 条件节点</span></a>：若条件值等于 <em>n</em>，则启动第 <em>n</em> 段主体图一次；若无对应分支，则不启动任何主体图。</p></li>
 </ul>
-<p>条件值由 <a class="reference internal" href="#conditional-handles"><span class="std std-ref">条件句柄</span></a> ，必须在节点之前创建。条件值可以通过设备代码设置 <code class="docutils literal notranslate"><span class="pre">cudaGraphSetConditional()</span></code>。还可以在创建句柄时指定应用于每次图形启动的默认值。</p>
-<p>创建条件节点时，将创建一个空图并将句柄返回给用户，以便可以填充该图。可以使用以下任一方式填充此条件身体图 <a class="reference internal" href="#creating-a-graph-using-graph-apis"><span class="std std-ref">图形 API</span></a> 或 <a class="reference internal" href="#creating-a-graph-using-stream-capture"><span class="std std-ref">cudaStreamBeginCaptureToGraph()</span></a>。</p>
+<p>条件值通过 <a class="reference internal" href="#conditional-handles"><span class="std std-ref">条件句柄（conditional handle）</span></a> 访问，句柄须在创建条件节点<strong>之前</strong>分配。设备代码可用 <code class="docutils literal notranslate"><span class="pre">cudaGraphSetConditional()</span></code> 写入条件值；亦可在创建句柄时指定每次整图启动时套用的默认值。</p>
+<p>创建条件节点时会同时生成一张空的主体图，并把句柄交回用户以便填充。主体图既可用 <a class="reference internal" href="#creating-a-graph-using-graph-apis"><span class="std std-ref">图 API</span></a> 搭建，也可借助 <a class="reference internal" href="#creating-a-graph-using-stream-capture"><span class="std std-ref">cudaStreamBeginCaptureToGraph()</span></a> 捕获填充。</p>
 <p>条件节点可以嵌套。</p>
 <section id="conditional-handles">
 <span id="id64"></span><h6>
 <span class="section-number">6.2.8.7.8.1. </span>条件句柄<a class="headerlink" href="#conditional-handles" title="跳转到此标题"></a>
 </h6>
-<p>条件值表示为 <code class="docutils literal notranslate"><span class="pre">cudaGraphConditionalHandle</span></code> 并且是由创建的 <code class="docutils literal notranslate"><span class="pre">cudaGraphConditionalHandleCreate()</span></code>.</p>
-<p>该句柄必须与单个条件节点关联。手柄无法被破坏。</p>
-<p>如果 <code class="docutils literal notranslate"><span class="pre">cudaGraphCondAssignDefault</span></code> 在创建句柄时指定，条件值将在每次图形执行开始时初始化为指定的默认值。如果未提供此标志，则在每次图形执行开始时条件值未定义，并且代码不应假设条件值在执行过程中持续存在。</p>
-<p>与句柄关联的默认值和标志将在期间更新 <a class="reference internal" href="#whole-graph-update"><span class="std std-ref">整个图更新</span></a>。</p>
+<p>条件值由类型 <code class="docutils literal notranslate"><span class="pre">cudaGraphConditionalHandle</span></code> 表示，通过 <code class="docutils literal notranslate"><span class="pre">cudaGraphConditionalHandleCreate()</span></code> 创建。</p>
+<p>每个句柄只能绑定到<strong>一个</strong>条件节点；句柄不提供销毁接口。</p>
+<p>若在创建句柄时指定 <code class="docutils literal notranslate"><span class="pre">cudaGraphCondAssignDefault</span></code>，则每次整图执行伊始会把条件值初始化为给定默认；若未指定该标志，则每次执行开始时刻条件值未定义，代码不得假定其在多次执行之间保持。</p>
+<p>句柄携带的默认值与相关标志会在 <a class="reference internal" href="#whole-graph-update"><span class="std std-ref">整图更新</span></a> 时一并刷新。</p>
 </section>
 <section id="conditional-node-body-graph-requirements">
 <span id="id65"></span><h6>
@@ -4033,19 +4018,19 @@
 </h6>
 <p>一般要求：</p>
 <ul class="simple">
-<li><p>图表的节点必须全部驻留在单个设备上。</p></li>
+<li><p>主体图内所有节点须位于同一设备。</p></li>
 <li><p>该图只能包含内核节点、空节点、memcpy 节点、memset 节点、子图节点和条件节点。</p></li>
 </ul>
 <p>内核节点：</p>
 <ul class="simple">
-<li><p>不允许图形中的内核使用 CUDA 动态并行性或设备图形启动。</p></li>
-<li><p>只要不使用 MPS，就允许合作发射。</p></li>
+<li><p>主体图内的内核不得使用 CUDA 动态并行，也不得再发起设备图启动。</p></li>
+<li><p>在未启用 MPS 时，允许协作式启动。</p></li>
 </ul>
 <p>Memcpy/Memset 节点：</p>
 <ul class="simple">
-<li><p>仅允许涉及设备内存和/或固定设备映射主机内存的副本/内存集。</p></li>
-<li><p>不允许涉及 CUDA 数组的副本/内存集。</p></li>
-<li><p>在实例化时，两个操作数都必须可以从当前设备访问。请注意，复制操作将从图形所在的设备执行，即使它的目标是另一个设备上的内存。</p></li>
+<li><p>memcpy/memset 仅允许在设备内存与页锁定且可设备映射的主机内存之间进行。</p></li>
+<li><p>涉及 CUDA 数组的 memcpy/memset 不允许。</p></li>
+<li><p>实例化时，操作数须对当前设备可访问；传输仍由图所在设备发起，即便另一端在另一设备上。</p></li>
 </ul>
 </section>
 <section id="conditional-if-nodes">
