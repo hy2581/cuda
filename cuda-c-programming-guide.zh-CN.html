@@ -2517,9 +2517,9 @@
 <span id="id23"></span><h3>
 <span class="section-number">6.2.4. </span>共享内存<a class="headerlink" href="#shared-memory" title="跳转到此标题"></a>
 </h3>
-<p>详见 <a class="reference internal" href="#variable-memory-space-specifiers"><span class="std std-ref">可变内存空间说明符</span></a> 共享内存是使用分配的 <code class="docutils literal notranslate"><span class="pre">__shared__</span></code> 内存空间说明符。</p>
-<p>如 <a class="reference internal" href="#thread-hierarchy"><span class="std std-ref">线程层次结构</span></a> 与 <a class="reference internal" href="#shared-memory"><span class="std std-ref">共享内存</span></a> 所述，共享内存通常比全局内存快得多。<a class="reference internal" href="#thread-hierarchy"><span class="std std-ref">线程层次结构</span></a> 并详细介绍于 <a class="reference internal" href="#shared-memory"><span class="std std-ref">共享内存</span></a>。它可作为暂存存储（或软件管理缓存），以尽量减少 CUDA 线程块对全局内存的访问，示例如下方矩阵乘法所示。</p>
-<p>以下代码示例是矩阵乘法的简单实现，不利用共享内存。每个线程读取一行 <em>一个</em> 和一列 <em>乙</em> 并计算相应的元素 <em>C</em> 如图所示 <a class="reference internal" href="#shared-memory-matrix-multiplication-no-shared-memory"><span class="std std-numref">图8</span></a>。 <em>一个</em> 因此被读为 <em>B.宽度</em> 来自全局内存的时间和 <em>乙</em> 已读 <em>A.高度</em> 次。</p>
+<p>如 <a class="reference internal" href="#variable-memory-space-specifiers"><span class="std std-ref">可变内存空间说明符</span></a> 所述，共享内存通过 <code class="docutils literal notranslate"><span class="pre">__shared__</span></code> 内存空间说明符进行分配。</p>
+<p>如 <a class="reference internal" href="#thread-hierarchy"><span class="std std-ref">线程层次结构</span></a> 所述，并在 <a class="reference internal" href="#shared-memory"><span class="std std-ref">共享内存</span></a> 中进一步说明，共享内存的访问延迟通常远低于全局内存。它可用作便笺式存储（或由软件管理的缓存），以减少某个 CUDA 线程块对全局内存的访问次数；下面的矩阵乘法示例演示了这一思路。</p>
+<p>下面的代码给出矩阵乘法的直接实现，未使用共享内存。每个线程从矩阵 <em>A</em> 读取一整行、从矩阵 <em>B</em> 读取一整列，并计算结果矩阵 <em>C</em> 中对应的一个元素，如 <a class="reference internal" href="#shared-memory-matrix-multiplication-no-shared-memory"><span class="std std-numref">图8</span></a> 所示。因此，<em>A</em> 中的每个元素在计算整个 <em>C</em> 的过程中会被从全局内存读取 <em>B.width</em> 次；<em>B</em> 中的每个元素会被读取 <em>A.height</em> 次。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="c1">// 矩阵按行主序存储：</span>
 <span class="c1">// 元素寻址：M(row, col) = *(M.elements + row * M.width + col)</span>
@@ -2595,9 +2595,9 @@
 <p><span class="caption-number">图8 </span><span class="caption-text">不使用共享内存的矩阵乘法</span><a class="headerlink" href="#shared-memory-matrix-multiplication-no-shared-memory" title="跳转到此图片"></a></p>
 </figcaption>
 </figure>
-<p>以下代码示例是利用共享内存的矩阵乘法的实现。在此实现中，每个线程块负责计算一个平方子矩阵 <em>子集</em> 的 <em>C</em> 块内的每个线程负责计算一个元素 <em>子集</em>。如图所示 <a class="reference internal" href="#shared-memory-matrix-multiplication-shared-memory"><span class="std std-numref">图9</span></a>, <em>子集</em> 等于两个矩形矩阵的乘积： 的子矩阵 <em>一个</em> 维数 (<em>A.宽度，块大小</em>) 具有相同的行索引 <em>子集</em>，以及子矩阵 <em>乙</em> 维数 (<em>块大小，A.宽度</em> ）具有相同的列索引 <em>子集</em>。为了适应设备的资源，这两个矩形矩阵被分成尽可能多的维度的方阵 <em>块大小</em> 必要时和 <em>子集</em> 计算为这些方阵的乘积之和。这些乘积中的每一个都是通过以下方式执行的：首先将两个相应的方阵从全局内存加载到共享内存，并用一个线程加载每个矩阵的一个元素，然后让每个线程计算乘积的一个元素。每个线程将每个乘积的结果累积到寄存器中，完成后将结果写入全局内存。</p>
-<p>通过这种方式阻塞计算，我们可以利用快速共享内存并节省大量全局内存带宽，因为 <em>一个</em> 只读（<em>B.宽度/块大小</em>）来自全局内存的时间和 <em>乙</em> 被读取（<em>A.高度/块大小</em>）次。</p>
-<p>前述代码示例中的 <em>Matrix</em> 类型新增了 <em>stride</em> 字段，以便用同一类型高效表示子矩阵。并通过 <a class="reference internal" href="#device-function-specifier"><span class="std std-ref">__device__</span></a> 函数实现元素读写与子矩阵构造。</p>
+<p>下面的代码给出利用共享内存的矩阵乘法实现。每个线程块负责计算结果矩阵 <em>C</em> 中一个大小为 <em>BLOCK_SIZE</em>×<em>BLOCK_SIZE</em> 的子块 <em>Csub</em>；块内每个线程负责计算 <em>Csub</em> 中的一个元素。如 <a class="reference internal" href="#shared-memory-matrix-multiplication-shared-memory"><span class="std std-numref">图9</span></a> 所示，<em>Csub</em> 等于一对「条带形」子矩阵相乘后再沿内维求和：其一来自 <em>A</em>（与 <em>Csub</em> 占据相同的行范围，宽度覆盖整个内积维），其二来自 <em>B</em>（与 <em>Csub</em> 占据相同的列范围，高度覆盖整个内积维）。为适配片上资源，这两条带再沿内维切分为尽可能多的 <em>BLOCK_SIZE</em>×<em>BLOCK_SIZE</em> 小方阵；<em>Csub</em> 即为这些小块逐对相乘后的累加和。每一对小块相乘时，先把它们从全局内存载入共享内存（每个线程各加载两个子矩阵中的一个元素），在线程块内完成该小块的乘加；每个线程用寄存器累加各轮小块乘积的部分和，全部轮次结束后再把最终结果写回全局内存中的 <em>Csub</em>。</p>
+<p>这种分块计算方式能够利用低延迟的共享内存，并显著降低全局内存流量：与前面的朴素实现相比，<em>A</em> 从全局内存读取的次数约降为原来的 <em>B.width</em>/<em>BLOCK_SIZE</em> 分之一，<em>B</em> 约降为原来的 <em>A.height</em>/<em>BLOCK_SIZE</em> 分之一。</p>
+<p>相对前面的示例，此处的 <em>Matrix</em> 结构体增加了 <em>stride</em>（步幅）字段，以便用同一类型紧凑地表示子矩阵视图。元素的读取与写入，以及从父矩阵中切出子矩阵，均通过 <a class="reference internal" href="#device-function-specifier"><span class="std std-ref">__device__</span></a> 设备函数完成。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="c1">// 矩阵按行主序存储：</span>
 <span class="c1">// 元素寻址：M(row, col) = *(M.elements + row * M.stride + col)</span>
@@ -2618,7 +2618,8 @@
 <span class="p">{</span><span class="w"></span>
 <span class="w"> </span><span class="n">A</span><span class="p">.</span><span class="n">elements</span><span class="p">[</span><span class="n">row</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">.</span><span class="n">stride</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">col</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">value</span><span class="p">;</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
-<span class="c1">// 取 A 左上角起第 row 行、第 col 列的 BLOCK_SIZE×BLOCK_SIZE 子块 Asub</span>
+<span class="c1">// 从 A 的左上角起，向右数第 col 个、向下数第 row 个</span>
+<span class="c1">// BLOCK_SIZE×BLOCK_SIZE 子矩阵，得到 Asub</span>
 <span class="w"> </span><span class="n">__device__</span><span class="w"> </span><span class="n">Matrix</span><span class="w"> </span><span class="n">GetSubMatrix</span><span class="p">(</span><span class="n">Matrix</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">row</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">col</span><span class="p">)</span><span class="w"></span>
 <span class="p">{</span><span class="w"></span>
 <span class="w"> </span><span class="n">Matrix</span><span class="w"> </span><span class="n">Asub</span><span class="p">;</span><span class="w"></span>
@@ -2670,46 +2671,45 @@
 <span class="c1">// 由 MatMul() 调用的矩阵乘内核</span>
 <span class="w"> </span><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">MatMulKernel</span><span class="p">(</span><span class="n">Matrix</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">Matrix</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">Matrix</span><span class="w"> </span><span class="n">C</span><span class="p">)</span><span class="w"></span>
 <span class="p">{</span><span class="w"></span>
-<span class="w"> </span><span class="c1">// Block row and column</span>
+<span class="w"> </span><span class="c1">// 当前线程块在结果网格中的行、列索引</span>
 <span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">blockRow</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">blockIdx</span><span class="p">.</span><span class="n">y</span><span class="p">;</span><span class="w"></span>
 <span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">blockCol</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span><span class="w"></span>
-<span class="w"> </span><span class="c1">// Each thread block computes one sub-matrix Csub of C</span>
+<span class="w"> </span><span class="c1">// 每个线程块计算 C 的一个子块 Csub</span>
 <span class="w"> </span><span class="n">Matrix</span><span class="w"> </span><span class="n">Csub</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GetSubMatrix</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">blockRow</span><span class="p">,</span><span class="w"> </span><span class="n">blockCol</span><span class="p">);</span><span class="w"></span>
-<span class="w"> </span><span class="c1">// Each thread computes one element of Csub</span>
+<span class="w"> </span><span class="c1">// 每个线程计算 Csub 中的一个元素</span>
 <span class="w"> </span><span class="c1">// 通过累加得到 Cvalue</span>
 <span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">Cvalue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
-<span class="w"> </span><span class="c1">// Thread row and column within Csub</span>
+<span class="w"> </span><span class="c1">// 线程在 Csub 内的行、列下标</span>
 <span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">row</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">;</span><span class="w"></span>
 <span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">col</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span><span class="w"></span>
-<span class="w"> </span><span class="c1">// Loop over all the sub-matrices of A and B that are</span>
-<span class="w"> </span><span class="c1">// required to compute Csub</span>
-<span class="w"> </span><span class="c1">// Multiply each pair of sub-matrices together</span>
-<span class="w"> </span><span class="c1">// and accumulate the results</span>
+<span class="w"> </span><span class="c1">// 遍历为得到 Csub 所需的 A、B 子矩阵</span>
+<span class="w"> </span><span class="c1">// 将每一对子矩阵相乘</span>
+<span class="w"> </span><span class="c1">// 并把结果累加到 Cvalue</span>
 <span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">width</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">BLOCK_SIZE</span><span class="p">);</span><span class="w"> </span><span class="o">++</span><span class="n">m</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w"> </span><span class="c1">// Get sub-matrix Asub of A</span>
+<span class="w"> </span><span class="c1">// 取 A 的子矩阵 Asub</span>
 <span class="w"> </span><span class="n">Matrix</span><span class="w"> </span><span class="n">Asub</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GetSubMatrix</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">blockRow</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">);</span><span class="w"></span>
-<span class="w"> </span><span class="c1">// Get sub-matrix Bsub of B</span>
+<span class="w"> </span><span class="c1">// 取 B 的子矩阵 Bsub</span>
 <span class="w"> </span><span class="n">Matrix</span><span class="w"> </span><span class="n">Bsub</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GetSubMatrix</span><span class="p">(</span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">blockCol</span><span class="p">);</span><span class="w"></span>
-<span class="w"> </span><span class="c1">// Shared memory used to store Asub and Bsub respectively</span>
+<span class="w"> </span><span class="c1">// 共享内存：分别存放 Asub 与 Bsub</span>
 <span class="w"> </span><span class="n">__shared__</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">As</span><span class="p">[</span><span class="n">BLOCK_SIZE</span><span class="p">][</span><span class="n">BLOCK_SIZE</span><span class="p">];</span><span class="w"></span>
 <span class="w"> </span><span class="n">__shared__</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">Bs</span><span class="p">[</span><span class="n">BLOCK_SIZE</span><span class="p">][</span><span class="n">BLOCK_SIZE</span><span class="p">];</span><span class="w"></span>
-<span class="w"> </span><span class="c1">// Load Asub and Bsub from device memory to shared memory</span>
-<span class="w"> </span><span class="c1">// Each thread loads one element of each sub-matrix</span>
+<span class="w"> </span><span class="c1">// 将 Asub、Bsub 从设备内存载入共享内存</span>
+<span class="w"> </span><span class="c1">// 每个线程各加载两个子矩阵中的一个元素</span>
 <span class="w"> </span><span class="n">As</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GetElement</span><span class="p">(</span><span class="n">Asub</span><span class="p">,</span><span class="w"> </span><span class="n">row</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="p">);</span><span class="w"></span>
 <span class="w"> </span><span class="n">Bs</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GetElement</span><span class="p">(</span><span class="n">Bsub</span><span class="p">,</span><span class="w"> </span><span class="n">row</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="p">);</span><span class="w"></span>
-<span class="w"> </span><span class="c1">// Synchronize to make sure the sub-matrices are loaded</span>
-<span class="w"> </span><span class="c1">// before starting the computation</span>
+<span class="w"> </span><span class="c1">// 同步：确保子矩阵已加载完毕</span>
+<span class="w"> </span><span class="c1">// 再开始本轮乘加计算</span>
 <span class="w"> </span><span class="n">__syncthreads</span><span class="p">();</span><span class="w"></span>
-<span class="w"> </span><span class="c1">// Multiply Asub and Bsub together</span>
+<span class="w"> </span><span class="c1">// 计算 Asub 与 Bsub 的乘积</span>
 <span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">BLOCK_SIZE</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">e</span><span class="p">)</span><span class="w"></span>
 <span class="w"> </span><span class="n">Cvalue</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">As</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">e</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">Bs</span><span class="p">[</span><span class="n">e</span><span class="p">][</span><span class="n">col</span><span class="p">];</span><span class="w"></span>
-<span class="w"> </span><span class="c1">// Synchronize to make sure that the preceding</span>
-<span class="w"> </span><span class="c1">// computation is done before loading two new</span>
-<span class="w"> </span><span class="c1">// sub-matrices of A and B in the next iteration</span>
+<span class="w"> </span><span class="c1">// 同步：确保本轮乘加已完成</span>
+<span class="w"> </span><span class="c1">// 下一轮迭代再加载新的 A、B 子矩阵</span>
+<span class="w"> </span><span class="c1">// 以免覆盖共享内存中仍在使用的数据</span>
 <span class="w"> </span><span class="n">__syncthreads</span><span class="p">();</span><span class="w"></span>
 <span class="w"> </span><span class="p">}</span><span class="w"></span>
-<span class="w"> </span><span class="c1">// Write Csub to device memory</span>
-<span class="w"> </span><span class="c1">// Each thread writes one element</span>
+<span class="w"> </span><span class="c1">// 将 Csub 写回设备内存</span>
+<span class="w"> </span><span class="c1">// 每个线程写出一个元素</span>
 <span class="w"> </span><span class="n">SetElement</span><span class="p">(</span><span class="n">Csub</span><span class="p">,</span><span class="w"> </span><span class="n">row</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="p">,</span><span class="w"> </span><span class="n">Cvalue</span><span class="p">);</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 </pre></div>
@@ -2725,14 +2725,14 @@
 <span id="id24"></span><h3>
 <span class="section-number">6.2.5. </span>分布式共享内存<a class="headerlink" href="#distributed-shared-memory" title="跳转到此标题"></a>
 </h3>
-<p>计算能力 9.0中引入的线程块集群为线程块集群中的线程提供了访问集群中所有参与线程块的共享内存的能力。这个分区共享内存称为 <em>分布式共享内存</em>，对应的地址空间称为分布式共享内存地址空间。属于线程块簇的线程可以在分布式地址空间中读取、写入或执行原子操作，无论该地址属于本地线程块还是远程线程块。无论内核是否使用分布式共享内存，共享内存大小规范（静态或动态）仍然是每个线程块。分布式共享内存的大小就是每个集群的线程块数量乘以每个线程块的共享内存大小。</p>
-<p>访问分布式共享内存中的数据需要所有线程块都存在。用户可以保证所有线程块都已开始执行 <code class="docutils literal notranslate"><span class="pre">cluster.sync()</span></code> 从 <a class="reference internal" href="#cluster-group-cg"><span class="std std-ref">Cluster Group</span></a> API。用户还需要确保所有分布式共享内存操作都发生在线程块退出之前，例如，如果远程线程块正在尝试读取给定线程块的共享内存，则用户需要确保远程线程块读取的共享内存在退出之前已完成。</p>
-<p>CUDA 提供了一种访问分布式共享内存的机制，应用程序可以从利用其功能中受益。让我们看一下简单的直方图计算以及如何使用线程块集群在 GPU 上对其进行优化。计算直方图的标准方法是在每个线程块的共享内存中进行计算，然后执行全局内存原子。这种方法的一个限制是共享内存容量。一旦直方图箱不再适合共享内存，用户就需要直接计算直方图，从而计算全局内存中的原子。通过分布式共享内存，CUDA 提供了一个中间步骤，根据直方图箱的大小，可以直接在共享内存、分布式共享内存或全局内存中计算直方图。</p>
-<p>下面的 CUDA 内核示例展示了如何根据直方图箱的数量计算共享内存或分布式共享内存中的直方图。</p>
+<p>计算能力 9.0 引入的线程块集群（thread block cluster）使同一集群内的线程能够访问该集群中<strong>所有参与线程块</strong>的共享内存。这种按块划分的共享内存称为 <em>分布式共享内存（Distributed Shared Memory）</em>，其对应的地址空间称为分布式共享内存地址空间。属于同一线程块集群的线程可在该分布式地址空间内执行读、写或原子操作，无论目标地址属于本线程块还是集群内的其他线程块。无论内核是否显式使用分布式共享内存，共享内存容量（静态或动态配置）仍以<strong>每个线程块</strong>为单位指定；分布式共享内存的总容量等于<strong>每个集群包含的线程块数量</strong>乘以<strong>每个线程块的共享内存大小</strong>。</p>
+<p>访问分布式共享内存中的数据时，要求集群内的<strong>所有线程块均已存在</strong>（即处于可协同执行的状态）。可通过 <a class="reference internal" href="#cluster-group-cg"><span class="std std-ref">Cluster Group</span></a> API 中的 <code class="docutils literal notranslate"><span class="pre">cluster.sync()</span></code> 来同步，从而保证各线程块已开始执行。此外，还需确保在任一线程块退出前，所有针对分布式共享内存的访问均已完成；例如，若某远程线程块需要读取本线程块的共享内存，必须先保证该读取在目标线程块退出前已经结束。</p>
+<p>CUDA 提供了访问分布式共享内存的机制，应用可据此获得更灵活的片上存储布局。下面以直方图统计为例，说明如何借助线程块集群在 GPU 上做优化。常见做法是先在各线程块的共享内存中累计计数，再对全局内存执行原子加；其主要瓶颈在于单块共享内存容量有限。当直方图分箱（bin）数量超出单块共享内存可容纳范围时，往往只能退化为在全局内存上直接做原子操作。引入分布式共享内存后，CUDA 提供了介于二者之间的折中路径：依据分箱规模，可选择在<strong>普通共享内存</strong>、<strong>分布式共享内存</strong>或<strong>全局内存</strong>上完成直方图累计。</p>
+<p>下面的 CUDA 内核示例演示如何依据分箱数量，在共享内存或分布式共享内存中完成直方图统计。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cooperative_groups.h&gt;</span><span class="cp"></span>
 
-<span class="c1">// Distributed Shared memory histogram kernel</span>
+<span class="c1">// 使用分布式共享内存的直方图统计内核</span>
 <span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">clusterHist_kernel</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">bins</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">nbins</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">bins_per_block</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">__restrict__</span><span class="w"> </span><span class="n">input</span><span class="p">,</span><span class="w"></span>
 <span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">array_size</span><span class="p">)</span><span class="w"></span>
 <span class="p">{</span><span class="w"></span>
@@ -2740,50 +2740,47 @@
 <span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">cg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">cooperative_groups</span><span class="p">;</span><span class="w"></span>
 <span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">tid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cg</span><span class="o">::</span><span class="n">this_grid</span><span class="p">().</span><span class="n">thread_rank</span><span class="p">();</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">// Cluster initialization, size and calculating local bin offsets.</span>
+<span class="w"> </span><span class="c1">// 集群初始化：获取集群规模并计算本地分箱偏移等相关信息</span>
 <span class="w"> </span><span class="n">cg</span><span class="o">::</span><span class="n">cluster_group</span><span class="w"> </span><span class="n">cluster</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cg</span><span class="o">::</span><span class="n">this_cluster</span><span class="p">();</span><span class="w"></span>
 <span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">clusterBlockRank</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cluster</span><span class="p">.</span><span class="n">block_rank</span><span class="p">();</span><span class="w"></span>
 <span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">cluster_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cluster</span><span class="p">.</span><span class="n">dim_blocks</span><span class="p">().</span><span class="n">x</span><span class="p">;</span><span class="w"></span>
 
 <span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">bins_per_block</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">blockDim</span><span class="p">.</span><span class="n">x</span><span class="p">)</span><span class="w"></span>
 <span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w"> </span><span class="n">smem</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="c1">//Initialize shared memory histogram to zeros</span>
+<span class="w"> </span><span class="n">smem</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="c1">// 将共享内存直方图缓冲区初始化为 0</span>
 <span class="w"> </span><span class="p">}</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">// cluster synchronization ensures that shared memory is initialized to zero in</span>
-<span class="w"> </span><span class="c1">// all thread blocks in the cluster. It also ensures that all thread blocks</span>
-<span class="w"> </span><span class="c1">// have started executing and they exist concurrently.</span>
+<span class="w"> </span><span class="c1">// 集群级同步：确保集群内各线程块的共享内存直方图缓冲区均已清零，</span>
+<span class="w"> </span><span class="c1">// 并保证所有线程块都已开始执行、处于可同时协作的状态</span>
 <span class="w"> </span><span class="n">cluster</span><span class="p">.</span><span class="n">sync</span><span class="p">();</span><span class="w"></span>
 
 <span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tid</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">array_size</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">blockDim</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">gridDim</span><span class="p">.</span><span class="n">x</span><span class="p">)</span><span class="w"></span>
 <span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">ldata</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">input</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">//Find the right histogram bin.</span>
+<span class="w"> </span><span class="c1">// 确定目标直方图分箱</span>
 <span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">binid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ldata</span><span class="p">;</span><span class="w"></span>
 <span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ldata</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"></span>
 <span class="w"> </span><span class="n">binid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
 <span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ldata</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">nbins</span><span class="p">)</span><span class="w"></span>
 <span class="w"> </span><span class="n">binid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nbins</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">//Find destination block rank and offset for computing</span>
-<span class="w"> </span><span class="c1">//distributed shared memory histogram</span>
+<span class="w"> </span><span class="c1">// 计算分布式共享内存直方图时，目标线程块在集群中的序号与块内偏移</span>
 <span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">dst_block_rank</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)(</span><span class="n">binid</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">bins_per_block</span><span class="p">);</span><span class="w"></span>
 <span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">dst_offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">binid</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">bins_per_block</span><span class="p">;</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">//Pointer to target block shared memory</span>
+<span class="w"> </span><span class="c1">// 映射到目标线程块共享内存的指针</span>
 <span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">dst_smem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cluster</span><span class="p">.</span><span class="n">map_shared_rank</span><span class="p">(</span><span class="n">smem</span><span class="p">,</span><span class="w"> </span><span class="n">dst_block_rank</span><span class="p">);</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">//Perform atomic update of the histogram bin</span>
+<span class="w"> </span><span class="c1">// 对直方图分箱执行原子更新</span>
 <span class="w"> </span><span class="n">atomicAdd</span><span class="p">(</span><span class="n">dst_smem</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">dst_offset</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
 <span class="w"> </span><span class="p">}</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">// cluster synchronization is required to ensure all distributed shared</span>
-<span class="w"> </span><span class="c1">// memory operations are completed and no thread block exits while</span>
-<span class="w"> </span><span class="c1">// other thread blocks are still accessing distributed shared memory</span>
+<span class="w"> </span><span class="c1">// 集群级同步：确保所有分布式共享内存访问已完成，</span>
+<span class="w"> </span><span class="c1">// 避免某线程块已退出而其他块仍在访问其分布式共享内存数据</span>
 <span class="w"> </span><span class="n">cluster</span><span class="p">.</span><span class="n">sync</span><span class="p">();</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">// Perform global memory histogram, using the local distributed memory histogram</span>
+<span class="w"> </span><span class="c1">// 将各线程块本地（及分布式）直方图结果归约到全局直方图缓冲区</span>
 <span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">lbins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bins</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">cluster</span><span class="p">.</span><span class="n">block_rank</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">bins_per_block</span><span class="p">;</span><span class="w"></span>
 <span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">bins_per_block</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">blockDim</span><span class="p">.</span><span class="n">x</span><span class="p">)</span><span class="w"></span>
 <span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -2792,21 +2789,21 @@
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>上述内核可以在运行时启动，其集群大小取决于所需的分布式共享内存的数量。如果直方图小到足以容纳一个块的共享内存，则用户可以启动集群大小为 1 的内核。下面的代码片段显示了如何根据共享内存需求动态启动集群内核。</p>
+<p>上述内核可在运行时按需求选择集群规模，以匹配所需的分布式共享内存总量。若直方图足够小，能够放入单个线程块的共享内存中，可将集群大小设为 1 启动内核。下面的代码片段演示如何结合共享内存占用情况，使用可扩展启动接口动态配置集群内核。</p>
 <div class="highlight-c++ notranslate">
-<div class="highlight"><pre><span></span><span class="c1">// Launch via extensible launch</span>
+<div class="highlight"><pre><span></span><span class="c1">// 使用可扩展启动（cudaLaunchKernelEx）发起内核</span>
 <span class="p">{</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaLaunchConfig_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">};</span><span class="w"></span>
 <span class="w"> </span><span class="n">config</span><span class="p">.</span><span class="n">gridDim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">array_size</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">threads_per_block</span><span class="p">;</span><span class="w"></span>
 <span class="w"> </span><span class="n">config</span><span class="p">.</span><span class="n">blockDim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">threads_per_block</span><span class="p">;</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">// cluster_size depends on the histogram size.</span>
-<span class="w"> </span><span class="c1">// ( cluster_size == 1 ) implies no distributed shared memory, just thread block local shared memory</span>
-<span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">cluster_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="c1">// size 2 is an example here</span>
+<span class="w"> </span><span class="c1">// cluster_size 由直方图规模决定</span>
+<span class="w"> </span><span class="c1">// cluster_size == 1 表示不使用分布式共享内存，仅使用线程块本地共享内存</span>
+<span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">cluster_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="c1">// 此处取 2 仅为示例</span>
 <span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">nbins_per_block</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nbins</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">cluster_size</span><span class="p">;</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">//dynamic shared memory size is per block.</span>
-<span class="w"> </span><span class="c1">//Distributed shared memory size = cluster_size * nbins_per_block * sizeof(int)</span>
+<span class="w"> </span><span class="c1">// 动态共享内存大小按线程块计</span>
+<span class="w"> </span><span class="c1">// 分布式共享内存总容量 = cluster_size * nbins_per_block * sizeof(int)</span>
 <span class="w"> </span><span class="n">config</span><span class="p">.</span><span class="n">dynamicSmemBytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nbins_per_block</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">);</span><span class="w"></span>
 
 <span class="w"> </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="o">::</span><span class="n">cudaFuncSetAttribute</span><span class="p">((</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">clusterHist_kernel</span><span class="p">,</span><span class="w"> </span><span class="n">cudaFuncAttributeMaxDynamicSharedMemorySize</span><span class="p">,</span><span class="w"> </span><span class="n">config</span><span class="p">.</span><span class="n">dynamicSmemBytes</span><span class="p">));</span><span class="w"></span>
