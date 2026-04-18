@@ -2049,8 +2049,8 @@
 <span id="id14"></span><h2>
 <span class="section-number">6.1. </span>使用 NVCC 编译<a class="headerlink" href="#compilation-with-nvcc" title="跳转到此标题"></a>
 </h2>
-<p>内核也可以用 CUDA 指令集架构（<em>PTX</em>）编写，相关内容见 PTX 参考手册；但通常使用 C++ 这类高级语言效率更高。无论使用哪种方式，内核都需要通过 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 编译为设备可执行的二进制代码。</p>
-<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 是一个编译驱动程序，用于简化 <em>C++</em> 或 <em>PTX</em> 代码的编译流程：它提供熟悉的命令行选项，并在内部调用不同工具完成各编译阶段。这里仅概述 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 的工作流和常用选项，完整说明请见 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 用户手册。</p>
+<p>内核既可手写 CUDA 指令集架构 <em>PTX</em>（见 PTX 参考手册），也更常见的是用 C++ 等高级语言编写；无论哪种方式，最终都需由 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 编译为可在设备上执行的二进制代码。</p>
+<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 是编译驱动：对外提供与常见编译器类似的命令行接口，对内串联各阶段工具完成编译。本节只概括其工作流程与常用选项，完整参数与行为以 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 用户手册为准。</p>
 <section id="compilation-workflow">
 <span id="id15"></span><h3>
 <span class="section-number">6.1.1. </span>编译工作流程<a class="headerlink" href="#compilation-workflow" title="跳转到此标题"></a>
@@ -2059,26 +2059,26 @@
 <span id="id16"></span><h4>
 <span class="section-number">6.1.1.1. </span>离线编译<a class="headerlink" href="#offline-compilation" title="跳转到此标题"></a>
 </h4>
-<p>用 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 编译的源文件可以同时包含主机代码（在 host 上执行）和设备代码（在 device 上执行）。<code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 的基本流程是先将两者分离，然后：</p>
+<p>由 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 编译的源文件可同时包含在主机（host）上运行的代码与在设备（device）上运行的代码。<code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 的典型流程是先把二者拆开，再：</p>
 <ul class="simple">
-<li><p>将设备代码编译为汇编形式（<em>PTX</em>）和/或二进制形式（<em>cubin</em> 对象）；</p></li>
-<li><p>修改主机代码：把在 <a class="reference internal" href="#kernels"><span class="std std-ref">内核</span></a> 一节引入的 <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;...&gt;&gt;&gt;</span></code>（详见 <a class="reference internal" href="#execution-configuration"><span class="std std-ref">执行配置</span></a>）替换为必要的 CUDA 运行时调用，以加载并启动编译出的 <em>PTX</em> 代码和/或 <em>cubin</em> 对象。</p></li>
+<li><p>将设备代码编译为中间汇编 <em>PTX</em> 和/或二进制 <em>cubin</em>；</p></li>
+<li><p>改写主机侧代码：把 <a class="reference internal" href="#kernels"><span class="std std-ref">内核</span></a> 中的 <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;...&gt;&gt;&gt;</span></code> 启动语法（见 <a class="reference internal" href="#execution-configuration"><span class="std std-ref">执行配置</span></a>）替换为相应的 CUDA 运行时 API 调用，用于加载并启动上述 <em>PTX</em> 与/或 <em>cubin</em>。</p></li>
 </ul>
-<p>修改后的主机代码要么作为 C++ 代码输出，然后使用其他工具进行编译，要么直接作为目标代码输出，方法是让 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 在最后一个编译阶段调用主机编译器。</p>
-<p>随后应用可以：</p>
+<p>改写后的主机代码可输出为 C++ 源文件再交给其他编译器编译，也可在最后一阶段由 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 直接调用主机编译器生成目标文件。</p>
+<p>应用随后可以：</p>
 <ul class="simple">
-<li><p>链接到已编译的主机代码（这是最常见情况），</p></li>
-<li><p>或者忽略修改后的主机代码（如果有）并使用 CUDA 驱动程序 API（请参阅 <a class="reference internal" href="#driver-api"><span class="std std-ref">驱动程序 API</span></a>）加载并执行 <em>PTX</em> 代码或 <em>cubin</em> 对象。</p></li>
+<li><p>与生成的主机目标文件链接（最常见）；或</p></li>
+<li><p>丢弃改写后的主机包装代码（若不需要），改用 CUDA 驱动 API（<a class="reference internal" href="#driver-api"><span class="std std-ref">驱动程序 API</span></a>）在运行时加载并执行 <em>PTX</em> 或 <em>cubin</em>。</p></li>
 </ul>
 </section>
 <section id="just-in-time-compilation">
 <span id="id17"></span><h4>
 <span class="section-number">6.1.1.2. </span>即时编译<a class="headerlink" href="#just-in-time-compilation" title="跳转到此标题"></a>
 </h4>
-<p>应用在运行时加载的任何 <em>PTX</em> 代码，都会由设备驱动进一步编译为二进制代码，这称为 <em>即时编译（JIT）</em>。JIT 会增加应用加载时间，但也让应用能够受益于新驱动中编译器改进；同时，这也是让应用运行在“编译时尚不存在的新设备”上的关键机制。详见 <a class="reference internal" href="#application-compatibility"><span class="std std-ref">应用兼容性</span></a>。</p>
-<p>当驱动为某应用 JIT 编译 <em>PTX</em> 代码时，会自动缓存生成的二进制副本，以避免后续运行重复编译。该缓存称为 <em>compute cache</em>，并会在驱动升级时自动失效，从而使应用可受益于新版驱动内置 JIT 编译器的改进。</p>
-<p>可通过环境变量控制 JIT 行为，见 <a class="reference internal" href="#env-vars"><span class="std std-ref">CUDA 环境变量</span></a>。</p>
-<p>作为 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 之外的方案，也可以使用 NVRTC 在运行时把 CUDA C++ 设备代码编译为 PTX。NVRTC 是 CUDA C++ 的运行时编译库，更多信息见 NVRTC 用户指南。</p>
+<p>运行时被加载的 <em>PTX</em> 会再由设备驱动即时编译（JIT）为设备原生二进制。JIT 会拉长首次加载时间，但能让程序随驱动升级自动获得编译器改进，也是在<strong>编译时尚未面市的新 GPU</strong>上运行的主要手段，详见 <a class="reference internal" href="#application-compatibility"><span class="std std-ref">应用兼容性</span></a>。</p>
+<p>驱动在 JIT 某段 <em>PTX</em> 后会把生成结果写入<strong>计算缓存（compute cache）</strong>，避免下次启动重复编译；驱动升级会使缓存失效，以便使用新驱动中的 JIT 编译器。</p>
+<p>JIT 相关行为可通过环境变量调节，见 <a class="reference internal" href="#env-vars"><span class="std std-ref">CUDA 环境变量</span></a>。</p>
+<p>除离线使用 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 外，也可用 NVRTC 在运行时将 CUDA C++ 设备代码编译为 PTX；细节见 NVRTC 用户指南。</p>
 </section>
 </section>
 <section id="binary-compatibility">
@@ -2095,17 +2095,17 @@
 <span id="id19"></span><h3>
 <span class="section-number">6.1.3. </span>PTX 兼容性<a class="headerlink" href="#ptx-compatibility" title="跳转到此标题"></a>
 </h3>
-<p>某些 <em>PTX</em> 指令只在更高计算能力的设备上受支持。例如，<a class="reference internal" href="#warp-shuffle-functions"><span class="std std-ref">Warp Shuffle Functions</span></a> 仅在计算能力 5.0 及以上设备可用。<code class="docutils literal notranslate"><span class="pre">-arch</span></code> 编译选项用于指定将 C++ 编译为 <em>PTX</em> 时假定的计算能力；因此，包含 warp shuffle 的代码必须使用 <code class="docutils literal notranslate"><span class="pre">-arch=compute_50</span></code>（或更高）编译。</p>
-<p><em>PTX</em> 为某些特定计算能力生成的代码始终可以编译为具有更大或相同计算能力的二进制代码。请注意，从早期 PTX 版本编译的二进制文件可能无法使用某些硬件功能。例如，从为计算能力 6.0 (Pascal) 生成的 PTX 编译的计算能力 7.0 (Volta) 的二进制目标设备将不会使用 Tensor Core 指令，因为这些指令在 Pascal 上不可用。因此，最终的二进制文件的性能可能比使用最新版本的 PTX 生成的二进制文件的性能更差。</p>
-<p><em>PTX</em> 编译到目标的代码 <a class="reference internal" href="#architecture-specific-features"><span class="std std-ref">特定于架构的功能</span></a> 只在完全相同的物理架构上运行，而不在其他地方运行。特定于架构的 <em>PTX</em> 代码不向前和向后兼容。编译示例代码 <code class="docutils literal notranslate"><span class="pre">sm_90a</span></code> 或 <code class="docutils literal notranslate"><span class="pre">compute_90a</span></code> 仅在计算能力 9.0 的设备上运行，且不具备向后或向前兼容性。</p>
-<p><em>PTX</em> 编译到目标的代码 <a class="reference internal" href="#family-specific-features"><span class="std std-ref">系列特定功能</span></a> 仅在完全相同的物理架构和同一系列中的其他架构上运行。家族特定 <em>PTX</em> 代码与同系列中的其他设备向前兼容，但不向后兼容。编译示例代码 <code class="docutils literal notranslate"><span class="pre">sm_100f</span></code> 或 <code class="docutils literal notranslate"><span class="pre">compute_100f</span></code> 仅在计算能力 10.0 和 10.3 的设备上运行。 <a class="reference internal" href="#family-specific-compatibility"><span class="std std-numref">表25</span></a> 显示特定系列目标与计算能力的兼容性。</p>
+<p>部分 <em>PTX</em> 指令仅在更高计算能力的设备上受支持。例如，<a class="reference internal" href="#warp-shuffle-functions"><span class="std std-ref">Warp Shuffle Functions</span></a> 仅在计算能力 5.0 及以上的设备上可用。<code class="docutils literal notranslate"><span class="pre">-arch</span></code> 编译选项用于指定将 C++ 编译为 <em>PTX</em> 时所假定的计算能力；因此，包含 warp shuffle 的代码必须使用 <code class="docutils literal notranslate"><span class="pre">-arch=compute_50</span></code>（或更高）进行编译。</p>
+<p>为某一特定计算能力生成的 <em>PTX</em> 代码，总是可以进一步编译为计算能力相同或更高的二进制代码。注意：由较早版本 PTX 编译得到的二进制代码未必能用到全部硬件特性。例如，把为计算能力 6.0（Pascal）生成的 PTX 编译成面向计算能力 7.0（Volta）设备的二进制代码时，将不会使用 Tensor Core 指令，因为 Pascal 上并不提供这些指令。因此，最终得到的二进制代码性能可能不如基于最新版本 PTX 直接生成时那样理想。</p>
+<p>针对 <a class="reference internal" href="#architecture-specific-features"><span class="std std-ref">特定于架构的功能</span></a> 编译得到的 <em>PTX</em> 代码，只能在完全相同的物理架构上运行，而不能在其他架构上运行。面向架构特定功能的 <em>PTX</em> 代码既不向前兼容，也不向后兼容。例如，使用 <code class="docutils literal notranslate"><span class="pre">sm_90a</span></code> 或 <code class="docutils literal notranslate"><span class="pre">compute_90a</span></code> 编译的代码只能在计算能力 9.0 的设备上运行，且不具备向后或向前兼容性。</p>
+<p>针对 <a class="reference internal" href="#family-specific-features"><span class="std std-ref">系列特定功能</span></a> 编译得到的 <em>PTX</em> 代码，只能在完全相同的物理架构以及同一产品系列内的其他架构上运行。面向系列特定功能的 <em>PTX</em> 代码与同系列中的其他设备向前兼容，但不向后兼容。例如，使用 <code class="docutils literal notranslate"><span class="pre">sm_100f</span></code> 或 <code class="docutils literal notranslate"><span class="pre">compute_100f</span></code> 编译的代码只能在计算能力 10.0 与 10.3 的设备上运行。<a class="reference internal" href="#family-specific-compatibility"><span class="std std-numref">表25</span></a> 给出了系列特定编译目标与计算能力的对应关系。</p>
 </section>
 <section id="application-compatibility">
 <span id="id20"></span><h3>
 <span class="section-number">6.1.4. </span>应用兼容性<a class="headerlink" href="#application-compatibility" title="跳转到此标题"></a>
 </h3>
-<p>要在具有特定计算能力的设备上执行代码，应用程序必须加载二进制或 <em>PTX</em> 与此计算功能兼容的代码，如中所述 <a class="reference internal" href="#binary-compatibility"><span class="std std-ref">二进制兼容性</span></a> 和 <a class="reference internal" href="#ptx-compatibility"><span class="std std-ref">PTX 兼容性</span></a>。特别是，为了能够在具有更高计算能力的未来架构上执行代码（尚无法生成二进制代码），应用程序必须加载 <em>PTX</em> 将为这些设备即时编译的代码（请参阅 <a class="reference internal" href="#just-in-time-compilation"><span class="std std-ref">即时编译</span></a>。</p>
-<p>哪个 <em>PTX</em> 嵌入到 CUDA C++ 应用程序中的二进制代码由 <code class="docutils literal notranslate"><span class="pre">-arch</span></code> 和 <code class="docutils literal notranslate"><span class="pre">-code</span></code> 编译器选项或 <code class="docutils literal notranslate"><span class="pre">-gencode</span></code> 编译器选项详见 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 用户手册。例如，</p>
+<p>若要在具有特定计算能力的设备上执行代码，应用程序必须加载与该计算能力兼容的二进制代码或 <em>PTX</em> 代码，具体要求见 <a class="reference internal" href="#binary-compatibility"><span class="std std-ref">二进制兼容性</span></a> 与 <a class="reference internal" href="#ptx-compatibility"><span class="std std-ref">PTX 兼容性</span></a>。特别地，为了在未来更高计算能力、且当时尚无法生成对应二进制代码的架构上仍能执行代码，应用程序必须嵌入可在这些设备上被即时编译的 <em>PTX</em> 代码（见 <a class="reference internal" href="#just-in-time-compilation"><span class="std std-ref">即时编译</span></a>）。</p>
+<p>究竟将哪些 <em>PTX</em> 与二进制代码打包进 CUDA C++ 应用程序，由 <code class="docutils literal notranslate"><span class="pre">-arch</span></code>、<code class="docutils literal notranslate"><span class="pre">-code</span></code> 或 <code class="docutils literal notranslate"><span class="pre">-gencode</span></code> 等编译器选项控制，细节以 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 用户手册为准。例如：</p>
 <div class="highlight-text notranslate">
 <div class="highlight"><pre><span></span>nvcc x.cu
  -gencode arch=compute_50,code=sm_50
@@ -2113,74 +2113,74 @@
  -gencode arch=compute_70,code=\"compute_70,sm_70\"
 </pre></div>
 </div>
-<p>嵌入与计算能力 5.0 和 6.0 兼容的二进制代码（第一和第二 <code class="docutils literal notranslate"><span class="pre">-gencode</span></code> 选项）和 <em>PTX</em> 和与计算能力7.0兼容的二进制代码（第三 <code class="docutils literal notranslate"><span class="pre">-gencode</span></code> 选项）。</p>
-<p>生成主机代码以在运行时自动选择要加载和执行的最合适的代码，在上面的示例中，该代码将是：</p>
+<p>上述命令会嵌入：与计算能力 5.0、6.0 分别兼容的二进制代码（对应第一、第二个 <code class="docutils literal notranslate"><span class="pre">-gencode</span></code> 选项），以及与计算能力 7.0 兼容的 <em>PTX</em> 与二进制代码（第三个 <code class="docutils literal notranslate"><span class="pre">-gencode</span></code> 选项）。</p>
+<p>编译器还会生成相应的主机端逻辑，以便在运行时自动选择并加载最合适的代码。就上例而言，实际选择结果通常为：</p>
 <ul class="simple">
-<li><p>5.0 二进制代码，适用于计算能力 5.0 和 5.2 的设备，</p></li>
-<li><p>6.0 二进制代码，适用于计算能力 6.0 和 6.1 的设备，</p></li>
-<li><p>7.0 二进制代码，适用于计算能力 7.0 和 7.5 的设备，</p></li>
-<li><p><em>PTX</em> 对于计算能力高于 7.5 的设备，在运行时编译为二进制代码的代码</p></li>
+<li><p>在计算能力为 5.0、5.2 的设备上使用 5.0 对应的二进制代码；</p></li>
+<li><p>在计算能力为 6.0、6.1 的设备上使用 6.0 对应的二进制代码；</p></li>
+<li><p>在计算能力为 7.0、7.5 的设备上使用 7.0 对应的二进制代码；</p></li>
+<li><p>在计算能力高于 7.5 的设备上，将嵌入的 <em>PTX</em> 代码在运行时即时编译为二进制代码。</p></li>
 </ul>
-<p>例如，<code class="docutils literal notranslate"><span class="pre">x.cu</span></code> 可以包含使用 warp 归约操作的优化代码路径，这些操作仅在计算能力 8.0 及以上设备受支持。<code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH__</span></code> 宏可用于按计算能力区分不同代码路径。它仅为设备代码定义。例如，使用 <code class="docutils literal notranslate"><span class="pre">-arch=compute_80</span></code> 编译时，<code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH__</span></code> 等于 <code class="docutils literal notranslate"><span class="pre">800</span></code>。</p>
+<p>例如，<code class="docutils literal notranslate"><span class="pre">x.cu</span></code> 中可能包含一条仅在计算能力 8.0 及以上设备上受支持的 warp 归约优化路径。<code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH__</span></code> 宏可用于在设备代码中按计算能力区分不同实现分支；该宏仅在设备代码中有定义。例如在使用 <code class="docutils literal notranslate"><span class="pre">-arch=compute_80</span></code> 编译时，<code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH__</span></code> 的值为 <code class="docutils literal notranslate"><span class="pre">800</span></code>。</p>
 <p>如果 <code class="docutils literal notranslate"><span class="pre">x.cu</span></code> 面向 <a class="reference internal" href="#family-specific-features"><span class="std std-ref">系列特定功能</span></a> 编译（使用 <code class="docutils literal notranslate"><span class="pre">sm_100f</span></code> 或 <code class="docutils literal notranslate"><span class="pre">compute_100f</span></code>），代码只能在该特定系列设备上运行，即仅在计算能力 10.0 与 10.3 设备上运行。对于系列特定目标，会定义附加宏 <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH_FAMILY_SPECIFIC__</span></code>。在该示例中，<code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH_FAMILY_SPECIFIC__</span></code> 的值为 <code class="docutils literal notranslate"><span class="pre">1000</span></code>。</p>
 <p>如果 <code class="docutils literal notranslate"><span class="pre">x.cu</span></code> 面向 <a class="reference internal" href="#architecture-specific-features"><span class="std std-ref">特定于架构的功能</span></a> 编译（使用 <code class="docutils literal notranslate"><span class="pre">sm_100a</span></code> 或 <code class="docutils literal notranslate"><span class="pre">compute_100a</span></code>），代码只能在计算能力 10.0 设备上运行。对于架构特定目标，会定义附加宏 <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH_SPECIFIC__</span></code>。在该示例中，<code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH_SPECIFIC__</span></code> 的值为 <code class="docutils literal notranslate"><span class="pre">1000</span></code>。由于架构特定功能是系列特定功能的超集，系列特定宏 <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH_FAMILY_SPECIFIC__</span></code> 也会被定义，且其值同样为 <code class="docutils literal notranslate"><span class="pre">1000</span></code>。</p>
-<p>使用驱动程序 API 的应用程序必须编译代码以分隔文件，并在运行时显式加载和执行最合适的文件。</p>
-<p>Volta架构介绍 <em>独立线程调度</em> 这改变了 GPU 上线程的调度方式。对于依赖于特定行为的代码 <a class="reference internal" href="#simt-architecture"><span class="std std-ref">SIMT调度</span></a> 在以前的架构中，独立线程调度可能会改变参与线程的集合，从而导致不正确的结果。为了帮助迁移，同时实施详细的纠正措施 <a class="reference internal" href="#independent-thread-scheduling-7-x"><span class="std std-ref">独立线程调度</span></a>，Volta 开发人员可以通过编译器选项组合选择 Pascal 的线程调度 <code class="docutils literal notranslate"><span class="pre">-arch=compute_60</span><span class="pre">-code=sm_70</span></code>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 用户手册列出了多种简写 <code class="docutils literal notranslate"><span class="pre">-arch</span></code>, <code class="docutils literal notranslate"><span class="pre">-code</span></code>，以及 <code class="docutils literal notranslate"><span class="pre">-gencode</span></code> 编译器选项。例如，<code class="docutils literal notranslate"><span class="pre">-arch=sm_70</span></code> 是以下选项的简写： <code class="docutils literal notranslate"><span class="pre">-arch=compute_70</span><span class="pre">-code=compute_70,sm_70</span></code> （等价于 <code class="docutils literal notranslate"><span class="pre">-gencode</span><span class="pre">arch=compute_70,code=\"compute_70,sm_70\"</span></code>。</p>
+<p>使用驱动 API 的应用程序必须把代码分别编译成独立文件，并在运行时显式加载并执行最合适的那份。</p>
+<p>Volta 架构引入了 <em>独立线程调度（Independent Thread Scheduling）</em>，从而改变了 GPU 上的线程调度方式。对于依赖旧架构上 <a class="reference internal" href="#simt-architecture"><span class="std std-ref">SIMT 调度</span></a> 特定行为的代码，独立线程调度可能会改变实际参与执行的线程集合，进而导致结果错误。为便于在落实 <a class="reference internal" href="#independent-thread-scheduling-7-x"><span class="std std-ref">独立线程调度</span></a> 所述修正措施的同时完成迁移，Volta 开发者可通过编译器选项组合 <code class="docutils literal notranslate"><span class="pre">-arch=compute_60</span> <span class="pre">-code=sm_70</span></code> 选择沿用 Pascal 的线程调度行为。</p>
+<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 用户手册还列出了 <code class="docutils literal notranslate"><span class="pre">-arch</span></code>、<code class="docutils literal notranslate"><span class="pre">-code</span></code> 与 <code class="docutils literal notranslate"><span class="pre">-gencode</span></code> 的多种简写形式。例如，<code class="docutils literal notranslate"><span class="pre">-arch=sm_70</span></code> 等价于 <code class="docutils literal notranslate"><span class="pre">-arch=compute_70</span> <span class="pre">-code=compute_70,sm_70</span></code>，也等价于 <code class="docutils literal notranslate"><span class="pre">-gencode</span> <span class="pre">arch=compute_70,code=\"compute_70,sm_70\"</span></code>。</p>
 </section>
 <section id="c-compatibility">
 <span id="c-cplusplus-compatibility"></span><h3>
 <span class="section-number">6.1.5. </span>C++ 兼容性<a class="headerlink" href="#c-compatibility" title="跳转到此标题"></a>
 </h3>
-<p>编译器前端根据C++语法规则处理CUDA源文件。主机代码支持完整的 C++。但是，设备代码仅完全支持 C++ 的一个子集，如中所述 <a class="reference internal" href="#c-cplusplus-language-support"><span class="std std-ref">C++ 语言支持</span></a>。</p>
+<p>编译器前端按 C++ 语法规则处理 CUDA 源文件。主机端代码可使用完整 C++；设备端代码仅完整支持 C++ 的一个子集，详见 <a class="reference internal" href="#c-cplusplus-language-support"><span class="std std-ref">C++ 语言支持</span></a>。</p>
 </section>
 <section id="bit-compatibility">
 <span id="sixtyfour-bit-compatibility"></span><h3>
 <span class="section-number">6.1.6. </span>64 位兼容性<a class="headerlink" href="#bit-compatibility" title="跳转到此标题"></a>
 </h3>
-<p>64 位版本 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 以 64 位模式编译设备代码（即指针是 64 位）。仅以 64 位模式编译的主机代码支持以 64 位模式编译的设备代码。</p>
+<p>64 位版本的 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 以 64 位模式编译设备代码（即指针为 64 位）。以 64 位模式编译的设备代码，仅支持与同样以 64 位模式编译的主机代码配合使用。</p>
 </section>
 </section>
 <section id="cuda-runtime">
 <span id="cuda-c-runtime"></span><h2>
 <span class="section-number">6.2. </span>CUDA 运行时<a class="headerlink" href="#cuda-runtime" title="跳转到此标题"></a>
 </h2>
-<p>运行时实现于 <code class="docutils literal notranslate"><span class="pre">cudart</span></code> 库，可通过静态方式（<code class="docutils literal notranslate"><span class="pre">cudart.lib</span></code> 或 <code class="docutils literal notranslate"><span class="pre">libcudart.a</span></code>）或动态方式（<code class="docutils literal notranslate"><span class="pre">cudart.dll</span></code> 或 <code class="docutils literal notranslate"><span class="pre">libcudart.so</span></code>）链接到应用。对 <code class="docutils literal notranslate"><span class="pre">cudart.dll</span></code> 和/或 <code class="docutils literal notranslate"><span class="pre">cudart.so</span></code> 有动态链接依赖的应用，通常会将这些库包含在安装包中。只有在链接到 CUDA 运行时同一实例的组件之间传递 CUDA 运行时符号的地址才是安全的。</p>
-<p>它的所有入口点都带有前缀 <code class="docutils literal notranslate"><span class="pre">cuda</span></code>.</p>
-<p>正如中提到的 <a class="reference internal" href="#heterogeneous-programming"><span class="std std-ref">异构编程</span></a>，CUDA 编程模型假设一个系统由主机和设备组成，每个主机和设备都有自己独立的内存。 <a class="reference internal" href="#device-memory"><span class="std std-ref">设备内存</span></a> 概述了用于管理设备内存的运行时函数。</p>
-<p><a class="reference internal" href="#shared-memory"><span class="std std-ref">共享内存</span></a> 说明了共享内存的使用，介绍于 <a class="reference internal" href="#thread-hierarchy"><span class="std std-ref">线程层次结构</span></a>，以最大限度地提高性能。</p>
-<p><a class="reference internal" href="#page-locked-host-memory"><span class="std std-ref">页锁定主机内存</span></a> 引入了页锁定主机内存，需要将内核执行与主机和设备内存之间的数据传输重叠。</p>
-<p><a class="reference internal" href="#asynchronous-concurrent-execution"><span class="std std-ref">异步并发执行</span></a> 描述用于在系统中的各个级别启用异步并发执行的概念和 API。</p>
-<p><a class="reference internal" href="#multi-device-system"><span class="std std-ref">多设备系统</span></a> 显示编程模型如何扩展到具有连接到同一主机的多个设备的系统。</p>
-<p><a class="reference internal" href="#error-checking"><span class="std std-ref">错误检查</span></a> 描述如何正确检查运行时生成的错误。</p>
-<p><a class="reference internal" href="#call-stack"><span class="std std-ref">调用栈</span></a> 提到了用于管理 CUDA C++ 调用堆栈的运行时函数。</p>
-<p><a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理与表面内存</span></a> 呈现纹理和表面内存空间，提供另一种访问设备内存的方式；它们还公开了 GPU 纹理硬件的子集。</p>
-<p><a class="reference internal" href="#graphics-interoperability"><span class="std std-ref">图形互操作性</span></a> 介绍了运行时提供的各种函数，用于与两个主要图形 API（OpenGL 和 Direct3D）进行互操作。</p>
+<p>CUDA 运行时由 <code class="docutils literal notranslate"><span class="pre">cudart</span></code> 库实现，可通过静态链接（<code class="docutils literal notranslate"><span class="pre">cudart.lib</span></code> 或 <code class="docutils literal notranslate"><span class="pre">libcudart.a</span></code>）或动态链接（<code class="docutils literal notranslate"><span class="pre">cudart.dll</span></code> 或 <code class="docutils literal notranslate"><span class="pre">libcudart.so</span></code>）接入应用程序。需要动态加载 <code class="docutils literal notranslate"><span class="pre">cudart.dll</span></code> 和/或 <code class="docutils literal notranslate"><span class="pre">cudart.so</span></code> 的应用，通常应把这些库一并纳入安装包。仅在链接到<strong>同一 CUDA 运行时实例</strong>的各组件之间传递 CUDA 运行时符号的地址才是安全的。</p>
+<p>其 API 入口均以 <code class="docutils literal notranslate"><span class="pre">cuda</span></code> 为前缀。</p>
+<p>如 <a class="reference internal" href="#heterogeneous-programming"><span class="std std-ref">异构编程</span></a> 所述，CUDA 编程模型假定系统由主机与设备构成，二者各自拥有独立的内存空间。<a class="reference internal" href="#device-memory"><span class="std std-ref">设备内存</span></a> 一节概述了用于管理设备内存的运行时 API。</p>
+<p><a class="reference internal" href="#shared-memory"><span class="std std-ref">共享内存</span></a> 说明如何结合 <a class="reference internal" href="#thread-hierarchy"><span class="std std-ref">线程层次结构</span></a> 中介绍的共享内存机制来提升性能。</p>
+<p><a class="reference internal" href="#page-locked-host-memory"><span class="std std-ref">页锁定主机内存</span></a> 介绍页锁定（pinned）主机内存：它是把内核执行与主机、设备间数据拷贝进行重叠（overlap）时通常需要的前提条件。</p>
+<p><a class="reference internal" href="#asynchronous-concurrent-execution"><span class="std std-ref">异步并发执行</span></a> 阐述在系统不同层次上启用异步与并发执行的相关概念与 API。</p>
+<p><a class="reference internal" href="#multi-device-system"><span class="std std-ref">多设备系统</span></a> 说明当多块 GPU 连接到同一主机时，编程模型如何扩展。</p>
+<p><a class="reference internal" href="#error-checking"><span class="std std-ref">错误检查</span></a> 说明如何正确检查运行时 API 返回的错误。</p>
+<p><a class="reference internal" href="#call-stack"><span class="std std-ref">调用栈</span></a> 介绍用于管理 CUDA C++ 调用栈的运行时函数。</p>
+<p><a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理与表面内存</span></a> 介绍纹理内存与表面内存空间：它们提供了访问设备内存的另一条路径，并暴露了 GPU 纹理硬件的一部分能力。</p>
+<p><a class="reference internal" href="#graphics-interoperability"><span class="std std-ref">图形互操作性</span></a> 介绍运行时提供的、用于与 OpenGL 与 Direct3D 两大图形 API 互操作的各类函数。</p>
 <section id="initialization">
 <span id="id21"></span><h3>
 <span class="section-number">6.2.1. </span>初始化<a class="headerlink" href="#initialization" title="跳转到此标题"></a>
 </h3>
-<p>从 CUDA 12.0 开始， <code class="docutils literal notranslate"><span class="pre">cudaInitDevice()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code> 调用初始化与指定设备关联的运行时和主要上下文。如果没有这些调用，运行时将隐式使用设备 0 并根据需要进行自初始化，以处理其他运行时 API 请求。在计时运行时函数调用以及解释第一次调用到运行时的错误代码时，需要牢记这一点。 12.0之前， <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code> 不会初始化运行时，应用程序通常会使用无操作运行时调用 <code class="docutils literal notranslate"><span class="pre">cudaFree(0)</span></code> 将运行时初始化与其他 api 活动隔离（都是为了计时和错误处理）。</p>
-<p>运行时为系统中的每个设备创建一个 CUDA 上下文（请参阅 <a class="reference internal" href="#context"><span class="std std-ref">上下文</span></a> 有关 CUDA 上下文的更多详细信息）。该上下文是该设备的 <em>主上下文</em>，并会在首次调用需要该设备活动上下文的运行时函数时完成初始化。它在应用程序的所有主机线程之间共享。作为此上下文创建的一部分，如有必要，设备代码会及时编译（请参阅 <a class="reference internal" href="#just-in-time-compilation"><span class="std std-ref">即时编译</span></a>）并加载到设备内存中。以上过程对应用是透明的。如果需要，例如，为了驱动程序 API 互操作性，可以从驱动程序 API 访问设备的主要上下文，详见 <a class="reference internal" href="#interoperability-between-runtime-and-driver-apis"><span class="std std-ref">运行时和驱动程序 API 之间的互操作性</span></a>。</p>
-<p>当主机线程调用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceReset()</span></code>，这会破坏主机线程当前操作的设备的主要上下文（即，定义在 <a class="reference internal" href="#device-selection"><span class="std std-ref">设备选择</span></a>）。将此设备作为当前设备的任何主机线程进行的下一个运行时函数调用将为该设备创建一个新的主上下文。</p>
+<p>自 CUDA 12.0 起，<code class="docutils literal notranslate"><span class="pre">cudaInitDevice()</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code> 会初始化运行时，并为指定设备建立其主上下文（primary context）。若未显式调用上述接口，运行时将隐式选择设备 0，并在处理其他运行时 API 时按需完成自初始化。因此在测量运行时 API 耗时，或解读<strong>首次进入运行时</strong>所返回的错误码时，需要把这一点考虑在内。在 12.0 之前，<code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code> 并不会初始化运行时；应用常通过空操作的 <code class="docutils literal notranslate"><span class="pre">cudaFree(0)</span></code> 把运行时初始化与其他 API 活动隔离开（同样是为了计时与错误处理）。</p>
+<p>运行时为系统中的每一块设备创建一个 CUDA 上下文（详见 <a class="reference internal" href="#context"><span class="std std-ref">上下文</span></a>）。该上下文即该设备的 <em>主上下文（primary context）</em>，会在首次需要该设备处于活动上下文的运行时调用时完成初始化，并在应用的所有主机线程之间共享。创建上下文的过程中，如有必要会对设备代码进行即时编译（见 <a class="reference internal" href="#just-in-time-compilation"><span class="std std-ref">即时编译</span></a>）并加载到设备内存；这些步骤对应用是透明的。若出于与驱动 API 互操作等目的需要访问主上下文，可通过驱动 API 完成，见 <a class="reference internal" href="#interoperability-between-runtime-and-driver-apis"><span class="std std-ref">运行时和驱动程序 API 之间的互操作性</span></a>。</p>
+<p>当某主机线程调用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceReset()</span></code> 时，会销毁该线程当前所操作设备（见 <a class="reference internal" href="#device-selection"><span class="std std-ref">设备选择</span></a>）的主上下文。随后，任何把该设备设为当前设备的主机线程在下次调用运行时 API 时，都会为该设备重新创建一个主上下文。</p>
 <div class="admonition note">
 <p class="admonition-title">注意</p>
-<p>CUDA 接口使用全局状态，该状态在主机程序启动期间初始化并在主机程序终止期间销毁。 CUDA 运行时和驱动程序无法检测此状态是否无效，因此在程序启动或 main 之后终止期间使用任何这些接口（隐式或显式）将导致未定义的行为。</p>
-<p>从 CUDA 12.0 开始， <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code> 现在将在更改主机线程的当前设备后显式初始化运行时。以前版本的 CUDA 会延迟新设备上的运行时初始化，直到第一次运行时调用发生后 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code>。这一变化意味着现在检查返回值非常重要 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code> 对于初始化错误。</p>
-<p>参考手册的错误处理和版本管理部分中的运行时函数不会初始化运行时。</p>
+<p>CUDA 接口依赖在主机程序启动阶段建立、在程序终止阶段销毁的全局状态。CUDA 运行时与驱动无法判断该状态是否仍然有效；因此在程序启动过程中，或在 <code class="docutils literal notranslate"><span class="pre">main</span></code> 返回之后的终止阶段（显式或隐式）调用这些接口，均属于未定义行为。</p>
+<p>自 CUDA 12.0 起，<code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code> 在切换主机线程的当前设备后，会<strong>立即</strong>初始化运行时。更早版本的 CUDA 则会把新设备上的运行时初始化推迟到 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code> 之后的首次运行时调用。该行为变化使得检查 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code> 的返回值以捕获初始化错误变得尤为重要。</p>
+<p>参考手册中“错误处理”和“版本管理”章节列出的若干运行时函数不会触发运行时初始化。</p>
 </div>
 </section>
 <section id="device-memory">
 <span id="id22"></span><h3>
 <span class="section-number">6.2.2. </span>设备内存<a class="headerlink" href="#device-memory" title="跳转到此标题"></a>
 </h3>
-<p>正如中提到的 <a class="reference internal" href="#heterogeneous-programming"><span class="std std-ref">异构编程</span></a>，CUDA 编程模型假设一个系统由主机和设备组成，每个主机和设备都有自己独立的内存。内核在设备内存之外运行，因此运行时提供了分配、释放和复制设备内存以及在主机内存和设备内存之间传输数据的函数。</p>
-<p>设备内存可以分配为 <em>线性记忆</em> 或作为 <em>CUDA 数组</em>.</p>
-<p>CUDA 数组是针对纹理获取而优化的不透明内存布局。它们的描述见 <a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理与表面内存</span></a>。</p>
-<p>线性内存分配在单个统一地址空间中，这意味着单独分配的实体可以通过指针相互引用，例如在二叉树或链表中。地址空间的大小取决于主机系统（CPU）和所使用的 GPU 的计算能力：</p>
+<p>如 <a class="reference internal" href="#heterogeneous-programming"><span class="std std-ref">异构编程</span></a> 所述，CUDA 假定系统由主机与设备构成，二者各自拥有独立内存。内核在设备内存上工作，因此运行时提供分配、释放与拷贝设备内存，以及在主机与设备之间传输数据的 API。</p>
+<p>设备内存可以分配为 <em>线性内存（linear memory）</em>，也可以分配为 <em>CUDA 数组（CUDA arrays）</em>。</p>
+<p>CUDA 数组是一种不透明的内存布局，针对纹理拾取（texture fetch）做了优化；详见 <a class="reference internal" href="#texture-and-surface-memory"><span class="std std-ref">纹理与表面内存</span></a>。</p>
+<p>线性内存位于统一的虚拟地址空间中，因此彼此独立分配的对象仍可通过指针互相引用（例如二叉树或链表中的链接）。该地址空间的有效范围取决于主机 CPU 架构以及所用 GPU 的计算能力：</p>
 <table class="table-no-stripes docutils align-default" id="id455">
 <caption>
-<span class="caption-number">表4 </span><span class="caption-text">线性存储器地址空间</span><a class="headerlink" href="#id455" title="跳转到此表格"></a>
+<span class="caption-number">表4 </span><span class="caption-text">线性内存地址空间</span><a class="headerlink" href="#id455" title="跳转到此表格"></a>
 </caption>
 <colgroup>
 <col style="width: 48%"/>
@@ -2192,19 +2192,19 @@
 <tr class="row-odd">
 <th class="head"></th>
 <th class="head"><p>x86_64 (AMD64)</p></th>
-<th class="head"><p>电源（ppc64le）</p></th>
+<th class="head"><p>POWER（ppc64le）</p></th>
 <th class="head"><p>ARM64</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even">
-<td><p>计算能力高达 5.3 (Maxwell)</p></td>
-<td><p>40位</p></td>
-<td><p>40位</p></td>
-<td><p>40位</p></td>
+<td><p>最高至计算能力 5.3（Maxwell）</p></td>
+<td><p>40 位</p></td>
+<td><p>40 位</p></td>
+<td><p>40 位</p></td>
 </tr>
 <tr class="row-odd">
-<td><p>计算能力 6.0 (Pascal) 或更高版本</p></td>
+<td><p>计算能力 6.0（Pascal）及更新架构</p></td>
 <td><p>最高 47 位</p></td>
 <td><p>最高 49 位</p></td>
 <td><p>最高 48 位</p></td>
@@ -2213,9 +2213,9 @@
 </table>
 <div class="admonition note">
 <p class="admonition-title">注意</p>
-<p>在计算能力 5.3 (Maxwell) 及更早版本的设备上，CUDA 驱动程序会创建未提交的 40 位虚拟地址预留，以确保内存分配（指针）落入支持的范围内。此保留显示为保留的虚拟内存，但在程序实际分配内存之前不会占用任何物理内存。</p>
+<p>在计算能力 5.3（Maxwell）及更早的设备上，CUDA 驱动会建立一个<strong>未提交（uncommitted）</strong>的 40 位虚拟地址预留，以确保分配得到的指针落在受支持范围内。该预留会显示为“已保留”的虚拟地址空间，但在程序真正分配物理页之前不会占用物理内存。</p>
 </div>
-<p>线性设备内存通常使用 <code class="docutils literal notranslate"><span class="pre">cudaMalloc()</span></code> 分配，并以 <code class="docutils literal notranslate"><span class="pre">cudaFree()</span></code> 释放；主机与设备之间的数据拷贝一般使用 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code>。在<a class="reference internal" href="#kernels"><span class="std std-ref">内核</span></a>一节的向量加法示例中，需要先把向量从主机内存复制到设备内存：</p>
+<p>线性设备内存通常用 <code class="docutils literal notranslate"><span class="pre">cudaMalloc()</span></code> 分配，并用 <code class="docutils literal notranslate"><span class="pre">cudaFree()</span></code> 释放；主机与设备之间的数据拷贝一般使用 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code>。在<a class="reference internal" href="#kernels"><span class="std std-ref">内核</span></a>一节的向量加法示例中，需要先把输入向量从主机内存拷贝到设备内存：</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="c1">// 设备端代码</span>
 <span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">VecAdd</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">N</span><span class="p">)</span><span class="w"></span>
@@ -2271,7 +2271,7 @@
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>线性内存也可以通过分配 <code class="docutils literal notranslate"><span class="pre">cudaMallocPitch()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaMalloc3D()</span></code>。建议将这些函数用于 2D 或 3D 数组的分配，因为它可以确保分配得到适当的填充以满足中描述的对齐要求 <a class="reference internal" href="#device-memory-accesses"><span class="std std-ref">设备内存访问</span></a>，因此确保在访问行地址或在 2D 数组和设备内存的其他区域之间执行复制时获得最佳性能（使用 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy2D()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy3D()</span></code> 功能）。返回的间距（或步幅）必须用于访问数组元素。以下代码示例分配一个 <code class="docutils literal notranslate"><span class="pre">width</span></code> x <code class="docutils literal notranslate"><span class="pre">height</span></code> 浮点值的二维数组，并展示如何在设备代码中循环遍历数组元素：</p>
+<p>也可使用 <code class="docutils literal notranslate"><span class="pre">cudaMallocPitch()</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaMalloc3D()</span></code> 分配线性内存。对于二维或三维数组，推荐使用这两个函数：它们会为分配结果加入适当的填充（padding），以满足 <a class="reference internal" href="#device-memory-accesses"><span class="std std-ref">设备内存访问</span></a> 中的对齐要求，从而在按行寻址，或在二维数组与设备内存其他区域之间执行拷贝时获得更好性能（可配合 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy2D()</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy3D()</span></code>）。返回的 pitch（行间距/步幅）必须在访问元素时使用。下面的示例分配一个大小为 <code class="docutils literal notranslate"><span class="pre">width</span></code> × <code class="docutils literal notranslate"><span class="pre">height</span></code> 的二维 <code class="docutils literal notranslate"><span class="pre">float</span></code> 数组，并演示如何在设备代码中遍历其元素：</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="c1">// 主机端代码</span>
 <span class="kt">int</span><span class="w"> </span><span class="n">width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">64</span><span class="p">,</span><span class="w"> </span><span class="n">height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">64</span><span class="p">;</span><span class="w"></span>
@@ -2325,9 +2325,9 @@
 </div>
 <div class="admonition note">
 <p class="admonition-title">注意</p>
-<p>为了避免分配过多内存从而影响系统范围的性能，请根据问题大小向用户请求分配参数。如果分配失败，您可以回退到其他较慢的内存类型（<code class="docutils literal notranslate"><span class="pre">cudaMallocHost()</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaHostRegister()</span></code>等），或者返回一个错误，告诉用户需要多少内存但被拒绝。如果您的应用程序由于某种原因无法请求分配参数，我们建议使用 <code class="docutils literal notranslate"><span class="pre">cudaMallocManaged()</span></code> 对于支持它的平台。</p>
+<p>为避免一次性分配过大内存进而影响整机性能，建议依据问题规模向用户确认/收集分配参数。若分配失败，可回退到更慢的路径（例如 <code class="docutils literal notranslate"><span class="pre">cudaMallocHost()</span></code>、<code class="docutils literal notranslate"><span class="pre">cudaHostRegister()</span></code> 等），或返回明确错误信息说明所需内存大小及失败原因。若应用确实无法向用户询问分配参数，建议在支持统一内存的平台上考虑使用 <code class="docutils literal notranslate"><span class="pre">cudaMallocManaged()</span></code>。</p>
 </div>
-<p>参考手册列出了用于在分配的线性内存之间复制内存的所有各种函数 <code class="docutils literal notranslate"><span class="pre">cudaMalloc()</span></code>，分配的线性内存 <code class="docutils literal notranslate"><span class="pre">cudaMallocPitch()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaMalloc3D()</span></code>、CUDA 数组以及为全局或const内存空间中声明的变量分配的内存。</p>
+<p>参考手册列出了在以下各类存储对象之间拷贝内存时可用的一系列函数：由 <code class="docutils literal notranslate"><span class="pre">cudaMalloc()</span></code> 分配的线性内存、由 <code class="docutils literal notranslate"><span class="pre">cudaMallocPitch()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaMalloc3D()</span></code> 分配的线性内存、CUDA 数组，以及为在全局内存或常量内存空间中声明的变量所分配的内存。</p>
 <p>以下代码示例说明了通过运行时 API 访问全局变量的各种方法：</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">__constant__</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">constData</span><span class="p">[</span><span class="mi">256</span><span class="p">];</span><span class="w"></span>
@@ -2345,35 +2345,35 @@
 <span class="n">cudaMemcpyToSymbol</span><span class="p">(</span><span class="n">devPointer</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">ptr</span><span class="p">));</span><span class="w"></span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">cudaGetSymbolAddress()</span></code> 用于检索指向为全局内存空间中声明的变量分配的内存的地址。分配的内存大小通过以下方式获得 <code class="docutils literal notranslate"><span class="pre">cudaGetSymbolSize()</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaGetSymbolAddress()</span></code> 用于获取在全局内存空间中声明的变量所对应设备内存的地址；已分配内存的大小可通过 <code class="docutils literal notranslate"><span class="pre">cudaGetSymbolSize()</span></code> 获得。</p>
 </section>
 <section id="device-memory-l2-access-management">
 <span id="l2-access-intro"></span><h3>
 <span class="section-number">6.2.3. </span>设备内存 L2 访问管理<a class="headerlink" href="#device-memory-l2-access-management" title="跳转到此标题"></a>
 </h3>
-<p>当CUDA内核重复访问全局内存中的数据区域时，这样的数据访问可以被认为是 <em>坚持</em>。另一方面，如果数据仅被访问一次，则这样的数据访问可以被认为是 <em>流媒体</em>.</p>
-<p>从 CUDA 11.0 开始，计算能力 8.0 及以上的设备能够影响 L2 缓存中数据的持久性，从而有可能为全局内存提供更高的带宽和更低的延迟访问。</p>
+<p>当某个 CUDA 内核反复访问全局内存中的同一块数据区域时，这类访问可视为具有 <em>持久化（persisting）</em> 特征。反之，若数据只被访问一次，则这类访问更接近 <em>流式（streaming）</em> 访问模式。</p>
+<p>自 CUDA 11.0 起，计算能力 8.0 及以上的设备可以影响数据在 L2 缓存中的驻留行为，从而有望为全局内存访问带来更高带宽与更低延迟。</p>
 <section id="l2-cache-set-aside-for-persisting-accesses">
 <span id="l2-set-aside"></span><h4>
 <span class="section-number">6.2.3.1. </span>用于持久访问的 L2 缓存预留<a class="headerlink" href="#l2-cache-set-aside-for-persisting-accesses" title="跳转到此标题"></a>
 </h4>
-<p>L2 高速缓存的一部分可以留出用于对全局内存进行持久数据访问。持久访问优先使用 L2 缓存的这部分预留部分，而对全局内存的正常或流式访问只能在持久访问未使用时才利用 L2 的这部分。</p>
+<p>可以把 L2 缓存的一部分容量预留出来，用于服务对全局内存的持久化访问。持久化访问对该预留区域具有更高优先级；当持久化访问未占用该区域时，普通访问或流式访问才可以使用这部分 L2 容量。</p>
 <p>用于持久访问的 L2 缓存预留大小可以在限制范围内进行调整：</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">cudaGetDeviceProperties</span><span class="p">(</span><span class="o">&amp;</span><span class="n">prop</span><span class="p">,</span><span class="w"> </span><span class="n">device_id</span><span class="p">);</span><span class="w"></span>
 <span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">min</span><span class="p">(</span><span class="kt">int</span><span class="p">(</span><span class="n">prop</span><span class="p">.</span><span class="n">l2CacheSize</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.75</span><span class="p">),</span><span class="w"> </span><span class="n">prop</span><span class="p">.</span><span class="n">persistingL2CacheMaxSize</span><span class="p">);</span><span class="w"></span>
-<span class="n">cudaDeviceSetLimit</span><span class="p">(</span><span class="n">cudaLimitPersistingL2CacheSize</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span><span class="w"> </span><span class="cm">/* set-aside 3/4 of L2 cache for persisting accesses or the max allowed*/</span><span class="w"></span>
+<span class="n">cudaDeviceSetLimit</span><span class="p">(</span><span class="n">cudaLimitPersistingL2CacheSize</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span><span class="w"> </span><span class="cm">/* 为持久化访问预留 L2：取 L2 的 3/4 与硬件允许上限的较小值 */</span><span class="w"></span>
 </pre></div>
 </div>
 <p>当 GPU 配置为多实例 GPU (MIG) 模式时，L2 缓存预留功能将被禁用。</p>
-<p>使用多进程服务 (MPS) 时，无法通过以下方式更改 L2 缓存预留大小： <code class="docutils literal notranslate"><span class="pre">cudaDeviceSetLimit</span></code>。相反，预留大小只能在 MPS 服务器启动时通过环境变量指定 <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_DEFAULT_PERSISTING_L2_CACHE_PERCENTAGE_LIMIT</span></code>.</p>
+<p>在使用多进程服务（MPS）时，无法通过 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSetLimit</span></code> 动态修改 L2 预留大小；预留比例只能在 MPS 服务器启动时，通过环境变量 <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_DEFAULT_PERSISTING_L2_CACHE_PERCENTAGE_LIMIT</span></code> 指定。</p>
 </section>
 <section id="l2-policy-for-persisting-accesses">
 <span id="l2-access-policy"></span><h4>
 <span class="section-number">6.2.3.2. </span>持久访问的 L2 策略<a class="headerlink" href="#l2-policy-for-persisting-accesses" title="跳转到此标题"></a>
 </h4>
-<p>访问策略窗口指定全局内存的连续区域以及 L2 缓存中用于该区域内访问的持久性属性。</p>
-<p>下面的代码示例展示了如何使用 CUDA Stream 设置 L2 持久访问窗口。</p>
+<p>访问策略窗口（access policy window）用于描述一段连续的全局内存区间，并指定该区间内访问在 L2 中的持久化相关属性。</p>
+<p>下面的示例演示如何借助 CUDA 流（CUDA stream）设置 L2 持久化访问窗口。</p>
 <p><strong>CUDA 流示例</strong></p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">cudaStreamAttrValue</span><span class="w"> </span><span class="n">stream_attribute</span><span class="p">;</span><span class="w"> </span><span class="c1">// 流级属性数据结构</span>
@@ -2384,13 +2384,13 @@
 <span class="n">stream_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">hitProp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaAccessPropertyPersisting</span><span class="p">;</span><span class="w"> </span><span class="c1">// 缓存命中时的访问属性类型</span>
 <span class="n">stream_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">missProp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaAccessPropertyStreaming</span><span class="p">;</span><span class="w"> </span><span class="c1">// 缓存未命中时的访问属性类型</span>
 
-<span class="c1">//Set the attributes to a CUDA stream of type cudaStream_t</span>
+<span class="c1">// 将上述属性设置到 cudaStream_t 类型的 CUDA 流上</span>
 <span class="n">cudaStreamSetAttribute</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamAttributeAccessPolicyWindow</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">stream_attribute</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
-<p>当内核随后在 CUDA 中执行时 <code class="docutils literal notranslate"><span class="pre">stream</span></code>，全局内存范围内的内存访问 <code class="docutils literal notranslate"><span class="pre">[ptr..ptr+num_bytes)</span></code> 与访问其他全局内存位置相比，更有可能保留在 L2 缓存中。</p>
-<p>还可以为 CUDA 图形内核节点设置 L2 持久性，如下例所示：</p>
-<p><strong>CUDA GraphKernelNode 示例</strong></p>
+<p>随后当内核在指定的 CUDA 流 <code class="docutils literal notranslate"><span class="pre">stream</span></code> 中执行时，落在全局内存区间 <code class="docutils literal notranslate"><span class="pre">[ptr..ptr+num_bytes)</span></code> 内的访问，相比访问其他全局内存位置，更有机会驻留在 L2 缓存中。</p>
+<p>也可为 CUDA 图（CUDA Graph）中的内核节点设置 L2 持久化行为，如下例所示：</p>
+<p><strong>CUDA Graph 内核节点示例</strong></p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">cudaKernelNodeAttrValue</span><span class="w"> </span><span class="n">node_attribute</span><span class="p">;</span><span class="w"> </span><span class="c1">// 内核级属性数据结构</span>
 <span class="n">node_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">base_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">);</span><span class="w"> </span><span class="c1">// 全局内存数据指针</span>
@@ -2400,35 +2400,35 @@
 <span class="n">node_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">hitProp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaAccessPropertyPersisting</span><span class="p">;</span><span class="w"> </span><span class="c1">// 缓存命中时的访问属性类型</span>
 <span class="n">node_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">missProp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaAccessPropertyStreaming</span><span class="p">;</span><span class="w"> </span><span class="c1">// 缓存未命中时的访问属性类型</span>
 
-<span class="c1">//Set the attributes to a CUDA Graph Kernel node of type cudaGraphNode_t</span>
+<span class="c1">// 将上述属性设置到 cudaGraphNode_t 类型的 CUDA 图内核节点上</span>
 <span class="n">cudaGraphKernelNodeSetAttribute</span><span class="p">(</span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="n">cudaKernelNodeAttributeAccessPolicyWindow</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">node_attribute</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">hitRatio</span></code> 参数可用于指定接收到的访问的比例 <code class="docutils literal notranslate"><span class="pre">hitProp</span></code> 财产。在上面的两个例子中，60%的内存访问都在全局内存区域 <code class="docutils literal notranslate"><span class="pre">[ptr..ptr+num_bytes)</span></code> 具有持久性，40%的内存访问具有流式性。哪些特定的内存访问被归类为持久性（ <code class="docutils literal notranslate"><span class="pre">hitProp</span></code>) 是随机的，概率约为 <code class="docutils literal notranslate"><span class="pre">hitRatio</span></code>;概率分布取决于硬件架构和内存范围。</p>
-<p>例如，如果二级预留缓存大小为 16KB， <code class="docutils literal notranslate"><span class="pre">num_bytes</span></code> 在 <code class="docutils literal notranslate"><span class="pre">accessPolicyWindow</span></code> 是 32KB：</p>
+<p><code class="docutils literal notranslate"><span class="pre">hitRatio</span></code> 用于指定有多大比例的访问会获得 <code class="docutils literal notranslate"><span class="pre">hitProp</span></code> 所描述的行为。在上面两个示例中，全局内存区间 <code class="docutils literal notranslate"><span class="pre">[ptr..ptr+num_bytes)</span></code> 内约有 60% 的内存访问被赋予持久化属性，其余约 40% 为流式属性。具体哪些访问被归为持久化（<code class="docutils literal notranslate"><span class="pre">hitProp</span></code>）是随机的，其概率大致由 <code class="docutils literal notranslate"><span class="pre">hitRatio</span></code> 决定；实际分布还取决于硬件架构与内存区间大小等因素。</p>
+<p>例如，若 L2 预留（set-aside）大小为 16KB，而 <code class="docutils literal notranslate"><span class="pre">accessPolicyWindow</span></code> 中的 <code class="docutils literal notranslate"><span class="pre">num_bytes</span></code> 为 32KB：</p>
 <ul class="simple">
-<li><p>与一个 <code class="docutils literal notranslate"><span class="pre">hitRatio</span></code> 0.5 时，硬件将随机选择 32KB 窗口中的 16KB 指定为持久并缓存在预留的二级缓存区域中。</p></li>
-<li><p>与一个 <code class="docutils literal notranslate"><span class="pre">hitRatio</span></code> 在 1.0 版本中，硬件将尝试将整个 32KB 窗口缓存在预留的二级缓存区域中。由于预留区域小于窗口，缓存行将被逐出，以将 32KB 数据中最近使用的 16KB 保留在 L2 缓存的预留部分中。</p></li>
+<li><p>当 <code class="docutils literal notranslate"><span class="pre">hitRatio</span></code> 为 0.5 时，硬件会在这 32KB 窗口内随机挑选 16KB 作为持久化区域，并将其缓存在 L2 的预留分区中。</p></li>
+<li><p>当 <code class="docutils literal notranslate"><span class="pre">hitRatio</span></code> 为 1.0 时，硬件会尝试把整个 32KB 窗口都缓存在预留分区中。由于预留容量小于窗口大小，缓存行会发生替换，从而在预留分区内尽量保留这 32KB 数据中最近使用的 16KB。</p></li>
 </ul>
-<p><code class="docutils literal notranslate"><span class="pre">hitRatio</span></code> 因此，可以用来避免缓存行的颠簸，并总体减少移入和移出 L2 缓存的数据量。</p>
-<p>一个 <code class="docutils literal notranslate"><span class="pre">hitRatio</span></code> 1.0以下的值可用于手动控制数据量的不同 <code class="docutils literal notranslate"><span class="pre">accessPolicyWindow</span></code>来自并发 CUDA 流的数据可以缓存在 L2 中。例如，设L2预留缓存大小为16KB；两个不同 CUDA 流中的两个并发内核，每个都有 16KB <code class="docutils literal notranslate"><span class="pre">accessPolicyWindow</span></code>，并且两者都与 <code class="docutils literal notranslate"><span class="pre">hitRatio</span></code> 值 1.0，在竞争共享的 L2 资源时可能会逐出彼此的缓存行。然而，如果两者 <code class="docutils literal notranslate"><span class="pre">accessPolicyWindows</span></code> 如果 hitRatio 值为 0.5，则它们驱逐自己或彼此的持久缓存行的可能性较小。</p>
+<p>因此，合理设置 <code class="docutils literal notranslate"><span class="pre">hitRatio</span></code> 有助于降低缓存行抖动，并减少进出 L2 的数据搬运量。</p>
+<p>将 <code class="docutils literal notranslate"><span class="pre">hitRatio</span></code> 设为小于 1.0，也可用于手动调节来自不同 CUDA 流、多个并发 <code class="docutils literal notranslate"><span class="pre">accessPolicyWindow</span></code> 的数据各自能在 L2 中占据的份额。例如，若 L2 预留为 16KB：两个不同流中的并发内核若各自声明 16KB 的 <code class="docutils literal notranslate"><span class="pre">accessPolicyWindow</span></code> 且都把 <code class="docutils literal notranslate"><span class="pre">hitRatio</span></code> 设为 1.0，在竞争同一块共享 L2 资源时，彼此驱逐缓存行的概率会更高；若两者都把 <code class="docutils literal notranslate"><span class="pre">hitRatio</span></code> 设为 0.5，则相互（或自我）驱逐持久化缓存行的概率通常会更低。</p>
 </section>
 <section id="l2-access-properties">
 <span id="l2-access-prop"></span><h4>
 <span class="section-number">6.2.3.3. </span>L2 访问属性<a class="headerlink" href="#l2-access-properties" title="跳转到此标题"></a>
 </h4>
-<p>为不同的全局内存数据访问定义了三种类型的访问属性：</p>
+<p>针对不同的全局内存访问模式，定义了三种访问属性：</p>
 <ol class="arabic simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">cudaAccessPropertyStreaming</span></code>：与流属性一起发生的内存访问不太可能保留在 L2 缓存中，因为这些访问会被优先逐出。</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cudaAccessPropertyPersisting</span></code>：具有持久属性的内存访问更有可能保留在 L2 缓存中，因为这些访问优先保留在 L2 缓存的预留部分中。</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cudaAccessPropertyNormal</span></code>：此访问属性将先前应用的持久访问属性强制重置为正常状态。来自先前 CUDA 内核的具有持久属性的内存访问可能会在其预期使用后很长时间内保留在 L2 缓存中。这种使用后持久性减少了不使用持久性属性的后续内核可用的 L2 缓存量。使用以下命令重置访问属性窗口 <code class="docutils literal notranslate"><span class="pre">cudaAccessPropertyNormal</span></code> 属性删除先前访问的持久（优先保留）状态，就好像先前访问没有访问属性一样。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaAccessPropertyStreaming</span></code>：具有流式属性的访问更不容易长期驻留在 L2 中，因为这类访问会被优先驱逐。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaAccessPropertyPersisting</span></code>：具有持久化属性的访问更可能驻留在 L2 中，因为这类访问会优先占用 L2 的预留分区。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaAccessPropertyNormal</span></code>：该属性用于把先前设置的持久化访问行为强制恢复为普通模式。来自更早 CUDA 内核、且曾带持久化属性的访问，其数据仍可能在“使用结束后”长时间驻留在 L2 中；这会压缩后续不使用持久化属性的内核可用的 L2 空间。将访问策略窗口用 <code class="docutils literal notranslate"><span class="pre">cudaAccessPropertyNormal</span></code> 重置，可清除先前访问的持久化（优先驻留）状态，使其效果等价于从未设置过访问属性。</p></li>
 </ol>
 </section>
 <section id="l2-persistence-example">
 <span id="l2-simple-example"></span><h4>
 <span class="section-number">6.2.3.4. </span>L2 持久化示例<a class="headerlink" href="#l2-persistence-example" title="跳转到此标题"></a>
 </h4>
-<p>以下示例演示如何为持久访问预留二级缓存，通过 CUDA Stream 在 CUDA 内核中使用预留的二级缓存，然后重置二级缓存。</p>
+<p>下面的示例演示如何为持久化访问预留 L2 容量、在 CUDA 流上运行的内核中利用该预留区域，并最终将 L2 行为恢复。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">;</span><span class="w"></span>
 <span class="n">cudaStreamCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream</span><span class="p">);</span><span class="w"> </span><span class="c1">// 创建 CUDA 流</span>
@@ -2451,7 +2451,7 @@
 
 <span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w"> </span><span class="n">cuda_kernelA</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid_size</span><span class="p">,</span><span class="n">block_size</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">data1</span><span class="p">);</span><span class="w"> </span><span class="c1">// data1 会被同一内核多次使用</span>
-<span class="p">}</span><span class="w"> </span><span class="c1">// [data1 + num_bytes) benefits from L2 persistence</span>
+<span class="p">}</span><span class="w"> </span><span class="c1">// [data1, data1+num_bytes) 区间受益于 L2 持久化</span>
 <span class="n">cuda_kernelB</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid_size</span><span class="p">,</span><span class="n">block_size</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">data1</span><span class="p">);</span><span class="w"> </span><span class="c1">// 同流中的其他内核亦可受益</span>
 <span class="w"> </span><span class="c1">// 来自 data1 的持久化缓存收益</span>
 
@@ -2467,35 +2467,35 @@
 <span id="l2-reset-to-normal"></span><h4>
 <span class="section-number">6.2.3.5. </span>将 L2 访问重置为正常<a class="headerlink" href="#reset-l2-access-to-normal" title="跳转到此标题"></a>
 </h4>
-<p>来自先前 CUDA 内核的持久 L2 缓存行可能在使用后很长一段时间内仍保留在 L2 中。因此，将 L2 高速缓存重置为正常对于流式或正常存储器访问以利用具有正常优先级的 L2 高速缓存非常重要。可通过三种方式将持久访问重置为正常状态。</p>
+<p>先前 CUDA 内核产生的持久化 L2 缓存行，可能在数据使用结束后仍长时间留在 L2 中。因此，若希望后续以普通或流式方式访问全局内存时能公平使用 L2，通常需要把 L2 行为重置回普通模式。可通过以下三种方式将持久化访问恢复为正常状态。</p>
 <ol class="arabic simple">
-<li><p>使用访问属性重置先前的持久内存区域， <code class="docutils literal notranslate"><span class="pre">cudaAccessPropertyNormal</span></code>.</p></li>
-<li><p>通过调用将所有持久的 L2 缓存行重置为正常状态 <code class="docutils literal notranslate"><span class="pre">cudaCtxResetPersistingL2Cache()</span></code>.</p></li>
-<li><p><strong>最终</strong> 未触及的线路会自动重置为正常。强烈建议不要依赖自动重置，因为自动重置发生所需的时间长度不确定。</p></li>
+<li><p>使用 <code class="docutils literal notranslate"><span class="pre">cudaAccessPropertyNormal</span></code> 重置先前持久化内存区域的访问属性。</p></li>
+<li><p>调用 <code class="docutils literal notranslate"><span class="pre">cudaCtxResetPersistingL2Cache()</span></code>，将所有持久化相关的 L2 缓存行恢复为普通状态。</p></li>
+<li><p>未被触及的缓存行<strong>最终</strong>也会自动恢复为普通状态。强烈建议不要依赖该自动过程，因为其发生时机与耗时并不确定。</p></li>
 </ol>
 </section>
 <section id="manage-utilization-of-l2-set-aside-cache">
 <span id="l2-managing-utilization"></span><h4>
 <span class="section-number">6.2.3.6. </span>管理 L2 预留缓存的使用<a class="headerlink" href="#manage-utilization-of-l2-set-aside-cache" title="跳转到此标题"></a>
 </h4>
-<p>在不同 CUDA 流中同时执行的多个 CUDA 内核可能会为其流分配不同的访问策略窗口。然而，L2 预留缓存部分在所有这些并发 CUDA 内核之间共享。因此，该预留缓存部分的净利用率是所有并发内核单独使用的总和。当持久访问量超过预留的 L2 高速缓存容量时，将内存访问指定为持久访问的好处就会减弱。</p>
+<p>多个在不同 CUDA 流上并发执行的 CUDA 内核，可能各自声明不同的访问策略窗口；但 L2 的预留分区在所有并发内核之间是共享的。因此，该分区的实际占用等于各并发内核占用情况的叠加。当持久化访问总量超过预留容量时，把访问标记为“持久化”的收益会明显下降。</p>
 <p>要管理预留 L2 缓存部分的利用率，应用程序必须考虑以下因素：</p>
 <ul class="simple">
 <li><p>L2 预留缓存的大小。</p></li>
 <li><p>可以同时执行的 CUDA 内核。</p></li>
 <li><p>所有可以同时执行的 CUDA 内核的访问策略窗口。</p></li>
-<li><p>何时以及如何需要 L2 重置，以允许正常或流式访问以相同的优先级利用先前预留的 L2 缓存。</p></li>
+<li><p>何时、以何种方式执行 L2 重置，以便让普通访问或流式访问能够与持久化访问在相近优先级下复用先前预留的 L2 资源。</p></li>
 </ul>
 </section>
 <section id="query-l2-cache-properties">
 <span id="l2-cache-query"></span><h4>
 <span class="section-number">6.2.3.7. </span>查询二级缓存属性<a class="headerlink" href="#query-l2-cache-properties" title="跳转到此标题"></a>
 </h4>
-<p>与 L2 缓存相关的属性是 <code class="docutils literal notranslate"><span class="pre">cudaDeviceProp</span></code> struct 并可以使用 CUDA 运行时 API 进行查询 <code class="docutils literal notranslate"><span class="pre">cudaGetDeviceProperties</span></code></p>
+<p>与 L2 相关的字段位于 <code class="docutils literal notranslate"><span class="pre">cudaDeviceProp</span></code> 结构体中，可通过运行时 API <code class="docutils literal notranslate"><span class="pre">cudaGetDeviceProperties</span></code> 查询。</p>
 <p>CUDA 设备属性包括：</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">l2CacheSize</span></code>：GPU 上可用的二级缓存数量。</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">persistingL2CacheMaxSize</span></code>：可以为持久内存访问预留的 L2 缓存的最大数量。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">l2CacheSize</span></code>：GPU 上 L2 缓存的总容量。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">persistingL2CacheMaxSize</span></code>：可为持久化内存访问预留的 L2 容量的上限。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">accessPolicyMaxWindowSize</span></code>：访问策略窗口的最大大小。</p></li>
 </ul>
 </section>
@@ -2503,7 +2503,7 @@
 <span id="l2-cache-getset-size"></span><h4>
 <span class="section-number">6.2.3.8. </span>控制持久内存访问的 L2 缓存预留大小<a class="headerlink" href="#control-l2-cache-set-aside-size-for-persisting-memory-access" title="跳转到此标题"></a>
 </h4>
-<p>使用 CUDA 运行时 API 查询用于持久内存访问的 L2 预留缓存大小 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetLimit</span></code> 并使用 CUDA 运行时 API 进行设置 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSetLimit</span></code> 作为 <code class="docutils literal notranslate"><span class="pre">cudaLimit</span></code>。设置此限制的最大值为 <code class="docutils literal notranslate"><span class="pre">cudaDeviceProp::persistingL2CacheMaxSize</span></code>.</p>
+<p>可使用运行时 API <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetLimit</span></code> 查询用于持久化内存访问的 L2 预留大小，并使用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSetLimit</span></code> 配合 <code class="docutils literal notranslate"><span class="pre">cudaLimit</span></code> 枚举项进行设置。该限制的最大可取值为 <code class="docutils literal notranslate"><span class="pre">cudaDeviceProp::persistingL2CacheMaxSize</span></code>。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="k">enum</span><span class="w"> </span><span class="nc">cudaLimit</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w"> </span><span class="cm">/* other fields not shown */</span><span class="w"></span>
