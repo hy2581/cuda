@@ -119,7 +119,7 @@
 <li class="toctree-l3">
 <a class="reference internal" href="#page-locked-host-memory">6.2.6.页锁定主机内存</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#portable-memory">6.2.6.1.便携式存储器</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#write-combining-memory">6.2.6.2.写组合存储器</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#write-combining-memory">6.2.6.2.写合并内存</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mapped-memory">6.2.6.3。映射内存</a></li>
 </ul>
 </li>
@@ -2826,51 +2826,51 @@
 <span id="id25"></span><h3>
 <span class="section-number">6.2.6. </span>页锁定主机内存<a class="headerlink" href="#page-locked-host-memory" title="跳转到此标题"></a>
 </h3>
-<p>运行时提供了允许使用的函数 <em>页面锁定</em> （也称为 <em>固定的</em>）主机内存（与由分配的常规可分页主机内存相反 <code class="docutils literal notranslate"><span class="pre">malloc()</span></code>):</p>
+<p>运行时提供若干 API，用于使用 <em>页锁定（page-locked）</em> 主机内存——也常称为 <em>固定（pinned）</em> 内存；与之相对的是由 <code class="docutils literal notranslate"><span class="pre">malloc()</span></code> 等分配的普通<strong>可分页</strong>主机内存：</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaFreeHost()</span></code> 分配和释放页面锁定主机内存；</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cudaHostRegister()</span></code> 页面锁定分配的内存范围 <code class="docutils literal notranslate"><span class="pre">malloc()</span></code> （有关限制，请参阅参考手册）。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaFreeHost()</span></code> 用于分配与释放页锁定主机内存；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaHostRegister()</span></code> 可将由 <code class="docutils literal notranslate"><span class="pre">malloc()</span></code> 分配的某段主机内存注册为页锁定（限制条件见参考手册）。</p></li>
 </ul>
 <p>使用页锁定主机内存有几个好处：</p>
 <ul class="simple">
-<li><p>对于某些设备，页锁定主机内存和设备内存之间的复制可以与内核执行同时执行，如 <a class="reference internal" href="#asynchronous-concurrent-execution"><span class="std std-ref">异步并发执行</span></a>。</p></li>
-<li><p>在某些设备上，页锁定主机内存可以映射到设备的地址空间，从而无需将其复制到设备内存或从设备内存复制，详细信息请参见 <a class="reference internal" href="#mapped-memory"><span class="std std-ref">映射内存</span></a>。</p></li>
-<li><p>在具有前端总线的系统上，如果主机内存被分配为页锁定，则主机内存和设备内存之间的带宽会更高，如果此外它被分配为写组合，则主机内存和设备内存之间的带宽会更高，如 <a class="reference internal" href="#write-combining-memory"><span class="std std-ref">写组合存储器</span></a>。</p></li>
+<li><p>在部分设备上，页锁定主机内存与设备内存之间的拷贝可与内核执行并发进行，详见 <a class="reference internal" href="#asynchronous-concurrent-execution"><span class="std std-ref">异步并发执行</span></a>。</p></li>
+<li><p>在部分设备上，页锁定主机内存可映射到设备地址空间，从而避免显式地在主机与设备之间来回拷贝，详见 <a class="reference internal" href="#mapped-memory"><span class="std std-ref">映射内存</span></a>。</p></li>
+<li><p>在采用前端总线（FSB）的平台上，若主机端使用页锁定分配，主机与设备之间的有效带宽通常更高；若再进一步使用<a class="reference internal" href="#write-combining-memory"><span class="std std-ref">写合并内存</span></a>，带宽往往还可进一步提升。</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">注意</p>
-<p>页面锁定主机内存不会缓存在非 I/O 一致 Tegra 设备上。还， <code class="docutils literal notranslate"><span class="pre">cudaHostRegister()</span></code> 非 I/O 相干 Tegra 设备不支持。</p>
+<p>在非 I/O 一致（non-I/O-coherent）的 Tegra 设备上，页锁定主机内存不会被缓存。此外，<code class="docutils literal notranslate"><span class="pre">cudaHostRegister()</span></code> 在这类 Tegra 设备上不受支持。</p>
 </div>
-<p>简单的零拷贝 CUDA 示例附带了有关页面锁定内存 API 的详细文档。</p>
+<p>随附的 simple zero-copy CUDA 示例对页锁定内存相关 API 有更详细的说明文档。</p>
 <section id="portable-memory">
 <span id="id26"></span><h4>
-<span class="section-number">6.2.6.1. </span>便携式存储器<a class="headerlink" href="#portable-memory" title="跳转到此标题"></a>
+<span class="section-number">6.2.6.1. </span>可移植内存<a class="headerlink" href="#portable-memory" title="跳转到此标题"></a>
 </h4>
-<p>页锁定内存块可以与系统中的任何设备结合使用（请参阅 <a class="reference internal" href="#multi-device-system"><span class="std std-ref">多设备系统</span></a> 有关多设备系统的更多详细信息），但默认情况下，使用上述页锁定内存的好处仅与分配块时当前的设备一起使用（并且所有设备共享相同的统一地址空间（如果有），如中所述） <a class="reference internal" href="#unified-virtual-address-space"><span class="std std-ref">统一虚拟地址空间</span></a>）。为了使所有设备都可以使用这些优势，需要通过传递标志来分配块 <code class="docutils literal notranslate"><span class="pre">cudaHostAllocPortable</span></code> 到 <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code> 或通过传递标志来锁定页面 <code class="docutils literal notranslate"><span class="pre">cudaHostRegisterPortable</span></code> 到 <code class="docutils literal notranslate"><span class="pre">cudaHostRegister()</span></code>.</p>
+<p>一块页锁定主机内存可与系统中的任意 GPU 配合使用（多设备场景见 <a class="reference internal" href="#multi-device-system"><span class="std std-ref">多设备系统</span></a>）。但默认情况下，前文所述的页锁定收益通常<strong>仅对分配该内存时处于当前状态的那块 GPU</strong>生效（若存在多 GPU 共享的统一虚拟地址空间，则另见 <a class="reference internal" href="#unified-virtual-address-space"><span class="std std-ref">统一虚拟地址空间</span></a>）。若希望<strong>所有</strong> GPU 都能获得同等收益，应在调用 <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code> 时传入 <code class="docutils literal notranslate"><span class="pre">cudaHostAllocPortable</span></code> 标志，或在调用 <code class="docutils literal notranslate"><span class="pre">cudaHostRegister()</span></code> 时传入 <code class="docutils literal notranslate"><span class="pre">cudaHostRegisterPortable</span></code> 标志。</p>
 </section>
 <section id="write-combining-memory">
 <span id="id27"></span><h4>
-<span class="section-number">6.2.6.2. </span>写组合存储器<a class="headerlink" href="#write-combining-memory" title="跳转到此标题"></a>
+<span class="section-number">6.2.6.2. </span>写合并内存<a class="headerlink" href="#write-combining-memory" title="跳转到此标题"></a>
 </h4>
-<p>默认情况下，页锁定主机内存被分配为可缓存的。它可以选择分配为 <em>写组合</em> 而是通过传递标志 <code class="docutils literal notranslate"><span class="pre">cudaHostAllocWriteCombined</span></code> 到 <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code>。写组合内存可以释放主机的 L1 和 L2 缓存资源，从而为应用程序的其余部分提供更多缓存。此外，在通过 PCI Express 总线传输期间，写组合内存不会被监听，这可以将传输性能提高高达 40%。</p>
-<p>从主机读取写组合内存的速度非常慢，因此写组合内存通常应用于主机仅写入的内存。</p>
-<p>应避免在 WC 内存上使用 CPU 原子指令，因为并非所有 CPU 实现都能保证该功能。</p>
+<p>默认情况下，页锁定主机内存以<strong>可缓存</strong>方式分配。也可改为分配为 <em>写合并（write-combining）</em> 内存：在调用 <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code> 时传入 <code class="docutils literal notranslate"><span class="pre">cudaHostAllocWriteCombined</span></code> 标志即可。写合并内存可减少对主机 L1/L2 缓存的占用，把更多缓存留给应用的其余部分；并且在经 PCI Express 总线传输时通常不会被窥探（snoop），传输性能最高可提升约 40%。</p>
+<p>从主机端读取写合并内存的开销极高，因此写合并内存一般只应用于<strong>主机几乎只写不读</strong>的数据区。</p>
+<p>应尽量避免在写合并（WC）内存上对其实施 CPU 原子操作：并非所有 CPU 实现都保证在该类内存上原子指令语义完备。</p>
 </section>
 <section id="mapped-memory">
 <span id="id28"></span><h4>
 <span class="section-number">6.2.6.3. </span>映射内存<a class="headerlink" href="#mapped-memory" title="跳转到此标题"></a>
 </h4>
-<p>页锁定主机内存块也可以通过传递标志映射到设备的地址空间 <code class="docutils literal notranslate"><span class="pre">cudaHostAllocMapped</span></code> 到 <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code> 或通过传递标志 <code class="docutils literal notranslate"><span class="pre">cudaHostRegisterMapped</span></code> 到 <code class="docutils literal notranslate"><span class="pre">cudaHostRegister()</span></code>。因此，这样的块通常有两个地址：一个位于主机内存中，由 <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">malloc()</span></code>，以及设备内存中的一个，可以使用 <code class="docutils literal notranslate"><span class="pre">cudaHostGetDevicePointer()</span></code> 然后用于从内核内部访问该块。唯一的例外是分配的指针 <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code> 当主机和设备使用统一的地址空间时，如 <a class="reference internal" href="#unified-virtual-address-space"><span class="std std-ref">统一虚拟地址空间</span></a>。</p>
+<p>页锁定主机内存还可映射到设备地址空间：在 <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code> 中传入 <code class="docutils literal notranslate"><span class="pre">cudaHostAllocMapped</span></code>，或在 <code class="docutils literal notranslate"><span class="pre">cudaHostRegister()</span></code> 中传入 <code class="docutils literal notranslate"><span class="pre">cudaHostRegisterMapped</span></code>。此时同一块物理存储通常对应两个指针：其一由 <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">malloc()</span></code> 返回，位于主机侧；其二可通过 <code class="docutils literal notranslate"><span class="pre">cudaHostGetDevicePointer()</span></code> 取得，供内核从设备侧访问。例外情形是：当主机与设备采用统一虚拟地址空间（见 <a class="reference internal" href="#unified-virtual-address-space"><span class="std std-ref">统一虚拟地址空间</span></a>）且内存由 <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code> 分配时，可能不再需要单独的「设备指针」。</p>
 <p>直接从内核内部访问主机内存并不能提供与设备内存相同的带宽，但确实有一些优点：</p>
 <ul class="simple">
 <li><p>无需在设备内存中分配块并在该块与主机内存中的块之间复制数据；数据传输根据内核的需要隐式执行；</p></li>
-<li><p>不需要使用流（参见 <a class="reference internal" href="#concurrent-data-transfers"><span class="std std-ref">并发数据传输</span></a>) 将数据传输与内核执行重叠；内核发起的数据传输自动与内核执行重叠。</p></li>
+<li><p>不必再借助流（见 <a class="reference internal" href="#concurrent-data-transfers"><span class="std std-ref">并发数据传输</span></a>）去把数据拷贝与内核执行重叠；由内核触发的访存会在硬件路径上自然与内核执行重叠。</p></li>
 </ul>
-<p>然而，由于映射的页锁定内存在主机和设备之间共享，因此应用程序必须使用流或事件同步内存访问（请参阅 <a class="reference internal" href="#asynchronous-concurrent-execution"><span class="std std-ref">异步并发执行</span></a>）以避免任何潜在的先写后读、先读后写或先写后写的危险。</p>
-<p>为了能够检索到任何映射的页锁定内存的设备指针，必须通过调用启用页锁定内存映射 <code class="docutils literal notranslate"><span class="pre">cudaSetDeviceFlags()</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaDeviceMapHost</span></code> 在执行任何其他 CUDA 调用之前标记。否则， <code class="docutils literal notranslate"><span class="pre">cudaHostGetDevicePointer()</span></code> 将返回一个错误。</p>
-<p><code class="docutils literal notranslate"><span class="pre">cudaHostGetDevicePointer()</span></code> 如果设备不支持映射的页锁定主机内存，也会返回错误。应用程序可以通过检查来查询此功能 <code class="docutils literal notranslate"><span class="pre">canMapHostMemory</span></code> 设备属性（参见 <a class="reference internal" href="#device-enumeration"><span class="std std-ref">设备枚举</span></a>)，对于支持映射页锁定主机内存的设备，该值等于 1。</p>
-<p>请注意，原子函数（参见 <a class="reference internal" href="#atomic-functions"><span class="std std-ref">原子函数</span></a>从主机或其他设备的角度来看，在映射的页锁定内存上进行的操作不是原子的。</p>
-<p>另请注意，从主机和其他设备的角度来看，CUDA 运行时要求从设备发起的对主机内存的 1 字节、2 字节、4 字节、8 字节和 16 字节自然对齐加载和存储保留为单次访问。在某些平台上，内存原子可能会被硬件分解为单独的加载和存储操作。这些组件加载和存储操作对于保留自然对齐的访问具有相同的要求。 CUDA 运行时不支持 PCI Express 总线拓扑，其中 PCI Express 桥分割 8 字节自然对齐操作，并且 NVIDIA 不知道任何分割 16 字节自然对齐操作的拓扑。</p>
+<p>由于映射后的页锁定内存在主机与设备之间共享，应用必须用流或事件对访问进行同步（见 <a class="reference internal" href="#asynchronous-concurrent-execution"><span class="std std-ref">异步并发执行</span></a>），以避免潜在的读后写（RAW）、写后读（WAR）或写后写（WAW）等数据竞争。</p>
+<p>若要使用 <code class="docutils literal notranslate"><span class="pre">cudaHostGetDevicePointer()</span></code> 取得任意映射页锁定内存的设备指针，必须<strong>在任何其他 CUDA API 调用之前</strong>通过 <code class="docutils literal notranslate"><span class="pre">cudaSetDeviceFlags()</span></code> 传入 <code class="docutils literal notranslate"><span class="pre">cudaDeviceMapHost</span></code> 标志以启用主机内存映射；否则 <code class="docutils literal notranslate"><span class="pre">cudaHostGetDevicePointer()</span></code> 将报错。</p>
+<p>若设备本身不支持映射页锁定主机内存，<code class="docutils literal notranslate"><span class="pre">cudaHostGetDevicePointer()</span></code> 同样会失败。应用可通过设备属性 <code class="docutils literal notranslate"><span class="pre">canMapHostMemory</span></code>（见 <a class="reference internal" href="#device-enumeration"><span class="std std-ref">设备枚举</span></a>）查询该能力：支持映射页锁定主机内存时其值为 1。</p>
+<p>请注意：在映射页锁定内存上使用的原子函数（见 <a class="reference internal" href="#atomic-functions"><span class="std std-ref">原子函数</span></a>）从主机或其他设备的视角来看<strong>并不保证具有原子性</strong>。</p>
+<p>此外，从主机及其他设备的观察视角，CUDA 运行时要求：设备对主机内存发起的、自然对齐的 1/2/4/8/16 字节加载或存储，应作为<strong>单次总线事务</strong>完成并保持其原子性。在某些平台上，硬件可能把内存原子操作拆分为多条 load/store；这些拆分后的访问同样需要满足上述自然对齐与「单次访问」语义。CUDA 运行时<strong>不支持</strong>存在「PCIe 桥会把 8 字节自然对齐访问拆成两次」这类拓扑；据 NVIDIA 了解，也不存在会把 16 字节自然对齐访问拆分的已知拓扑。</p>
 </section>
 </section>
 <section id="memory-synchronization-domains">
@@ -2879,9 +2879,9 @@
 </h3>
 <section id="memory-fence-interference">
 <span id="id30"></span><h4>
-<span class="section-number">6.2.7.1. </span>内存栅栏干扰<a class="headerlink" href="#memory-fence-interference" title="跳转到此标题"></a>
+<span class="section-number">6.2.7.1. </span>内存栅栏引起的串扰<a class="headerlink" href="#memory-fence-interference" title="跳转到此标题"></a>
 </h4>
-<p>由于内存栅栏/刷新操作等待的事务数量多于 CUDA 内存一致性模型所需的事务数量，某些 CUDA 应用程序可能会出现性能下降。</p>
+<p>部分 CUDA 应用会出现性能下降：内存栅栏或刷新操作实际等待的在途事务，可能多于 CUDA 内存一致性模型在语义上真正需要同步的那一部分。</p>
 <table class="table-no-stripes docutils align-default">
 <colgroup>
 <col style="width: 59%"/>
@@ -2903,7 +2903,7 @@
 </tr>
 <tr class="row-even">
 <td>
-<p>螺纹 1 (SM)</p>
+<p>线程 1（SM）</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
 <span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
@@ -2911,7 +2911,7 @@
 </div>
 </td>
 <td>
-<p>螺纹 2 (SM)</p>
+<p>线程 2（SM）</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">;</span><span class="w"></span>
 <span class="n">assert</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
@@ -2930,43 +2930,42 @@
 </tr>
 </tbody>
 </table>
-<p>考虑上面的例子。 CUDA 内存一致性模型保证断言条件为真，因此写入 <code class="docutils literal notranslate"><span class="pre">x</span></code> 在写入之前，线程 1 必须对线程 3 可见 <code class="docutils literal notranslate"><span class="pre">b</span></code> 来自线程 2。</p>
-<p>释放和获取提供的内存顺序 <code class="docutils literal notranslate"><span class="pre">a</span></code> 仅足以使 <code class="docutils literal notranslate"><span class="pre">x</span></code> 对线程 2 可见，对线程 3 不可见，因为它是设备范围操作。释放和获取提供的系统范围排序 <code class="docutils literal notranslate"><span class="pre">b</span></code>因此，需要确保不仅线程 2 本身发出的写入对线程 3 可见，而且来自其他线程的写入对线程 2 可见。这称为累积性。由于 GPU 在执行时无法知道哪些写入已在源级别保证可见，哪些写入仅在偶然时机可见，因此它必须为运行中的内存操作撒下一张保守的宽网。</p>
-<p>这有时会导致干扰：因为 GPU 正在等待源级别不需要的内存操作，所以栅栏/刷新可能需要比必要的时间更长的时间。</p>
-<p>请注意，栅栏可能会在代码中显式地作为内在函数或原子出现，如示例中所示，或者隐式地实现 <em>同步于</em> 任务边界上的关系。</p>
-<p>一个常见的例子是，内核在本地 GPU 内存中执行计算，并且并行内核（例如来自 NCCL）正在与对等方执行通信。完成后，本地内核将隐式刷新其写入以满足任何 <em>同步于</em> 与下游工作的关系。这可能会不必要地完全或部分地等待来自通信内核的较慢的 nvlink 或 PCIe 写入。</p>
+<p>考虑上表中的例子。CUDA 内存一致性模型保证断言成立，因此在线程 2 写入 <code class="docutils literal notranslate"><span class="pre">b</span></code> 之前，线程 1 对 <code class="docutils literal notranslate"><span class="pre">x</span></code> 的写入必须已经对线程 3 可见。</p>
+<p>围绕 <code class="docutils literal notranslate"><span class="pre">a</span></code> 的 release/acquire 所提供的排序<strong>仅覆盖设备作用域</strong>，因此足以让线程 2 看到对 <code class="docutils literal notranslate"><span class="pre">x</span></code> 的更新，但不足以直接约束线程 3。围绕 <code class="docutils literal notranslate"><span class="pre">b</span></code> 的 release/acquire 则提供<strong>系统作用域</strong>排序：不仅要让线程 2 自己的写入对线程 3 可见，还要把「线程 2 已可见的其他线程写入」一并传播给线程 3，这称为<strong>累积性（cumulativity）</strong>。GPU 在运行时难以区分哪些写入已在源码层面被证明必然可见、哪些只是碰巧可见，因此往往只能对仍在飞行中的访存采取更保守的同步范围。</p>
+<p>这会带来「串扰」：栅栏/刷新可能额外等待一些在源码语义上并不必需的访存，从而耗时偏长。</p>
+<p>注意：栅栏既可能以内在函数或原子等形式显式出现（如上例），也可能为了在不同任务边界之间实现 <em>synchronizes-with</em> 关系而被隐式插入。</p>
+<p>常见情形是：某个内核在本地 GPU 内存上计算，同时另一路并行内核（例如 NCCL）在对等端之间通信。本地内核结束时，为满足与后续工作之间的 <em>synchronizes-with</em> 关系，可能会隐式刷新其写入；这有时会不必要地（全部或部分）等待通信内核经较慢 NVLink/PCIe 路径发出的写入完成。</p>
 </section>
 <section id="isolating-traffic-with-domains">
 <span id="id31"></span><h4>
-<span class="section-number">6.2.7.2. </span>使用域隔离流量<a class="headerlink" href="#isolating-traffic-with-domains" title="跳转到此标题"></a>
+<span class="section-number">6.2.7.2. </span>使用域隔离访存<a class="headerlink" href="#isolating-traffic-with-domains" title="跳转到此标题"></a>
 </h4>
-<p>从 Hopper 架构 GPU 和 CUDA 12.0 开始，内存同步域功能提供了一种减轻此类干扰的方法。为了换取代码的显式帮助，GPU 可以通过栅栏操作减少网络投射。每个内核启动都会被赋予一个域 ID。写入和栅栏都用 ID 标记，并且栅栏只会订购与栅栏域匹配的写入。在并发计算与通信示例中，通信内核可以放置在不同的域中。</p>
-<p>使用域时，代码必须遵守以下规则： <strong>同一 GPU 上不同域之间的排序或同步需要系统范围的防护</strong>。在域内，设备范围的防护仍然足够。这对于累积性是必要的，因为一个内核的写入不会被另一个域中的内核发出的栅栏所包围。本质上，通过确保跨域流量提前刷新到系统范围来满足累积性。</p>
-<p>请注意，这修改了定义 <code class="docutils literal notranslate"><span class="pre">thread_scope_device</span></code>。但是，由于内核将默认为域 0（如下所述），因此可以保持向后兼容性。</p>
+<p>自 Hopper 架构 GPU 与 CUDA 12.0 起，<strong>内存同步域（memory synchronization domains）</strong> 提供了一种缓解上述串扰的手段：在应用显式配合的前提下，GPU 可缩小单次栅栏需要「波及」的在途写入范围。每次内核启动都会携带一个域 ID；写入与栅栏均带域标签，栅栏仅对与其域 ID 相匹配的写入进行排序。在前述「计算 vs 通信」并发场景中，可把通信相关内核放到不同域中。</p>
+<p>使用域时必须遵守：<strong>同一块 GPU 上，不同域之间的排序或同步需要系统作用域的内存栅栏</strong>；而在<strong>同一域内</strong>，设备作用域栅栏仍然足够。这是为了满足累积性：某个内核产生的写入，不应被另一域中内核发出的栅栏「错误地」提前收束。直观上，需要先把跨域流量刷新到系统可见范围，再谈跨域累积语义。</p>
+<p>这会改变 <code class="docutils literal notranslate"><span class="pre">thread_scope_device</span></code> 的精确定义；但由于内核默认落在域 0（见下文），旧代码在行为上仍可保持兼容。</p>
 </section>
 <section id="using-domains-in-cuda">
 <span id="id32"></span><h4>
 <span class="section-number">6.2.7.3. </span>在 CUDA 中使用域<a class="headerlink" href="#using-domains-in-cuda" title="跳转到此标题"></a>
 </h4>
-<p>可通过新的启动属性访问域 <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeMemSyncDomain</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeMemSyncDomainMap</span></code>。前者在逻辑域之间进行选择 <code class="docutils literal notranslate"><span class="pre">cudaLaunchMemSyncDomainDefault</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaLaunchMemSyncDomainRemote</span></code>，后者提供从逻辑域到物理域的映射。远程域适用于执行远程内存访问的内核，以便将其内存流量与本地内核隔离。但请注意，特定域的选择不会影响内核可以合法执行的内存访问。</p>
-<p>可以通过设备属性查询域数量 <code class="docutils literal notranslate"><span class="pre">cudaDevAttrMemSyncDomainCount</span></code>。 Hopper 有 4 个域。为了促进可移植代码，域功能可以在所有设备上使用，并且 CUDA 将在 Hopper 之前报告计数 1。</p>
-<p>拥有逻辑域可以简化应用程序的组合。在堆栈中的低级别（例如从 NCCL）启动的单个内核可以选择语义逻辑域，而无需关心周围的应用程序体系结构。更高级别可以使用映射来引导逻辑域。如果未设置，则逻辑域的默认值为默认域，默认映射是将默认域映射到 0，将远程域映射到 1（在具有超过 1 个域的 GPU 上）。在 CUDA 12.0 及更高版本中，特定库可能会使用远程域来标记启动；例如，NCCL 2.16 就会这样做。总之，这为常见应用程序提供了一种开箱即用的有益使用模式，无需在其他组件、框架或应用程序级别进行代码更改。另一种使用模式（例如在使用 nvshmem 或没有明确区分内核类型的应用程序中）可能是对并行流进行分区。流A可以将两个逻辑域映射到物理域0，流B映射到1，等等。</p>
+<p>域通过新增启动属性 <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeMemSyncDomain</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeMemSyncDomainMap</span></code> 暴露给应用：前者在逻辑域 <code class="docutils literal notranslate"><span class="pre">cudaLaunchMemSyncDomainDefault</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaLaunchMemSyncDomainRemote</span></code> 之间选择；后者给出逻辑域到物理域 ID 的映射。<code class="docutils literal notranslate"><span class="pre">Remote</span></code> 逻辑域面向会访问远端内存的内核，用于把其访存与本地计算内核隔离开。注意：选择域并不会改变内核<strong>可以合法访问</strong>哪些内存。</p>
+<p>域数量可通过设备属性 <code class="docutils literal notranslate"><span class="pre">cudaDevAttrMemSyncDomainCount</span></code> 查询：Hopper 为 4。为便于编写可移植代码，该 API 在所有设备上均可用；在 Hopper 之前的 GPU 上，CUDA 会报告计数为 1。</p>
+<p>引入「逻辑域」可降低应用拼装复杂度：例如 NCCL 等底层库可在启动内核时选择语义化的逻辑域，而不必了解上层应用拓扑；上层再通过映射把逻辑域路由到具体物理域。若未显式设置，逻辑域默认为 <code class="docutils literal notranslate"><span class="pre">Default</span></code>；默认映射为：Default→0、Remote→1（仅在物理域数量大于 1 的 GPU 上生效）。自 CUDA 12.0 起，部分库会把特定启动标记为 Remote 域，例如 NCCL 2.16。组合起来，这对常见应用提供了「开箱即用」的收益，而无需改动其他组件或框架代码。另一种用法（例如使用 NVSHMEM、或难以区分内核类型时）是按并行流分区：流 A 可把两个逻辑域都映射到物理域 0，流 B 映射到物理域 1，以此类推。</p>
 <div class="highlight-c++ notranslate">
-<div class="highlight"><pre><span></span><span class="c1">// Example of launching a kernel with the remote logical domain</span>
+<div class="highlight"><pre><span></span><span class="c1">// 示例：以 Remote 逻辑域启动内核</span>
 <span class="n">cudaLaunchAttribute</span><span class="w"> </span><span class="n">domainAttr</span><span class="p">;</span><span class="w"></span>
 <span class="n">domainAttr</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaLaunchAttrMemSyncDomain</span><span class="p">;</span><span class="w"></span>
 <span class="n">domainAttr</span><span class="p">.</span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaLaunchMemSyncDomainRemote</span><span class="p">;</span><span class="w"></span>
 <span class="n">cudaLaunchConfig_t</span><span class="w"> </span><span class="n">config</span><span class="p">;</span><span class="w"></span>
-<span class="c1">// Fill out other config fields</span>
+<span class="c1">// 填写 config 的其余字段</span>
 <span class="n">config</span><span class="p">.</span><span class="n">attrs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">domainAttr</span><span class="p">;</span><span class="w"></span>
 <span class="n">config</span><span class="p">.</span><span class="n">numAttrs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
 <span class="n">cudaLaunchKernelEx</span><span class="p">(</span><span class="o">&amp;</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">myKernel</span><span class="p">,</span><span class="w"> </span><span class="n">kernelArg1</span><span class="p">,</span><span class="w"> </span><span class="n">kernelArg2</span><span class="p">...);</span><span class="w"></span>
 </pre></div>
 </div>
 <div class="highlight-c++ notranslate">
-<div class="highlight"><pre><span></span><span class="c1">// Example of setting a mapping for a stream</span>
-<span class="c1">// (This mapping is the default for streams starting on Hopper if not</span>
-<span class="c1">// explicitly set, and provided for illustration)</span>
+<div class="highlight"><pre><span></span><span class="c1">// 示例：为流设置逻辑域到物理域的映射</span>
+<span class="c1">//（在 Hopper 上，若未显式设置，流默认即采用该映射；此处仅作说明）</span>
 <span class="n">cudaLaunchAttributeValue</span><span class="w"> </span><span class="n">mapAttr</span><span class="p">;</span><span class="w"></span>
 <span class="n">mapAttr</span><span class="p">.</span><span class="n">memSyncDomainMap</span><span class="p">.</span><span class="n">default_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
 <span class="n">mapAttr</span><span class="p">.</span><span class="n">memSyncDomainMap</span><span class="p">.</span><span class="n">remote</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
@@ -2974,8 +2973,7 @@
 </pre></div>
 </div>
 <div class="highlight-c++ notranslate">
-<div class="highlight"><pre><span></span><span class="c1">// Example of mapping different streams to different physical domains, ignoring</span>
-<span class="c1">// logical domain settings</span>
+<div class="highlight"><pre><span></span><span class="c1">// 示例：将不同流映射到不同物理域（忽略各次启动的逻辑域设置）</span>
 <span class="n">cudaLaunchAttributeValue</span><span class="w"> </span><span class="n">mapAttr</span><span class="p">;</span><span class="w"></span>
 <span class="n">mapAttr</span><span class="p">.</span><span class="n">memSyncDomainMap</span><span class="p">.</span><span class="n">default_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
 <span class="n">mapAttr</span><span class="p">.</span><span class="n">memSyncDomainMap</span><span class="p">.</span><span class="n">remote</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
@@ -2985,8 +2983,8 @@
 <span class="n">cudaStreamSetAttribute</span><span class="p">(</span><span class="n">streamB</span><span class="p">,</span><span class="w"> </span><span class="n">cudaLaunchAttributeMemSyncDomainMap</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">mapAttr</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
-<p>与其他启动属性一样，这些属性在 CUDA 流上统一公开，单独启动使用 <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code>，以及 CUDA 图中的内核节点。典型的使用将在流级别设置映射并在启动级别设置逻辑域（或将流使用的一部分括起来），如上所述。</p>
-<p>在流捕获期间，这两个属性都会复制到图形节点。图从节点本身获取这两个属性，本质上是指定物理域的间接方式。在图启动的流上设置的域相关属性不会在图的执行中使用。</p>
+<p>与其他启动属性相同，上述两项在 CUDA 流、基于 <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code> 的单次启动，以及 CUDA 图的内核节点上均可配置。常见做法是：在<strong>流级别</strong>设置映射，在<strong>启动级别</strong>选择逻辑域（或用一次启动/一段流区间包住需要不同域的工作）。</p>
+<p>流捕获（stream capture）时，这两项属性会写入图节点；图执行时以<strong>节点自身保存的值</strong>为准，相当于间接指定物理域。换言之：在用于启动图的那条流上额外设置的域相关属性，<strong>不会</strong>参与该次图执行。</p>
 </section>
 </section>
 <section id="asynchronous-concurrent-execution">
