@@ -148,26 +148,26 @@
 </ul>
 </li>
 <li class="toctree-l4">
-<a class="reference internal" href="#programmatic-dependent-launch-and-synchronization">6.2.8.6。程序化相关启动和同步</a><ul>
+<a class="reference internal" href="#programmatic-dependent-launch-and-synchronization">6.2.8.6。编程式依赖启动与同步</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="#background">6.2.8.6.1。背景</a></li>
 <li class="toctree-l5"><a class="reference internal" href="#api-description">6.2.8.6.2。接口说明</a></li>
-<li class="toctree-l5"><a class="reference internal" href="#use-in-cuda-graphs">6.2.8.6.3。在 CUDA 图表中使用</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#use-in-cuda-graphs">6.2.8.6.3。在 CUDA 图中的用法</a></li>
 </ul>
 </li>
 <li class="toctree-l4">
-<a class="reference internal" href="#cuda-graphs">6.2.8.7。 CUDA 图形</a><ul>
+<a class="reference internal" href="#cuda-graphs">6.2.8.7。 CUDA 图</a><ul>
 <li class="toctree-l5">
 <a class="reference internal" href="#graph-structure">6.2.8.7.1。图结构</a><ul>
 <li class="toctree-l6"><a class="reference internal" href="#node-types">6.2.8.7.1.1。节点类型</a></li>
-<li class="toctree-l6"><a class="reference internal" href="#edge-data">6.2.8.7.1.2。边缘数据</a></li>
+<li class="toctree-l6"><a class="reference internal" href="#edge-data">6.2.8.7.1.2。边数据</a></li>
 </ul>
 </li>
-<li class="toctree-l5"><a class="reference internal" href="#creating-a-graph-using-graph-apis">6.2.8.7.2。使用图形 API 创建图形</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#creating-a-graph-using-graph-apis">6.2.8.7.2。使用图 API 创建图</a></li>
 <li class="toctree-l5">
-<a class="reference internal" href="#creating-a-graph-using-stream-capture">6.2.8.7.3。使用流捕获创建图形</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="#cross-stream-dependencies-and-events">6.2.8.7.3.1。跨流依赖关系和事件</a></li>
-<li class="toctree-l6"><a class="reference internal" href="#prohibited-and-unhandled-operations">6.2.8.7.3.2。禁止和未处理的操作</a></li>
-<li class="toctree-l6"><a class="reference internal" href="#invalidation">6.2.8.7.3.3。无效</a></li>
+<a class="reference internal" href="#creating-a-graph-using-stream-capture">6.2.8.7.3。使用流捕获创建图</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#cross-stream-dependencies-and-events">6.2.8.7.3.1。跨流依赖与事件</a></li>
+<li class="toctree-l6"><a class="reference internal" href="#prohibited-and-unhandled-operations">6.2.8.7.3.2。禁止与未支持的操作</a></li>
+<li class="toctree-l6"><a class="reference internal" href="#invalidation">6.2.8.7.3.3。捕获失效</a></li>
 </ul>
 </li>
 <li class="toctree-l5"><a class="reference internal" href="#cuda-user-objects">6.2.8.7.4。 CUDA 用户对象</a></li>
@@ -179,7 +179,7 @@
 <li class="toctree-l6"><a class="reference internal" href="#individual-node-enable">6.2.8.7.5.4。单个节点启用</a></li>
 </ul>
 </li>
-<li class="toctree-l5"><a class="reference internal" href="#using-graph-apis">6.2.8.7.6。使用图形 API</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#using-graph-apis">6.2.8.7.6。使用图 API</a></li>
 <li class="toctree-l5">
 <a class="reference internal" href="#device-graph-launch">6.2.8.7.7。设备图启动</a><ul>
 <li class="toctree-l6">
@@ -2991,63 +2991,63 @@
 <span id="id33"></span><h3>
 <span class="section-number">6.2.8. </span>异步并发执行<a class="headerlink" href="#asynchronous-concurrent-execution" title="跳转到此标题"></a>
 </h3>
-<p>CUDA 将以下操作公开为可以相互并发操作的独立任务：</p>
+<p>CUDA 将下列工作视为彼此独立的任务，它们之间可以并发进行：</p>
 <ul class="simple">
-<li><p>在主机上计算；</p></li>
+<li><p>主机上的计算；</p></li>
 <li><p>设备上的计算；</p></li>
-<li><p>内存从主机传输到设备；</p></li>
-<li><p>内存从设备传输到主机；</p></li>
-<li><p>给定设备内存内的内存传输；</p></li>
-<li><p>设备之间的内存传输。</p></li>
+<li><p>从主机到设备的内存传输；</p></li>
+<li><p>从设备到主机的内存传输；</p></li>
+<li><p>同一设备内存内的传输；</p></li>
+<li><p>跨设备的内存传输。</p></li>
 </ul>
-<p>这些操作之间实现的并发级别将取决于设备的功能集和计算能力，如下所述。</p>
+<p>上述任务之间实际能达到的并发程度，取决于设备所支持的功能及其计算能力，详见下文。</p>
 <section id="concurrent-execution-between-host-and-device">
 <span id="concurrent-execution-host-device"></span><h4>
 <span class="section-number">6.2.8.1. </span>主机和设备之间的并发执行<a class="headerlink" href="#concurrent-execution-between-host-and-device" title="跳转到此标题"></a>
 </h4>
-<p>通过异步库函数促进并发主机执行，这些函数在设备完成请求的任务之前将控制权返回给主机线程。使用异步调用，许多设备操作可以一起排队，以便在适当的设备资源可用时由 CUDA 驱动程序执行。这减轻了主机线程管理设备的大部分责任，使其可以自由地执行其他任务。以下设备操作相对于主机是异步的：</p>
+<p>主机侧并发依赖于一类异步库函数：它们在设备尚未完成所请求的工作时就把控制权交还给主机线程。借助异步调用，可以把大量设备侧工作排入队列，由 CUDA 驱动在资源就绪时依次执行，从而减轻主机线程管理设备的负担，使其能去做别的事情。下列设备侧操作对主机而言是异步的：</p>
 <ul class="simple">
 <li><p>内核启动；</p></li>
-<li><p>单个设备内存中的内存复制；</p></li>
-<li><p>将 64 KB 或更小的内存块从主机复制到设备；</p></li>
-<li><p>由后缀为的函数执行的内存复制 <code class="docutils literal notranslate"><span class="pre">Async</span></code>;</p></li>
-<li><p>内存设置函数调用。</p></li>
+<li><p>同一设备内存内的拷贝；</p></li>
+<li><p>从主机到设备、且大小不超过 64 KB 的整块内存拷贝；</p></li>
+<li><p>函数名以 <code class="docutils literal notranslate"><span class="pre">Async</span></code> 为后缀的拷贝函数所执行的内存拷贝；</p></li>
+<li><p>内存置位（memset）类 API 调用。</p></li>
 </ul>
-<p>程序员可以通过设置以下选项来全局禁用系统上运行的所有 CUDA 应用程序的内核启动异步性： <code class="docutils literal notranslate"><span class="pre">CUDA_LAUNCH_BLOCKING</span></code> 环境变量设置为 1。此功能仅用于调试目的，不应用作使生产软件可靠运行的方法。</p>
-<p>如果通过分析器 (Nsight Compute) 收集硬件计数器，则内核启动是同步的，除非启用了并发内核分析。 <code class="docutils literal notranslate"><span class="pre">Async</span></code> 如果内存副本涉及未页面锁定的主机内存，那么它们也可能是同步的。</p>
+<p>若将环境变量 <code class="docutils literal notranslate"><span class="pre">CUDA_LAUNCH_BLOCKING</span></code> 设为 <code class="docutils literal notranslate"><span class="pre">1</span></code>，可在整台机器上全局关闭所有 CUDA 应用的内核启动异步性。该开关仅供调试使用，不应作为让生产代码「更稳」的手段。</p>
+<p>通过分析器（如 Nsight Compute）采集硬件计数器时，内核启动会变为同步，除非启用了并发内核分析。若异步拷贝涉及的主机内存不是页锁定的，这类 <code class="docutils literal notranslate"><span class="pre">Async</span></code> 拷贝也可能退化为同步。</p>
 </section>
 <section id="concurrent-kernel-execution">
 <span id="id34"></span><h4>
 <span class="section-number">6.2.8.2. </span>并发内核执行<a class="headerlink" href="#concurrent-kernel-execution" title="跳转到此标题"></a>
 </h4>
-<p>某些计算能力为 2.x 及更高版本的设备可以同时执行多个内核。应用程序可以通过检查来查询此功能 <code class="docutils literal notranslate"><span class="pre">concurrentKernels</span></code> 设备属性（参见 <a class="reference internal" href="#device-enumeration"><span class="std std-ref">设备枚举</span></a>)，对于支持它的设备等于 1。</p>
-<p>设备可以同时执行的内核启动的最大数量取决于其计算能力，并列在 <a class="reference internal" href="#features-and-technical-specifications-technical-specifications-per-compute-capability"><span class="std std-numref">表27</span></a>。</p>
-<p>来自一个 CUDA 上下文的内核无法与来自另一 CUDA 上下文的内核同时执行。 GPU 可以对每个上下文进行时间切片以提供前进进度。如果用户想要在 SM 上同时运行多个进程的内核，则必须启用 MPS。</p>
-<p>使用许多纹理或大量本地内存的内核不太可能与其他内核同时执行。</p>
+<p>部分计算能力 2.x 及以上的设备可同时执行多个内核。应用可通过设备属性 <code class="docutils literal notranslate"><span class="pre">concurrentKernels</span></code> 查询是否支持（见 <a class="reference internal" href="#device-enumeration"><span class="std std-ref">设备枚举</span></a>）；支持时该属性为 1。</p>
+<p>设备能并发承载的内核启动数量上限取决于计算能力，见 <a class="reference internal" href="#features-and-technical-specifications-technical-specifications-per-compute-capability"><span class="std std-numref">表27</span></a>。</p>
+<p>不同 CUDA 上下文中的内核不能彼此并发执行；GPU 可能通过时间片在各上下文间轮转以保证进展。若要在同一 SM 上同时跑来自多个进程的内核，需要启用 MPS。</p>
+<p>占用大量纹理或大量局部内存的内核，与其他内核并发执行的机会通常更小。</p>
 </section>
 <section id="overlap-of-data-transfer-and-kernel-execution">
 <span id="id35"></span><h4>
 <span class="section-number">6.2.8.3. </span>数据传输和内核执行的重叠<a class="headerlink" href="#overlap-of-data-transfer-and-kernel-execution" title="跳转到此标题"></a>
 </h4>
-<p>某些设备可以在内核执行的同时执行与 GPU 之间的异步内存复制。应用程序可以通过检查来查询此功能 <code class="docutils literal notranslate"><span class="pre">asyncEngineCount</span></code> 设备属性（参见 <a class="reference internal" href="#device-enumeration"><span class="std std-ref">设备枚举</span></a>)，对于支持它的设备来说大于零。如果复制涉及主机内存，则必须对其进行页面锁定。</p>
-<p>还可以在内核执行的同时执行设备内复制（在支持 <code class="docutils literal notranslate"><span class="pre">concurrentKernels</span></code> 设备属性）和/或与设备之间的副本（对于支持 <code class="docutils literal notranslate"><span class="pre">asyncEngineCount</span></code> 财产）。设备内复制是使用标准内存复制功能启动的，目标地址和源地址驻留在同一设备上。</p>
+<p>部分设备能在内核执行的同时，进行与 GPU 之间的异步内存拷贝。应用可通过设备属性 <code class="docutils literal notranslate"><span class="pre">asyncEngineCount</span></code> 查询是否支持（见 <a class="reference internal" href="#device-enumeration"><span class="std std-ref">设备枚举</span></a>）；支持时该值大于 0。若拷贝一端为主机内存，则该主机内存必须为页锁定。</p>
+<p>在支持 <code class="docutils literal notranslate"><span class="pre">concurrentKernels</span></code> 的设备上，设备内拷贝可与内核执行重叠；在支持 <code class="docutils literal notranslate"><span class="pre">asyncEngineCount</span></code> 的设备上，还可与进出设备的拷贝重叠。设备内拷贝通过常规拷贝 API 发起，且目的地址与源地址须位于同一设备。</p>
 </section>
 <section id="concurrent-data-transfers">
 <span id="id36"></span><h4>
 <span class="section-number">6.2.8.4. </span>并发数据传输<a class="headerlink" href="#concurrent-data-transfers" title="跳转到此标题"></a>
 </h4>
-<p>某些计算能力为 2.x 及更高版本的设备可以重叠传入和传出设备的副本。应用程序可以通过检查来查询此功能 <code class="docutils literal notranslate"><span class="pre">asyncEngineCount</span></code> 设备属性（参见 <a class="reference internal" href="#device-enumeration"><span class="std std-ref">设备枚举</span></a>)，对于支持它的设备来说等于 2。为了实现重叠，传输中涉及的任何主机内存都必须被页面锁定。</p>
+<p>部分计算能力 2.x 及以上的设备可同时重叠「进设备」与「出设备」的拷贝。应用可通过设备属性 <code class="docutils literal notranslate"><span class="pre">asyncEngineCount</span></code> 查询（见 <a class="reference internal" href="#device-enumeration"><span class="std std-ref">设备枚举</span></a>）；支持双向并发引擎时该值为 2。要形成重叠，凡涉及的主机内存均须为页锁定。</p>
 </section>
 <section id="streams">
 <span id="id37"></span><h4>
 <span class="section-number">6.2.8.5. </span>流<a class="headerlink" href="#streams" title="跳转到此标题"></a>
 </h4>
-<p>应用程序通过以下方式管理上述并发操作 <em>溪流</em>。流是按顺序执行的命令序列（可能由不同的主机线程发出）。另一方面，不同的流可能会相互乱序或同时执行命令。无法保证此行为，因此不应依赖其正确性（例如，内核间通信未定义）。当满足命令的所有依赖性时，可以执行在流上发出的命令。依赖项可以是先前在同一流上启动的命令或来自其他流的依赖项。同步调用的成功完成保证了所有启动的命令都已完成。</p>
+<p>应用通过 <em>流（stream）</em> 来编排上述并发工作。流是由若干条命令组成的序列（可能由不同主机线程提交），这些命令在<strong>同一条流内</strong>按顺序执行。不同流之间的命令则可能彼此乱序或并行执行；但这<strong>并非保证</strong>，因此不能据此编写依赖并发的正确性逻辑（例如，跨内核通信在此情形下未定义）。当某条命令的全部依赖都已满足时，该命令方可开始执行；依赖既可能来自同流上先前入队的命令，也可能来自其他流。一次成功的同步调用可保证此前入队的命令均已完成。</p>
 <section id="creation-and-destruction-of-streams">
 <span id="creation-and-destruction-streams"></span><h5>
 <span class="section-number">6.2.8.5.1. </span>流的创建和销毁<a class="headerlink" href="#creation-and-destruction-of-streams" title="跳转到此标题"></a>
 </h5>
-<p>流是通过创建流对象并将其指定为一系列内核启动和主机的流参数来定义的 <code class="docutils literal notranslate"><span class="pre">&lt;-&gt;</span></code> 设备内存副本。以下代码示例创建两个流并分配一个数组 <code class="docutils literal notranslate"><span class="pre">hostPtr</span></code> 的 <code class="docutils literal notranslate"><span class="pre">float</span></code> 在页锁定内存中。</p>
+<p>通过创建流对象，并在连续的内核启动与主机 <code class="docutils literal notranslate"><span class="pre">&lt;-&gt;</span></code> 设备内存拷贝中把该流作为参数传入，即可定义一条流。下面示例创建两条流，并在页锁定内存中分配 <code class="docutils literal notranslate"><span class="pre">float</span></code> 数组 <code class="docutils literal notranslate"><span class="pre">hostPtr</span></code>。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span><span class="w"></span>
 <span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"></span>
@@ -3056,7 +3056,7 @@
 <span class="n">cudaMallocHost</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hostPtr</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">size</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
-<p>每个流都由以下代码示例定义为从主机到设备的一次内存复制、一次内核启动以及从设备到主机的一次内存复制的序列：</p>
+<p>下面为每条流各入队：一次主机到设备的拷贝、一次内核启动、一次设备到主机的拷贝：</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaMemcpyAsync</span><span class="p">(</span><span class="n">inputDevPtr</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">hostPtr</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"></span>
@@ -3068,56 +3068,55 @@
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>每个流复制其输入数组的一部分 <code class="docutils literal notranslate"><span class="pre">hostPtr</span></code> 排列 <code class="docutils literal notranslate"><span class="pre">inputDevPtr</span></code> 在设备内存中，进程 <code class="docutils literal notranslate"><span class="pre">inputDevPtr</span></code> 通过调用在设备上 <code class="docutils literal notranslate"><span class="pre">MyKernel()</span></code>，并复制结果 <code class="docutils literal notranslate"><span class="pre">outputDevPtr</span></code> 回到同一部分 <code class="docutils literal notranslate"><span class="pre">hostPtr</span></code>. <a class="reference internal" href="#overlapping-behavior"><span class="std std-ref">重叠行为</span></a> 描述了在此示例中流如何根据设备的功能重叠。注意 <code class="docutils literal notranslate"><span class="pre">hostPtr</span></code> 必须指向页锁定主机内存才能发生任何重叠。</p>
-<p>通过调用释放流 <code class="docutils literal notranslate"><span class="pre">cudaStreamDestroy()</span></code>.</p>
+<p>每条流都会把 <code class="docutils literal notranslate"><span class="pre">hostPtr</span></code> 中对应片段拷到设备上的 <code class="docutils literal notranslate"><span class="pre">inputDevPtr</span></code>，在设备上调用 <code class="docutils literal notranslate"><span class="pre">MyKernel()</span></code> 处理该片段，再把结果从 <code class="docutils literal notranslate"><span class="pre">outputDevPtr</span></code> 拷回 <code class="docutils literal notranslate"><span class="pre">hostPtr</span></code> 的同一位置。<a class="reference internal" href="#overlapping-behavior"><span class="std std-ref">重叠行为</span></a> 说明了在本例中两条流能否重叠、以及重叠程度如何随设备能力变化。若要产生重叠，<code class="docutils literal notranslate"><span class="pre">hostPtr</span></code> 必须指向页锁定主机内存。</p>
+<p>调用 <code class="docutils literal notranslate"><span class="pre">cudaStreamDestroy()</span></code> 可销毁流。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaStreamDestroy</span><span class="p">(</span><span class="n">stream</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span><span class="w"></span>
 </pre></div>
 </div>
-<p>如果设备仍在流中工作时 <code class="docutils literal notranslate"><span class="pre">cudaStreamDestroy()</span></code> 被调用时，该函数将立即返回，并且一旦设备完成流中的所有工作，与流关联的资源将自动释放。</p>
+<p>若在流上仍有未完成工作时调用 <code class="docutils literal notranslate"><span class="pre">cudaStreamDestroy()</span></code>，函数会立即返回；待该流上全部工作结束后，相关资源会由系统自动回收。</p>
 </section>
 <section id="default-stream">
 <span id="id38"></span><h5>
 <span class="section-number">6.2.8.5.2. </span>默认流<a class="headerlink" href="#default-stream" title="跳转到此标题"></a>
 </h5>
-<p>内核启动和主机 <code class="docutils literal notranslate"><span class="pre">&lt;-&gt;</span></code> 未指定任何流参数或将流参数设置为零的设备内存副本将发布到默认流。因此它们是按顺序执行的。</p>
-<p>对于使用编译的代码 <code class="docutils literal notranslate"><span class="pre">--default-stream</span><span class="pre">per-thread</span></code> 编译标志（或定义 <code class="docutils literal notranslate"><span class="pre">CUDA_API_PER_THREAD_DEFAULT_STREAM</span></code> 包含 CUDA 标头之前的宏（<code class="docutils literal notranslate"><span class="pre">cuda.h</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cuda_runtime.h</span></code>))，默认流是常规流，每个主机线程都有自己的默认流。</p>
+<p>未显式传入流参数（或等价地传入流参数 0）的内核启动与主机 <code class="docutils literal notranslate"><span class="pre">&lt;-&gt;</span></code> 设备内存拷贝，会进入默认流，因而彼此按顺序执行。</p>
+<p>若编译时使用 <code class="docutils literal notranslate"><span class="pre">--default-stream</span> <span class="pre">per-thread</span></code>（或在包含 CUDA 头文件 <code class="docutils literal notranslate"><span class="pre">cuda.h</span></code>、<code class="docutils literal notranslate"><span class="pre">cuda_runtime.h</span></code> 之前定义宏 <code class="docutils literal notranslate"><span class="pre">CUDA_API_PER_THREAD_DEFAULT_STREAM</span></code>），则默认流为普通流，且每个主机线程各自拥有一条默认流。</p>
 <div class="admonition note">
 <p class="admonition-title">注意</p>
-<p><code class="docutils literal notranslate"><span class="pre">#define</span><span class="pre">CUDA_API_PER_THREAD_DEFAULT_STREAM</span><span class="pre">1</span></code> 当代码编译时不能用于启用此行为 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 作为 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 隐含地包括 <code class="docutils literal notranslate"><span class="pre">cuda_runtime.h</span></code> 在翻译单元的顶部。在这种情况下 <code class="docutils literal notranslate"><span class="pre">--default-stream</span><span class="pre">per-thread</span></code> 需要使用编译标志或者 <code class="docutils literal notranslate"><span class="pre">CUDA_API_PER_THREAD_DEFAULT_STREAM</span></code> 宏需要定义为 <code class="docutils literal notranslate"><span class="pre">-DCUDA_API_PER_THREAD_DEFAULT_STREAM=1</span></code> 编译器标志。</p>
+<p>若由 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 编译，则无法在源码中仅靠 <code class="docutils literal notranslate"><span class="pre">#define</span> <span class="pre">CUDA_API_PER_THREAD_DEFAULT_STREAM</span> <span class="pre">1</span></code> 来启用上述行为，因为 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 会在翻译单元开头隐式包含 <code class="docutils literal notranslate"><span class="pre">cuda_runtime.h</span></code>。此时应改用编译选项 <code class="docutils literal notranslate"><span class="pre">--default-stream</span> <span class="pre">per-thread</span></code>，或通过编译器参数 <code class="docutils literal notranslate"><span class="pre">-DCUDA_API_PER_THREAD_DEFAULT_STREAM=1</span></code> 定义该宏。</p>
 </div>
-<p>对于使用编译的代码 <code class="docutils literal notranslate"><span class="pre">--default-stream</span><span class="pre">legacy</span></code> 编译标志，默认流是一个特殊的流，称为 <em>空流</em> 每个设备都有一个用于所有主机线程的 NULL 流。 NULL 流很特殊，因为它会导致隐式同步，如中所述 <a class="reference internal" href="#implicit-synchronization"><span class="std std-ref">隐式同步</span></a>。</p>
-<p>对于未指定编译的代码 <code class="docutils literal notranslate"><span class="pre">--default-stream</span></code> 编译标志， <code class="docutils literal notranslate"><span class="pre">--default-stream</span><span class="pre">legacy</span></code> 被假定为默认值。</p>
+<p>若使用 <code class="docutils literal notranslate"><span class="pre">--default-stream</span> <span class="pre">legacy</span></code> 编译，则默认流为特殊的 <em>NULL 流</em>：每个设备仅有一条，供所有主机线程共用。NULL 流会引发隐式同步，详见 <a class="reference internal" href="#implicit-synchronization"><span class="std std-ref">隐式同步</span></a>。</p>
+<p>若未指定 <code class="docutils literal notranslate"><span class="pre">--default-stream</span></code>，则默认采用 <code class="docutils literal notranslate"><span class="pre">--default-stream</span> <span class="pre">legacy</span></code>。</p>
 </section>
 <section id="explicit-synchronization">
 <span id="id39"></span><h5>
 <span class="section-number">6.2.8.5.3. </span>显式同步<a class="headerlink" href="#explicit-synchronization" title="跳转到此标题"></a>
 </h5>
-<p>有多种方法可以显式地相互同步流。</p>
-<p><code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code> 等待直到所有主机线程的所有流中的所有先前命令都完成。</p>
-<p><code class="docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code>将流作为参数并等待，直到给定流中的所有先前命令都完成。它可用于将主机与特定流同步，从而允许其他流继续在设备上执行。</p>
-<p><code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code>接受一个流和一个事件作为参数（参见 <a class="reference internal" href="#events"><span class="std std-ref">事件</span></a> 事件的描述）并使所有命令在调用后添加到给定流 <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code>延迟执行直到给定事件完成。</p>
-<p><code class="docutils literal notranslate"><span class="pre">cudaStreamQuery()</span></code>为应用程序提供了一种方法来了解流中所有前面的命令是否已完成。</p>
+<p>可用多种 API 在流之间做显式同步。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code> 会等待所有主机线程、所有流上此前入队的命令全部完成。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code> 以某条流为参数，等待该流上此前入队的命令全部完成，用于让主机与<strong>指定流</strong>对齐，而其他流仍可继续在设备上推进。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code> 以流与事件为参数（事件说明见 <a class="reference internal" href="#events"><span class="std std-ref">事件</span></a>）：在该调用之后追加到指定流上的命令，会推迟到所等待的事件完成之后才开始执行。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaStreamQuery()</span></code> 供应用非阻塞地查询：某条流上此前入队的命令是否已全部完成。</p>
 </section>
 <section id="implicit-synchronization">
 <span id="id40"></span><h5>
 <span class="section-number">6.2.8.5.4. </span>隐式同步<a class="headerlink" href="#implicit-synchronization" title="跳转到此标题"></a>
 </h5>
-<p>如果在 NULL 流上提交任何 CUDA 操作，则来自不同流的两个操作不能同时运行，除非这些流是非阻塞流（使用 <code class="docutils literal notranslate"><span class="pre">cudaStreamNonBlocking</span></code> 旗帜）。</p>
-<p>应用程序应遵循以下准则来提高并发内核执行的潜力：</p>
+<p>若在两条来自不同流的操作之间，向 NULL 流提交了任何 CUDA 操作，则这两条操作通常不能并发执行，除非相关流是以 <code class="docutils literal notranslate"><span class="pre">cudaStreamNonBlocking</span></code> 标志创建的非阻塞流。</p>
+<p>为尽量提高内核并发执行的机会，建议遵循：</p>
 <ul class="simple">
-<li><p>所有独立操作应在相关操作之前发出，</p></li>
-<li><p>任何类型的同步都应尽可能延迟。</p></li>
+<li><p>先提交彼此独立的工作，再提交存在依赖的工作；</p></li>
+<li><p>各类同步能晚则晚。</p></li>
 </ul>
 </section>
 <section id="overlapping-behavior">
 <span id="id41"></span><h5>
 <span class="section-number">6.2.8.5.5. </span>重叠行为<a class="headerlink" href="#overlapping-behavior" title="跳转到此标题"></a>
 </h5>
-<p>两个流之间的执行重叠量取决于向每个流发出命令的顺序以及设备是否支持数据传输和内核执行的重叠（请参阅 <a class="reference internal" href="#overlap-of-data-transfer-and-kernel-execution"><span class="std std-ref">数据传输和内核执行的重叠</span></a>），并发内核执行（参见 <a class="reference internal" href="#concurrent-kernel-execution"><span class="std std-ref">并发内核执行</span></a>）和/或并发数据传输（参见 <a class="reference internal" href="#concurrent-data-transfers"><span class="std std-ref">并发数据传输</span></a>。</p>
-<p>例如，在不支持并发数据传输的设备上，代码示例的两个流 <a class="reference internal" href="#creation-and-destruction-streams"><span class="std std-ref">流的创建和销毁</span></a>
-完全不重叠，因为从设备到主机的内存复制发送到stream[0]之后，从主机到设备的内存复制发送到stream[1]，因此只有在发送到stream[0]的从设备到主机的内存复制完成后才能开始。如果代码按以下方式重写（并假设设备支持数据传输和内核执行的重叠）</p>
+<p>两条流之间能重叠多少，取决于命令入队顺序，以及设备是否支持「拷贝与内核重叠」（<a class="reference internal" href="#overlap-of-data-transfer-and-kernel-execution"><span class="std std-ref">数据传输与内核执行的重叠</span></a>）、「多内核并发」（<a class="reference internal" href="#concurrent-kernel-execution"><span class="std std-ref">并发内核执行</span></a>）和/或「双向拷贝并发」（<a class="reference internal" href="#concurrent-data-transfers"><span class="std std-ref">并发数据传输</span></a>）。</p>
+<p>例如，在不支持并发双向拷贝的设备上，<a class="reference internal" href="#creation-and-destruction-streams"><span class="std std-ref">流的创建与销毁</span></a> 中的两段流代码可能<strong>完全无法重叠</strong>：向 <code class="docutils literal notranslate"><span class="pre">stream[1]</span></code> 入队的 H2D 拷贝发生在向 <code class="docutils literal notranslate"><span class="pre">stream[0]</span></code> 入队的 D2H 拷贝之后，因此前者只能等后者结束才能开始。若将代码改写成下列形式（并假定设备支持拷贝与内核重叠）</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaMemcpyAsync</span><span class="p">(</span><span class="n">inputDevPtr</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">hostPtr</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"></span>
@@ -3130,16 +3129,15 @@
 <span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">cudaMemcpyDeviceToHost</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span><span class="w"></span>
 </pre></div>
 </div>
-<p>那么从主机到设备的内存复制发布到stream[1]与发布到stream[0]的内核启动重叠。</p>
-<p>在支持并发数据传输的设备上，代码示例的两个流 <a class="reference internal" href="#creation-and-destruction-streams"><span class="std std-ref">流的创建和销毁</span></a>
-重叠：从主机到设备发送到stream[1]的内存复制与从设备到主机发送到stream[0]的内存复制重叠，甚至与发送到stream[0]的内核启动重叠（假设设备支持数据传输和内核执行的重叠）。</p>
+<p>则发往 <code class="docutils literal notranslate"><span class="pre">stream[1]</span></code> 的 H2D 拷贝可与发往 <code class="docutils literal notranslate"><span class="pre">stream[0]</span></code> 的内核启动重叠。</p>
+<p>在支持并发双向拷贝的设备上，<a class="reference internal" href="#creation-and-destruction-streams"><span class="std std-ref">流的创建与销毁</span></a> 中的两段流可以重叠：发往 <code class="docutils literal notranslate"><span class="pre">stream[1]</span></code> 的 H2D 可与发往 <code class="docutils literal notranslate"><span class="pre">stream[0]</span></code> 的 D2H 重叠，甚至还可与 <code class="docutils literal notranslate"><span class="pre">stream[0]</span></code> 上的内核启动重叠（在设备同时支持拷贝与内核重叠的前提下）。</p>
 </section>
 <section id="host-functions-callbacks">
 <span id="stream-callbacks"></span><h5>
 <span class="section-number">6.2.8.5.6. </span>主机函数（回调）<a class="headerlink" href="#host-functions-callbacks" title="跳转到此标题"></a>
 </h5>
-<p>运行时提供了一种通过以下方式将 CPU 函数调用在任意点插入到流中的方法： <code class="docutils literal notranslate"><span class="pre">cudaLaunchHostFunc()</span></code>。一旦回调完成之前向流发出的所有命令都将在主机上执行所提供的函数。</p>
-<p>以下代码示例添加了主机功能 <code class="docutils literal notranslate"><span class="pre">MyCallback</span></code> 在向每个流发出主机到设备内存复制、内核启动和设备到主机内存复制之后，复制到两个流中的每一个。每次设备到主机的内存复制完成后，该函数将开始在主机上执行。</p>
+<p>运行时通过 <code class="docutils literal notranslate"><span class="pre">cudaLaunchHostFunc()</span></code> 支持在流的任意位置插入要在 CPU 上执行的回调：该回调会在其之前入队到该流上的全部命令完成之后，于主机上运行。</p>
+<p>下面示例在两条流上各自完成 H2D 拷贝、内核启动、D2H 拷贝之后，再入队主机函数 <code class="docutils literal notranslate"><span class="pre">MyCallback</span></code>；因此回调会在对应的 D2H 拷贝结束之后才开始在主机上执行。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="n">CUDART_CB</span><span class="w"> </span><span class="nf">MyCallback</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">){</span><span class="w"></span>
 <span class="w"> </span><span class="n">printf</span><span class="p">(</span><span class="s">"Inside callback %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="p">)</span><span class="n">data</span><span class="p">);</span><span class="w"></span>
@@ -3154,13 +3152,13 @@
 </pre></div>
 </div>
 <p>在主机函数之后在流中发出的命令在该函数完成之前不会开始执行。</p>
-<p>排队到流中的主机函数不得进行 CUDA API 调用（直接或间接），因为如果进行此类调用导致死锁，它最终可能会自行等待。</p>
+<p>入队到流中的主机函数不得调用任何 CUDA API（含间接调用），否则可能因自我等待而形成死锁。</p>
 </section>
 <section id="stream-priorities">
 <span id="id42"></span><h5>
 <span class="section-number">6.2.8.5.7. </span>流优先级<a class="headerlink" href="#stream-priorities" title="跳转到此标题"></a>
 </h5>
-<p>流的相对优先级可以在创建时指定 <code class="docutils literal notranslate"><span class="pre">cudaStreamCreateWithPriority()</span></code>。允许的优先级范围，按[最高优先级，最低优先级]排序可以使用以下命令获得 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetStreamPriorityRange()</span></code> 功能。在运行时，GPU 调度程序利用流优先级来确定任务执行顺序，但这些优先级仅作为提示而不是保证。选择要启动的工作时，高优先级流中的待处理任务优先于低优先级流中的待处理任务。高优先级任务不会抢占已经运行的低优先级任务。 GPU 在任务执行期间不会重新评估工作队列，并且增加流的优先级不会中断正在进行的工作。流优先级会影响任务执行，而无需强制执行严格的排序，因此用户可以利用流优先级来影响任务执行，而无需依赖严格的排序保证。</p>
+<p>创建流时可通过 <code class="docutils literal notranslate"><span class="pre">cudaStreamCreateWithPriority()</span></code> 指定相对优先级。可用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetStreamPriorityRange()</span></code> 取得合法区间；文档按 <code class="docutils literal notranslate"><span class="pre">[</span> <span class="pre">greatestPriority,</span> <span class="pre">leastPriority</span> <span class="pre">]</span></code> 的顺序描述该区间，即一端表示<strong>最高</strong>可用优先级、另一端表示<strong>最低</strong>可用优先级（具体数值大小关系以实现为准）。运行时，GPU 调度器会参考流优先级挑选待启动任务，但优先级只是<strong>提示</strong>而非保证：高优先级流中挂起的工作会优先于低优先级流被考虑启动；已启动的低优先级任务不会被高优先级任务抢占；任务执行期间调度器不会重新评估工作队列，提高某条流的优先级也不会打断正在运行的工作。因此可用流优先级<strong>影响</strong>调度倾向，但不应编写依赖严格先后顺序的正确性逻辑。</p>
 <p>以下代码示例获取当前设备允许的优先级范围，并创建具有最高和最低可用优先级的流。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="c1">// get the range of stream priorities for this device</span>
@@ -3194,14 +3192,14 @@
 <p><span class="caption-number">图10 </span><span class="caption-text">GPU 活动时间线</span><a class="headerlink" href="#gpu-activity" title="跳转到此图片"></a></p>
 </figcaption>
 </figure>
-<p>这里， <code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code> 之后启动 <code class="docutils literal notranslate"><span class="pre">primary_kernel</span></code> 完成其执行。串行执行通常是必要的，因为 <code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code> 取决于产生的结果数据 <code class="docutils literal notranslate"><span class="pre">primary_kernel</span></code>。如果 <code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code> 不依赖于 <code class="docutils literal notranslate"><span class="pre">primary_kernel</span></code>，它们都可以通过使用同时启动 <a class="reference internal" href="#streams"><span class="std std-ref">流</span></a>。即使 <code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code> 取决于 <code class="docutils literal notranslate"><span class="pre">primary_kernel</span></code>，有一定的并发执行潜力。例如，几乎所有内核都有某种 <em>前言</em> 在此期间执行诸如归零缓冲区或加载const值之类的任务。</p>
+<p>图中，<code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code> 在 <code class="docutils literal notranslate"><span class="pre">primary_kernel</span></code> 执行完毕之后才启动。若 <code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code> 依赖 <code class="docutils literal notranslate"><span class="pre">primary_kernel</span></code> 产出的结果数据，这种串行化通常是必要的。若二者互不依赖，则可通过不同 <a class="reference internal" href="#streams"><span class="std std-ref">流</span></a> 并发启动。即便存在依赖，仍可能有一部分工作可以重叠：几乎所有内核都会有一段 <em>前置（preamble）</em> 阶段，用于清零缓冲区、加载常量等。</p>
 <figure class="align-default" id="secondary-kernel-preamble">
 <a class="reference internal image-reference" href="_images/secondary-kernel-preamble.png"><img alt="Preamble section of ``secondary_kernel``" src="_images/secondary-kernel-preamble.png" style="width: 723.36px; height: 156.42000000000002px;"/></a>
 <figcaption>
 <p><span class="caption-number">图11 </span><span class="caption-text">序言部分 <code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code></span><a class="headerlink" href="#secondary-kernel-preamble" title="跳转到此图片"></a></p>
 </figcaption>
 </figure>
-<p><a class="reference internal" href="#secondary-kernel-preamble"><span class="std std-numref">图11</span></a> 演示了的部分 <code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code> 可以同时执行而不影响应用程序。请注意，并发启动还允许我们隐藏启动延迟 <code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code> 执行的背后 <code class="docutils literal notranslate"><span class="pre">primary_kernel</span></code>.</p>
+<p><a class="reference internal" href="#secondary-kernel-preamble"><span class="std std-numref">图11</span></a> 标出了 <code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code> 中可以在不影响程序语义的前提下与 primary 重叠执行的部分。并发启动还能把 <code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code> 的启动延迟隐藏在 <code class="docutils literal notranslate"><span class="pre">primary_kernel</span></code> 的执行时间之后。</p>
 <figure class="align-default" id="preamble-overlap">
 <a class="reference internal image-reference" href="_images/preamble-overlap.png"><img alt="Concurrent execution of ``primary_kernel`` and ``secondary_kernel``" src="_images/preamble-overlap.png" style="width: 723.36px; height: 192.06px;"/></a>
 <figcaption>
@@ -3215,7 +3213,7 @@
 <h5>
 <span class="section-number">6.2.8.6.2. </span>接口说明<a class="headerlink" href="#api-description" title="跳转到此标题"></a>
 </h5>
-<p>在程序化相关启动中，主内核和辅助内核在同一 CUDA 流中启动。主内核应该执行 <code class="docutils literal notranslate"><span class="pre">cudaTriggerProgrammaticLaunchCompletion</span></code> 当准备好启动辅助内核时，所有线程都会阻塞。辅助内核必须使用可扩展启动 API 启动，如图所示。</p>
+<p>在编程式依赖启动中，primary 与 secondary 在同一条 CUDA 流中启动。当 primary 已准备好允许 secondary 提前启动时，其<strong>所有</strong>线程块都应执行 <code class="docutils literal notranslate"><span class="pre">cudaTriggerProgrammaticLaunchCompletion</span></code>。secondary 须通过可扩展启动 API 启动，如下所示。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">primary_kernel</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w"> </span><span class="c1">// Initial work that should finish before starting secondary kernel</span>
@@ -3246,20 +3244,17 @@
 <span class="n">cudaLaunchKernelEx</span><span class="p">(</span><span class="o">&amp;</span><span class="n">configSecondary</span><span class="p">,</span><span class="w"> </span><span class="n">secondary_kernel</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
-<p>当使用辅助内核启动时 <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeProgrammaticStreamSerialization</span></code> 属性，CUDA 驱动程序可以安全地提前启动辅助内核，而不是在启动辅助内核之前等待主内核的完成和内存刷新。</p>
-<p>当所有主线程块启动并执行后，CUDA 驱动程序可以启动辅助内核
-<code class="docutils literal notranslate"><span class="pre">cudaTriggerProgrammaticLaunchCompletion</span></code>。如果主内核不执行触发器，则它会在主内核中的所有线程块退出后隐式发生。</p>
-<p>在任何一种情况下，辅助线程块都可能在主内核写入的数据可见之前启动。因此，当辅助内核配置为 <em>程序化依赖启动</em>，它必须始终使用 <code class="docutils literal notranslate"><span class="pre">cudaGridDependencySynchronize</span></code>
-或其他方式来验证来自主设备的结果数据是否可用。</p>
-<p>请注意，这些方法为主内核和辅助内核提供了并发执行的机会，但是这种行为是机会主义的，并不能保证导致并发内核执行。以这种方式依赖并发执行是不安全的，并且可能导致死锁。</p>
+<p>若 secondary 的启动携带 <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeProgrammaticStreamSerialization</span></code> 属性，CUDA 驱动即可在不必等待 primary 完全结束并完成内存刷新的前提下，安全地提前启动 secondary。</p>
+<p>当 primary 的<strong>所有</strong>线程块均已启动并执行过 <code class="docutils literal notranslate"><span class="pre">cudaTriggerProgrammaticLaunchCompletion</span></code> 后，驱动即可启动 secondary。若 primary 未显式调用该触发函数，则会在 primary 的全部线程块退出后<strong>隐式</strong>补上等价同步点。</p>
+<p>无论哪种情况，secondary 的线程块都有可能在 primary 写入的数据对 secondary 可见<strong>之前</strong>就已启动。因此，凡采用 <em>编程式依赖启动</em> 配置的 secondary，都必须通过 <code class="docutils literal notranslate"><span class="pre">cudaGridDependencySynchronize</span></code> 或其他等价手段，确认 primary 的结果数据已可用。</p>
+<p>上述机制只是为 primary 与 secondary 的并发执行提供<strong>机会</strong>，并不保证一定发生并发；若把「必然并发」当作程序前提，既不安全也可能死锁。</p>
 </section>
 <section id="use-in-cuda-graphs">
 <h5>
-<span class="section-number">6.2.8.6.3. </span>在 CUDA 图表中使用<a class="headerlink" href="#use-in-cuda-graphs" title="跳转到此标题"></a>
+<span class="section-number">6.2.8.6.3. </span>在 CUDA 图中的用法<a class="headerlink" href="#use-in-cuda-graphs" title="跳转到此标题"></a>
 </h5>
-<p>程序化相关启动可用于 <a class="reference internal" href="#cuda-graphs"><span class="std std-ref">CUDA 图形</span></a> 通过 <a class="reference internal" href="#creating-a-graph-using-stream-capture"><span class="std std-ref">流捕获</span></a> 或直接通过 <a class="reference internal" href="#edge-data"><span class="std std-ref">边缘数据</span></a>。要在具有边缘数据的 CUDA 图中对此功能进行编程，请使用 <code class="docutils literal notranslate"><span class="pre">cudaGraphDependencyType</span></code>
-的值 <code class="docutils literal notranslate"><span class="pre">cudaGraphDependencyTypeProgrammatic</span></code> 在连接两个内核节点的边上。这种边缘类型使上游内核对 <code class="docutils literal notranslate"><span class="pre">cudaGridDependencySynchronize()</span></code> 在下游内核中。此类型必须与任一传出端口一起使用 <code class="docutils literal notranslate"><span class="pre">cudaGraphKernelNodePortLaunchCompletion</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaGraphKernelNodePortProgrammatic</span></code>.</p>
-<p>流捕获的结果图等效如下：</p>
+<p>编程式依赖启动既可通过 <a class="reference internal" href="#creating-a-graph-using-stream-capture"><span class="std std-ref">流捕获</span></a> 用于 <a class="reference internal" href="#cuda-graphs"><span class="std std-ref">CUDA 图</span></a>，也可借助 <a class="reference internal" href="#edge-data"><span class="std std-ref">边数据（edge data）</span></a> 直接在图中描述。若用边数据在 CUDA 图中表达该特性，请在连接两个内核节点的边上把 <code class="docutils literal notranslate"><span class="pre">cudaGraphDependencyType</span></code> 设为 <code class="docutils literal notranslate"><span class="pre">cudaGraphDependencyTypeProgrammatic</span></code>。该依赖类型使下游内核中的 <code class="docutils literal notranslate"><span class="pre">cudaGridDependencySynchronize()</span></code> 能「看见」上游内核；其出端口（from_port）须为 <code class="docutils literal notranslate"><span class="pre">cudaGraphKernelNodePortLaunchCompletion</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaGraphKernelNodePortProgrammatic</span></code> 二者之一。</p>
+<p>流捕获场景下，与下列代码等价的图边关系如下表所示：</p>
 <table class="table-no-stripes docutils align-default">
 <colgroup>
 <col style="width: 52%"/>
@@ -3268,7 +3263,7 @@
 <thead>
 <tr class="row-odd">
 <th class="head"><p>流代码（略）</p></th>
-<th class="head"><p>生成的图形边缘</p></th>
+<th class="head"><p>对应的图边</p></th>
 </tr>
 </thead>
 <tbody>
@@ -3332,15 +3327,15 @@
 </section>
 <section id="cuda-graphs">
 <span id="id44"></span><h4>
-<span class="section-number">6.2.8.7. </span>CUDA 图形<a class="headerlink" href="#cuda-graphs" title="跳转到此标题"></a>
+<span class="section-number">6.2.8.7. </span>CUDA 图<a class="headerlink" href="#cuda-graphs" title="跳转到此标题"></a>
 </h4>
-<p>CUDA Graphs 提出了 CUDA 中工作提交的新模型。图是一系列通过依赖关系连接的操作，例如内核启动，这些操作是与其执行分开定义的。这允许图形被定义一次，然后重复启动。将图的定义与其执行分离可以实现许多优化：首先，与流相比，CPU 启动成本降低，因为大部分设置都是提前完成的；其次，将整个工作流程呈现给 CUDA 可以实现优化，而这对于流的分段工作提交机制来说是不可能实现的。</p>
-<p>要了解图形可能进行的优化，请考虑流中发生的情况：当您将内核放入流中时，主机驱动程序会执行一系列操作，为在 GPU 上执行内核做好准备。这些设置和启动内核所必需的操作是必须为每个发布的内核支付的开销成本。对于执行时间较短的 GPU 内核，此开销成本可能占整个端到端执行时间的很大一部分。</p>
-<p>使用图的工作提交分为三个不同的阶段：定义、实例化和执行。</p>
+<p>CUDA 图为 CUDA 中的工作提交提供了一种新模型：图是由若干操作（例如内核启动）经依赖关系连接而成的工作描述，它与<strong>执行</strong>相分离，因而可以<strong>定义一次、反复启动</strong>。把「图的定义」与「图的执行」拆开，能带来两类典型收益：其一，相较逐条向流提交工作，CPU 侧的启动开销更低，因为大量准备工作可提前完成；其二，把整条工作流一次性交给 CUDA，有机会做流式「分段提交」难以完成的整体优化。</p>
+<p>为理解图能优化什么，先看流式提交：每把一个内核放进流，主机端驱动都要做一串为 GPU 执行做铺垫的操作；这些为配置与启动付出的代价，对每个已发出的内核都要付一次。若 GPU 内核本身很短，这类固定开销在端到端时间中可能非常显眼。</p>
+<p>基于图的工作提交分为三个阶段：<strong>定义</strong>、<strong>实例化</strong>与<strong>执行</strong>。</p>
 <ul class="simple">
 <li><p>在定义阶段，程序创建图中操作的描述以及它们之间的依赖关系。</p></li>
-<li><p>实例化会拍摄图形模板的快照，对其进行验证，并执行大部分设置和初始化工作，目的是最大限度地减少启动时需要完成的工作。由此产生的实例被称为 <em>可执行图。</em></p></li>
-<li><p>可执行图可以启动到流中，类似于任何其他 CUDA 工作。它可以启动任意多次，而无需重复实例化。</p></li>
+<li><p>实例化阶段会对图模板做快照、校验，并完成大部分设置与初始化，尽量把启动当下仍需完成的工作压到最低；得到的实例称为 <em>可执行图（executable graph）</em>。</p></li>
+<li><p>可执行图可像其他 CUDA 工作一样入队到流中执行；无需重复实例化即可反复启动任意多次。</p></li>
 </ul>
 <section id="graph-structure">
 <span id="id45"></span><h5>
@@ -3352,12 +3347,12 @@
 <span id="id46"></span><h6>
 <span class="section-number">6.2.8.7.1.1. </span>节点类型<a class="headerlink" href="#node-types" title="跳转到此标题"></a>
 </h6>
-<p>图形节点可以是以下之一：</p>
+<p>图节点可以是下列类型之一：</p>
 <ul class="simple">
-<li><p>核心</p></li>
-<li><p>CPU函数调用</p></li>
-<li><p>内存复制</p></li>
-<li><p>内存设置</p></li>
+<li><p>内核</p></li>
+<li><p>CPU 函数调用</p></li>
+<li><p>内存拷贝</p></li>
+<li><p>内存置位（memset）</p></li>
 <li><p>空节点</p></li>
 <li><p>等待一个 <a class="reference internal" href="#events"><span class="std std-ref">事件</span></a></p></li>
 <li><p>记录一个 <a class="reference internal" href="#events"><span class="std std-ref">事件</span></a></p></li>
@@ -3376,41 +3371,38 @@
 </section>
 <section id="edge-data">
 <span id="id47"></span><h6>
-<span class="section-number">6.2.8.7.1.2. </span>边缘数据<a class="headerlink" href="#edge-data" title="跳转到此标题"></a>
+<span class="section-number">6.2.8.7.1.2. </span>边数据<a class="headerlink" href="#edge-data" title="跳转到此标题"></a>
 </h6>
-<p>CUDA 12.3 在 CUDA 图上引入了边缘数据。边缘数据修改边缘指定的依赖关系，由三部分组成：出端口、入端口和类型。传出端口指定何时触发关联边缘。传入端口指定节点的哪一部分依赖于关联的边。类型修改端点之间的关系。</p>
-<p>端口值特定于节点类型和方向，并且边缘类型可能仅限于特定节点类型。在所有情况下，零初始化的边缘数据代表默认行为。传出端口 0 等待整个任务，传入端口 0 阻塞整个任务，并且边缘类型 0 与内存同步行为的完全依赖性相关联。</p>
-<p>边缘数据可以通过关联节点的并行数组在各种图形 API 中选择性地指定。如果省略它作为输入参数，则使用零初始化数据。如果将其作为输出（查询）参数省略，并且被忽略的边缘数据全部为零初始化，则 API 会接受此参数，并返回 <code class="docutils literal notranslate"><span class="pre">cudaErrorLossyQuery</span></code> 如果调用会丢弃信息。</p>
-<p>边缘数据也可在某些流捕获 API 中使用： <code class="docutils literal notranslate"><span class="pre">cudaStreamBeginCaptureToGraph()</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaStreamGetCaptureInfo()</span></code>，以及 <code class="docutils literal notranslate"><span class="pre">cudaStreamUpdateCaptureDependencies()</span></code>。在这些情况下，尚不存在下游节点。数据与悬空边缘（半边缘）相关联，该悬空边缘将连接到未来捕获的节点或在流捕获终止时被丢弃。请注意，某些边缘类型不会等待上游节点完全完成。当考虑流捕获是否已完全重新加入原始流时，这些边缘将被忽略，并且在捕获结束时不能被丢弃。见 <a class="reference internal" href="#creating-a-graph-using-stream-capture"><span class="std std-ref">使用流捕获创建图形</span></a>。</p>
-<p>目前，没有节点类型定义额外的传入端口，只有内核节点定义额外的传出端口。有一种非默认依赖类型， <code class="docutils literal notranslate"><span class="pre">cudaGraphDependencyTypeProgrammatic</span></code>，这使得 <a class="reference internal" href="#programmatic-dependent-launch-and-synchronization"><span class="std std-ref">程序化依赖启动</span></a> 两个内核节点之间。</p>
+<p>CUDA 12.3 为 CUDA 图引入了<strong>边数据（edge data）</strong>，用于在边上进一步细化依赖语义。边数据由三部分组成：<strong>出端口</strong>、<strong>入端口</strong>与<strong>类型</strong>：出端口决定该边在何时被「触发」；入端口指明下游节点的哪一部分受该边约束；类型则刻画端点之间的依赖关系如何被修饰。</p>
+<p>端口取值与节点类型及方向相关；某些边类型也可能仅适用于特定节点。凡将边数据做零初始化，即表示采用默认行为：出端口 0 等待整项任务完成，入端口 0 阻塞整项任务开始，边类型 0 对应带完整内存同步语义的常规依赖。</p>
+<p>在多种图 API 中，边数据可通过与节点数组并行的数组选择性传入；若省略该输入，则按零初始化边数据处理。作为查询输出时：若被省略的边数据全为零且不会丢失信息，API 可接受省略；若调用会丢弃非零边数据，则返回 <code class="docutils literal notranslate"><span class="pre">cudaErrorLossyQuery</span></code>。</p>
+<p>部分流捕获 API 也支持边数据：<code class="docutils literal notranslate"><span class="pre">cudaStreamBeginCaptureToGraph()</span></code>、<code class="docutils literal notranslate"><span class="pre">cudaStreamGetCaptureInfo()</span></code>、<code class="docutils literal notranslate"><span class="pre">cudaStreamUpdateCaptureDependencies()</span></code>。这些场景下往往尚无下游节点，边数据会挂在一根<strong>悬空边（半边）</strong>上，后续要么连到随后捕获到的节点，要么在捕获结束时被丢弃。注意：某些边类型并不等待上游节点<strong>完全</strong>结束；在判断捕获是否已完全并回原始流时，这类边会被忽略，且捕获结束时<strong>不得</strong>被丢弃。详见 <a class="reference internal" href="#creating-a-graph-using-stream-capture"><span class="std std-ref">使用流捕获创建图</span></a>。</p>
+<p>当前没有节点类型定义额外的入端口；仅内核节点定义额外的出端口。除默认类型外，尚有一种 <code class="docutils literal notranslate"><span class="pre">cudaGraphDependencyTypeProgrammatic</span></code>，用于在两个内核节点之间启用 <a class="reference internal" href="#programmatic-dependent-launch-and-synchronization"><span class="std std-ref">编程式依赖启动</span></a>。</p>
 </section>
 </section>
 <section id="creating-a-graph-using-graph-apis">
 <span id="id48"></span><h5>
-<span class="section-number">6.2.8.7.2. </span>使用图形 API 创建图形<a class="headerlink" href="#creating-a-graph-using-graph-apis" title="跳转到此标题"></a>
+<span class="section-number">6.2.8.7.2. </span>使用图 API 创建图<a class="headerlink" href="#creating-a-graph-using-graph-apis" title="跳转到此标题"></a>
 </h5>
-<p>可以通过两种机制创建图：显式 API 和流捕获。以下是创建和执行下图的示例。</p>
+<p>创建图有两种途径：显式图 API，或流捕获。下面给出创建并执行下图的示例。</p>
 <figure class="align-center" id="creating-a-graph-using-api-fig-creating-using-graph-apis">
 <a class="reference internal image-reference" href="_images/create-a-graph.png"><img alt="Creating a Graph Using Graph APIs Example" src="_images/create-a-graph.png" style="width: 200px;"/></a>
 <figcaption>
-<p><span class="caption-number">图14 </span><span class="caption-text">使用图形 API 示例创建图形</span><a class="headerlink" href="#creating-a-graph-using-api-fig-creating-using-graph-apis" title="跳转到此图片"></a></p>
+<p><span class="caption-number">图14 </span><span class="caption-text">使用图 API 创建图的示例</span><a class="headerlink" href="#creating-a-graph-using-api-fig-creating-using-graph-apis" title="跳转到此图片"></a></p>
 </figcaption>
 </figure>
 <div class="highlight-c++ notranslate">
-<div class="highlight"><pre><span></span><span class="c1">// Create the graph - it starts out empty</span>
+<div class="highlight"><pre><span></span><span class="c1">// 创建图（初始为空）</span>
 <span class="n">cudaGraphCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
 
-<span class="c1">// For the purpose of this example, we'll create</span>
-<span class="c1">// the nodes separately from the dependencies to</span>
-<span class="c1">// demonstrate that it can be done in two stages.</span>
-<span class="c1">// Note that dependencies can also be specified</span>
-<span class="c1">// at node creation.</span>
+<span class="c1">// 本例为演示分两步：先建节点、再加依赖。</span>
+<span class="c1">// 实际也可以在创建节点时一并指定依赖。</span>
 <span class="n">cudaGraphAddKernelNode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">nodeParams</span><span class="p">);</span><span class="w"></span>
 <span class="n">cudaGraphAddKernelNode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">nodeParams</span><span class="p">);</span><span class="w"></span>
 <span class="n">cudaGraphAddKernelNode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">nodeParams</span><span class="p">);</span><span class="w"></span>
 <span class="n">cudaGraphAddKernelNode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">nodeParams</span><span class="p">);</span><span class="w"></span>
 
-<span class="c1">// Now set up dependencies on each node</span>
+<span class="c1">// 为各节点添加依赖边</span>
 <span class="n">cudaGraphAddDependencies</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="c1">// A-&gt;B</span>
 <span class="n">cudaGraphAddDependencies</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="c1">// A-&gt;C</span>
 <span class="n">cudaGraphAddDependencies</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="c1">// B-&gt;D</span>
@@ -3420,9 +3412,9 @@
 </section>
 <section id="creating-a-graph-using-stream-capture">
 <span id="id49"></span><h5>
-<span class="section-number">6.2.8.7.3. </span>使用流捕获创建图形<a class="headerlink" href="#creating-a-graph-using-stream-capture" title="跳转到此标题"></a>
+<span class="section-number">6.2.8.7.3. </span>使用流捕获创建图<a class="headerlink" href="#creating-a-graph-using-stream-capture" title="跳转到此标题"></a>
 </h5>
-<p>流捕获提供了一种从现有的基于流的 API 创建图形的机制。将工作启动到流中的代码部分（包括现有代码）可以用对的调用括起来 <code class="docutils literal notranslate"><span class="pre">cudaStreamBeginCapture()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code>。见下文。</p>
+<p>流捕获提供了一种从既有「基于流」的 API 生成图的机制：把向流中提交工作的代码段（可包含既有代码）用 <code class="docutils literal notranslate"><span class="pre">cudaStreamBeginCapture()</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code> 包住即可，如下所示。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">cudaGraph_t</span><span class="w"> </span><span class="n">graph</span><span class="p">;</span><span class="w"></span>
 
@@ -3436,75 +3428,75 @@
 <span class="n">cudaStreamEndCapture</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">graph</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
-<p>致电 <code class="docutils literal notranslate"><span class="pre">cudaStreamBeginCapture()</span></code> 将流置于捕获模式。当捕获流时，启动到流中的工作不会排队执行。相反，它被附加到逐步构建的内部图表中。然后通过调用返回该图 <code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code>，这也结束了流的捕获模式。通过流捕获主动构建的图被称为 <em>捕获图。</em></p>
+<p>调用 <code class="docutils literal notranslate"><span class="pre">cudaStreamBeginCapture()</span></code> 会把流置于捕获模式：此期间向该流提交的工作不会进入常规执行队列，而是追加到一张逐步构建的内部图中。再调用 <code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code> 可取回该图，并结束捕获模式。正在由流捕获构建中的图称为 <em>捕获图（capture graph）</em>。</p>
 <p>流捕获可用于任何 CUDA 流，除了 <code class="docutils literal notranslate"><span class="pre">cudaStreamLegacy</span></code> （“NULL 流”）。请注意，它 <em>能</em> 用在 <code class="docutils literal notranslate"><span class="pre">cudaStreamPerThread</span></code>。如果程序正在使用旧版流，则可以将流 0 重新定义为每线程流，而无需进行功能更改。见 <a class="reference internal" href="#default-stream"><span class="std std-ref">默认流</span></a>。</p>
-<p>可以通过以下方式查询是否正在捕获流 <code class="docutils literal notranslate"><span class="pre">cudaStreamIsCapturing()</span></code>.</p>
-<p>可以使用以下方法将工作捕获到现有图表中 <code class="docutils literal notranslate"><span class="pre">cudaStreamBeginCaptureToGraph()</span></code>。工作不是捕获到内部图表，而是捕获到用户提供的图表。</p>
+<p>可用 <code class="docutils literal notranslate"><span class="pre">cudaStreamIsCapturing()</span></code> 查询某条流是否处于捕获中。</p>
+<p>亦可通过 <code class="docutils literal notranslate"><span class="pre">cudaStreamBeginCaptureToGraph()</span></code> 把工作捕获到<strong>用户已有</strong>的图中，而不是捕获到驱动内部临时构建的图。</p>
 <section id="cross-stream-dependencies-and-events">
 <span id="cross-stream-dependencies"></span><h6>
-<span class="section-number">6.2.8.7.3.1. </span>跨流依赖关系和事件<a class="headerlink" href="#cross-stream-dependencies-and-events" title="跳转到此标题"></a>
+<span class="section-number">6.2.8.7.3.1. </span>跨流依赖与事件<a class="headerlink" href="#cross-stream-dependencies-and-events" title="跳转到此标题"></a>
 </h6>
-<p>流捕获可以处理用以下表示的跨流依赖关系 <code class="docutils literal notranslate"><span class="pre">cudaEventRecord()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code>，前提是正在等待的事件被记录到同一个捕获图中。</p>
-<p>当事件记录在处于捕获模式的流中时，会产生 <em>捕获的事件。</em> 捕获的事件表示捕获图中的一组节点。</p>
-<p>当流等待捕获的事件时，如果流尚未处于捕获模式，它会将流置于捕获模式，并且流中的下一项将对捕获事件中的节点具有额外的依赖关系。然后，这两个流将被捕获到同一个捕获图。</p>
-<p>当流捕获中存在跨流依赖时， <code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code> 仍必须在同一个流中调用 <code class="docutils literal notranslate"><span class="pre">cudaStreamBeginCapture()</span></code> 被称为；这是 <em>源流</em>。由于基于事件的依赖性，被捕获到同一捕获图的任何其他流也必须连接回原始流。如下图所示。被捕获到同一捕获图的所有流都将退出捕获模式 <code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code>。未能重新加入原始流将导致整个捕获操作失败。</p>
+<p>流捕获可表达由 <code class="docutils literal notranslate"><span class="pre">cudaEventRecord()</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code> 构成的跨流依赖，条件是被等待的事件记录在同一张捕获图内。</p>
+<p>在处于捕获模式的流上记录事件，会得到 <em>捕获事件（captured event）</em>：它代表捕获图中的一组节点。</p>
+<p>当某条流等待捕获事件时，若该流尚未处于捕获模式，则会被置入捕获模式；该流上的下一项工作会额外依赖该捕获事件所代表的那组节点。于是两条流被并入<strong>同一张</strong>捕获图。</p>
+<p>存在跨流依赖时，<code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code> 仍须在调用 <code class="docutils literal notranslate"><span class="pre">cudaStreamBeginCapture()</span></code> 的那条流上执行，该流称为 <em>源流（origin stream）</em>。凡因事件依赖而并入同一张捕获图的其他流，最终也必须并回源流（见下例）。<code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code> 结束时，所有参与该捕获图的流都会退出捕获模式；若未能并回源流，整次捕获将失败。</p>
 <div class="highlight-c++ notranslate">
-<div class="highlight"><pre><span></span><span class="c1">// stream1 is the origin stream</span>
+<div class="highlight"><pre><span></span><span class="c1">// stream1 为源流</span>
 <span class="n">cudaStreamBeginCapture</span><span class="p">(</span><span class="n">stream1</span><span class="p">);</span><span class="w"></span>
 
 <span class="n">kernel_A</span><span class="o">&lt;&lt;&lt;</span><span class="w"> </span><span class="p">...,</span><span class="w"> </span><span class="n">stream1</span><span class="w"> </span><span class="o">&gt;&gt;&gt;</span><span class="p">(...);</span><span class="w"></span>
 
-<span class="c1">// Fork into stream2</span>
+<span class="c1">// 分叉到 stream2</span>
 <span class="n">cudaEventRecord</span><span class="p">(</span><span class="n">event1</span><span class="p">,</span><span class="w"> </span><span class="n">stream1</span><span class="p">);</span><span class="w"></span>
 <span class="n">cudaStreamWaitEvent</span><span class="p">(</span><span class="n">stream2</span><span class="p">,</span><span class="w"> </span><span class="n">event1</span><span class="p">);</span><span class="w"></span>
 
 <span class="n">kernel_B</span><span class="o">&lt;&lt;&lt;</span><span class="w"> </span><span class="p">...,</span><span class="w"> </span><span class="n">stream1</span><span class="w"> </span><span class="o">&gt;&gt;&gt;</span><span class="p">(...);</span><span class="w"></span>
 <span class="n">kernel_C</span><span class="o">&lt;&lt;&lt;</span><span class="w"> </span><span class="p">...,</span><span class="w"> </span><span class="n">stream2</span><span class="w"> </span><span class="o">&gt;&gt;&gt;</span><span class="p">(...);</span><span class="w"></span>
 
-<span class="c1">// Join stream2 back to origin stream (stream1)</span>
+<span class="c1">// 将 stream2 并回源流 stream1</span>
 <span class="n">cudaEventRecord</span><span class="p">(</span><span class="n">event2</span><span class="p">,</span><span class="w"> </span><span class="n">stream2</span><span class="p">);</span><span class="w"></span>
 <span class="n">cudaStreamWaitEvent</span><span class="p">(</span><span class="n">stream1</span><span class="p">,</span><span class="w"> </span><span class="n">event2</span><span class="p">);</span><span class="w"></span>
 
 <span class="n">kernel_D</span><span class="o">&lt;&lt;&lt;</span><span class="w"> </span><span class="p">...,</span><span class="w"> </span><span class="n">stream1</span><span class="w"> </span><span class="o">&gt;&gt;&gt;</span><span class="p">(...);</span><span class="w"></span>
 
-<span class="c1">// End capture in the origin stream</span>
+<span class="c1">// 在源流上结束捕获</span>
 <span class="n">cudaStreamEndCapture</span><span class="p">(</span><span class="n">stream1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">graph</span><span class="p">);</span><span class="w"></span>
 
-<span class="c1">// stream1 and stream2 no longer in capture mode</span>
+<span class="c1">// stream1 与 stream2 均已退出捕获模式</span>
 </pre></div>
 </div>
-<p>上述代码返回的图表如图所示 <a class="reference internal" href="#creating-a-graph-using-api-fig-creating-using-graph-apis"><span class="std std-numref">图14</span></a>。</p>
+<p>上述代码得到的图与 <a class="reference internal" href="#creating-a-graph-using-api-fig-creating-using-graph-apis"><span class="std std-numref">图14</span></a> 相同。</p>
 <div class="admonition note">
 <p class="admonition-title">注意</p>
-<p>当流退出捕获模式时，流中的下一个非捕获项（如果有）仍将依赖于最近的先前非捕获项，尽管中间项已被删除。</p>
+<p>流退出捕获模式后，若其后仍有非捕获项，则该项仍会依赖其之前最近的非捕获项，即便中间的捕获项已被移除。</p>
 </div>
 </section>
 <section id="prohibited-and-unhandled-operations">
 <span id="prohibited-unhandled-operations"></span><h6>
-<span class="section-number">6.2.8.7.3.2. </span>禁止和未处理的操作<a class="headerlink" href="#prohibited-and-unhandled-operations" title="跳转到此标题"></a>
+<span class="section-number">6.2.8.7.3.2. </span>禁止与未支持的操作<a class="headerlink" href="#prohibited-and-unhandled-operations" title="跳转到此标题"></a>
 </h6>
-<p>同步或查询正在捕获的流或捕获的事件的执行状态是无效的，因为它们不代表计划执行的项目。当任何关联流处于捕获模式时，查询包含活动流捕获的更广泛句柄（例如设备或上下文句柄）的执行状态或同步也是无效的。</p>
-<p>当同一上下文中的任何流被捕获时，并且它不是用创建的 <code class="docutils literal notranslate"><span class="pre">cudaStreamNonBlocking</span></code>，任何对旧流的尝试都是无效的。这是因为遗留流句柄始终包含这些其他流；排队到遗留流将创建对正在捕获的流的依赖性，并且查询它或同步它将会查询或同步正在捕获的流。</p>
-<p>因此在这种情况下调用同步API也是无效的。同步API，例如 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code>，将工作排队到遗留流并在返回之前对其进行同步。</p>
+<p>不得同步或查询「正在捕获中的流」或「捕获事件」的执行状态，因为它们并不代表已排入常规执行队列的工作项。若上下文中任一流处于捕获模式，也不得同步或查询会间接覆盖这些捕获工作的更粗粒度句柄（例如设备或上下文句柄）的执行状态。</p>
+<p>当同上下文内有流正在捕获、且该流<strong>不是</strong>以 <code class="docutils literal notranslate"><span class="pre">cudaStreamNonBlocking</span></code> 创建时，任何对 legacy（旧式）流的使用均为非法：legacy 流句柄在语义上始终包含这些其他流；向 legacy 流入队会形成对正在捕获之流的依赖，而查询或同步 legacy 流等价于查询或同步那些捕获中的流。</p>
+<p>因此在此情形下也不得调用同步型 API。诸如 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code> 这类同步 API 会向 legacy 流入队并在返回前完成同步。</p>
 <div class="admonition note">
 <p class="admonition-title">注意</p>
-<p>作为一般规则，当依赖关系将捕获的内容与未捕获的内容连接起来并排队执行时，CUDA 更愿意返回错误而不是忽略依赖关系。将流放入或退出捕获模式是一个例外；这切断了模式转换之前和之后添加到流中的项目之间的依赖关系。</p>
+<p>一般原则是：若某依赖会把「已捕获」与「未捕获且已入常规执行队列」的工作连接起来，CUDA 倾向于返回错误而非默默忽略该依赖。例外是进入/退出捕获模式：模式切换会切断切换点前后入队项之间的依赖关系。</p>
 </div>
-<p>通过等待来自正在捕获的流的捕获事件来合并两个单独的捕获图是无效的，并且该流与与该事件不同的捕获图关联。在未指定 cudaEventWaitExternal 标志的情况下等待正在捕获的流中的非捕获事件是无效的。</p>
-<p>目前，图形中不支持少数将异步操作排队到流中的 API，如果使用正在捕获的流调用，将返回错误，例如 <code class="docutils literal notranslate"><span class="pre">cudaStreamAttachMemAsync()</span></code>.</p>
+<p>若某流处于捕获中且其关联的捕获图与事件所属捕获图不同，则不得通过等待该捕获事件来合并两张独立的捕获图。在捕获中的流上等待<strong>非捕获</strong>事件时，若未指定 <code class="docutils literal notranslate"><span class="pre">cudaEventWaitExternal</span></code> 标志，亦为非法。</p>
+<p>另有少量会把异步工作入队到流的 API 目前不被图/捕获路径支持；若在捕获中的流上调用将返回错误，例如 <code class="docutils literal notranslate"><span class="pre">cudaStreamAttachMemAsync()</span></code>。</p>
 </section>
 <section id="invalidation">
 <h6>
-<span class="section-number">6.2.8.7.3.3. </span>无效<a class="headerlink" href="#invalidation" title="跳转到此标题"></a>
+<span class="section-number">6.2.8.7.3.3. </span>捕获失效<a class="headerlink" href="#invalidation" title="跳转到此标题"></a>
 </h6>
-<p>当在流捕获期间尝试无效操作时，任何关联的捕获图都会被 <em>无效的</em>。当捕获图无效时，进一步使用任何正在捕获的流或捕获与该图关联的事件都是无效的，并将返回错误，直到流捕获结束 <code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code>。此调用将使关联的流退出捕获模式，但也会返回错误值和 NULL 图。</p>
+<p>流捕获过程中若发生非法操作，与之关联的捕获图会被标记为 <em>失效（invalidated）</em>。在通过 <code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code> 结束捕获之前，凡处于捕获中的流及与该图关联的捕获事件均不得继续使用，否则将反复报错。结束捕获时相关流会退出捕获模式，但该次 <code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code> 本身也会返回错误，且得到的图为 NULL。</p>
 </section>
 </section>
 <section id="cuda-user-objects">
 <span id="id50"></span><h5>
 <span class="section-number">6.2.8.7.4. </span>CUDA 用户对象<a class="headerlink" href="#cuda-user-objects" title="跳转到此标题"></a>
 </h5>
-<p>CUDA 用户对象可用于帮助管理 CUDA 中异步工作所使用的资源的生命周期。该功能特别适用于 <a class="reference internal" href="#cuda-graphs"><span class="std std-ref">CUDA 图形</span></a> 和 <a class="reference internal" href="#creating-a-graph-using-stream-capture"><span class="std std-ref">流捕获</span></a>。</p>
+<p>CUDA 用户对象可用于帮助管理 CUDA 中异步工作所使用的资源的生命周期。该功能特别适用于 <a class="reference internal" href="#cuda-graphs"><span class="std std-ref">CUDA 图</span></a> 与 <a class="reference internal" href="#creating-a-graph-using-stream-capture"><span class="std std-ref">流捕获</span></a>。</p>
 <p>各种资源管理方案与 CUDA 图不兼容。例如，考虑基于事件的池或同步创建、异步销毁方案。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="c1">// Library API with pool allocation</span>
