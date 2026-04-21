@@ -4317,7 +4317,7 @@
 <span id="id71"></span><h4>
 <span class="section-number">6.2.8.9. </span>同步调用<a class="headerlink" href="#synchronous-calls" title="跳转到此标题"></a>
 </h4>
-<p>当调用同步函数时，在设备完成请求的任务之前，控制不会返回到主机线程。可以通过调用来指定主机线程是否将屈服、阻塞或自旋 <code class="docutils literal notranslate"><span class="pre">cudaSetDeviceFlags()</span></code>在主机线程执行任何其他 CUDA 调用之前使用一些特定标志（有关详细信息，请参阅参考手册）。</p>
+<p>调用同步函数时，只有在设备完成请求的任务后，控制权才会返回主机线程。主机线程在等待期间是让出（yield）、阻塞（block）还是自旋（spin），可在该线程执行任何其他 CUDA 调用之前，通过带特定标志调用 <code class="docutils literal notranslate"><span class="pre">cudaSetDeviceFlags()</span></code> 进行设置（详见参考手册）。</p>
 </section>
 </section>
 <section id="multi-device-system">
@@ -4346,7 +4346,7 @@
 <span id="id74"></span><h4>
 <span class="section-number">6.2.9.2. </span>设备选择<a class="headerlink" href="#device-selection" title="跳转到此标题"></a>
 </h4>
-<p>主机线程可以通过调用随时设置其操作的设备 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code>。设备内存分配和内核启动是在当前设置的设备上进行的；流和事件是与当前设置的设备关联创建的。如果没有致电 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code> 完成后，当前设备为设备0。</p>
+<p>主机线程可随时通过调用 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code> 设置其当前操作设备。设备内存分配与内核启动都会作用于当前设备；流与事件也会与当前设备关联创建。若未显式调用 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code>，则默认当前设备为设备 0。</p>
 <p>以下代码示例说明了设置当前设备如何影响内存分配和内核执行。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1024</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">);</span><span class="w"></span>
@@ -4365,7 +4365,7 @@
 <span id="id75"></span><h4>
 <span class="section-number">6.2.9.3. </span>流和事件行为<a class="headerlink" href="#stream-and-event-behavior" title="跳转到此标题"></a>
 </h4>
-<p>如果将内核发布到与当前设备不关联的流，则内核启动将会失败，如以下代码示例所示。</p>
+<p>如果把内核启动提交到一个不属于当前设备的流，启动会失败，如下例所示。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">cudaSetDevice</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="c1">// Set device 0 as current</span>
 <span class="n">cudaStream_t</span><span class="w"> </span><span class="n">s0</span><span class="p">;</span><span class="w"></span>
@@ -4380,19 +4380,19 @@
 <span class="n">MyKernel</span><span class="o">&lt;&lt;&lt;</span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">s0</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span><span class="w"> </span><span class="c1">// Launch kernel on device 1 in s0</span>
 </pre></div>
 </div>
-<p>即使内存复制被发送到与当前设备不关联的流，它也会成功。</p>
-<p><code class="docutils literal notranslate"><span class="pre">cudaEventRecord()</span></code> 如果输入事件和输入流关联到不同的设备，则会失败。</p>
-<p><code class="docutils literal notranslate"><span class="pre">cudaEventElapsedTime()</span></code> 如果两个输入事件关联到不同的设备，则会失败。</p>
-<p><code class="docutils literal notranslate"><span class="pre">cudaEventSynchronize()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaEventQuery()</span></code> 即使输入事件关联到与当前设备不同的设备，也会成功。</p>
-<p><code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code> 即使输入流和输入事件关联到不同的设备也会成功。 <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code> 因此可用于使多个设备相互同步。</p>
-<p>每个设备都有自己的默认流（请参阅 <a class="reference internal" href="#default-stream"><span class="std std-ref">默认流</span></a>），因此向设备的默认流发出的命令可能会乱序执行，或者相对于向任何其他设备的默认流发出的命令同时执行。</p>
+<p>内存拷贝即使提交到一个不属于当前设备的流，也会成功。</p>
+<p>若输入事件与输入流分别关联到不同设备，<code class="docutils literal notranslate"><span class="pre">cudaEventRecord()</span></code> 会失败。</p>
+<p>若两个输入事件分别关联到不同设备，<code class="docutils literal notranslate"><span class="pre">cudaEventElapsedTime()</span></code> 会失败。</p>
+<p>即使输入事件关联的设备与当前设备不同，<code class="docutils literal notranslate"><span class="pre">cudaEventSynchronize()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaEventQuery()</span></code> 仍会成功。</p>
+<p>即使输入流与输入事件关联到不同设备，<code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code> 仍会成功。因此，<code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code> 可用于在多设备之间建立同步。</p>
+<p>每个设备都有自己的默认流（参见 <a class="reference internal" href="#default-stream"><span class="std std-ref">默认流</span></a>），因此某个设备默认流上的命令，与其他设备默认流上的命令之间，可能乱序执行或并发执行。</p>
 </section>
 <section id="peer-to-peer-memory-access">
 <span id="id76"></span><h4>
 <span class="section-number">6.2.9.4. </span>点对点内存访问<a class="headerlink" href="#peer-to-peer-memory-access" title="跳转到此标题"></a>
 </h4>
-<p>根据系统属性，特别是 PCIe 和/或 NVLINK 拓扑，设备能够寻址彼此的内存（即，在一个设备上执行的内核可以取消引用指向另一设备内存的指针）。如果满足以下条件，则两个设备之间支持此点对点内存访问功能： <code class="docutils literal notranslate"><span class="pre">cudaDeviceCanAccessPeer()</span></code> 对于这两个设备返回 true。</p>
-<p>点对点内存访问仅在 64 位应用程序中受支持，并且必须通过调用在两个设备之间启用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceEnablePeerAccess()</span></code> 如以下代码示例所示。在未启用 NVSwitch 的系统上，每个设备最多可支持系统范围内的八个对等连接。</p>
+<p>是否支持设备间内存互访取决于系统拓扑，尤其是 PCIe 和/或 NVLINK 拓扑。若支持，则一个设备上运行的内核可以解引用指向另一设备内存的指针。对于任意两块设备，当 <code class="docutils literal notranslate"><span class="pre">cudaDeviceCanAccessPeer()</span></code> 返回 true 时，表示两者支持此点对点内存访问能力。</p>
+<p>点对点内存访问仅支持 64 位应用。并且需要像下例一样，通过调用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceEnablePeerAccess()</span></code> 在两设备间显式启用。在未启用 NVSwitch 的系统上，每个设备系统范围内最多支持 8 条对等连接。</p>
 <p>两个设备使用统一的地址空间（请参阅 <a class="reference internal" href="#unified-virtual-address-space"><span class="std std-ref">统一虚拟地址空间</span></a>），因此可以使用相同的指针来寻址两个设备的内存，如下面的代码示例所示。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">cudaSetDevice</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="c1">// Set device 0 as current</span>
@@ -4413,7 +4413,7 @@
 <span id="id77"></span><h5>
 <span class="section-number">6.2.9.4.1. </span>Linux 上的 IOMMU<a class="headerlink" href="#iommu-on-linux" title="跳转到此标题"></a>
 </h5>
-<p>仅在 Linux 上，CUDA 和显示驱动程序不支持启用 IOMMU 的裸机 PCIe 对等内存复制。但是，CUDA 和显示驱动程序确实通过 VM 直通支持 IOMMU。因此，Linux 用户在本机裸机系统上运行时应禁用 IOMMU。应启用 IOMMU 并将 VFIO 驱动程序用作虚拟机的 PCIe 直通。</p>
+<p>仅在 Linux 上，CUDA 与显示驱动不支持在启用 IOMMU 的裸机场景下进行 PCIe 点对点内存拷贝；但在虚拟机直通场景下支持 IOMMU。因此，Linux 用户在原生裸机环境运行时应禁用 IOMMU；在虚拟机场景下，应启用 IOMMU 并使用 VFIO 驱动进行 PCIe 直通。</p>
 <p>在 Windows 上，不存在上述限制。</p>
 <p>参见 <a class="reference external" href="https://download.nvidia.com/XFree86/Linux-x86_64/396.51/README/dma_issues.html">在 64 位平台上分配 DMA 缓冲区</a>。</p>
 </section>
@@ -4440,13 +4440,13 @@
 <span class="n">MyKernel</span><span class="o">&lt;&lt;&lt;</span><span class="mi">1000</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">p1</span><span class="p">);</span><span class="w"> </span><span class="c1">// Launch kernel on device 1</span>
 </pre></div>
 </div>
-<p>副本（隐式 <em>无效的</em> 两个不同设备的内存之间的流）：</p>
+<p>在两个不同设备内存之间进行拷贝时，若使用隐式 <em>NULL</em> 流，则：</p>
 <ul class="simple">
-<li><p>直到之前向任一设备发出的所有命令都已完成并且</p></li>
-<li><p>在执行任何命令之前运行完成（请参阅 <a class="reference internal" href="#asynchronous-concurrent-execution"><span class="std std-ref">异步并发执行</span></a>）发出后，可以开始复制到任一设备。</p></li>
+<li><p>拷贝不会开始，直到此前向任一设备发出的所有命令都已完成；并且</p></li>
+<li><p>拷贝会先于后续向任一设备发出的任何命令（参见 <a class="reference internal" href="#asynchronous-concurrent-execution"><span class="std std-ref">异步并发执行</span></a>）执行完毕。</p></li>
 </ul>
 <p>与流的正常行为一致，两个设备内存之间的异步副本可能与另一个流中的副本或内核重叠。</p>
-<p>请注意，如果通过以下方式在两个设备之间启用对等访问： <code class="docutils literal notranslate"><span class="pre">cudaDeviceEnablePeerAccess()</span></code> 如中所述 <a class="reference internal" href="#peer-to-peer-memory-access"><span class="std std-ref">点对点内存访问</span></a>，这两个设备之间的点对点内存复制不再需要通过主机进行，因此速度更快。</p>
+<p>另外，若按 <a class="reference internal" href="#peer-to-peer-memory-access"><span class="std std-ref">点对点内存访问</span></a> 所述，通过 <code class="docutils literal notranslate"><span class="pre">cudaDeviceEnablePeerAccess()</span></code> 在两设备之间启用对等访问，则二者间的点对点内存拷贝无需再经由主机中转，因此通常更快。</p>
 </section>
 </section>
 <section id="unified-virtual-address-space">
