@@ -4044,7 +4044,7 @@
 <p><span class="caption-number">图23 </span><span class="caption-text">条件 IF 节点</span><a class="headerlink" href="#id465" title="跳转到此图片"></a></p>
 </figcaption>
 </figure>
-<p>以下代码说明了如何创建包含 IF 条件节点的图。条件的默认值是使用上游内核设置的。条件语句的主体使用以下方式填充 <a class="reference internal" href="#creating-a-graph-using-graph-apis"><span class="std std-ref">图形 API</span></a>。</p>
+<p>下面的代码演示了如何创建包含 IF 条件节点的图。条件值由条件节点的上游内核设置；条件节点的主体图通过 <a class="reference internal" href="#creating-a-graph-using-graph-apis"><span class="std std-ref">图 API</span></a> 填充。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">setHandle</span><span class="p">(</span><span class="n">cudaGraphConditionalHandle</span><span class="w"> </span><span class="n">handle</span><span class="p">)</span><span class="w"></span>
 <span class="p">{</span><span class="w"></span>
@@ -4065,7 +4065,7 @@
 <span class="w"> </span><span class="n">cudaGraphConditionalHandle</span><span class="w"> </span><span class="n">handle</span><span class="p">;</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaGraphConditionalHandleCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">);</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">// Use a kernel upstream of the conditional to set the handle value</span>
+<span class="w"> </span><span class="c1">// 使用条件节点上游的内核来设置 handle 的值</span>
 <span class="w"> </span><span class="n">cudaGraphNodeParams</span><span class="w"> </span><span class="n">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">cudaGraphNodeTypeKernel</span><span class="w"> </span><span class="p">};</span><span class="w"></span>
 <span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="n">func</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">setHandle</span><span class="p">;</span><span class="w"></span>
 <span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="n">gridDim</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="n">gridDim</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="n">gridDim</span><span class="p">.</span><span class="n">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
@@ -4082,7 +4082,7 @@
 
 <span class="w"> </span><span class="n">cudaGraph_t</span><span class="w"> </span><span class="n">bodyGraph</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cParams</span><span class="p">.</span><span class="n">conditional</span><span class="p">.</span><span class="n">phGraph_out</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">// Populate the body of the conditional node</span>
+<span class="w"> </span><span class="c1">// 填充条件节点的主体图</span>
 <span class="w"> </span><span class="p">...</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaGraphAddNode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="n">bodyGraph</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">params</span><span class="p">);</span><span class="w"></span>
 
@@ -4095,7 +4095,7 @@
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>从 CUDA 12.8 开始，IF 节点还可以有一个可选的第二主体图，如果条件值为零，则在执行节点时执行一次。</p>
+<p>从 CUDA 12.8 开始，IF 节点还可以带一个可选的第二主体图：当节点执行时若条件值为 0，则该主体图会执行一次。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">graphSetup</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaGraph_t</span><span class="w"> </span><span class="n">graph</span><span class="p">;</span><span class="w"></span>
@@ -4109,7 +4109,7 @@
 <span class="w"> </span><span class="n">cudaGraphConditionalHandle</span><span class="w"> </span><span class="n">handle</span><span class="p">;</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaGraphConditionalHandleCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">);</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">// Use a kernel upstream of the conditional to set the handle value</span>
+<span class="w"> </span><span class="c1">// 使用条件节点上游的内核来设置 handle 的值</span>
 <span class="w"> </span><span class="n">cudaGraphNodeParams</span><span class="w"> </span><span class="n">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">cudaGraphNodeTypeKernel</span><span class="w"> </span><span class="p">};</span><span class="w"></span>
 <span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="n">func</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">setHandle</span><span class="p">;</span><span class="w"></span>
 <span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="n">gridDim</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="n">gridDim</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="n">gridDim</span><span class="p">.</span><span class="n">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
@@ -4121,13 +4121,13 @@
 <span class="w"> </span><span class="n">cudaGraphNodeParams</span><span class="w"> </span><span class="n">cParams</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">cudaGraphNodeTypeConditional</span><span class="w"> </span><span class="p">};</span><span class="w"></span>
 <span class="w"> </span><span class="n">cParams</span><span class="p">.</span><span class="n">conditional</span><span class="p">.</span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">handle</span><span class="p">;</span><span class="w"></span>
 <span class="w"> </span><span class="n">cParams</span><span class="p">.</span><span class="n">conditional</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaGraphCondTypeIf</span><span class="p">;</span><span class="w"></span>
-<span class="w"> </span><span class="n">cParams</span><span class="p">.</span><span class="n">conditional</span><span class="p">.</span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="c1">// Note that size is now set to '2'</span>
+<span class="w"> </span><span class="n">cParams</span><span class="p">.</span><span class="n">conditional</span><span class="p">.</span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="c1">// 注意：这里 size 需要设置为 2</span>
 <span class="w"> </span><span class="n">cudaGraphAddNode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">cParams</span><span class="p">);</span><span class="w"></span>
 
 <span class="w"> </span><span class="n">cudaGraph_t</span><span class="w"> </span><span class="n">ifBodyGraph</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cParams</span><span class="p">.</span><span class="n">conditional</span><span class="p">.</span><span class="n">phGraph_out</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaGraph_t</span><span class="w"> </span><span class="n">elseBodyGraph</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cParams</span><span class="p">.</span><span class="n">conditional</span><span class="p">.</span><span class="n">phGraph_out</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">// Populate the body graphs of the conditional node</span>
+<span class="w"> </span><span class="c1">// 填充条件节点的两个主体图</span>
 <span class="w"> </span><span class="p">...</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaGraphAddNode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="n">ifBodyGraph</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">params</span><span class="p">);</span><span class="w"></span>
 <span class="w"> </span><span class="p">...</span><span class="w"></span>
@@ -4154,7 +4154,7 @@
 <p><span class="caption-number">图24 </span><span class="caption-text">条件 WHILE 节点</span><a class="headerlink" href="#id466" title="跳转到此图片"></a></p>
 </figcaption>
 </figure>
-<p>以下代码说明了如何创建包含 WHILE 条件节点的图。句柄是使用创建的 <em>cudaGraphCondAssignDefault</em> 以避免需要上游内核。条件语句的主体使用以下方式填充 <a class="reference internal" href="#creating-a-graph-using-graph-apis"><span class="std std-ref">图形 API</span></a>。</p>
+<p>下面的代码演示了如何创建包含 WHILE 条件节点的图。这里在创建句柄时使用 <em>cudaGraphCondAssignDefault</em>，从而无需额外的上游内核；条件节点的主体图通过 <a class="reference internal" href="#creating-a-graph-using-graph-apis"><span class="std std-ref">图 API</span></a> 填充。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">loopKernel</span><span class="p">(</span><span class="n">cudaGraphConditionalHandle</span><span class="w"> </span><span class="n">handle</span><span class="p">)</span><span class="w"></span>
 <span class="p">{</span><span class="w"></span>
@@ -4203,14 +4203,14 @@
 <span id="id68"></span><h6>
 <span class="section-number">6.2.8.7.8.5. </span>条件 SWITCH 节点<a class="headerlink" href="#conditional-switch-nodes" title="跳转到此标题"></a>
 </h6>
-<p>CUDA 12.8 中添加的 SWITCH 节点在条件节点内执行 n 个不同图形中的 1 个。如果条件值为 n，则在评估 SWITCH 节点时将执行第 n 个图。如果条件值大于或等于n，则不会执行任何图。下图描绘了一个 3 节点图，其中中间节点 B 是条件节点：</p>
+<p>CUDA 12.8 新增的 SWITCH 节点可在条件节点内部的 n 个不同主体图中选择其一执行。评估 SWITCH 节点时，若条件值为 n，则执行第 n 个主体图；若条件值大于或等于 n，则不会执行任何主体图。下图展示了一个 3 节点图，其中中间节点 B 为条件节点：</p>
 <figure class="align-default" id="id467">
 <img alt="_images/conditional-switch-node.png" class="image" src="_images/conditional-switch-node.png"/>
 <figcaption>
 <p><span class="caption-number">图25 </span><span class="caption-text">条件 SWITCH 节点</span><a class="headerlink" href="#id467" title="跳转到此图片"></a></p>
 </figcaption>
 </figure>
-<p>以下代码说明了如何创建包含 SWITCH 条件节点的图。条件的值是使用上游内核设置的。条件语句的主体使用以下方式填充 <a class="reference internal" href="#creating-a-graph-using-graph-apis"><span class="std std-ref">图形 API</span></a>。</p>
+<p>下面的代码演示了如何创建包含 SWITCH 条件节点的图。条件值由上游内核设置；条件节点的各个主体图通过 <a class="reference internal" href="#creating-a-graph-using-graph-apis"><span class="std std-ref">图 API</span></a> 填充。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">setHandle</span><span class="p">(</span><span class="n">cudaGraphConditionalHandle</span><span class="w"> </span><span class="n">handle</span><span class="p">)</span><span class="w"></span>
 <span class="p">{</span><span class="w"></span>
@@ -4231,7 +4231,7 @@
 <span class="w"> </span><span class="n">cudaGraphConditionalHandle</span><span class="w"> </span><span class="n">handle</span><span class="p">;</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaGraphConditionalHandleCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">);</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">// Use a kernel upstream of the conditional to set the handle value</span>
+<span class="w"> </span><span class="c1">// 使用条件节点上游的内核来设置 handle 的值</span>
 <span class="w"> </span><span class="n">cudaGraphNodeParams</span><span class="w"> </span><span class="n">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">cudaGraphNodeTypeKernel</span><span class="w"> </span><span class="p">};</span><span class="w"></span>
 <span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="n">func</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">setHandle</span><span class="p">;</span><span class="w"></span>
 <span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="n">gridDim</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="n">gridDim</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="n">gridDim</span><span class="p">.</span><span class="n">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
@@ -4248,11 +4248,11 @@
 
 <span class="w"> </span><span class="n">cudaGraph_t</span><span class="w"> </span><span class="o">*</span><span class="n">bodyGraphs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cParams</span><span class="p">.</span><span class="n">conditional</span><span class="p">.</span><span class="n">phGraph_out</span><span class="p">;</span><span class="w"></span>
 
-<span class="w"> </span><span class="c1">// Populate the first body of the conditional node</span>
+<span class="w"> </span><span class="c1">// 填充条件节点的第一个主体图</span>
 <span class="w"> </span><span class="p">...</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaGraphAddNode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="n">bodyGraphs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">params</span><span class="p">);</span><span class="w"></span>
 <span class="w"> </span><span class="p">...</span><span class="w"></span>
-<span class="w"> </span><span class="c1">// Populate the last body of the conditional node</span>
+<span class="w"> </span><span class="c1">// 填充条件节点的最后一个主体图</span>
 <span class="w"> </span><span class="n">cudaGraphAddNode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="n">bodyGraphs</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">params</span><span class="p">);</span><span class="w"></span>
 
 <span class="w"> </span><span class="n">cudaGraphInstantiate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">graphExec</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
@@ -4269,9 +4269,9 @@
 </section>
 <section id="events">
 <span id="id69"></span><h4>
-<span class="section-number">6.2.8.8. </span>活动<a class="headerlink" href="#events" title="跳转到此标题"></a>
+<span class="section-number">6.2.8.8. </span>事件<a class="headerlink" href="#events" title="跳转到此标题"></a>
 </h4>
-<p>运行时还提供了一种方法来密切监视设备的进度，并通过让应用程序异步记录来执行准确的计时 <em>事件</em> 程序中的任何一点，并查询这些事件何时完成。当事件之前的所有任务（或者可选地，给定流中的所有命令）都完成时，事件就完成了。在所有流中的所有前面的任务和命令完成之后，流零中的事件完成。</p>
+<p>运行时还提供了用于精确监控设备执行进度的方法：应用程序可以在程序中的任意位置异步记录 <em>事件</em>，并查询这些事件何时完成，从而实现准确计时。某个事件会在其之前提交的所有任务完成时变为完成（或在指定流中，当前置命令完成时变为完成）。若事件记录在流 0 中，则会在所有流中先前提交的任务与命令全部完成后才完成。</p>
 <section id="creation-and-destruction-of-events">
 <span id="creation-and-destruction-events"></span><h5>
 <span class="section-number">6.2.8.8.1. </span>事件的创建和销毁<a class="headerlink" href="#creation-and-destruction-of-events" title="跳转到此标题"></a>
@@ -4283,7 +4283,7 @@
 <span class="n">cudaEventCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stop</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
-<p>它们是这样被摧毁的：</p>
+<p>它们可按如下方式销毁：</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">cudaEventDestroy</span><span class="p">(</span><span class="n">start</span><span class="p">);</span><span class="w"></span>
 <span class="n">cudaEventDestroy</span><span class="p">(</span><span class="n">stop</span><span class="p">);</span><span class="w"></span>
@@ -4292,9 +4292,9 @@
 </section>
 <section id="elapsed-time">
 <span id="id70"></span><h5>
-<span class="section-number">6.2.8.8.2. </span>经过时间<a class="headerlink" href="#elapsed-time" title="跳转到此标题"></a>
+<span class="section-number">6.2.8.8.2. </span>耗时<a class="headerlink" href="#elapsed-time" title="跳转到此标题"></a>
 </h5>
-<p>创建的事件 <a class="reference internal" href="#creation-and-destruction-events"><span class="std std-ref">事件的创建和销毁</span></a> 可用于对代码示例进行计时 <a class="reference internal" href="#creation-and-destruction-streams"><span class="std std-ref">流的创建和销毁</span></a> 通过以下方式：</p>
+<p>在 <a class="reference internal" href="#creation-and-destruction-events"><span class="std std-ref">事件的创建和销毁</span></a> 中创建的事件，可用于对 <a class="reference internal" href="#creation-and-destruction-streams"><span class="std std-ref">流的创建和销毁</span></a> 里的示例代码进行计时，方法如下：</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">cudaEventRecord</span><span class="p">(</span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
 <span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
