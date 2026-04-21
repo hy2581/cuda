@@ -4453,38 +4453,38 @@
 <span id="id79"></span><h3>
 <span class="section-number">6.2.10. </span>统一虚拟地址空间<a class="headerlink" href="#unified-virtual-address-space" title="跳转到此标题"></a>
 </h3>
-<p>当应用程序作为 64 位进程运行时，主机和计算能力 2.0 及更高版本的所有设备将使用单个地址空间。通过 CUDA API 调用进行的所有主机内存分配以及受支持设备上的所有设备内存分配都在此虚拟地址范围内。结果是：</p>
+<p>当应用程序以 64 位进程运行时，主机与所有计算能力不低于 2.0 的设备会共享同一个地址空间。通过 CUDA API 在主机侧分配的内存，以及受支持设备上的设备内存分配，都位于这一统一虚拟地址范围内。因此：</p>
 <ul class="simple">
-<li><p>通过 CUDA 分配的主机上的任何内存的位置，或使用统一地址空间的任何设备上的任何内存的位置，都可以通过使用指针的值来确定 <code class="docutils literal notranslate"><span class="pre">cudaPointerGetAttributes()</span></code>.</p></li>
-<li><p>在使用统一地址空间的任何设备的内存中进行复制时， <code class="docutils literal notranslate"><span class="pre">cudaMemcpyKind</span></code> 的参数 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy*()</span></code> 可以设置为 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyDefault</span></code> 从指针确定位置。只要当前设备使用统一寻址，这也适用于未通过 CUDA 分配的主机指针。</p></li>
-<li><p>分配方式： <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code> 自动便携（参见 <a class="reference internal" href="#portable-memory"><span class="std std-ref">便携式存储器</span></a>）跨越使用统一地址空间的所有设备，以及返回的指针 <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code> 可以直接在这些设备上运行的内核中使用（即不需要通过 <code class="docutils literal notranslate"><span class="pre">cudaHostGetDevicePointer()</span></code> 如中所述 <a class="reference internal" href="#mapped-memory"><span class="std std-ref">映射内存</span></a>。</p></li>
+<li><p>对于通过 CUDA 在主机上分配的内存，或位于采用统一地址空间的任一设备上的内存，都可以通过指针值并调用 <code class="docutils literal notranslate"><span class="pre">cudaPointerGetAttributes()</span></code> 来判断其位置。</p></li>
+<li><p>当拷贝的源或目标位于采用统一地址空间的设备内存中时，<code class="docutils literal notranslate"><span class="pre">cudaMemcpy*()</span></code> 的 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyKind</span></code> 参数可设置为 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyDefault</span></code>，由运行时根据指针自动推断方向。只要当前设备启用了统一寻址，这一机制同样适用于非 CUDA 分配得到的主机指针。</p></li>
+<li><p>通过 <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code> 分配的内存会在所有使用统一地址空间的设备间自动具备可移植性（参见 <a class="reference internal" href="#portable-memory"><span class="std std-ref">便携式存储器</span></a>）；并且 <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc()</span></code> 返回的指针可直接在这些设备上运行的内核中使用（即无需像 <a class="reference internal" href="#mapped-memory"><span class="std std-ref">映射内存</span></a> 所述那样再调用 <code class="docutils literal notranslate"><span class="pre">cudaHostGetDevicePointer()</span></code> 获取设备指针）。</p></li>
 </ul>
-<p>应用程序可以通过检查统一地址空间是否用于特定设备来查询 <code class="docutils literal notranslate"><span class="pre">unifiedAddressing</span></code> 设备属性（参见 <a class="reference internal" href="#device-enumeration"><span class="std std-ref">设备枚举</span></a>) 等于 1。</p>
+<p>应用程序可通过检查设备属性 <code class="docutils literal notranslate"><span class="pre">unifiedAddressing</span></code>（参见 <a class="reference internal" href="#device-enumeration"><span class="std std-ref">设备枚举</span></a>）是否为 1，来确认该设备是否使用统一地址空间。</p>
 </section>
 <section id="interprocess-communication">
 <span id="id80"></span><h3>
 <span class="section-number">6.2.11. </span>进程间通信<a class="headerlink" href="#interprocess-communication" title="跳转到此标题"></a>
 </h3>
-<p>主机线程创建的任何设备内存指针或事件句柄都可以由同一进程中的任何其他线程直接引用。然而，它在该进程之外无效，因此不能被属于不同进程的线程直接引用。</p>
-<p>要在进程间共享设备内存指针和事件，应用程序必须使用进程间通信 API，参考手册中对此进行了详细描述。 IPC API 仅支持 Linux 上的 64 位进程以及计算能力 2.0 及更高版本的设备。请注意，IPC API 不支持 <code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code> 分配。</p>
-<p>使用此 API，应用程序可以使用以下命令获取给定设备内存指针的 IPC 句柄： <code class="docutils literal notranslate"><span class="pre">cudaIpcGetMemHandle()</span></code>，使用标准 IPC 机制（例如进程间共享内存或文件）将其传递给另一个进程，并使用 <code class="docutils literal notranslate"><span class="pre">cudaIpcOpenMemHandle()</span></code> 从 IPC 句柄检索设备指针，该指针是其他进程中的有效指针。类似的 API 入口点也可用于共享事件句柄。</p>
-<p>请注意，分配由 <code class="docutils literal notranslate"><span class="pre">cudaMalloc()</span></code> 出于性能原因，可能会从较大的内存块中进行子分配。在这种情况下，CUDA IPC API 将共享整个底层内存块，这可能会导致其他子分配也被共享，从而可能导致进程之间的信息泄露。为了防止这种行为，建议仅共享 2MiB 对齐大小的分配。</p>
-<p>使用 IPC API 的一个示例是，单个主进程生成一批输入数据，使数据可供多个辅助进程使用，而无需重新生成或复制。</p>
-<p>使用 CUDA IPC 相互通信的应用程序应使用相同的 CUDA 驱动程序和运行时进行编译、链接和运行。</p>
+<p>由某个主机线程创建的设备内存指针或事件句柄，可被同一进程内的其他线程直接使用；但在该进程之外无效，因此不能被其他进程中的线程直接引用。</p>
+<p>若要跨进程共享设备内存指针与事件，必须使用进程间通信（IPC）API（详见参考手册）。IPC API 仅支持 Linux 上的 64 位进程，以及计算能力不低于 2.0 的设备。注意：IPC API 不支持 <code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code> 分配。</p>
+<p>使用该 API 时，应用程序可通过 <code class="docutils literal notranslate"><span class="pre">cudaIpcGetMemHandle()</span></code> 为给定设备内存指针获取 IPC 句柄，再通过标准 IPC 机制（如进程间共享内存或文件）传递给另一进程；另一进程调用 <code class="docutils literal notranslate"><span class="pre">cudaIpcOpenMemHandle()</span></code> 后，可得到在本进程中有效的设备指针。事件句柄也可通过类似入口点进行共享。</p>
+<p>需要注意的是，<code class="docutils literal notranslate"><span class="pre">cudaMalloc()</span></code> 得到的分配，出于性能原因可能来自更大内存块的子分配。在这种情况下，CUDA IPC API 会共享整个底层内存块，可能连带共享其他子分配，从而带来进程间信息泄露风险。为降低该风险，建议仅共享大小按 2MiB 对齐的分配。</p>
+<p>一个典型用例是：由一个主进程生成一批输入数据，再通过 IPC 让多个从进程直接复用这些数据，无需重复生成或拷贝。</p>
+<p>通过 CUDA IPC 互通的应用程序，应使用相同版本的 CUDA 驱动与运行时进行编译、链接和运行。</p>
 <div class="admonition note">
 <p class="admonition-title">注意</p>
-<p>自 CUDA 11.5 起，计算能力为 7.x 及更高版本的 L4T 和嵌入式 Linux Tegra 设备仅支持事件共享 IPC API。 Tegra 平台仍然不支持内存共享 IPC API。</p>
+<p>自 CUDA 11.5 起，在 L4T 与嵌入式 Linux Tegra 设备上（计算能力 7.x 及以上）仅支持“事件共享”IPC API；“内存共享”IPC API 在 Tegra 平台上仍不受支持。</p>
 </div>
 </section>
 <section id="error-checking">
 <span id="id81"></span><h3>
 <span class="section-number">6.2.12. </span>错误检查<a class="headerlink" href="#error-checking" title="跳转到此标题"></a>
 </h3>
-<p>所有运行时函数都会返回错误代码，但对于异步函数（请参阅 <a class="reference internal" href="#asynchronous-concurrent-execution"><span class="std std-ref">异步并发执行</span></a>)，此错误代码不可能报告设备上可能发生的任何异步错误，因为该函数在设备完成任务之前返回；错误代码仅报告执行任务之前主机上发生的错误，通常与参数验证相关；如果发生异步错误，则会由后续的一些不相关的运行时函数调用报告。</p>
-<p>因此，在某些异步函数调用之后检查异步错误的唯一方法是在调用之后立即通过调用进行同步 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code> （或者通过使用中描述的任何其他同步机制 <a class="reference internal" href="#asynchronous-concurrent-execution"><span class="std std-ref">异步并发执行</span></a>）并检查返回的错误代码 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code>.</p>
-<p>运行时为每个初始化为的主机线程维护一个错误变量 <code class="docutils literal notranslate"><span class="pre">cudaSuccess</span></code> 每次发生错误（无论是参数验证错误还是异步错误）时都会被错误代码覆盖。 <code class="docutils literal notranslate"><span class="pre">cudaPeekAtLastError()</span></code> 返回这个变量。 <code class="docutils literal notranslate"><span class="pre">cudaGetLastError()</span></code> 返回此变量并将其重置为 <code class="docutils literal notranslate"><span class="pre">cudaSuccess</span></code>.</p>
-<p>内核启动不会返回任何错误代码，因此 <code class="docutils literal notranslate"><span class="pre">cudaPeekAtLastError()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaGetLastError()</span></code> 必须在内核启动后立即调用以检索任何预启动错误。确保返回的任何错误 <code class="docutils literal notranslate"><span class="pre">cudaPeekAtLastError()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaGetLastError()</span></code> 不是源自内核启动之前的调用，必须确保运行时错误变量设置为 <code class="docutils literal notranslate"><span class="pre">cudaSuccess</span></code> 在内核启动之前，例如，通过调用 <code class="docutils literal notranslate"><span class="pre">cudaGetLastError()</span></code> 就在内核启动之前。内核启动是异步的，因此要检查异步错误，应用程序必须在内核启动和调用之间进行同步 <code class="docutils literal notranslate"><span class="pre">cudaPeekAtLastError()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaGetLastError()</span></code>.</p>
-<p>注意 <code class="docutils literal notranslate"><span class="pre">cudaErrorNotReady</span></code> 可能会被返回 <code class="docutils literal notranslate"><span class="pre">cudaStreamQuery()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaEventQuery()</span></code> 不被视为错误，因此不会被报告 <code class="docutils literal notranslate"><span class="pre">cudaPeekAtLastError()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaGetLastError()</span></code>.</p>
+<p>所有运行时函数都会返回错误码；但对于异步函数（参见 <a class="reference internal" href="#asynchronous-concurrent-execution"><span class="std std-ref">异步并发执行</span></a>），该返回值不可能包含设备端异步执行期间发生的错误，因为函数在设备完成任务前就已经返回。它只能反映任务提交前在主机端发生的错误（通常是参数校验错误）。若设备端发生异步错误，通常会在后续某次看似无关的运行时调用中被报告。</p>
+<p>因此，在某次异步调用之后立即检查“异步错误”的方法，是在该调用后立刻执行同步（例如调用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code>，或使用 <a class="reference internal" href="#asynchronous-concurrent-execution"><span class="std std-ref">异步并发执行</span></a> 一节中的其他同步机制），并检查 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code> 返回的错误码。</p>
+<p>运行时为每个主机线程维护一个错误变量，其初始值为 <code class="docutils literal notranslate"><span class="pre">cudaSuccess</span></code>。每当发生错误（无论是参数校验错误还是异步错误）时，该变量都会被覆盖为对应错误码。<code class="docutils literal notranslate"><span class="pre">cudaPeekAtLastError()</span></code> 只读取该变量；<code class="docutils literal notranslate"><span class="pre">cudaGetLastError()</span></code> 在读取后还会将其重置为 <code class="docutils literal notranslate"><span class="pre">cudaSuccess</span></code>。</p>
+<p>内核启动本身不直接返回错误码，因此应在内核启动后立刻调用 <code class="docutils literal notranslate"><span class="pre">cudaPeekAtLastError()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaGetLastError()</span></code>，以获取预启动（pre-launch）错误。为避免读到的是“更早调用遗留的错误”，应在内核启动前确保线程错误变量已被清为 <code class="docutils literal notranslate"><span class="pre">cudaSuccess</span></code>（例如在启动前先调用一次 <code class="docutils literal notranslate"><span class="pre">cudaGetLastError()</span></code>）。另外，内核启动是异步的；若要检查设备端异步错误，必须在启动后、调用 <code class="docutils literal notranslate"><span class="pre">cudaPeekAtLastError()</span></code>/<code class="docutils literal notranslate"><span class="pre">cudaGetLastError()</span></code> 前先做同步。</p>
+<p>需要注意：<code class="docutils literal notranslate"><span class="pre">cudaStreamQuery()</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaEventQuery()</span></code> 可能返回的 <code class="docutils literal notranslate"><span class="pre">cudaErrorNotReady</span></code> 不被视为错误，因此不会被 <code class="docutils literal notranslate"><span class="pre">cudaPeekAtLastError()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaGetLastError()</span></code> 作为“最后错误”报告。</p>
 </section>
 <section id="call-stack">
 <span id="id82"></span><h3>
