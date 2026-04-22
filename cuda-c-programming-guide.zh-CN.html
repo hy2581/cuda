@@ -7044,10 +7044,10 @@
 <span id="id135"></span><h2>
 <span class="section-number">8.3. </span>最大化内存吞吐量<a class="headerlink" href="#maximize-memory-throughput" title="跳转到此标题"></a>
 </h2>
-<p>最大化应用程序整体内存吞吐量的第一步是最小化低带宽的数据传输。</p>
-<p>这意味着最大限度地减少主机和设备之间的数据传输，详见 <a class="reference internal" href="#data-transfer-between-host-and-device"><span class="std std-ref">主机与设备之间的数据传输</span></a>，因为它们的带宽比全局内存和设备之间的数据传输低得多。</p>
-<p>这还意味着通过最大限度地使用片上内存：共享内存和缓存（即计算能力 2.x 及更高版本的设备上可用的 L1 缓存和 L2 缓存，所有设备上可用的纹理缓存和const缓存）来最大程度地减少全局内存和设备之间的数据传输。</p>
-<p>共享内存相当于用户管理的缓存：应用程序显式分配和访问它。如图所示 <a class="reference internal" href="#cuda-c-runtime"><span class="std std-ref">CUDA 运行时</span></a>，典型的编程模式是将来自设备内存的数据暂存到共享内存中；换句话说，让每个线程都属于一个块：</p>
+<p>提升应用整体内存吞吐量的第一步，是先减少低带宽路径上的数据传输。</p>
+<p>这意味着要尽量减少主机与设备之间的数据搬运（见 <a class="reference internal" href="#data-transfer-between-host-and-device"><span class="std std-ref">主机与设备之间的数据传输</span></a>），因为该路径带宽远低于设备与全局内存之间的传输带宽。</p>
+<p>这也意味着要尽可能利用片上存储（共享内存与缓存），以减少设备与全局内存之间的流量——包括计算能力 2.x 及以上设备可用的 L1/L2 缓存，以及所有设备上的纹理缓存与常量缓存。</p>
+<p>共享内存可视作“由程序员显式管理的缓存”：由应用主动分配与访问。如 <a class="reference internal" href="#cuda-c-runtime"><span class="std std-ref">CUDA 运行时</span></a> 所示，典型模式是把设备内存数据分阶段暂存到共享内存；也就是让同一线程块中的每个线程执行：</p>
 <ul class="simple">
 <li><p>将数据从设备内存加载到共享内存，</p></li>
 <li><p>与块中的所有其他线程同步，以便每个线程都可以安全地读取由不同线程填充的共享内存位置，</p></li>
@@ -7055,37 +7055,37 @@
 <li><p>如有必要，再次同步以确保共享内存已更新为结果，</p></li>
 <li><p>将结果写回设备内存。</p></li>
 </ul>
-<p>对于某些应用程序（例如，全局内存访问模式依赖于数据），传统的硬件管理缓存更适合利用数据局部性。正如中提到的 <a class="reference internal" href="#compute-capability-7-x"><span class="std std-ref">计算能力7.x</span></a>, <a class="reference internal" href="#compute-capability-8-x"><span class="std std-ref">计算能力8.x</span></a> 和 <a class="reference internal" href="#compute-capability-9-0"><span class="std std-ref">计算能力 9.0</span></a>，对于计算能力 7.x、8.x 和 9.0 的设备，相同的片上内存用于 L1 和共享内存，并且每个内核调用可以配置其中多少专用于 L1 与共享内存。</p>
-<p>内核访问内存的吞吐量可能会根据每种内存类型的访问模式而变化一个数量级。因此，最大化内存吞吐量的下一步是根据中描述的最佳内存访问模式尽可能最佳地组织内存访问。 <a class="reference internal" href="#device-memory-accesses"><span class="std std-ref">设备内存访问</span></a>。这种优化对于全局内存访问尤其重要，因为与可用的片上带宽和算术指令吞吐量相比，全局内存带宽较低，因此非最佳全局内存访问通常会对性能产生很大影响。</p>
+<p>对某些应用（例如全局内存访问模式强依赖数据）而言，传统的硬件管理缓存更利于挖掘数据局部性。正如 <a class="reference internal" href="#compute-capability-7-x"><span class="std std-ref">计算能力 7.x</span></a>、<a class="reference internal" href="#compute-capability-8-x"><span class="std std-ref">计算能力 8.x</span></a> 与 <a class="reference internal" href="#compute-capability-9-0"><span class="std std-ref">计算能力 9.0</span></a> 所述，在 7.x/8.x/9.0 设备上，L1 与共享内存共用同一片上存储，其分配比例可按每次内核调用进行配置。</p>
+<p>内核访存吞吐会随不同内存类型的访问模式而变化，量级差异可达一个数量级。因而，提高内存吞吐的下一步，是尽可能按 <a class="reference internal" href="#device-memory-accesses"><span class="std std-ref">设备内存访问</span></a> 中的最佳模式组织访存。该优化对全局内存尤为关键：相较片上带宽与算术指令吞吐，全局内存带宽更低，次优全局访存往往会显著拉低性能。</p>
 <section id="data-transfer-between-host-and-device">
 <span id="id136"></span><h3>
 <span class="section-number">8.3.1. </span>主机与设备之间的数据传输<a class="headerlink" href="#data-transfer-between-host-and-device" title="跳转到此标题"></a>
 </h3>
-<p>应用程序应努力尽量减少主机和设备之间的数据传输。实现此目的的一种方法是将更多代码从主机移动到设备，即使这意味着运行的内核没有提供足够的并行性以在设备上高效执行。中间数据结构可以在设备存储器中创建，由设备操作，并且在不被主机映射或复制到主机存储器的情况下被销毁。</p>
-<p>此外，由于与每次传输相关的开销，将许多小传输批处理为单个大传输总是比单独进行每个传输性能更好。</p>
-<p>在具有前端总线的系统上，通过使用页面锁定主机内存来实现主机和设备之间数据传输的更高性能，如下所述 <a class="reference internal" href="#page-locked-host-memory"><span class="std std-ref">页锁定主机内存</span></a>。</p>
-<p>此外，当使用映射页锁定内存时（<a class="reference internal" href="#mapped-memory"><span class="std std-ref">映射内存</span></a>），不需要分配任何设备内存并在设备和主机内存之间显式复制数据。每次内核访问映射内存时都会隐式执行数据传输。为了获得最大性能，这些内存访问必须与对全局内存的访问一样合并（请参阅 <a class="reference internal" href="#device-memory-accesses"><span class="std std-ref">设备内存访问</span></a>）。假设它们是，并且映射内存仅读取或写入一次，则使用映射页锁定内存而不是设备和主机内存之间的显式副本可以提高性能。</p>
-<p>在设备内存和主机内存物理上相同的集成系统上，主机和设备内存之间的任何副本都是多余的，应使用映射的页锁定内存。应用程序可能会查询设备是否 <code class="docutils literal notranslate"><span class="pre">integrated</span></code> 通过检查集成设备属性（参见 <a class="reference internal" href="#device-enumeration"><span class="std std-ref">设备枚举</span></a>) 等于 1。</p>
+<p>应用应尽力减少主机与设备间的数据传输。一个可行办法是把更多代码迁移到设备端执行——即便某些内核的并行度不足以在设备上高效运行，也可能总体更优。中间数据结构可在设备内存中创建、由设备处理，并在无需映射或拷回主机的前提下直接销毁。</p>
+<p>此外，单次传输存在固定开销，因此把大量小传输合并为少量大传输，通常优于逐个小传输。</p>
+<p>在带前端总线的系统中，使用页锁定主机内存可提升主机与设备间传输性能，见 <a class="reference internal" href="#page-locked-host-memory"><span class="std std-ref">页锁定主机内存</span></a>。</p>
+<p>进一步地，使用映射页锁定内存（<a class="reference internal" href="#mapped-memory"><span class="std std-ref">映射内存</span></a>）时，无需分配设备内存并在主机/设备间显式拷贝；内核每次访问映射内存都会隐式触发数据传输。要获得最佳性能，这类访问应像全局内存访问一样满足良好合并（见 <a class="reference internal" href="#device-memory-accesses"><span class="std std-ref">设备内存访问</span></a>）。若访问模式满足合并且映射内存只读或只写一次，映射页锁定内存往往比显式拷贝更快。</p>
+<p>在设备内存与主机内存物理统一的集成系统中，主机与设备之间的拷贝本身通常是冗余的，应优先采用映射页锁定内存。可通过设备属性 <code class="docutils literal notranslate"><span class="pre">integrated</span></code>（见 <a class="reference internal" href="#device-enumeration"><span class="std std-ref">设备枚举</span></a>）是否为 1 来判断。</p>
 </section>
 <section id="device-memory-accesses">
 <span id="id137"></span><h3>
 <span class="section-number">8.3.2. </span>设备内存访问<a class="headerlink" href="#device-memory-accesses" title="跳转到此标题"></a>
 </h3>
-<p>访问可寻址内存（即全局、本地、shared、const或纹理内存）的指令可能需要多次重新发出，具体取决于warp 内线程之间内存地址的分布。分布如何以这种方式影响指令吞吐量特定于每种类型的内存，并在以下各节中进行描述。例如，对于全局内存，一般来说，地址越分散，吞吐量降低得越多。</p>
+<p>对可寻址内存（全局、本地、共享、常量或纹理内存）的访问指令，可能因 warp 内线程地址分布不同而需要重放多次。地址分布如何影响指令吞吐，取决于内存类型，后续小节分别说明。以全局内存为例，通常地址越分散，吞吐下降越明显。</p>
 <p><strong>全局内存</strong></p>
-<p>全局内存驻留在设备内存中，设备内存通过 32、64 或 128 字节内存事务进行访问。这些内存事务必须自然对齐：只有与其大小对齐的设备内存的 32、64 或 128 字节段（即，其首地址是其大小的倍数）才能由内存事务读取或写入。</p>
-<p>当 warp 执行访问全局内存的指令时，它会根据每个线程访问的字的大小以及跨线程的内存地址的分布，将 warp 内线程的内存访问合并为一个或多个内存事务。一般来说，需要的事务越多，除了线程访问的字之外，还传输更多未使用的字，从而相应地降低指令吞吐量。例如，如果每个线程的 4 字节访问生成 32 字节内存事务，则吞吐量将除以 8。</p>
-<p>需要多少事务以及最终影响多少吞吐量取决于设备的计算能力。 <a class="reference internal" href="#compute-capability-5-x"><span class="std std-ref">计算能力5.x</span></a>, <a class="reference internal" href="#compute-capability-6-x"><span class="std std-ref">计算能力6.x</span></a>, <a class="reference internal" href="#compute-capability-7-x"><span class="std std-ref">计算能力7.x</span></a>, <a class="reference internal" href="#compute-capability-8-x"><span class="std std-ref">计算能力8.x</span></a>, <a class="reference internal" href="#compute-capability-9-0"><span class="std std-ref">计算能力 9.0</span></a>, <a class="reference internal" href="#compute-capability-10-0"><span class="std std-ref">计算能力10.0</span></a>，以及 <a class="reference internal" href="#compute-capability-12-0"><span class="std std-ref">计算能力12.0</span></a> 提供有关如何针对各种计算功能处理全局内存访问的更多详细信息。</p>
-<p>因此，为了最大化全局内存吞吐量，通过以下方式最大化合并非常重要：</p>
+<p>全局内存位于设备内存中，其访问以 32/64/128 字节内存事务完成。事务要求自然对齐：只有与事务大小对齐的 32/64/128 字节设备内存段（即起始地址为该大小整数倍）才能被一次事务读取或写入。</p>
+<p>当 warp 执行全局内存访问指令时，硬件会根据“每线程访问字长”与“跨线程地址分布”将其合并为一个或多个内存事务。一般而言，事务数越多，除线程真正请求的数据外会搬运更多无用字节，指令吞吐也随之下降。例如：若每线程 4 字节访问最终触发 32 字节事务，则有效吞吐仅为理想情况的 1/8。</p>
+<p>具体事务数量及吞吐影响与设备计算能力相关。详见 <a class="reference internal" href="#compute-capability-5-x"><span class="std std-ref">计算能力 5.x</span></a>、<a class="reference internal" href="#compute-capability-6-x"><span class="std std-ref">计算能力 6.x</span></a>、<a class="reference internal" href="#compute-capability-7-x"><span class="std std-ref">计算能力 7.x</span></a>、<a class="reference internal" href="#compute-capability-8-x"><span class="std std-ref">计算能力 8.x</span></a>、<a class="reference internal" href="#compute-capability-9-0"><span class="std std-ref">计算能力 9.0</span></a>、<a class="reference internal" href="#compute-capability-10-0"><span class="std std-ref">计算能力 10.0</span></a> 与 <a class="reference internal" href="#compute-capability-12-0"><span class="std std-ref">计算能力 12.0</span></a>。</p>
+<p>因此，要提升全局内存吞吐，关键在于尽可能提高合并访问质量，可从以下方面入手：</p>
 <ul class="simple">
-<li><p>遵循基于的最佳访问模式 <a class="reference internal" href="#compute-capability-5-x"><span class="std std-ref">计算能力5.x</span></a>, <a class="reference internal" href="#compute-capability-6-x"><span class="std std-ref">计算能力6.x</span></a>, <a class="reference internal" href="#compute-capability-7-x"><span class="std std-ref">计算能力7.x</span></a>, <a class="reference internal" href="#compute-capability-8-x"><span class="std std-ref">计算能力8.x</span></a>, <a class="reference internal" href="#compute-capability-9-0"><span class="std std-ref">计算能力 9.0</span></a>, <a class="reference internal" href="#compute-capability-10-0"><span class="std std-ref">计算能力10.0</span></a>，以及 <a class="reference internal" href="#compute-capability-12-0"><span class="std std-ref">计算能力12.0</span></a>。</p></li>
-<li><p>使用满足下面“大小和对齐要求”部分中详细介绍的大小和对齐要求的数据类型，</p></li>
-<li><p>在某些情况下填充数据，例如，当访问二维数组时，如下面的二维数组部分所述。</p></li>
+<li><p>遵循各计算能力章节给出的最佳访问模式（见 <a class="reference internal" href="#compute-capability-5-x"><span class="std std-ref">5.x</span></a>、<a class="reference internal" href="#compute-capability-6-x"><span class="std std-ref">6.x</span></a>、<a class="reference internal" href="#compute-capability-7-x"><span class="std std-ref">7.x</span></a>、<a class="reference internal" href="#compute-capability-8-x"><span class="std std-ref">8.x</span></a>、<a class="reference internal" href="#compute-capability-9-0"><span class="std std-ref">9.0</span></a>、<a class="reference internal" href="#compute-capability-10-0"><span class="std std-ref">10.0</span></a>、<a class="reference internal" href="#compute-capability-12-0"><span class="std std-ref">12.0</span></a>）；</p></li>
+<li><p>使用满足下文“大小与对齐要求”的数据类型；</p></li>
+<li><p>在必要时做数据填充（padding），例如访问二维数组时，见后文“二维数组”。</p></li>
 </ul>
 <p><strong>尺寸和对齐要求</strong></p>
 <p>全局内存指令支持读取或写入大小等于 1、2、4、8 或 16 字节的字。当且仅当数据类型的大小为 1、2、4、8 或 16 字节并且数据自然对齐（即，其地址是该大小的倍数）时，对驻留在全局内存中的数据的任何访问（通过变量或指针）都会编译为单个全局内存指令。</p>
 <p>如果未满足此大小和对齐要求，则访问会编译为具有交错访问模式的多条指令，从而阻止这些指令完全合并。因此，建议对驻留在全局内存中的数据使用满足此要求的类型。</p>
-<p>自动满足对齐要求 <a class="reference internal" href="#built-in-vector-types"><span class="std std-ref">内置向量类型</span></a>。</p>
+<p><a class="reference internal" href="#built-in-vector-types"><span class="std std-ref">内置向量类型</span></a> 天然满足上述对齐要求。</p>
 <p>对于结构体，编译器可以使用对齐说明符强制执行大小和对齐要求<code class="docutils literal notranslate"><span class="pre">__align__(8)</span><span class="pre">or</span><span class="pre">__align__(16)</span></code>， 例如</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">__align__</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -7125,21 +7125,21 @@
 <p>在计算能力 5.x 及以上的设备上，本地内存访问始终以与全局内存访问相同的方式缓存在 L2 中（请参阅 <a class="reference internal" href="#compute-capability-5-x"><span class="std std-ref">计算能力5.x</span></a> 和 <a class="reference internal" href="#compute-capability-6-x"><span class="std std-ref">计算能力6.x</span></a>。</p>
 <p><strong>共享内存</strong></p>
 <p>由于共享内存位于片上，因此与本地或全局内存相比，它具有更高的带宽和更低的延迟。</p>
-<p>为了实现高带宽，共享内存被分为大小相等的内存模块，称为存储体，可以同时访问。任何内存读或写请求 <em>n</em> 落在的地址 <em>n</em> 因此，可以同时为不同的存储体提供服务，从而产生的总带宽为 <em>n</em> 是单个模块带宽的数倍。</p>
-<p>但是，如果内存请求的两个地址落在同一内存库中，则会出现内存库冲突，并且必须串行访问。硬件根据需要将具有存储体冲突的内存请求拆分为多个单独的无冲突请求，从而将吞吐量降低等于单独内存请求数量的系数。如果单独的内存请求的数量是 <em>n</em>，据说初始内存请求会导致 <em>n</em>方式银行冲突。</p>
-<p>因此，为了获得最大性能，了解内存地址如何映射到内存组以安排内存请求以最大限度地减少内存组冲突非常重要。这在 <a class="reference internal" href="#compute-capability-5-x"><span class="std std-ref">计算能力5.x</span></a>, <a class="reference internal" href="#compute-capability-6-x"><span class="std std-ref">计算能力6.x</span></a>, <a class="reference internal" href="#compute-capability-7-x"><span class="std std-ref">计算能力7.x</span></a>, <a class="reference internal" href="#compute-capability-8-x"><span class="std std-ref">计算能力8.x</span></a>, <a class="reference internal" href="#compute-capability-9-0"><span class="std std-ref">计算能力 9.0</span></a>, <a class="reference internal" href="#compute-capability-10-0"><span class="std std-ref">计算能力10.0</span></a>，以及 <a class="reference internal" href="#compute-capability-12-0"><span class="std std-ref">计算能力12.0</span></a> 分别针对具有这些计算能力的设备。</p>
+<p>为获得高带宽，共享内存被划分为若干等宽的存储体（bank），可并行访问。若一次内存读/写请求中的 <em>n</em> 个地址分别落在不同 bank，则可并行服务，总带宽约为单个 bank 带宽的 <em>n</em> 倍。</p>
+<p>若请求中的两个地址落在同一 bank，则发生 bank 冲突，需要串行化访问。硬件会把原请求拆成多个无冲突子请求，因此吞吐按子请求数成比例下降；若需拆成 <em>n</em> 个子请求，则称该请求出现了 <em>n</em> 路 bank 冲突。</p>
+<p>因此，为了达到最佳性能，理解地址到 bank 的映射并据此组织访问、尽量减少 bank 冲突至关重要。各代设备的细节见 <a class="reference internal" href="#compute-capability-5-x"><span class="std std-ref">计算能力 5.x</span></a>、<a class="reference internal" href="#compute-capability-6-x"><span class="std std-ref">计算能力 6.x</span></a>、<a class="reference internal" href="#compute-capability-7-x"><span class="std std-ref">计算能力 7.x</span></a>、<a class="reference internal" href="#compute-capability-8-x"><span class="std std-ref">计算能力 8.x</span></a>、<a class="reference internal" href="#compute-capability-9-0"><span class="std std-ref">计算能力 9.0</span></a>、<a class="reference internal" href="#compute-capability-10-0"><span class="std std-ref">计算能力 10.0</span></a> 与 <a class="reference internal" href="#compute-capability-12-0"><span class="std std-ref">计算能力 12.0</span></a>。</p>
 <p><strong>常量内存</strong></p>
-<p>const内存空间驻留在设备内存中，并缓存在const高速缓存中。</p>
-<p>然后，请求被分成与初始请求中的不同内存地址一样多的单独请求，从而将吞吐量降低等于单独请求数量的系数。</p>
-<p>然后，在缓存命中的情况下，将按照const缓存的吞吐量处理生成的请求，否则，将按照设备内存的吞吐量处理生成的请求。</p>
+<p>常量内存空间驻留于设备内存，并由常量缓存（constant cache）缓存。</p>
+<p>此时，原始请求会按其中不同地址的个数被拆成若干独立子请求，吞吐量会按子请求数量成比例下降。</p>
+<p>拆分后的请求若命中缓存，则按常量缓存吞吐处理；若未命中，则按设备内存吞吐处理。</p>
 <p><strong>纹理与表面内存</strong></p>
-<p>纹理和表面内存空间驻留在设备内存中，并缓存在纹理缓存中，因此纹理获取或表面读取仅在缓存未命中时才花费一次从设备内存读取的内存，否则只花费一次从纹理缓存读取的费用。纹理缓存针对 2D 空间局部性进行了优化，因此读取 2D 中靠近的纹理或表面地址的同一 warp 的线程将实现最佳性能。此外，它还设计用于具有恒定延迟的流式读取；缓存命中会降低 DRAM 带宽需求，但不会降低获取延迟。</p>
-<p>通过纹理或表面获取读取设备内存具有一些好处，可以使其成为从全局或const内存读取设备内存的有利替代方案：</p>
+<p>纹理与表面内存空间同样驻留于设备内存，并受纹理缓存保护。因而纹理读取或表面读取仅在缓存未命中时才需访问设备内存，命中时只消耗纹理缓存带宽。纹理缓存针对二维空间局部性优化：同一 warp 若访问二维上彼此接近的纹理/表面地址，性能最佳。此外，纹理缓存针对流式读取设计为近似恒定延迟；命中可降低 DRAM 带宽压力，但不会降低取数延迟。</p>
+<p>通过纹理或表面路径读取设备内存，相比直接从全局或常量内存读取，常见优势包括：</p>
 <ul class="simple">
-<li><p>如果内存读取不遵循全局或const内存读取必须遵循的访问模式以获得良好的性能，则可以实现更高的带宽，前提是纹理读取或表面读取存在局部性；</p></li>
-<li><p>寻址计算由专用单元在内核外部执行；</p></li>
-<li><p>打包数据可以在单个操作中广播到单独的变量；</p></li>
-<li><p>8 位和 16 位整数输入数据可以选择转换为 [0.0, 1.0] 或 [-1.0, 1.0] 范围内的 32 位浮点值（请参阅 <a class="reference internal" href="#texture-memory"><span class="std std-ref">纹理内存</span></a>。</p></li>
+<li><p>当访问模式不满足全局/常量内存的高效模式时，只要纹理/表面访问存在局部性，往往仍可获得更高有效带宽；</p></li>
+<li><p>地址计算由内核外专用单元完成；</p></li>
+<li><p>打包数据可在一次操作中拆分并分发到多个独立变量；</p></li>
+<li><p>8 位或 16 位整型输入可选择转换为 [0.0, 1.0] 或 [-1.0, 1.0] 区间内的 32 位浮点值（见 <a class="reference internal" href="#texture-memory"><span class="std std-ref">纹理内存</span></a>）。</p></li>
 </ul>
 </section>
 </section>
@@ -7147,19 +7147,18 @@
 <span id="id138"></span><h2>
 <span class="section-number">8.4. </span>最大化指令吞吐量<a class="headerlink" href="#maximize-instruction-throughput" title="跳转到此标题"></a>
 </h2>
-<p>请参阅 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#arithmetic-instructions-throughput">CUDA C++ 最佳实践指南</a>
-有关优化指令吞吐量的更多详细信息。</p>
+<p>关于如何优化指令吞吐量，详见 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#arithmetic-instructions-throughput">CUDA C++ 最佳实践指南</a>。</p>
 </section>
 <section id="minimize-memory-thrashing">
 <span id="id139"></span><h2>
-<span class="section-number">8.5. </span>最小化内存抖动<a class="headerlink" href="#minimize-memory-thrashing" title="跳转到此标题"></a>
+<span class="section-number">8.5. </span>最小化内存颠簸<a class="headerlink" href="#minimize-memory-thrashing" title="跳转到此标题"></a>
 </h2>
-<p>经常频繁分配和释放内存的应用程序可能会发现分配调用往往会随着时间的推移而变慢，直至达到极限。由于将内存释放回操作系统供其自己使用的性质，这通常是预期的。为了在这方面获得最佳性能，我们建议如下：</p>
+<p>若应用频繁进行内存分配与释放，常会观察到分配调用随时间逐渐变慢并趋于某个极限。这通常是预期现象，源于内存归还给操作系统并由其再管理的机制。为在此类场景下获得更佳性能，建议：</p>
 <ul class="simple">
-<li><p>尝试根据当前问题调整分配大小。不要尝试分配所有可用内存 <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code> / <code class="docutils literal notranslate"><span class="pre">cudaMallocHost</span></code> / <code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code>，因为这会强制内存立即驻留并阻止其他应用程序使用该内存。这可能会给操作系统调度程序带来更大的压力，或者只是阻止使用相同 GPU 的其他应用程序完全运行。</p></li>
-<li><p>尝试在应用程序早期以适当大小的分配方式分配内存，并且仅在应用程序没有任何用途时才分配内存。减少数量 <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code>+<code class="docutils literal notranslate"><span class="pre">cudaFree</span></code> 应用程序中的调用，尤其是在性能关键区域。</p></li>
-<li><p>如果应用程序无法分配足够的设备内存，请考虑使用其他内存类型，例如 <code class="docutils literal notranslate"><span class="pre">cudaMallocHost</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code>，这可能性能不高，但将使应用程序取得进展。</p></li>
-<li><p>对于支持该功能的平台， <code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code> 允许超额认购，并且具有正确的 <code class="docutils literal notranslate"><span class="pre">cudaMemAdvise</span></code> 启用策略，将允许应用程序保留大部分（如果不是全部）性能 <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code>. <code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code> 也不会强制分配驻留在需要或预取之前，从而减少操作系统调度程序的整体压力并更好地支持多用途用例。</p></li>
+<li><p>按实际问题规模分配内存，不要用 <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code>/<code class="docutils literal notranslate"><span class="pre">cudaMallocHost</span></code>/<code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code> 一次性吃满可用内存；这会迫使内存立即驻留，影响其他应用使用，增加操作系统调度压力，甚至让同 GPU 上其他应用无法运行。</p></li>
+<li><p>尽量在应用早期按合适尺寸完成分配，并在确无用途时再释放。减少应用中的 <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code>+<code class="docutils literal notranslate"><span class="pre">cudaFree</span></code> 调用次数，尤其在性能关键路径上。</p></li>
+<li><p>若设备内存不足，可考虑 <code class="docutils literal notranslate"><span class="pre">cudaMallocHost</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code> 等替代内存类型；其性能可能较低，但可让程序继续推进。</p></li>
+<li><p>在支持的平台上，<code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code> 支持超量分配（oversubscription）；若结合恰当的 <code class="docutils literal notranslate"><span class="pre">cudaMemAdvise</span></code> 策略，应用通常可保留大部分（甚至接近全部）<code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code> 性能。且 <code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code> 不会在尚未需要或预取前强制驻留，有助于降低 OS 调度压力，更适合多用途场景。</p></li>
 </ul>
 </section>
 </section>
