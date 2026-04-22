@@ -7450,12 +7450,12 @@
 <span id="vector-types"></span><h3>
 <span class="section-number">10.3.1. </span>char, short, int, long, longlong, float, double<a class="headerlink" href="#char-short-int-long-longlong-float-double" title="跳转到此标题"></a>
 </h3>
-<p>这些是从基本整数和浮点类型派生的向量类型。它们是结构体，第一个、第二个、第三个和第四个组件可以通过字段访问 <code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code>, <code class="docutils literal notranslate"><span class="pre">z</span></code>，以及 <code class="docutils literal notranslate"><span class="pre">w</span></code>， 分别。它们都带有以下形式的构造函数 <code class="docutils literal notranslate"><span class="pre">make_&lt;type</span><span class="pre">name&gt;</span></code>;例如，</p>
+<p>这些向量类型由基本整数和浮点类型派生而来。它们本质上是结构体，第 1、2、3、4 个分量分别可通过字段 <code class="docutils literal notranslate"><span class="pre">x</span></code>、<code class="docutils literal notranslate"><span class="pre">y</span></code>、<code class="docutils literal notranslate"><span class="pre">z</span></code>、<code class="docutils literal notranslate"><span class="pre">w</span></code> 访问。每种类型都提供形如 <code class="docutils literal notranslate"><span class="pre">make_&lt;typename&gt;</span></code> 的构造函数；例如：</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">int2</span><span class="w"> </span><span class="nf">make_int2</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
-<p>创建一个向量类型 <code class="docutils literal notranslate"><span class="pre">int2</span></code> 有价值<code class="docutils literal notranslate"><span class="pre">(x,</span><span class="pre">y)</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">make_int2(x,</span><span class="pre">y)</span></code> 会创建一个值为 <code class="docutils literal notranslate"><span class="pre">(x,</span><span class="pre">y)</span></code> 的 <code class="docutils literal notranslate"><span class="pre">int2</span></code> 向量。</p>
 <p>向量类型的对齐要求详述于 <a class="reference internal" href="#vector-types-alignment-requirements-in-device-code"><span class="std std-numref">表7</span></a>。</p>
 <table class="table-no-stripes docutils align-default" id="vector-types-alignment-requirements-in-device-code">
 <caption>
@@ -7468,12 +7468,12 @@
 <thead>
 <tr class="row-odd">
 <th class="head"><p>类型</p></th>
-<th class="head"><p>结盟</p></th>
+<th class="head"><p>对齐</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even">
-<td><p>字符1、uchar1</p></td>
+<td><p>char1、uchar1</p></td>
 <td><p>1</p></td>
 </tr>
 <tr class="row-odd">
@@ -7489,19 +7489,19 @@
 <td><p>4</p></td>
 </tr>
 <tr class="row-even">
-<td><p>短1、u短1</p></td>
+<td><p>short1、ushort1</p></td>
 <td><p>2</p></td>
 </tr>
 <tr class="row-odd">
-<td><p>短2、u短2</p></td>
+<td><p>short2、ushort2</p></td>
 <td><p>4</p></td>
 </tr>
 <tr class="row-even">
-<td><p>短3、u短3</p></td>
+<td><p>short3、ushort3</p></td>
 <td><p>2</p></td>
 </tr>
 <tr class="row-odd">
-<td><p>短4、u短4</p></td>
+<td><p>short4、ushort4</p></td>
 <td><p>8</p></td>
 </tr>
 <tr class="row-even">
@@ -7521,30 +7521,30 @@
 <td><p>16</p></td>
 </tr>
 <tr class="row-even">
-<td><p>长1, 乌龙1</p></td>
-<td><p>如果 sizeof(long) 等于 sizeof(int) 8，则为 4，否则</p></td>
+<td><p>long1、ulong1</p></td>
+<td><p>如果 <code class="docutils literal notranslate"><span class="pre">sizeof(long)</span></code> 等于 <code class="docutils literal notranslate"><span class="pre">sizeof(int)</span></code>，则为 4，否则为 8</p></td>
 </tr>
 <tr class="row-odd">
-<td><p>长2, 乌龙2</p></td>
+<td><p>long2、ulong2</p></td>
 <td><p>如果 sizeof(long) 等于 sizeof(int)，则为 8，否则为 16</p></td>
 </tr>
 <tr class="row-even">
-<td><p>长3、乌龙3</p></td>
+<td><p>long3、ulong3</p></td>
 <td><p>如果 sizeof(long) 等于 sizeof(int)，则为 4，否则为 8</p></td>
 </tr>
 <tr class="row-odd">
-<td><p>长4 <a class="footnote-reference brackets" href="#fn32a" id="id155">3</a></p></td>
+<td><p>long4 <a class="footnote-reference brackets" href="#fn32a" id="id155">3</a></p></td>
 <td rowspan="2"><p>16</p></td>
 </tr>
 <tr class="row-even">
-<td><p>长4_16a</p></td>
+<td><p>long4_16a</p></td>
 </tr>
 <tr class="row-odd">
-<td><p>长4_32a</p></td>
+<td><p>long4_32a</p></td>
 <td><p>32</p></td>
 </tr>
 <tr class="row-even">
-<td><p>乌龙4 <a class="footnote-reference brackets" href="#fn32a" id="id156">3</a></p></td>
+<td><p>ulong4 <a class="footnote-reference brackets" href="#fn32a" id="id156">3</a></p></td>
 <td rowspan="2"><p>16</p></td>
 </tr>
 <tr class="row-odd">
@@ -7555,15 +7555,15 @@
 <td><p>32</p></td>
 </tr>
 <tr class="row-odd">
-<td><p>龙龙1、乌龙龙1</p></td>
+<td><p>longlong1、ulonglong1</p></td>
 <td><p>8</p></td>
 </tr>
 <tr class="row-even">
-<td><p>龙龙2, 乌龙龙2</p></td>
+<td><p>longlong2、ulonglong2</p></td>
 <td><p>16</p></td>
 </tr>
 <tr class="row-odd">
-<td><p>龙龙3, 乌龙龙3</p></td>
+<td><p>longlong3、ulonglong3</p></td>
 <td><p>8</p></td>
 </tr>
 <tr class="row-even">
@@ -7642,7 +7642,7 @@
 <span id="id160"></span><h3>
 <span class="section-number">10.3.2. </span>dim3<a class="headerlink" href="#dim3" title="跳转到此标题"></a>
 </h3>
-<p>该类型是基于整数向量类型 <code class="docutils literal notranslate"><span class="pre">uint3</span></code> 用于指定维度。定义该类型变量时 <code class="docutils literal notranslate"><span class="pre">dim3</span></code>，任何未指定的组件都初始化为 1。</p>
+<p>该类型基于整数向量类型 <code class="docutils literal notranslate"><span class="pre">uint3</span></code>，用于指定维度。定义 <code class="docutils literal notranslate"><span class="pre">dim3</span></code> 变量时，任何未显式指定的分量都会初始化为 1。</p>
 </section>
 </section>
 <section id="built-in-variables">
