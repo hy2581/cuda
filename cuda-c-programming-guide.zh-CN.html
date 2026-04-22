@@ -7304,7 +7304,7 @@
 <span id="id150"></span><h3>
 <span class="section-number">10.2.3. </span>__shared__<a class="headerlink" href="#shared" title="跳转到此标题"></a>
 </h3>
-<p><code class="docutils literal notranslate"><span class="pre">__shared__</span></code> 内存空间说明符，可选择与 <code class="docutils literal notranslate"><span class="pre">__device__</span></code>，声明一个变量：</p>
+<p><code class="docutils literal notranslate"><span class="pre">__shared__</span></code> 内存空间说明符（可与 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> 联用）用于声明一个变量，该变量：</p>
 <ul class="simple">
 <li><p>驻留在线程块的共享内存空间中，</p></li>
 <li><p>具有块的生命周期，</p></li>
@@ -7317,14 +7317,14 @@
 <div class="highlight"><pre><span></span><span class="k">extern</span><span class="w"> </span><span class="n">__shared__</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">shared</span><span class="p">[];</span><span class="w"></span>
 </pre></div>
 </div>
-<p>数组的大小在启动时确定（参见 <a class="reference internal" href="#execution-configuration"><span class="std std-ref">执行配置</span></a>）。以这种方式声明的所有变量都从内存中的同一地址开始，因此数组中变量的布局必须通过偏移量显式管理。例如，如果一个人想要相当于</p>
+<p>数组大小在内核启动时确定（参见 <a class="reference internal" href="#execution-configuration"><span class="std std-ref">执行配置</span></a>）。采用这种写法时，所有此类变量都从共享内存中的同一地址起始，因此必须通过偏移量显式管理数组内各变量的布局。例如，若希望得到等价于以下声明的布局：</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="kt">short</span><span class="w"> </span><span class="n">array0</span><span class="p">[</span><span class="mi">128</span><span class="p">];</span><span class="w"></span>
 <span class="kt">float</span><span class="w"> </span><span class="n">array1</span><span class="p">[</span><span class="mi">64</span><span class="p">];</span><span class="w"></span>
 <span class="kt">int</span><span class="w"> </span><span class="n">array2</span><span class="p">[</span><span class="mi">256</span><span class="p">];</span><span class="w"></span>
 </pre></div>
 </div>
-<p>在动态分配的共享内存中，可以通过以下方式声明和初始化数组：</p>
+<p>在动态分配的共享内存中，可按如下方式声明并初始化这些数组：</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="k">extern</span><span class="w"> </span><span class="n">__shared__</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">array</span><span class="p">[];</span><span class="w"></span>
 <span class="n">__device__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">func</span><span class="p">()</span><span class="w"> </span><span class="c1">// __device__ or __global__ function</span>
@@ -7335,7 +7335,7 @@
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>请注意，指针需要与它们指向的类型对齐，因此以下代码不起作用，因为 array1 未与 4 个字节对齐。</p>
+<p>请注意，指针必须满足其所指向类型的对齐要求。下面这段代码是错误的，因为 <code class="docutils literal notranslate"><span class="pre">array1</span></code> 没有按 4 字节对齐。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="k">extern</span><span class="w"> </span><span class="n">__shared__</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">array</span><span class="p">[];</span><span class="w"></span>
 <span class="n">__device__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">func</span><span class="p">()</span><span class="w"> </span><span class="c1">// __device__ or __global__ function</span>
@@ -7349,23 +7349,23 @@
 </section>
 <section id="grid-constant">
 <span id="id151"></span><h3>
-<span class="section-number">10.2.4. </span>__网格常数__<a class="headerlink" href="#grid-constant" title="跳转到此标题"></a>
+<span class="section-number">10.2.4. </span>__grid_constant__<a class="headerlink" href="#grid-constant" title="跳转到此标题"></a>
 </h3>
-<p><code class="docutils literal notranslate"><span class="pre">__grid_constant__</span></code> 计算架构的注释大于或等于 7.0 注释 a <code class="docutils literal notranslate"><span class="pre">const</span></code>-合格的 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 非引用类型的函数参数：</p>
+<p>在计算能力大于等于 7.0 的架构上，<code class="docutils literal notranslate"><span class="pre">__grid_constant__</span></code> 可用于标注一个 <code class="docutils literal notranslate"><span class="pre">const</span></code> 限定、非引用类型的 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 函数参数。被标注参数具有以下属性：</p>
 <ul class="simple">
-<li><p>具有网格的寿命，</p></li>
-<li><p>对于网格来说是私有的，即，主机线程和来自其他网格（包括子网格）的线程无法访问该对象，</p></li>
-<li><p>每个网格都有一个不同的对象，即网格中的所有线程都看到相同的地址，</p></li>
-<li><p>是只读的，即修改 <code class="docutils literal notranslate"><span class="pre">__grid_constant__</span></code> 对象或其任何子对象是 <em>未定义的行为</em>， 包括 <code class="docutils literal notranslate"><span class="pre">mutable</span></code> 成员。</p></li>
+<li><p>生命周期与该网格相同，</p></li>
+<li><p>对该网格私有，即主机线程以及其他网格（包括子网格）中的线程都无法访问该对象，</p></li>
+<li><p>每个网格拥有独立对象，即同一网格内所有线程看到的是同一个地址，</p></li>
+<li><p>为只读对象，即修改 <code class="docutils literal notranslate"><span class="pre">__grid_constant__</span></code> 对象或其任意子对象（包括 <code class="docutils literal notranslate"><span class="pre">mutable</span></code> 成员）都属于 <em>未定义行为</em>。</p></li>
 </ul>
 <p>要求：</p>
 <ul class="simple">
-<li><p>内核参数注释为 <code class="docutils literal notranslate"><span class="pre">__grid_constant__</span></code> 必须有 <code class="docutils literal notranslate"><span class="pre">const</span></code>- 限定的非引用类型。</p></li>
-<li><p>所有函数声明必须匹配任何 <code class="docutils literal notranslate"><span class="pre">__grid_constant_</span></code> 参数。</p></li>
-<li><p>函数模板特化必须与主模板声明相匹配 <code class="docutils literal notranslate"><span class="pre">__grid_constant__</span></code> 参数。</p></li>
-<li><p>函数模板实例化指令必须与主模板声明相匹配 <code class="docutils literal notranslate"><span class="pre">__grid_constant__</span></code> 参数。</p></li>
+<li><p>被 <code class="docutils literal notranslate"><span class="pre">__grid_constant__</span></code> 标注的内核参数必须是 <code class="docutils literal notranslate"><span class="pre">const</span></code> 限定的非引用类型。</p></li>
+<li><p>所有函数声明中的该参数标注必须保持一致。</p></li>
+<li><p>函数模板特化与主模板声明在该参数标注上必须一致。</p></li>
+<li><p>函数模板显式实例化指令与主模板声明在该参数标注上也必须一致。</p></li>
 </ul>
-<p>如果地址为 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 当获取函数参数时，编译器通常会在线程本地内存中创建内核参数的副本并使用该副本的地址，以部分支持 C++ 语义，这允许每个线程修改自己的函数参数本地副本。注释一个 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 函数参数与 <code class="docutils literal notranslate"><span class="pre">__grid_constant__</span></code> 确保编译器不会在线程本地内存中创建内核参数的副本，而是使用参数本身的通用地址。避免本地副本可能会提高性能。</p>
+<p>当代码获取 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 函数参数的地址时，编译器通常会在线程本地内存中为该参数创建副本，并使用副本地址，以部分满足 C++ 语义（允许每个线程修改自己的参数本地副本）。将 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 参数标注为 <code class="docutils literal notranslate"><span class="pre">__grid_constant__</span></code> 后，编译器将不再创建线程本地副本，而是直接使用参数本体的通用地址；避免本地副本在某些场景下可提升性能。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">__device__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">unknown_function</span><span class="p">(</span><span class="n">S</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="p">);</span><span class="w"></span>
 <span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">kernel</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">__grid_constant__</span><span class="w"> </span><span class="n">S</span><span class="w"> </span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -7381,20 +7381,20 @@
 <span id="id152"></span><h3>
 <span class="section-number">10.2.5. </span>__managed__<a class="headerlink" href="#managed" title="跳转到此标题"></a>
 </h3>
-<p><code class="docutils literal notranslate"><span class="pre">__managed__</span></code> 内存空间说明符，可选择与 <code class="docutils literal notranslate"><span class="pre">__device__</span></code>，声明一个变量：</p>
+<p><code class="docutils literal notranslate"><span class="pre">__managed__</span></code> 内存空间说明符（可与 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> 联用）用于声明一个变量，该变量：</p>
 <ul class="simple">
 <li><p>可以从设备和主机代码引用，例如，可以获取其地址，也可以直接从设备或主机函数读取或写入它。</p></li>
 <li><p>具有应用程序的生命周期。</p></li>
 </ul>
-<p>见 <a class="reference internal" href="#managed-specifier"><span class="std std-ref">__托管__ 内存空间说明符</span></a> 了解更多详情。</p>
+<p>更多细节见 <a class="reference internal" href="#managed-specifier"><span class="std std-ref">__managed__ 内存空间说明符</span></a>。</p>
 </section>
 <section id="restrict">
 <span id="id153"></span><h3>
-<span class="section-number">10.2.6. </span>__限制__<a class="headerlink" href="#restrict" title="跳转到此标题"></a>
+<span class="section-number">10.2.6. </span>__restrict__<a class="headerlink" href="#restrict" title="跳转到此标题"></a>
 </h3>
-<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 通过以下方式支持受限指针 <code class="docutils literal notranslate"><span class="pre">__restrict__</span></code> 关键词。</p>
-<p>C99 中引入了限制指针，以缓解 C 类型语言中存在的别名问题，并抑制从代码重新排序到公共子表达式消除的所有类型的优化。</p>
-<p>下面是一个存在别名问题的示例，其中使用受限指针可以帮助编译器减少指令数量：</p>
+<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 支持使用 <code class="docutils literal notranslate"><span class="pre">__restrict__</span></code> 关键字声明受限指针。</p>
+<p>C99 引入受限指针，目的是缓解 C/C++ 风格语言中的别名问题。别名不确定性会抑制多种优化，例如指令重排与公共子表达式消除。</p>
+<p>下面给出一个存在别名风险的示例；在该示例中使用受限指针有助于编译器减少指令数量：</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">foo</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"></span>
 <span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"></span>
@@ -7410,15 +7410,15 @@
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>在 C 类型语言中，指针 <code class="docutils literal notranslate"><span class="pre">a</span></code>, <code class="docutils literal notranslate"><span class="pre">b</span></code>，以及 <code class="docutils literal notranslate"><span class="pre">c</span></code> 可能是别名，所以任何写通 <code class="docutils literal notranslate"><span class="pre">c</span></code> 可以修改的元素 <code class="docutils literal notranslate"><span class="pre">a</span></code> 或 <code class="docutils literal notranslate"><span class="pre">b</span></code>。这意味着为了保证功能正确性，编译器无法加载 <code class="docutils literal notranslate"><span class="pre">a[0]</span></code> 和 <code class="docutils literal notranslate"><span class="pre">b[0]</span></code> 存入寄存器，将它们相乘，并将结果存储到两者中 <code class="docutils literal notranslate"><span class="pre">c[0]</span></code> 和 <code class="docutils literal notranslate"><span class="pre">c[1]</span></code>，因为结果将与抽象执行模型不同，例如， <code class="docutils literal notranslate"><span class="pre">a[0]</span></code> 确实是同一个位置 <code class="docutils literal notranslate"><span class="pre">c[0]</span></code>。因此编译器无法利用公共子表达式。同样，编译器不能只是重新排序计算 <code class="docutils literal notranslate"><span class="pre">c[4]</span></code> 到计算的接近度 <code class="docutils literal notranslate"><span class="pre">c[0]</span></code> 和 <code class="docutils literal notranslate"><span class="pre">c[1]</span></code> 因为前面写到 <code class="docutils literal notranslate"><span class="pre">c[3]</span></code> 可以改变计算的输入 <code class="docutils literal notranslate"><span class="pre">c[4]</span></code>.</p>
-<p>通过制作 <code class="docutils literal notranslate"><span class="pre">a</span></code>, <code class="docutils literal notranslate"><span class="pre">b</span></code>，以及 <code class="docutils literal notranslate"><span class="pre">c</span></code> 受限指针，程序员向编译器断言这些指针实际上没有别名，在这种情况下意味着写通过 <code class="docutils literal notranslate"><span class="pre">c</span></code> 永远不会覆盖的元素 <code class="docutils literal notranslate"><span class="pre">a</span></code> 或 <code class="docutils literal notranslate"><span class="pre">b</span></code>。这将函数原型更改如下：</p>
+<p>在 C/C++ 中，指针 <code class="docutils literal notranslate"><span class="pre">a</span></code>、<code class="docutils literal notranslate"><span class="pre">b</span></code> 与 <code class="docutils literal notranslate"><span class="pre">c</span></code> 可能互为别名，因此任何通过 <code class="docutils literal notranslate"><span class="pre">c</span></code> 的写入都可能改写 <code class="docutils literal notranslate"><span class="pre">a</span></code> 或 <code class="docutils literal notranslate"><span class="pre">b</span></code> 指向的元素。为保证语义正确，编译器不能轻易把 <code class="docutils literal notranslate"><span class="pre">a[0]</span></code> 和 <code class="docutils literal notranslate"><span class="pre">b[0]</span></code> 常驻寄存器并复用乘积，也不能随意重排如 <code class="docutils literal notranslate"><span class="pre">c[4]</span></code> 的计算顺序，因为前面的写入（例如写 <code class="docutils literal notranslate"><span class="pre">c[3]</span></code>）可能改变后续表达式输入。</p>
+<p>将 <code class="docutils literal notranslate"><span class="pre">a</span></code>、<code class="docutils literal notranslate"><span class="pre">b</span></code>、<code class="docutils literal notranslate"><span class="pre">c</span></code> 声明为受限指针后，程序员是在向编译器承诺这些指针不会互相别名；也就是说，通过 <code class="docutils literal notranslate"><span class="pre">c</span></code> 的写入不会覆盖 <code class="docutils literal notranslate"><span class="pre">a</span></code> 或 <code class="docutils literal notranslate"><span class="pre">b</span></code> 指向的数据。函数原型可改写为：</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">foo</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">__restrict__</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"></span>
 <span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">__restrict__</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"></span>
 <span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">__restrict__</span><span class="w"> </span><span class="n">c</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
-<p>请注意，需要对所有指针参数进行限制，编译器优化器才能获得任何好处。随着 <code class="docutils literal notranslate"><span class="pre">__restrict__</span></code> 添加关键字后，编译器现在可以随意重新排序和消除公共子表达式，同时保留与抽象执行模型相同的功能：</p>
+<p>注意：通常需要对相关指针参数都添加 <code class="docutils literal notranslate"><span class="pre">__restrict__</span></code>，优化器才能获得明显收益。这样编译器即可在不改变语义的前提下，更自由地进行重排与公共子表达式消除：</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">foo</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">__restrict__</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"></span>
 <span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">__restrict__</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"></span>
@@ -7438,8 +7438,8 @@
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>这里的效果是减少了内存访问次数和计算次数。这是通过“缓存”负载和公共子表达式导致的寄存器压力增加来平衡的。</p>
-<p>由于寄存器压力是许多 CUDA 代码中的一个关键问题，因此使用受限指针可能会因占用率降低而对 CUDA 代码产生负面性能影响。</p>
+<p>其效果通常是减少内存访问次数与重复计算；但这种收益往往要以更高的寄存器压力为代价（例如缓存加载值或中间公共子表达式结果）。</p>
+<p>而寄存器压力又是 CUDA 性能中的关键因素之一，因此在某些内核中，使用受限指针也可能因占用率下降而带来负面影响。</p>
 </section>
 </section>
 <section id="built-in-vector-types">
