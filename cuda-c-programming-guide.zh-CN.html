@@ -7170,8 +7170,8 @@
 <p class="admonition-title">警告</p>
 <p>本文档已由新版 <a class="reference external" href="http://docs.nvidia.com/cuda/cuda-programming-guide">CUDA 编程指南</a> 取代。本文内容应视为遗留信息，自 CUDA 13.0 起不再更新。有关 CUDA 的最新信息，请参阅新版 <a class="reference external" href="http://docs.nvidia.com/cuda/cuda-programming-guide">CUDA 编程指南</a>。</p>
 </div>
-<p><a class="reference external" href="https://developer.nvidia.com/cuda-gpus">https://developer.nvidia.com/cuda-gpus</a> 列出所有支持 CUDA 的设备及其计算能力。</p>
-<p>可以使用运行时查询计算能力、多处理器数量、时钟频率、设备内存总量和其他属性（请参阅参考手册）。</p>
+<p><a class="reference external" href="https://developer.nvidia.com/cuda-gpus">https://developer.nvidia.com/cuda-gpus</a> 提供了全部 CUDA 支持设备及其计算能力的完整列表。</p>
+<p>应用可通过运行时 API 查询计算能力、多处理器数量、时钟频率、设备内存总量等属性（详见参考手册）。</p>
 </section>
 <section id="c-language-extensions">
 <span id="id141"></span><h1>
@@ -7185,7 +7185,7 @@
 <span id="function-declaration-specifiers"></span><h2>
 <span class="section-number">10.1. </span>函数执行空间说明符<a class="headerlink" href="#function-execution-space-specifiers" title="跳转到此标题"></a>
 </h2>
-<p>函数执行空间说明符表示函数是在主机上还是在设备上执行，以及它是否可以从主机或设备调用。</p>
+<p>函数执行空间说明符用于声明函数在主机端还是设备端执行，以及可由主机或设备从何处调用。</p>
 <section id="global">
 <span id="id142"></span><h3>
 <span class="section-number">10.1.1. </span>__global__<a class="headerlink" href="#global" title="跳转到此标题"></a>
@@ -7197,8 +7197,8 @@
 <li><p>对于计算能力 5.0 或更高的设备，可从设备调用（请参阅 <a class="reference internal" href="#cuda-dynamic-parallelism"><span class="std std-ref">CUDA 动态并行性</span></a> 了解更多详情）。</p></li>
 </ul>
 <p>一个 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 函数必须具有 void 返回类型，并且不能是类的成员。</p>
-<p>任何呼叫 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 函数必须指定其执行配置，如中所述 <a class="reference internal" href="#execution-configuration"><span class="std std-ref">执行配置</span></a>。</p>
-<p>拨打电话至 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 函数是异步的，这意味着它在设备完成执行之前返回。</p>
+<p>任何对 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 函数的调用都必须指定执行配置，详见 <a class="reference internal" href="#execution-configuration"><span class="std std-ref">执行配置</span></a>。</p>
+<p>对 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 函数的调用是异步的，即调用会在设备执行完成之前返回。</p>
 </section>
 <section id="device">
 <span id="device-function-specifier"></span><h3>
@@ -7213,16 +7213,16 @@
 </section>
 <section id="host">
 <span id="id143"></span><h3>
-<span class="section-number">10.1.3. </span>__主持人__<a class="headerlink" href="#host" title="跳转到此标题"></a>
+<span class="section-number">10.1.3. </span>__host__<a class="headerlink" href="#host" title="跳转到此标题"></a>
 </h3>
 <p><code class="docutils literal notranslate"><span class="pre">__host__</span></code> 执行空间说明符声明一个函数：</p>
 <ul class="simple">
 <li><p>在主机上执行，</p></li>
 <li><p>只能从主机调用。</p></li>
 </ul>
-<p>它相当于声明一个函数，仅使用 <code class="docutils literal notranslate"><span class="pre">__host__</span></code> 执行空间说明符或在没有任何的情况下声明它 <code class="docutils literal notranslate"><span class="pre">__host__</span></code>, <code class="docutils literal notranslate"><span class="pre">__device__</span></code>， 或 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 执行空间说明符；无论哪种情况，该函数都仅为主机编译。</p>
+<p>这等价于仅使用 <code class="docutils literal notranslate"><span class="pre">__host__</span></code> 说明符声明函数，或完全不写 <code class="docutils literal notranslate"><span class="pre">__host__</span></code>、<code class="docutils literal notranslate"><span class="pre">__device__</span></code>、<code class="docutils literal notranslate"><span class="pre">__global__</span></code> 这三类执行空间说明符；两种情况下该函数都只会为主机进行编译。</p>
 <p><code class="docutils literal notranslate"><span class="pre">__global__</span></code> 和 <code class="docutils literal notranslate"><span class="pre">__host__</span></code> 执行空间说明符不能一起使用。</p>
-<p><code class="docutils literal notranslate"><span class="pre">__device__</span></code> 和 <code class="docutils literal notranslate"><span class="pre">__host__</span></code> 然而，执行空间说明符可以一起使用，在这种情况下，函数会针对主机和设备进行编译。<code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH__</span></code> 宏引入于 <a class="reference internal" href="#application-compatibility"><span class="std std-ref">应用兼容性</span></a> 可用于区分主机和设备之间的代码路径：</p>
+<p>而 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> 与 <code class="docutils literal notranslate"><span class="pre">__host__</span></code> 可以同时使用；此时函数会同时为主机和设备编译。<code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH__</span></code> 宏（见 <a class="reference internal" href="#application-compatibility"><span class="std std-ref">应用兼容性</span></a>）可用于区分主机与设备代码路径：</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">__host__</span><span class="w"> </span><span class="n">__device__</span><span class="w"> </span><span class="n">func</span><span class="p">()</span><span class="w"></span>
 <span class="p">{</span><span class="w"></span>
@@ -7247,58 +7247,58 @@
 </h3>
 <p>在以下情况下，“交叉执行空间”调用具有未定义的行为：</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH__</span></code> 被定义，来自内部的调用 <code class="docutils literal notranslate"><span class="pre">__global__</span></code>, <code class="docutils literal notranslate"><span class="pre">__device__</span></code> 或 <code class="docutils literal notranslate"><span class="pre">__host__</span><span class="pre">__device__</span></code> 函数为 <code class="docutils literal notranslate"><span class="pre">__host__</span></code> 功能。</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH__</span></code> 未定义，来自内部的调用 <code class="docutils literal notranslate"><span class="pre">__host__</span></code> 函数为 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> 功能。 <a class="footnote-reference brackets" href="#fn11" id="id144">4</a></p></li>
+<li><p>当 <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH__</span></code> 已定义时，在 <code class="docutils literal notranslate"><span class="pre">__global__</span></code>、<code class="docutils literal notranslate"><span class="pre">__device__</span></code> 或 <code class="docutils literal notranslate"><span class="pre">__host__</span><span class="pre">__device__</span></code> 函数内部调用 <code class="docutils literal notranslate"><span class="pre">__host__</span></code> 函数；</p></li>
+<li><p>当 <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH__</span></code> 未定义时，在 <code class="docutils literal notranslate"><span class="pre">__host__</span></code> 函数内部调用 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> 函数。 <a class="footnote-reference brackets" href="#fn11" id="id144">4</a></p></li>
 </ul>
 </section>
 <section id="noinline-and-forceinline">
 <span id="id145"></span><h3>
 <span class="section-number">10.1.5. </span>__noinline__ 和 __forceinline__<a class="headerlink" href="#noinline-and-forceinline" title="跳转到此标题"></a>
 </h3>
-<p>编译器内联任何 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> 在认为合适时发挥作用。</p>
+<p>编译器会在其认为合适时内联 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> 函数。</p>
 <p><code class="docutils literal notranslate"><span class="pre">__noinline__</span></code> 函数限定符可以用作编译器在可能的情况下不要内联函数的提示。</p>
 <p><code class="docutils literal notranslate"><span class="pre">__forceinline__</span></code> 函数限定符可用于强制编译器内联该函数。</p>
 <p><code class="docutils literal notranslate"><span class="pre">__noinline__</span></code> 和 <code class="docutils literal notranslate"><span class="pre">__forceinline__</span></code> 函数限定符不能一起使用，并且两个函数限定符都不能应用于内联函数。</p>
 </section>
 <section id="inline-hint">
 <span id="id146"></span><h3>
-<span class="section-number">10.1.6. </span>__内联提示__<a class="headerlink" href="#inline-hint" title="跳转到此标题"></a>
+<span class="section-number">10.1.6. </span>__inline_hint__<a class="headerlink" href="#inline-hint" title="跳转到此标题"></a>
 </h3>
 <p><code class="docutils literal notranslate"><span class="pre">__inline_hint__</span></code> 限定符可以在编译器中实现更积极的内联。不像 <code class="docutils literal notranslate"><span class="pre">__forceinline__</span></code>，并不意味着该函数是内联的。使用 LTO 时，它可用于改进跨模块的内联。</p>
-<p>既没有 <code class="docutils literal notranslate"><span class="pre">__noinline__</span></code> 也不 <code class="docutils literal notranslate"><span class="pre">__forceinline__</span></code> 函数限定符可以与 <code class="docutils literal notranslate"><span class="pre">__inline_hint__</span></code> 函数限定符。</p>
+<p><code class="docutils literal notranslate"><span class="pre">__noinline__</span></code> 与 <code class="docutils literal notranslate"><span class="pre">__forceinline__</span></code> 均不能与 <code class="docutils literal notranslate"><span class="pre">__inline_hint__</span></code> 同时使用。</p>
 </section>
 </section>
 <section id="variable-memory-space-specifiers">
 <span id="id147"></span><h2>
 <span class="section-number">10.2. </span>可变内存空间说明符<a class="headerlink" href="#variable-memory-space-specifiers" title="跳转到此标题"></a>
 </h2>
-<p>变量内存空间说明符表示变量在设备上的内存位置。</p>
-<p>在设备代码中声明的自动var,不带任何 <code class="docutils literal notranslate"><span class="pre">__device__</span></code>, <code class="docutils literal notranslate"><span class="pre">__shared__</span></code> 和 <code class="docutils literal notranslate"><span class="pre">__constant__</span></code> 本节中描述的内存空间说明符通常驻留在寄存器中。然而，在某些情况下，编译器可能会选择将其放置在本地内存中，这可能会产生不利的性能后果，详见 <a class="reference internal" href="#device-memory-accesses"><span class="std std-ref">设备内存访问</span></a>。</p>
+<p>变量内存空间说明符用于指示变量在设备上的存储位置。</p>
+<p>在设备代码中声明的自动变量，如果未使用本节所述的 <code class="docutils literal notranslate"><span class="pre">__device__</span></code>、<code class="docutils literal notranslate"><span class="pre">__shared__</span></code>、<code class="docutils literal notranslate"><span class="pre">__constant__</span></code> 等内存空间说明符，通常会驻留在寄存器中。不过在某些情况下，编译器也可能将其放入本地内存，这可能带来不利的性能影响，详见 <a class="reference internal" href="#device-memory-accesses"><span class="std std-ref">设备内存访问</span></a>。</p>
 <section id="device-variable-specifier">
 <span id="id148"></span><h3>
 <span class="section-number">10.2.1. </span>__device__<a class="headerlink" href="#device-variable-specifier" title="跳转到此标题"></a>
 </h3>
-<p><code class="docutils literal notranslate"><span class="pre">__device__</span></code> 内存空间说明符声明驻留在设备上的变量。</p>
-<p>接下来三节中定义的其他内存空间说明符最多可以与 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> 进一步表示该变量属于哪个内存空间。如果它们都不存在，则变量：</p>
+<p><code class="docutils literal notranslate"><span class="pre">__device__</span></code> 内存空间说明符用于声明驻留在设备端的变量。</p>
+<p>接下来三节定义的其他内存空间说明符可与 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> 组合使用，以进一步指明变量所属的内存空间。若这些说明符均未出现，则该变量：</p>
 <ul class="simple">
 <li><p>驻留在全局内存空间中，</p></li>
 <li><p>具有创建它的 CUDA 上下文的生命周期，</p></li>
-<li><p>每个设备都有一个不同的对象，</p></li>
-<li><p>可通过运行时库从网格内的所有线程以及主机进行访问 <code class="docutils literal notranslate"><span class="pre">(cudaGetSymbolAddress()</span></code> / <code class="docutils literal notranslate"><span class="pre">cudaGetSymbolSize()</span></code> / <code class="docutils literal notranslate"><span class="pre">cudaMemcpyToSymbol()</span></code> / <code class="docutils literal notranslate"><span class="pre">cudaMemcpyFromSymbol()</span></code>。</p></li>
+<li><p>在每个设备上各有一份独立对象，</p></li>
+<li><p>可通过运行时库 API 从网格内所有线程以及主机端访问（<code class="docutils literal notranslate"><span class="pre">cudaGetSymbolAddress()</span></code> / <code class="docutils literal notranslate"><span class="pre">cudaGetSymbolSize()</span></code> / <code class="docutils literal notranslate"><span class="pre">cudaMemcpyToSymbol()</span></code> / <code class="docutils literal notranslate"><span class="pre">cudaMemcpyFromSymbol()</span></code>）。</p></li>
 </ul>
 </section>
 <section id="constant">
 <span id="id149"></span><h3>
 <span class="section-number">10.2.2. </span>__持续的__<a class="headerlink" href="#constant" title="跳转到此标题"></a>
 </h3>
-<p><code class="docutils literal notranslate"><span class="pre">__constant__</span></code> 内存空间说明符，可选择与 <code class="docutils literal notranslate"><span class="pre">__device__</span></code>，声明一个变量：</p>
+<p><code class="docutils literal notranslate"><span class="pre">__constant__</span></code> 内存空间说明符（可与 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> 联用）用于声明一个变量，该变量：</p>
 <ul class="simple">
-<li><p>驻留在恒定的内存空间中，</p></li>
+<li><p>驻留在常量内存空间中，</p></li>
 <li><p>具有创建它的 CUDA 上下文的生命周期，</p></li>
-<li><p>每个设备都有一个不同的对象，</p></li>
-<li><p>可通过运行时库从网格内的所有线程以及主机访问（<code class="docutils literal notranslate"><span class="pre">cudaGetSymbolAddress()</span></code> / <code class="docutils literal notranslate"><span class="pre">cudaGetSymbolSize()</span></code> / <code class="docutils literal notranslate"><span class="pre">cudaMemcpyToSymbol()</span></code> / <code class="docutils literal notranslate"><span class="pre">cudaMemcpyFromSymbol()</span></code>。</p></li>
+<li><p>在每个设备上各有一份独立对象，</p></li>
+<li><p>可通过运行时库 API 从网格内所有线程以及主机端访问（<code class="docutils literal notranslate"><span class="pre">cudaGetSymbolAddress()</span></code> / <code class="docutils literal notranslate"><span class="pre">cudaGetSymbolSize()</span></code> / <code class="docutils literal notranslate"><span class="pre">cudaMemcpyToSymbol()</span></code> / <code class="docutils literal notranslate"><span class="pre">cudaMemcpyFromSymbol()</span></code>）。</p></li>
 </ul>
-<p>当存在一个并发网格在该网格生命周期的任何时候访问该const时，从主机修改const的行为是未定义的。</p>
+<p>若有并发网格在其生命周期内任意时刻访问该常量，则主机端对该常量的修改行为属于未定义行为。</p>
 </section>
 <section id="shared">
 <span id="id150"></span><h3>
