@@ -7649,12 +7649,12 @@
 <span id="id161"></span><h2>
 <span class="section-number">10.4. </span>内置变量<a class="headerlink" href="#built-in-variables" title="跳转到此标题"></a>
 </h2>
-<p>内置变量指定网格、blockDim 以及块和线程索引。它们仅在设备上执行的函数内有效。</p>
+<p>内置变量用于描述网格维度、线程块维度以及块/线程索引。它们仅在设备端执行的函数中有效。</p>
 <section id="griddim">
 <h3>
 <span class="section-number">10.4.1. </span>gridDim<a class="headerlink" href="#griddim" title="跳转到此标题"></a>
 </h3>
-<p>这个变量的类型是 <code class="docutils literal notranslate"><span class="pre">dim3</span></code> （见 <a class="reference internal" href="#dim3"><span class="std std-ref">dim3</span></a>），并包含网格维度。</p>
+<p>该变量类型为 <code class="docutils literal notranslate"><span class="pre">dim3</span></code>（见 <a class="reference internal" href="#dim3"><span class="std std-ref">dim3</span></a>），表示网格维度。</p>
 </section>
 <section id="blockidx">
 <h3>
@@ -7666,13 +7666,13 @@
 <h3>
 <span class="section-number">10.4.3. </span>blockDim<a class="headerlink" href="#blockdim" title="跳转到此标题"></a>
 </h3>
-<p>这个变量的类型是 <code class="docutils literal notranslate"><span class="pre">dim3</span></code> （见 <a class="reference internal" href="#dim3"><span class="std std-ref">dim3</span></a>），并包含线程块维度。</p>
+<p>该变量类型为 <code class="docutils literal notranslate"><span class="pre">dim3</span></code>（见 <a class="reference internal" href="#dim3"><span class="std std-ref">dim3</span></a>），表示线程块维度。</p>
 </section>
 <section id="threadidx">
 <h3>
 <span class="section-number">10.4.4. </span>threadIdx<a class="headerlink" href="#threadidx" title="跳转到此标题"></a>
 </h3>
-<p>这个变量的类型是 <code class="docutils literal notranslate"><span class="pre">uint3</span></code> （见 <a class="reference internal" href="#vector-types"><span class="std std-ref">char, short, int, long, longlong, float, double</span></a>），并包含线程块内的线程索引。</p>
+<p>该变量类型为 <code class="docutils literal notranslate"><span class="pre">uint3</span></code>（见 <a class="reference internal" href="#vector-types"><span class="std std-ref">char, short, int, long, longlong, float, double</span></a>），表示线程块内的线程索引。</p>
 </section>
 <section id="warpsize">
 <h3>
@@ -7683,10 +7683,10 @@
 </section>
 <section id="memory-fence-functions">
 <span id="id162"></span><h2>
-<span class="section-number">10.5. </span>内存栅栏功能<a class="headerlink" href="#memory-fence-functions" title="跳转到此标题"></a>
+<span class="section-number">10.5. </span>内存栅栏函数<a class="headerlink" href="#memory-fence-functions" title="跳转到此标题"></a>
 </h2>
-<p>CUDA 编程模型假设设备具有弱有序内存模型，即 CUDA 线程将数据写入 共享内存、全局内存、页锁定主机内存或对等设备内存的顺序不一定是观察到另一个 CUDA 或主机线程写入数据的顺序。两个线程在没有同步的情况下读取或写入同一内​​存位置是未定义的行为。</p>
-<p>在下面的示例中，线程 1 执行 <code class="docutils literal notranslate"><span class="pre">writeXY()</span></code>，当线程 2 执行时 <code class="docutils literal notranslate"><span class="pre">readXY()</span></code>.</p>
+<p>CUDA 编程模型假定设备采用弱有序内存模型：CUDA 线程对共享内存、全局内存、页锁定主机内存或对等设备内存的写入顺序，不一定与其他 CUDA 线程或主机线程观察到的顺序一致。若两个线程在未同步的情况下读写同一内存位置，则行为未定义。</p>
+<p>在下面示例中，线程 1 执行 <code class="docutils literal notranslate"><span class="pre">writeXY()</span></code>，同时线程 2 执行 <code class="docutils literal notranslate"><span class="pre">readXY()</span></code>。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">__device__</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">X</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">Y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"></span>
 
@@ -7703,27 +7703,27 @@
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>两个线程从相同的内存位置读取和写入 <code class="docutils literal notranslate"><span class="pre">X</span></code> 和 <code class="docutils literal notranslate"><span class="pre">Y</span></code> 同时地。任何数据争用都是未定义的行为，并且没有定义的语义。结果值为 <code class="docutils literal notranslate"><span class="pre">A</span></code> 和 <code class="docutils literal notranslate"><span class="pre">B</span></code> 可以是任何东西。</p>
-<p>内存栅栏函数可用于强制执行 <a class="reference external" href="https://en.cppreference.com/w/cpp/atomic/memory_order">顺序一致</a> 内存访问的顺序。内存栅栏功能的不同之处在于 <a class="reference external" href="https://nvidia.github.io/libcudacxx/extended_api/memory_model.html#thread-scopes">范围</a> 其中强制执行顺序，但它们独立于访问的内存空间（共享内存、全局内存、页锁定主机内存和对等设备的内存）。</p>
+<p>两个线程并发读写同一内存位置 <code class="docutils literal notranslate"><span class="pre">X</span></code> 与 <code class="docutils literal notranslate"><span class="pre">Y</span></code>，会形成数据竞争。数据竞争属于未定义行为，因此 <code class="docutils literal notranslate"><span class="pre">A</span></code> 和 <code class="docutils literal notranslate"><span class="pre">B</span></code> 的结果都不可预测。</p>
+<p>内存栅栏函数可用于对内存访问施加 <a class="reference external" href="https://en.cppreference.com/w/cpp/atomic/memory_order">顺序一致</a> 的顺序约束。不同栅栏函数的主要差异在于其生效的 <a class="reference external" href="https://nvidia.github.io/libcudacxx/extended_api/memory_model.html#thread-scopes">线程作用域</a>；但它们都与具体内存空间无关（共享内存、全局内存、页锁定主机内存、对等设备内存均适用）。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">__threadfence_block</span><span class="p">();</span><span class="w"></span>
 </pre></div>
 </div>
-<p>相当于 <a class="reference external" href="https://nvidia.github.io/libcudacxx/extended_api/synchronization_primitives/atomic/atomic_thread_fence.html">cuda::atomic_thread_fence（cuda::memory_order_seq_cst，cuda::thread_scope_block）</a> 并确保：</p>
+<p>该函数等价于 <a class="reference external" href="https://nvidia.github.io/libcudacxx/extended_api/synchronization_primitives/atomic/atomic_thread_fence.html">cuda::atomic_thread_fence（cuda::memory_order_seq_cst，cuda::thread_scope_block）</a>，并保证：</p>
 <ul class="simple">
-<li><p>在调用之前，调用线程对所有内存进行的所有写入 <code class="docutils literal notranslate"><span class="pre">__threadfence_block()</span></code> 被调用线程块中的所有线程观察到发生在调用线程在调用之后对所有内存进行的所有写入之前 <code class="docutils literal notranslate"><span class="pre">__threadfence_block()</span></code>;</p></li>
-<li><p>在调用之前，调用线程对所有内存进行的所有读取 <code class="docutils literal notranslate"><span class="pre">__threadfence_block()</span></code> 在调用之后，在调用线程对所有内存进行的所有读取之前排序 <code class="docutils literal notranslate"><span class="pre">__threadfence_block()</span></code>.</p></li>
+<li><p>调用线程在 <code class="docutils literal notranslate"><span class="pre">__threadfence_block()</span></code> 之前对任意内存的写入，对同一线程块内线程来说，都先于该线程在调用之后的写入可见；</p></li>
+<li><p>调用线程在 <code class="docutils literal notranslate"><span class="pre">__threadfence_block()</span></code> 之前对任意内存的读取，会在顺序上先于该线程在调用之后的读取。</p></li>
 </ul>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">__threadfence</span><span class="p">();</span><span class="w"></span>
 </pre></div>
 </div>
-<p>相当于 <a class="reference external" href="https://nvidia.github.io/libcudacxx/extended_api/synchronization_primitives/atomic/atomic_thread_fence.html">cuda::atomic_thread_fence（cuda::memory_order_seq_cst，cuda::thread_scope_device）</a> 并确保调用线程在调用后不会写入所有内存 <code class="docutils literal notranslate"><span class="pre">__threadfence()</span></code> 设备中的任何线程都会观察到在调用线程之前对所有内存进行任何写入之前发生的情况 <code class="docutils literal notranslate"><span class="pre">__threadfence()</span></code>.</p>
+<p>该函数等价于 <a class="reference external" href="https://nvidia.github.io/libcudacxx/extended_api/synchronization_primitives/atomic/atomic_thread_fence.html">cuda::atomic_thread_fence（cuda::memory_order_seq_cst，cuda::thread_scope_device）</a>，并保证调用线程在 <code class="docutils literal notranslate"><span class="pre">__threadfence()</span></code> 之前对任意内存的写入，先于该线程在调用之后的写入，被同一设备上的任意线程观察到。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">__threadfence_system</span><span class="p">();</span><span class="w"></span>
 </pre></div>
 </div>
-<p>相当于 <a class="reference external" href="https://nvidia.github.io/libcudacxx/extended_api/synchronization_primitives/atomic/atomic_thread_fence.html">cuda::atomic_thread_fence（cuda::memory_order_seq_cst，cuda::thread_scope_system）</a> 并确保在调用之前调用线程对所有内存进行了所有写入 <code class="docutils literal notranslate"><span class="pre">__threadfence_system()</span></code> 设备中的所有线程、主机线程和对等设备中的所有线程都会观察到，在调用线程之后对所有内存进行所有写入之前发生 <code class="docutils literal notranslate"><span class="pre">__threadfence_system()</span></code>.</p>
+<p>该函数等价于 <a class="reference external" href="https://nvidia.github.io/libcudacxx/extended_api/synchronization_primitives/atomic/atomic_thread_fence.html">cuda::atomic_thread_fence（cuda::memory_order_seq_cst，cuda::thread_scope_system）</a>，并保证调用线程在 <code class="docutils literal notranslate"><span class="pre">__threadfence_system()</span></code> 之前对任意内存的写入，先于该线程在调用之后的写入，被设备上所有线程、主机线程及对等设备线程观察到。</p>
 <p><code class="docutils literal notranslate"><span class="pre">__threadfence_system()</span></code> 仅在计算能力 2.x 及更高版本的设备支持。</p>
 <p>在前面的代码示例中，我们可以在代码中插入栅栏，如下所示：</p>
 <div class="highlight-c++ notranslate">
@@ -7744,15 +7744,15 @@
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>对于此代码，可以观察到以下结果：</p>
+<p>对于这段代码，可能观察到以下结果：</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">A</span></code> 等于 1 且 <code class="docutils literal notranslate"><span class="pre">B</span></code> 等于2，</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">A</span></code> 等于 10 且 <code class="docutils literal notranslate"><span class="pre">B</span></code> 等于2，</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">A</span></code> 等于 10 且 <code class="docutils literal notranslate"><span class="pre">B</span></code> 等于20。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">A</span></code> = 1，<code class="docutils literal notranslate"><span class="pre">B</span></code> = 2；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">A</span></code> = 10，<code class="docutils literal notranslate"><span class="pre">B</span></code> = 2；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">A</span></code> = 10，<code class="docutils literal notranslate"><span class="pre">B</span></code> = 20。</p></li>
 </ul>
-<p>第四个结果是不可能的，因为第一次写入必须在第二次写入之前可见。如果线程1和2属于同一个块，则使用即可 <code class="docutils literal notranslate"><span class="pre">__threadfence_block()</span></code>。如果线程1和2不属于同一个块， <code class="docutils literal notranslate"><span class="pre">__threadfence()</span></code> 如果它们是来自同一设备的 CUDA 线程并且 <code class="docutils literal notranslate"><span class="pre">__threadfence_system()</span></code> 如果它们是来自两个不同设备的 CUDA 线程，则必须使用它们。</p>
-<p>一种常见的用例是线程消耗其他线程生成的一些数据，如以下内核代码示例所示，该内核在一次调用中计算 N 个数字的数组的总和。每个块首先对数组的一个子集求和，并将结果存储在全局内存中。当所有块完成后，最后完成的块从全局内存中读取这些部分和中的每一个，并对它们求和以获得最终结果。为了确定哪个块最后完成，每个块自动递增一个计数器，以表明它已完成计算和存储其部分和（请参阅 <a class="reference internal" href="#atomic-functions"><span class="std std-ref">原子函数</span></a> 关于原子函数）。最后一个块是接收计数器值等于 <code class="docutils literal notranslate"><span class="pre">gridDim.x-1</span></code>。如果在存储部分和和递增计数器之间没有放置栅栏，则计数器可能会在存储部分和之前递增，因此可能达到 <code class="docutils literal notranslate"><span class="pre">gridDim.x-1</span></code> 并让最后一个块在内存中实际更新之前开始读取部分和。</p>
-<p>内存栅栏函数仅影响线程对内存操作的顺序；它们本身并不确保这些内存操作对其他线程可见（例如 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 对于块内的线程执行此操作；见 <a class="reference internal" href="#synchronization-functions"><span class="std std-ref">同步功能</span></a>）。在下面的代码示例中，内存操作的可见性 <code class="docutils literal notranslate"><span class="pre">result</span></code> 通过将变量声明为易失性来确保变量（参见 <a class="reference internal" href="#volatile-qualifier"><span class="std std-ref">挥发性限定符</span></a>。</p>
+<p>第四种结果（<code class="docutils literal notranslate"><span class="pre">A</span></code> = 1，<code class="docutils literal notranslate"><span class="pre">B</span></code> = 20）不可能出现，因为第一次写入必须先于第二次写入变得可见。若线程 1 与线程 2 位于同一线程块，使用 <code class="docutils literal notranslate"><span class="pre">__threadfence_block()</span></code> 即可；若不在同一线程块，则同一设备上的线程应使用 <code class="docutils literal notranslate"><span class="pre">__threadfence()</span></code>，跨设备线程则应使用 <code class="docutils literal notranslate"><span class="pre">__threadfence_system()</span></code>。</p>
+<p>一个常见用例是“线程消费其他线程生产的数据”。下例内核在一次调用中计算包含 N 个元素数组的总和：每个线程块先对数组子集求和并把部分和写入全局内存；当所有线程块都完成后，最后完成的线程块再读取所有部分和并求得最终结果。为判断哪个块最后完成，每个块都会原子递增一个计数器（见 <a class="reference internal" href="#atomic-functions"><span class="std std-ref">原子函数</span></a>）；当计数器值为 <code class="docutils literal notranslate"><span class="pre">gridDim.x-1</span></code> 时，即可判定为最后完成的块。若在“写入部分和”和“递增计数器”之间没有栅栏，计数器可能先递增，导致最后一个块在部分和尚未真正写入完成时就开始读取。</p>
+<p>需要注意：内存栅栏函数只约束当前线程内存操作的先后顺序；它们本身不保证这些操作立即对其他线程可见（例如，块内可见性需借助 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code>，见 <a class="reference internal" href="#synchronization-functions"><span class="std std-ref">同步功能</span></a>）。在下面示例中，通过把 <code class="docutils literal notranslate"><span class="pre">result</span></code> 声明为 volatile（见 <a class="reference internal" href="#volatile-qualifier"><span class="std std-ref">volatile 限定符</span></a>）来保证该变量相关内存操作的可见性。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">__device__</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
 <span class="n">__shared__</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">isLastBlockDone</span><span class="p">;</span><span class="w"></span>
