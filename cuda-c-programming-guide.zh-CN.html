@@ -4490,39 +4490,39 @@
 <span id="id82"></span><h3>
 <span class="section-number">6.2.13. </span>调用栈<a class="headerlink" href="#call-stack" title="跳转到此标题"></a>
 </h3>
-<p>在计算能力 2.x 及更高版本的设备上，可以使用以下命令查询调用堆栈的大小<code class="docutils literal notranslate"><span class="pre">cudaDeviceGetLimit()</span></code> 并设置使用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSetLimit()</span></code>.</p>
-<p>当调用堆栈溢出时，如果应用程序通过 CUDA 调试器（CUDA-GDB、Nsight）运行，则内核调用会失败并出现堆栈溢出错误，否则会出现未指定的启动错误。当编译器无法确定堆栈大小时，它会发出警告，指出堆栈大小无法静态确定。递归函数通常就是这种情况。一旦发出此警告，如果默认堆栈大小不够，用户将需要手动设置堆栈大小。</p>
+<p>在计算能力为 2.x 及以上的设备上，可通过 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetLimit()</span></code> 查询调用栈大小，并通过 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSetLimit()</span></code> 进行设置。</p>
+<p>当调用栈溢出时：若应用程序在 CUDA 调试器（CUDA-GDB、Nsight 等）下运行，内核调用会失败并报告栈溢出错误；否则可能表现为未指定的启动失败。若编译器无法静态确定栈大小，会发出 “Stack size cannot be statically determined” 的警告，递归函数常属此类。出现该警告后，若默认栈空间不足，需要由开发者手动调大栈大小。</p>
 </section>
 <section id="texture-and-surface-memory">
 <span id="id83"></span><h3>
 <span class="section-number">6.2.14. </span>纹理与表面内存<a class="headerlink" href="#texture-and-surface-memory" title="跳转到此标题"></a>
 </h3>
-<p>CUDA 支持 GPU 用于图形访问纹理和表面内存的纹理硬件子集。从纹理或表面内存而不是全局内存读取数据可以具有多种性能优势，如中所述 <a class="reference internal" href="#device-memory-accesses"><span class="std std-ref">设备内存访问</span></a>。</p>
+<p>CUDA 支持 GPU 图形管线中用于访问纹理与表面内存的那部分纹理硬件。相对直接从全局内存读取，经由纹理或表面内存读取往往能获得若干性能收益，详见 <a class="reference internal" href="#device-memory-accesses"><span class="std std-ref">设备内存访问</span></a>。</p>
 <section id="texture-memory">
 <span id="id84"></span><h4>
 <span class="section-number">6.2.14.1. </span>纹理内存<a class="headerlink" href="#texture-memory" title="跳转到此标题"></a>
 </h4>
-<p>使用中描述的设备函数从内核读取纹理内存 <a class="reference internal" href="#texture-functions"><span class="std std-ref">纹理函数</span></a>。调用这些函数之一读取纹理的过程称为 <em>纹理获取</em>。每个纹理获取指定一个称为 <em>纹理对象</em> 用于纹理对象 API。</p>
+<p>在内核中通过 <a class="reference internal" href="#texture-functions"><span class="std std-ref">纹理函数</span></a> 一节所述的设备端函数读取纹理内存。通过调用这些函数之一来读取纹理的过程称为 <em>纹理读取（texture fetch）</em>。在使用纹理对象 API 时，每次纹理读取都会指定一个称为 <em>纹理对象（texture object）</em> 的参数。</p>
 <p>纹理对象指定：</p>
 <ul class="simple">
-<li><p><em>Texture</em> 指被访问的纹理内存区域。纹理对象在运行时创建，且在创建时指定对应纹理，详见 <a class="reference internal" href="#texture-object-api"><span class="std std-ref">纹理对象 API</span></a>。</p></li>
+<li><p><em>纹理（texture）</em> 即被读取的那块纹理内存。纹理对象在运行时创建，创建时绑定具体纹理数据，见 <a class="reference internal" href="#texture-object-api"><span class="std std-ref">纹理对象 API</span></a>。</p></li>
 <li><p><em>维度（dimensionality）</em> 指纹理按一维、二维或三维坐标寻址。数组元素称为 <em>texel（纹素）</em>。其中 <em>宽度</em>、<em>高度</em>、<em>深度</em> 分别对应各维大小。不同计算能力下支持的最大纹理尺寸见 <a class="reference internal" href="#features-and-technical-specifications-technical-specifications-per-compute-capability"><span class="std std-numref">表27</span></a>。</p></li>
-<li><p>纹素的类型，仅限于基本整数和单精度浮点类型以及中定义的任何 1、2 和 4 分量向量类型 <a class="reference internal" href="#built-in-vector-types"><span class="std std-ref">内置向量类型</span></a> 派生自基本整数和单精度浮点类型。</p></li>
-<li><p><em>读取模式（read mode）</em> 取值为 <code class="docutils literal notranslate"><span class="pre">cudaReadModeNormalizedFloat</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaReadModeElementType</span></code>。如果为 <code class="docutils literal notranslate"><span class="pre">cudaReadModeNormalizedFloat</span></code> 并且纹理元素的类型是16位或8位整数类型，纹理获取返回的值实际上以浮点类型返回，并且整数类型的全范围映射为无符号整数类型的[0.0, 1.0]和有符号整数类型的[-1.0, 1.0]；例如，值为 0xff 的无符号 8 位纹理元素读取为 1。如果为 <code class="docutils literal notranslate"><span class="pre">cudaReadModeElementType</span></code>，则不进行转换。</p></li>
-<li><p>纹理坐标是否标准化。默认情况下，纹理被引用（通过函数 <a class="reference internal" href="#texture-functions"><span class="std std-ref">纹理函数</span></a>）使用 [0, N-1] 范围内的浮点坐标，其中 N 是与坐标对应的维度中纹理的大小。例如，大小为 64x32 的纹理将分别使用 x 和 y 维度范围 [0, 63] 和 [0, 31] 中的坐标进行引用。归一化纹理坐标导致坐标在 [0.0, 1.0-1/N] 范围内指定，而不是 [0, N-1]，因此相同的 64x32 纹理将通过 x 和 y 维度上 [0, 1-1/N] 范围内的归一化坐标进行寻址。如果纹理坐标最好独立于纹理大小，则归一化纹理坐标自然适合某些应用程序的要求。</p></li>
-<li><p><em>寻址模式（addressing mode）</em>。使用超出范围的坐标调用 B.8 节的设备功能是有效的。寻址模式定义了在这种情况下会发生什么。默认寻址模式是将坐标限制在有效范围内：对于非标准化坐标为 [0, N)，对于标准化坐标为 [0.0, 1.0)。如果指定了边界模式，则纹理坐标超出范围的纹理获取将返回零。对于标准化坐标，还可以使用环绕模式和镜像模式。当使用wrap模式时，每个坐标x被转换为 <em>分形(x)=x - 下限(x)</em> 在哪里 <em>楼层(x)</em> 是不大于的最大整数 <em>x</em>。使用镜像模式时，各坐标 <em>x</em> 被转换为 <em>压裂(x)</em> 如果 <em>楼层(x)</em> 是偶数并且 <em>1-压裂(x)</em> 如果 <em>楼层(x)</em> 很奇怪。寻址模式指定为大小为 3 的数组，其第一、第二和第三元素分别指定第一、第二和第三纹理坐标的寻址模式；寻址模式是 <code class="docutils literal notranslate"><span class="pre">cudaAddressModeBorder</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaAddressModeClamp</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaAddressModeWrap</span></code>，以及 <code class="docutils literal notranslate"><span class="pre">cudaAddressModeMirror</span></code>; <code class="docutils literal notranslate"><span class="pre">cudaAddressModeWrap</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaAddressModeMirror</span></code> 仅支持标准化纹理坐标</p></li>
-<li><p><em>过滤模式（filter mode）</em> 用于定义根据输入纹理坐标如何计算纹理读取返回值。线性纹理过滤只能针对配置为返回浮点数据的纹理进行。它在相邻纹素之间执行低精度插值。启用后，将读取纹理获取位置周围的纹素，并根据纹理坐标落在纹素之间的位置对纹理获取的返回值进行插值。对于一维纹理执行简单线性插值，对于二维纹理执行双线性插值，对于三维纹理执行三线性插值。 <a class="reference internal" href="#texture-fetching"><span class="std std-ref">纹理获取</span></a> 提供有关纹理获取的更多详细信息。过滤模式等于 <code class="docutils literal notranslate"><span class="pre">cudaFilterModePoint</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaFilterModeLinear</span></code>。如果为 <code class="docutils literal notranslate"><span class="pre">cudaFilterModePoint</span></code>，返回值是纹理坐标与输入纹理坐标最接近的纹素。如果为 <code class="docutils literal notranslate"><span class="pre">cudaFilterModeLinear</span></code>，返回值是纹理坐标与输入纹理坐标最接近的两个（对于一维纹理）、四个（对于二维纹理）或八个（对于三维纹理）纹理像素的线性插值。 <code class="docutils literal notranslate"><span class="pre">cudaFilterModeLinear</span></code> 仅对浮点类型的返回值有效。</p></li>
+<li><p>纹素类型限于基本整型与单精度浮点型，以及 <a class="reference internal" href="#built-in-vector-types"><span class="std std-ref">内置向量类型</span></a> 中由上述标量类型派生出的 1、2、4 分量向量类型。</p></li>
+<li><p><em>读取模式（read mode）</em> 为 <code class="docutils literal notranslate"><span class="pre">cudaReadModeNormalizedFloat</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaReadModeElementType</span></code>。若为 <code class="docutils literal notranslate"><span class="pre">cudaReadModeNormalizedFloat</span></code> 且纹素为 8 位或 16 位整型，则读取结果以浮点形式返回：无符号整型的取值范围映射到 [0.0, 1.0]，有符号整型映射到 [-1.0, 1.0]；例如无符号 8 位纹素 0xff 读取为 1.0。若为 <code class="docutils literal notranslate"><span class="pre">cudaReadModeElementType</span></code>，则不做上述归一化转换。</p></li>
+<li><p>纹理坐标是否采用 <em>归一化</em> 形式。默认（非归一化）下，<a class="reference internal" href="#texture-functions"><span class="std std-ref">纹理函数</span></a> 使用各维上范围为 [0, N-1] 的浮点坐标，N 为该维纹理尺寸；例如 64×32 纹理在 x、y 维分别用 [0, 63]、[0, 31]。归一化坐标则在各维使用 [0.0, 1.0-1/N]，同一 64×32 纹理在 x、y 上均为 [0, 1-1/N]。当希望坐标与纹理分辨率解耦时，归一化坐标往往更合适。</p></li>
+<li><p><em>寻址模式（addressing mode）</em>。B.8 节中的设备函数允许在坐标越界时仍合法调用；寻址模式规定越界时的行为。默认（钳位）模式将坐标限制在有效区间：非归一化坐标为 [0, N)，归一化坐标为 [0.0, 1.0)。若使用边界（border）模式，越界读取返回零。在归一化坐标下还可选用环绕（wrap）与镜像（mirror）。wrap 模式下，坐标 <em>x</em> 映射为 <em>frac(x) = x - floor(x)</em>，其中 <em>floor(x)</em> 为不大于 <em>x</em> 的最大整数。mirror 模式下，<em>x</em> 映射为：若 <em>floor(x)</em> 为偶数则取 <em>frac(x)</em>，若为奇数则取 <em>1 - frac(x)</em>。寻址模式以长度为 3 的数组给出，三个元素分别对应三个纹理坐标维，可取 <code class="docutils literal notranslate"><span class="pre">cudaAddressModeBorder</span></code>、<code class="docutils literal notranslate"><span class="pre">cudaAddressModeClamp</span></code>、<code class="docutils literal notranslate"><span class="pre">cudaAddressModeWrap</span></code>、<code class="docutils literal notranslate"><span class="pre">cudaAddressModeMirror</span></code>；其中 <code class="docutils literal notranslate"><span class="pre">cudaAddressModeWrap</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaAddressModeMirror</span></code> 仅适用于归一化纹理坐标。</p></li>
+<li><p><em>过滤模式（filter mode）</em> 规定如何由输入坐标得到返回值。线性过滤仅适用于配置为返回浮点数据的纹理，在相邻纹素间做低精度插值：启用时会读取采样位置周围的纹素，并按坐标落在纹素之间的位置插值；一维为线性插值，二维为双线性，三维为三线性。<a class="reference internal" href="#texture-fetching"><span class="std std-ref">纹理读取</span></a> 中有更细的说明。过滤模式为 <code class="docutils literal notranslate"><span class="pre">cudaFilterModePoint</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaFilterModeLinear</span></code>：点采样返回与输入坐标最近的单个纹素；线性采样返回与输入坐标最近的 2（一维）、4（二维）或 8（三维）个纹素的插值结果。<code class="docutils literal notranslate"><span class="pre">cudaFilterModeLinear</span></code> 仅当返回值为浮点类型时有效。</p></li>
 </ul>
-<p><a class="reference internal" href="#texture-object-api"><span class="std std-ref">纹理对象 API</span></a> 介绍纹理对象 API。</p>
-<p><a class="reference internal" href="#sixteen-bit-floating-point-textures"><span class="std std-ref">16 位浮点纹理</span></a> 解释如何处理 16 位浮点纹理。</p>
-<p>纹理也可以分层，如中所述 <a class="reference internal" href="#layered-textures"><span class="std std-ref">分层纹理</span></a>。</p>
-<p><a class="reference internal" href="#cubemap-textures"><span class="std std-ref">立方体贴图纹理</span></a> 和 <a class="reference internal" href="#cubemap-layered-textures"><span class="std std-ref">立方体贴图分层纹理</span></a> 描述一种特殊类型的纹理，即立方体贴图纹理。</p>
-<p><a class="reference internal" href="#texture-gather"><span class="std std-ref">纹理聚集</span></a> 描述了一种特殊的纹理获取，纹理聚集。</p>
+<p><a class="reference internal" href="#texture-object-api"><span class="std std-ref">纹理对象 API</span></a> 介绍纹理对象的创建与使用。</p>
+<p><a class="reference internal" href="#sixteen-bit-floating-point-textures"><span class="std std-ref">16 位浮点纹理</span></a> 说明半精度浮点纹理的用法。</p>
+<p>纹理亦可按层组织，见 <a class="reference internal" href="#layered-textures"><span class="std std-ref">分层纹理</span></a>。</p>
+<p><a class="reference internal" href="#cubemap-textures"><span class="std std-ref">立方体贴图纹理</span></a> 与 <a class="reference internal" href="#cubemap-layered-textures"><span class="std std-ref">立方体贴图分层纹理</span></a> 描述立方体贴图这一类特殊纹理。</p>
+<p><a class="reference internal" href="#texture-gather"><span class="std std-ref">纹理聚集（texture gather）</span></a> 描述一种特殊的纹理读取方式。</p>
 <section id="texture-object-api">
 <span id="id85"></span><h5>
 <span class="section-number">6.2.14.1.1. </span>纹理对象 API<a class="headerlink" href="#texture-object-api" title="跳转到此标题"></a>
 </h5>
-<p>纹理对象是使用创建的 <code class="docutils literal notranslate"><span class="pre">cudaCreateTextureObject()</span></code> 来自类型的资源描述 <code class="docutils literal notranslate"><span class="pre">struct</span><span class="pre">cudaResourceDesc</span></code>，它指定纹理，并来自定义如下的纹理描述：</p>
+<p>纹理对象通过 <code class="docutils literal notranslate"><span class="pre">cudaCreateTextureObject()</span></code> 创建：其一为 <code class="docutils literal notranslate"><span class="pre">struct</span><span class="pre">cudaResourceDesc</span></code> 类型的资源描述（指定底层纹理数据），其二为如下定义的纹理描述：</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">cudaTextureDesc</span><span class="w"></span>
 <span class="p">{</span><span class="w"></span>
@@ -4544,9 +4544,9 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">filterMode</span></code> 指定过滤模式；</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">readMode</span></code> 指定读取模式；</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">normalizedCoords</span></code> 指定纹理坐标是否标准化；</p></li>
-<li><p>请参阅参考手册 <code class="docutils literal notranslate"><span class="pre">sRGB</span></code>, <code class="docutils literal notranslate"><span class="pre">maxAnisotropy</span></code>, <code class="docutils literal notranslate"><span class="pre">mipmapFilterMode</span></code>, <code class="docutils literal notranslate"><span class="pre">mipmapLevelBias</span></code>, <code class="docutils literal notranslate"><span class="pre">minMipmapLevelClamp</span></code>，以及 <code class="docutils literal notranslate"><span class="pre">maxMipmapLevelClamp</span></code>.</p></li>
+<li><p>有关 <code class="docutils literal notranslate"><span class="pre">sRGB</span></code>、<code class="docutils literal notranslate"><span class="pre">maxAnisotropy</span></code>、<code class="docutils literal notranslate"><span class="pre">mipmapFilterMode</span></code>、<code class="docutils literal notranslate"><span class="pre">mipmapLevelBias</span></code>、<code class="docutils literal notranslate"><span class="pre">minMipmapLevelClamp</span></code>、<code class="docutils literal notranslate"><span class="pre">maxMipmapLevelClamp</span></code> 的语义，请参阅 CUDA 参考手册。</p></li>
 </ul>
-<p>以下代码示例将一些简单的变换内核应用于纹理。</p>
+<p>以下示例对纹理应用一个简单的几何变换内核。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="c1">// Simple transformation kernel</span>
 <span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">transformKernel</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">output</span><span class="p">,</span><span class="w"></span>
@@ -4650,20 +4650,20 @@
 <span id="sixteen-bit-floating-point-textures"></span><h5>
 <span class="section-number">6.2.14.1.2. </span>16 位浮点纹理<a class="headerlink" href="#bit-floating-point-textures" title="跳转到此标题"></a>
 </h5>
-<p>16 位浮点或 <em>一半</em> CUDA 数组支持的格式与 IEEE 754-2008 二进制2 格式相同。</p>
-<p>CUDA C++ 不支持匹配的数据类型，但提供内部函数通过以下方式与 32 位浮点格式相互转换： <code class="docutils literal notranslate"><span class="pre">unsigned</span><span class="pre">short</span></code> 类型： <code class="docutils literal notranslate"><span class="pre">__float2half_rn(float)</span></code> 和 <code class="docutils literal notranslate"><span class="pre">__half2float(unsigned</span><span class="pre">short)</span></code>。这些函数仅在设备代码中受支持。例如，可以在 OpenEXR 库中找到主机代码的等效函数。</p>
-<p>在执行任何过滤之前，在纹理获取期间，16 位浮点组件将提升为 32 位浮点。</p>
-<p>16 位浮点格式的通道描述可以通过调用其中之一来创建 <code class="docutils literal notranslate"><span class="pre">cudaCreateChannelDescHalf*()</span></code> 功能。</p>
+<p>CUDA 数组所支持的 16 位浮点（<em>half</em>）格式与 IEEE 754-2008 binary16 一致。</p>
+<p>CUDA C++ 没有与之完全对应的语言类型，但提供内建函数，通过 <code class="docutils literal notranslate"><span class="pre">unsigned</span><span class="pre">short</span></code> 与 32 位浮点互转：<code class="docutils literal notranslate"><span class="pre">__float2half_rn(float)</span></code> 与 <code class="docutils literal notranslate"><span class="pre">__half2float(unsigned</span><span class="pre">short)</span></code>；二者仅在设备代码中可用。主机端可参考 OpenEXR 等库中的等价实现。</p>
+<p>在纹理读取路径上，16 位浮点分量会在执行任何过滤之前先提升为 32 位浮点。</p>
+<p>可调用 <code class="docutils literal notranslate"><span class="pre">cudaCreateChannelDescHalf*()</span></code> 系列函数之一创建 16 位浮点格式的通道描述。</p>
 </section>
 <section id="layered-textures">
 <span id="id86"></span><h5>
 <span class="section-number">6.2.14.1.3. </span>分层纹理<a class="headerlink" href="#layered-textures" title="跳转到此标题"></a>
 </h5>
-<p>一维或二维分层纹理（也称为 <em>纹理数组</em> 在 Direct3D 和 <em>数组纹理</em> 在 OpenGL 中）是由一系列层组成的纹理，所有层都是具有相同维度、大小和数据类型的常规纹理。</p>
-<p>一维分层纹理使用整数索引和浮点纹理坐标进行寻址；索引表示序列中的层，坐标寻址该层中的纹素。使用整数索引和两个浮点纹理坐标来寻址二维分层纹理；索引表示序列中的层，坐标地址表示该层中的纹素。</p>
-<p>分层纹理只能是 CUDA 数组，通过调用 <code class="docutils literal notranslate"><span class="pre">cudaMalloc3DArray()</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaArrayLayered</span></code> 标志（一维分层纹理的高度为零）。</p>
-<p>分层纹理是使用中描述的设备功能获取的 <a class="reference internal" href="#tex1dlayered-object"><span class="std std-ref">tex1D分层()</span></a> 和 <a class="reference internal" href="#tex2dlayered-object"><span class="std std-ref">tex2D分层()</span></a>。纹理过滤（参见 <a class="reference internal" href="#texture-fetching"><span class="std std-ref">纹理获取</span></a>）仅在层内完成，而不是跨层完成。</p>
-<p>仅在计算能力 2.0 及更高版本的设备支持分层纹理。</p>
+<p>一维或二维分层纹理在 Direct3D 中常称为 <em>texture array</em>，在 OpenGL 中常称为 <em>array texture</em>；由若干层构成，各层为维数、尺寸与数据类型均相同的普通纹理。</p>
+<p>一维分层纹理用整数层索引加一个浮点纹理坐标寻址：索引选定层，坐标选定该层内纹素。二维分层纹理用整数层索引加两个浮点纹理坐标寻址。</p>
+<p>分层纹理只能以 CUDA 数组形式存在：调用 <code class="docutils literal notranslate"><span class="pre">cudaMalloc3DArray()</span></code> 并指定 <code class="docutils literal notranslate"><span class="pre">cudaArrayLayered</span></code> 标志（一维分层纹理时高度为 0）。</p>
+<p>读取时使用 <a class="reference internal" href="#tex1dlayered-object"><span class="std std-ref">tex1DLayered()</span></a> 与 <a class="reference internal" href="#tex2dlayered-object"><span class="std std-ref">tex2DLayered()</span></a> 等设备函数。纹理过滤（见 <a class="reference internal" href="#texture-fetching"><span class="std std-ref">纹理读取</span></a>）仅在层内进行，不会在层与层之间插值。</p>
+<p>分层纹理需要计算能力 2.0 及以上的设备。</p>
 </section>
 <section id="cubemap-textures">
 <span id="id87"></span><h5>
@@ -4672,7 +4672,7 @@
 <p>一个 <em>立方体贴图</em> 纹理是一种特殊类型的二维分层纹理，有六层代表立方体的面：</p>
 <ul class="simple">
 <li><p>层的宽度等于其高度。</p></li>
-<li><p>立方体贴图使用三个纹理坐标进行寻址 <em>x</em>, <em>y</em>，以及 <em>z</em> 它们被解释为从立方体中心发出并指向立方体的一个面以及与该面对应的层内的纹素的方向向量。更具体地说，通过具有最大幅度的坐标来选择面部 <em>米</em> 并且使用坐标来寻址相应的层 <em>(秒/米+1)/2</em> 和 <em>(吨/米+1)/2</em> 在哪里 <em>s</em> 和 <em>t</em> 定义于 <a class="reference internal" href="#cubemap-textures-cubemap-fetch"><span class="std std-numref">表6</span></a>。</p></li>
+<li><p>立方体贴图用三个纹理坐标 <em>x</em>、<em>y</em>、<em>z</em> 寻址，将其视为从立方体中心指向某一面上某纹素的方向向量。具体地，由绝对值最大的坐标分量 <em>m</em> 选定面，再用 <em>(s/m+1)/2</em> 与 <em>(t/m+1)/2</em> 在该面对应的层内寻址纹素，其中 <em>s</em>、<em>t</em> 由 <a class="reference internal" href="#cubemap-textures-cubemap-fetch"><span class="std std-numref">表6</span></a> 给出。</p></li>
 </ul>
 <table class="table-no-stripes docutils align-default" id="cubemap-textures-cubemap-fetch">
 <caption>
@@ -4689,7 +4689,7 @@
 <thead>
 <tr class="row-odd">
 <th class="head" colspan="2"></th>
-<th class="head"><p>脸</p></th>
+<th class="head"><p>面</p></th>
 <th class="head"><p>米</p></th>
 <th class="head"><p>s</p></th>
 <th class="head"><p>t</p></th>
@@ -4743,8 +4743,8 @@
 </tr>
 </tbody>
 </table>
-<p>立方体贴图纹理只能是 CUDA 数组，通过调用 <code class="docutils literal notranslate"><span class="pre">cudaMalloc3DArray()</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaArrayCubemap</span></code> 旗帜。</p>
-<p>立方体贴图纹理是使用中描述的设备函数获取的 <a class="reference internal" href="#texcubemap-object"><span class="std std-ref">texCubemap()</span></a>。</p>
+<p>立方体贴图纹理只能作为 CUDA 数组分配：调用 <code class="docutils literal notranslate"><span class="pre">cudaMalloc3DArray()</span></code> 并指定 <code class="docutils literal notranslate"><span class="pre">cudaArrayCubemap</span></code> 标志。</p>
+<p>读取时使用 <a class="reference internal" href="#texcubemap-object"><span class="std std-ref">texCubemap()</span></a> 等设备函数。</p>
 <p>立方体贴图纹理仅在计算能力 2.0 及更高版本的设备上受支持。</p>
 </section>
 <section id="cubemap-layered-textures">
@@ -4752,35 +4752,33 @@
 <span class="section-number">6.2.14.1.5. </span>立方体贴图分层纹理<a class="headerlink" href="#cubemap-layered-textures" title="跳转到此标题"></a>
 </h5>
 <p>一个 <em>立方体贴图分层</em> 纹理是分层纹理，其图层是相同维度的立方体贴图。</p>
-<p>使用整数索引和三个浮点纹理坐标来寻址立方体贴图分层纹理；索引表示序列中的立方体贴图，坐标地址表示该立方体贴图中的纹理元素。</p>
-<p>立方体贴图分层纹理只能是 CUDA 数组，通过调用 <code class="docutils literal notranslate"><span class="pre">cudaMalloc3DArray()</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaArrayLayered</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaArrayCubemap</span></code> 旗帜。</p>
-<p>立方体贴图分层纹理是使用中描述的设备函数获取的 <a class="reference internal" href="#texcubemaplayered-object"><span class="std std-ref">texCubemapLayered()</span></a>。纹理过滤（参见 <a class="reference internal" href="#texture-fetching"><span class="std std-ref">纹理获取</span></a>）仅在层内完成，而不是跨层完成。</p>
+<p>立方体贴图分层纹理用整数索引加三个浮点纹理坐标寻址：索引选定序列中的某一张立方体贴图，坐标选定该贴图内的纹素。</p>
+<p>立方体贴图分层纹理只能作为 CUDA 数组分配：调用 <code class="docutils literal notranslate"><span class="pre">cudaMalloc3DArray()</span></code> 并同时指定 <code class="docutils literal notranslate"><span class="pre">cudaArrayLayered</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaArrayCubemap</span></code> 标志。</p>
+<p>读取时使用 <a class="reference internal" href="#texcubemaplayered-object"><span class="std std-ref">texCubemapLayered()</span></a> 等设备函数。纹理过滤（见 <a class="reference internal" href="#texture-fetching"><span class="std std-ref">纹理读取</span></a>）仅在单层内进行，不会在层与层之间插值。</p>
 <p>仅在计算能力 2.0 及更高版本的设备支持立方体贴图分层纹理。</p>
 </section>
 <section id="texture-gather">
 <span id="id89"></span><h5>
 <span class="section-number">6.2.14.1.6. </span>纹理聚集<a class="headerlink" href="#texture-gather" title="跳转到此标题"></a>
 </h5>
-<p>纹理收集是一种特殊的纹理获取，仅适用于二维纹理。它是由 <code class="docutils literal notranslate"><span class="pre">tex2Dgather()</span></code> 函数，其参数相同 <code class="docutils literal notranslate"><span class="pre">tex2D()</span></code>，加上一个额外的 <code class="docutils literal notranslate"><span class="pre">comp</span></code> 参数等于 0、1、2 或 3（请参阅 <a class="reference internal" href="#tex2dgather-object"><span class="std std-ref">tex2Dgather()</span></a>）。它返回对应于组件值的四个 32 位数字 <code class="docutils literal notranslate"><span class="pre">comp</span></code> 在常规纹理获取期间将用于双线性过滤的四个纹理像素中的每一个的像素。例如，如果这些纹理像素的值为 (253, 20, 31, 255)、(250、25、29、254)、(249、16、37、253)、(251、22、30、250) 和 <code class="docutils literal notranslate"><span class="pre">comp</span></code> 是 2， <code class="docutils literal notranslate"><span class="pre">tex2Dgather()</span></code> 返回 (31, 29, 37, 30)。</p>
-<p>请注意，纹理坐标仅使用 8 位小数精度进行计算。 <code class="docutils literal notranslate"><span class="pre">tex2Dgather()</span></code> 因此，在以下情况下可能会返回意外结果 <code class="docutils literal notranslate"><span class="pre">tex2D()</span></code> 将使用 1.0 作为其权重之一（α 或 β，请参阅 <a class="reference internal" href="#linear-filtering"><span class="std std-ref">线性滤波</span></a>）。例如，用 <em>x</em> 2.49805的纹理坐标： <em>xB=x-0.5=1.99805</em>，但是小数部分 <em>xB</em> 以 8 位定点格式存储。由于 0.99805 比 255.f/256.f 更接近 256.f/256.f， <em>xB</em> 值为 2.A <code class="docutils literal notranslate"><span class="pre">tex2Dgather()</span></code> 在这种情况下，因此将返回索引 2 和 3 <em>x</em>，而不是索引 1 和 2。</p>
-<p>仅使用创建的 CUDA 数组支持纹理收集 <code class="docutils literal notranslate"><span class="pre">cudaArrayTextureGather</span></code> 标志并且宽度和高度小于中指定的最大值 <a class="reference internal" href="#features-and-technical-specifications-technical-specifications-per-compute-capability"><span class="std std-numref">表27</span></a> 用于纹理收集，它比常规纹理获取要小。</p>
-<p>仅在计算能力 2.0 及更高版本的设备支持纹理收集。</p>
+<p>纹理聚集（texture gather）是一种仅适用于二维纹理的特殊读取方式，由 <code class="docutils literal notranslate"><span class="pre">tex2Dgather()</span></code> 完成；其参数与 <code class="docutils literal notranslate"><span class="pre">tex2D()</span></code> 相同，另增 <code class="docutils literal notranslate"><span class="pre">comp</span></code> 参数，取 0、1、2 或 3（见 <a class="reference internal" href="#tex2dgather-object"><span class="std std-ref">tex2Dgather()</span></a>）。返回值是四个 32 位数，分别对应若在普通双线性过滤中会参与插值的四个纹素在分量 <code class="docutils literal notranslate"><span class="pre">comp</span></code> 上的取值。例如四枚纹素为 (253, 20, 31, 255)、(250, 25, 29, 254)、(249, 16, 37, 253)、(251, 22, 30, 250)，且 <code class="docutils literal notranslate"><span class="pre">comp</span></code> 为 2，则 <code class="docutils literal notranslate"><span class="pre">tex2Dgather()</span></code> 返回 (31, 29, 37, 30)。</p>
+<p>注意纹理坐标的小数部分仅以 8 位精度表示，因此在与 <code class="docutils literal notranslate"><span class="pre">tex2D()</span></code> 相比、某插值权重本应等于 1.0（α 或 β，见 <a class="reference internal" href="#linear-filtering"><span class="std std-ref">线性过滤</span></a>）时，<code class="docutils literal notranslate"><span class="pre">tex2Dgather()</span></code> 可能给出意外结果。例如纹理坐标 <em>x</em> 为 2.49805：<em>xB = x - 0.5 = 1.99805</em>，但 <em>xB</em> 的小数部分以 8 位定点保存；0.99805 更接近 256.f/256.f 而非 255.f/256.f，故 <em>xB</em> 被取为 2，此时 <code class="docutils literal notranslate"><span class="pre">tex2Dgather()</span></code> 在 <em>x</em> 维会取索引 2 与 3，而非 1 与 2。</p>
+<p>纹理聚集仅支持以 <code class="docutils literal notranslate"><span class="pre">cudaArrayTextureGather</span></code> 标志创建的 CUDA 数组，且宽高不得超过 <a class="reference internal" href="#features-and-technical-specifications-technical-specifications-per-compute-capability"><span class="std std-numref">表27</span></a> 中为纹理聚集规定的上限（该上限小于普通纹理读取）。</p>
+<p>纹理聚集需要计算能力 2.0 及以上的设备。</p>
 </section>
 </section>
 <section id="surface-memory">
 <span id="id90"></span><h4>
 <span class="section-number">6.2.14.2. </span>表面内存<a class="headerlink" href="#surface-memory" title="跳转到此标题"></a>
 </h4>
-<p>对于计算能力 2.0 及更高的设备，CUDA 阵列（在 <a class="reference internal" href="#cubemap-surfaces"><span class="std std-ref">立方体贴图曲面</span></a>），用创建 <code class="docutils literal notranslate"><span class="pre">cudaArraySurfaceLoadStore</span></code> 标志，可以通过读取和写入 <em>表面物体</em> 使用中描述的功能 <a class="reference internal" href="#surface-functions"><span class="std std-ref">表面功能</span></a>。</p>
+<p>在计算能力 2.0 及以上的设备上，以 <code class="docutils literal notranslate"><span class="pre">cudaArraySurfaceLoadStore</span></code> 标志创建的 CUDA 数组（见 <a class="reference internal" href="#cubemap-surfaces"><span class="std std-ref">立方体贴图表面</span></a>）可通过 <em>表面对象（surface object）</em> 进行读写，所用设备端函数见 <a class="reference internal" href="#surface-functions"><span class="std std-ref">表面函数</span></a>。</p>
 <p><a class="reference internal" href="#features-and-technical-specifications-technical-specifications-per-compute-capability"><span class="std std-numref">表27</span></a> 根据设备的计算能力列出最大表面宽度、高度和深度。</p>
 <section id="surface-object-api">
 <span id="id91"></span><h5>
-<span class="section-number">6.2.14.2.1. </span>表面对象API<a class="headerlink" href="#surface-object-api" title="跳转到此标题"></a>
+<span class="section-number">6.2.14.2.1. </span>表面对象 API<a class="headerlink" href="#surface-object-api" title="跳转到此标题"></a>
 </h5>
-<p>表面对象是使用创建的 <code class="docutils literal notranslate"><span class="pre">cudaCreateSurfaceObject()</span></code> 来自类型的资源描述 <code class="docutils literal notranslate"><span class="pre">struct</span><span class="pre">cudaResourceDesc</span></code>。与纹理内存不同，表面内存使用字节寻址。这意味着用于通过纹理函数访问纹理元素的 x 坐标需要乘以元素的字节大小才能通过表面函数访问同一元素。例如，绑定到纹理对象的一维浮点 CUDA 数组的纹理坐标 x 处的元素 <code class="docutils literal notranslate"><span class="pre">texObj</span></code> 和一个表面物体 <code class="docutils literal notranslate"><span class="pre">surfObj</span></code>
-被读取使用 <code class="docutils literal notranslate"><span class="pre">tex1d(texObj,</span><span class="pre">x)</span></code> 通过 <code class="docutils literal notranslate"><span class="pre">texObj</span></code>， 但 <code class="docutils literal notranslate"><span class="pre">surf1Dread(surfObj,</span><span class="pre">4*x)</span></code> 通过 <code class="docutils literal notranslate"><span class="pre">surfObj</span></code>。类似地，绑定到纹理对象的二维浮点 CUDA 数组的纹理坐标 x 和 y 处的元素 <code class="docutils literal notranslate"><span class="pre">texObj</span></code> 和一个表面物体 <code class="docutils literal notranslate"><span class="pre">surfObj</span></code>
-是使用访问 <code class="docutils literal notranslate"><span class="pre">tex2d(texObj,</span><span class="pre">x,</span><span class="pre">y)</span></code> 通过 <code class="docutils literal notranslate"><span class="pre">texObj</span></code>， 但 <code class="docutils literal notranslate"><span class="pre">surf2Dread(surfObj,</span><span class="pre">4*x,</span><span class="pre">y)</span></code> 通过 <code class="docutils literal notranslate"><span class="pre">surObj</span></code> （y 坐标的字节偏移量是根据 CUDA 数组的基础行间距在内部计算的）。</p>
-<p>以下代码示例将一些简单的变换内核应用于表面。</p>
+<p>表面对象通过 <code class="docutils literal notranslate"><span class="pre">cudaCreateSurfaceObject()</span></code> 创建，参数为 <code class="docutils literal notranslate"><span class="pre">struct</span><span class="pre">cudaResourceDesc</span></code> 类型的资源描述。与纹理内存不同，表面内存采用 <em>字节寻址</em>：用纹理函数按纹素坐标 <em>x</em> 访问时，若改用表面函数访问同一元素，需将 <em>x</em> 乘以元素字节长度。例如，一维浮点 CUDA 数组同时绑定到纹理对象 <code class="docutils literal notranslate"><span class="pre">texObj</span></code> 与表面对象 <code class="docutils literal notranslate"><span class="pre">surfObj</span></code> 时，纹素坐标 <em>x</em> 处元素可用 <code class="docutils literal notranslate"><span class="pre">tex1d(texObj,</span><span class="pre">x)</span></code> 读取，但表面侧需写为 <code class="docutils literal notranslate"><span class="pre">surf1Dread(surfObj,</span><span class="pre">4*x)</span></code>。同理，二维浮点数组在坐标 (<em>x</em>, <em>y</em>) 处可用 <code class="docutils literal notranslate"><span class="pre">tex2d(texObj,</span><span class="pre">x,</span><span class="pre">y)</span></code>，而表面侧为 <code class="docutils literal notranslate"><span class="pre">surf2Dread(surfObj,</span><span class="pre">4*x,</span><span class="pre">y)</span></code>（<em>y</em> 方向的字节偏移由底层 CUDA 数组的行间距在内部换算）。</p>
+<p>以下示例对表面执行一个简单的复制内核。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="c1">// Simple copy kernel</span>
 <span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">copyKernel</span><span class="p">(</span><span class="n">cudaSurfaceObject_t</span><span class="w"> </span><span class="n">inputSurfObj</span><span class="p">,</span><span class="w"></span>
@@ -4874,47 +4872,47 @@
 <span id="id92"></span><h5>
 <span class="section-number">6.2.14.2.2. </span>立方体贴图曲面<a class="headerlink" href="#cubemap-surfaces" title="跳转到此标题"></a>
 </h5>
-<p>立方体贴图表面可使用以下方式访问<code class="docutils literal notranslate"><span class="pre">surfCubemapread()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">surfCubemapwrite()</span></code> (<a class="reference internal" href="#surfcubemapread-object"><span class="std std-ref">surfCubemapread()</span></a> 和 <a class="reference internal" href="#surfcubemapwrite-object"><span class="std std-ref">surfCubemapwrite()</span></a>）作为二维分层表面，即使用表示面的整数索引和两个浮点纹理坐标来寻址与该面相对应的层内的纹素。面的顺序如下所示 <a class="reference internal" href="#cubemap-textures-cubemap-fetch"><span class="std std-numref">表6</span></a>。</p>
+<p>立方体贴图表面通过 <code class="docutils literal notranslate"><span class="pre">surfCubemapread()</span></code> 与 <code class="docutils literal notranslate"><span class="pre">surfCubemapwrite()</span></code>（<a class="reference internal" href="#surfcubemapread-object"><span class="std std-ref">surfCubemapread()</span></a>、<a class="reference internal" href="#surfcubemapwrite-object"><span class="std std-ref">surfCubemapwrite()</span></a>）访问，语义上视同二维分层表面：以整数索引选定立方体的某个面，再以两个浮点纹理坐标在该面对应的层内寻址纹素。各面的编号顺序见 <a class="reference internal" href="#cubemap-textures-cubemap-fetch"><span class="std std-numref">表6</span></a>。</p>
 </section>
 <section id="cubemap-layered-surfaces">
 <span id="cubemap-layered-sufaces"></span><h5>
 <span class="section-number">6.2.14.2.3. </span>立方体贴图分层曲面<a class="headerlink" href="#cubemap-layered-surfaces" title="跳转到此标题"></a>
 </h5>
-<p>立方体贴图分层表面可使用以下方式访问 <code class="docutils literal notranslate"><span class="pre">surfCubemapLayeredread()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">surfCubemapLayeredwrite()</span></code> (<a class="reference internal" href="#surfcubemaplayeredread-object"><span class="std std-ref">surfCubemapLayeredread()</span></a> 和 <a class="reference internal" href="#surfcubemaplayeredwrite-object"><span class="std std-ref">surfCubemapLayeredwrite()</span></a>）作为二维分层表面，即使用表示立方体贴图之一的面的整数索引和寻址与该面相对应的层内的纹素的两个浮点纹理坐标。面的顺序如下所示 <a class="reference internal" href="#cubemap-textures-cubemap-fetch"><span class="std std-numref">表6</span></a>，因此索引 ((2 * 6) + 3) 访问第三个立方体贴图的第四个面。</p>
+<p>立方体贴图分层表面通过 <code class="docutils literal notranslate"><span class="pre">surfCubemapLayeredread()</span></code> 与 <code class="docutils literal notranslate"><span class="pre">surfCubemapLayeredwrite()</span></code>（<a class="reference internal" href="#surfcubemaplayeredread-object"><span class="std std-ref">surfCubemapLayeredread()</span></a>、<a class="reference internal" href="#surfcubemaplayeredwrite-object"><span class="std std-ref">surfCubemapLayeredwrite()</span></a>）访问，同样按二维分层表面理解：整数索引选定某一立方体贴图中的某个面，两个浮点坐标在该面对应层内寻址纹素。面编号顺序见 <a class="reference internal" href="#cubemap-textures-cubemap-fetch"><span class="std std-numref">表6</span></a>；例如索引 ((2 * 6) + 3) 表示第 3 个立方体贴图（从 0 计）的第 4 个面。</p>
 </section>
 </section>
 <section id="cuda-arrays">
 <h4>
 <span class="section-number">6.2.14.3. </span>CUDA 阵列<a class="headerlink" href="#cuda-arrays" title="跳转到此标题"></a>
 </h4>
-<p>CUDA 数组是针对纹理获取而优化的不透明内存布局。它们是一维、二维或三维的，由元素组成，每个元素都有 1、2 或 4 个分量，这些分量可以是有符号或无符号的 8 位、16 位或 32 位整数、16 位浮点数或 32 位浮点数。 CUDA 数组只能由内核通过纹理获取来访问，如中所述 <a class="reference internal" href="#texture-memory"><span class="std std-ref">纹理内存</span></a> 或表面阅读和写作中所述 <a class="reference internal" href="#surface-memory"><span class="std std-ref">表面内存</span></a>。</p>
+<p>CUDA 数组是为纹理读取优化的不透明内存布局，可为一维、二维或三维；每个元素含 1、2 或 4 个分量，分量类型可为有符号或无符号 8/16/32 位整数、16 位或 32 位浮点。内核只能通过纹理读取（见 <a class="reference internal" href="#texture-memory"><span class="std std-ref">纹理内存</span></a>）或表面读写（见 <a class="reference internal" href="#surface-memory"><span class="std std-ref">表面内存</span></a>）访问 CUDA 数组。</p>
 </section>
 <section id="read-write-coherency">
 <span id="id93"></span><h4>
 <span class="section-number">6.2.14.4. </span>读/写一致性<a class="headerlink" href="#read-write-coherency" title="跳转到此标题"></a>
 </h4>
-<p>纹理和表面内存被缓存（参见 <a class="reference internal" href="#device-memory-accesses"><span class="std std-ref">设备内存访问</span></a>）并且在同一内核调用中，缓存在全局内存写入和表面内存写入方面不保持一致，因此对同一内核调用中通过全局写入或表面写入写入的地址的任何纹理获取或表面读取都会返回未定义的数据。换句话说，只有当某个纹理或表面内存位置已由先前的内核调用或内存副本更新时，线程才可以安全地读取该内存位置，但如果它先前已由同一线程或来自同一内核调用的另一个线程更新，则线程不能安全地读取该内存位置。</p>
+<p>纹理与表面内存带有缓存（见 <a class="reference internal" href="#device-memory-accesses"><span class="std std-ref">设备内存访问</span></a>）。在同一内核调用内，该缓存与全局内存写、表面写之间 <em>不保证</em> 一致性：若某地址在本轮内核中已被全局写或表面写更新，则随后对该地址的纹理读取或表面读结果未定义。换言之，线程仅当该位置已由更早的内核启动或内存拷贝更新后，才可安全读取；不能假定同一线程或同一次内核中的其他线程刚写完即可被纹理/表面路径一致地读到。</p>
 </section>
 </section>
 <section id="graphics-interoperability">
 <span id="id94"></span><h3>
 <span class="section-number">6.2.15. </span>图形互操作性<a class="headerlink" href="#graphics-interoperability" title="跳转到此标题"></a>
 </h3>
-<p>来自 OpenGL 和 Direct3D 的一些资源可能会映射到 CUDA 的地址空间，以便使 CUDA 能够读取 OpenGL 或 Direct3D 写入的数据，或者使 CUDA 能够写入数据供 OpenGL 或 Direct3D 使用。</p>
-<p>资源必须先注册到 CUDA，然后才能使用中提到的函数进行映射 <a class="reference internal" href="#opengl-interoperability"><span class="std std-ref">OpenGL 互操作性</span></a> 和 <a class="reference internal" href="#direct3d-interoperability"><span class="std std-ref">Direct3D 互操作性</span></a>。这些函数返回一个指向 CUDA 图形资源类型的指针 <code class="docutils literal notranslate"><span class="pre">struct</span><span class="pre">cudaGraphicsResource</span></code>。注册资源可能会产生很高的开销，因此通常每个资源仅调用一次。使用以下命令取消注册 CUDA 图形资源 <code class="docutils literal notranslate"><span class="pre">cudaGraphicsUnregisterResource()</span></code>。每个想要使用该资源的 CUDA 上下文都需要单独注册它。</p>
-<p>将资源注册到 CUDA 后，可以根据需要多次映射和取消映射 <code class="docutils literal notranslate"><span class="pre">cudaGraphicsMapResources()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaGraphicsUnmapResources()</span></code>. <code class="docutils literal notranslate"><span class="pre">cudaGraphicsResourceSetMapFlags()</span></code> 可以调用来指定 CUDA 驱动程序可用于优化资源管理的使用提示（只写、只读）。</p>
-<p>内核可以使用返回的设备内存地址读取或写入映射的资源 <code class="docutils literal notranslate"><span class="pre">cudaGraphicsResourceGetMappedPointer()</span></code> 用于缓冲器和<code class="docutils literal notranslate"><span class="pre">cudaGraphicsSubResourceGetMappedArray()</span></code> 对于 CUDA 数组。</p>
-<p>在映射时通过 OpenGL、Direct3D 或其他 CUDA 上下文访问资源会产生未定义的结果。 <a class="reference internal" href="#opengl-interoperability"><span class="std std-ref">OpenGL 互操作性</span></a> 和 <a class="reference internal" href="#direct3d-interoperability"><span class="std std-ref">Direct3D 互操作性</span></a> 给出每个图形 API 的详细信息和一些代码示例。 <a class="reference internal" href="#sli-interoperability"><span class="std std-ref">SLI 互操作性</span></a> 给出了系统何时处于 SLI 模式的详细信息。</p>
+<p>部分 OpenGL 与 Direct3D 资源可映射到 CUDA 地址空间：既可以让 CUDA 读取图形 API 写入的数据，也可以让 CUDA 写入数据供图形 API 消费。</p>
+<p>映射前须先将资源向 CUDA 注册，所用函数见 <a class="reference internal" href="#opengl-interoperability"><span class="std std-ref">OpenGL 互操作性</span></a> 与 <a class="reference internal" href="#direct3d-interoperability"><span class="std std-ref">Direct3D 互操作性</span></a>；这些函数返回指向 <code class="docutils literal notranslate"><span class="pre">struct</span><span class="pre">cudaGraphicsResource</span></code> 的指针。注册开销通常较大，故对每个图形资源一般只注册一次。使用 <code class="docutils literal notranslate"><span class="pre">cudaGraphicsUnregisterResource()</span></code> 取消注册。若多个 CUDA 上下文都要访问同一资源，则每个上下文须各自完成注册。</p>
+<p>注册之后，可按需反复调用 <code class="docutils literal notranslate"><span class="pre">cudaGraphicsMapResources()</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaGraphicsUnmapResources()</span></code> 进行映射与解除映射。亦可调用 <code class="docutils literal notranslate"><span class="pre">cudaGraphicsResourceSetMapFlags()</span></code> 给出只读/只写等使用提示，供驱动优化管理。</p>
+<p>映射完成后，缓冲区可通过 <code class="docutils literal notranslate"><span class="pre">cudaGraphicsResourceGetMappedPointer()</span></code> 得到设备指针供内核读写；CUDA 数组子资源则通过 <code class="docutils literal notranslate"><span class="pre">cudaGraphicsSubResourceGetMappedArray()</span></code> 取得映射结果。</p>
+<p>资源处于映射期间，若仍通过 OpenGL、Direct3D 或另一 CUDA 上下文访问该资源，行为未定义。<a class="reference internal" href="#opengl-interoperability"><span class="std std-ref">OpenGL 互操作性</span></a> 与 <a class="reference internal" href="#direct3d-interoperability"><span class="std std-ref">Direct3D 互操作性</span></a> 给出各 API 的细节与示例；<a class="reference internal" href="#sli-interoperability"><span class="std std-ref">SLI 互操作性</span></a> 说明系统处于 SLI 模式时的注意点。</p>
 <section id="opengl-interoperability">
 <span id="id95"></span><h4>
 <span class="section-number">6.2.15.1. </span>OpenGL 互操作性<a class="headerlink" href="#opengl-interoperability" title="跳转到此标题"></a>
 </h4>
 <p>可以映射到 CUDA 地址空间的 OpenGL 资源是 OpenGL 缓冲区、纹理和渲染缓冲区对象。</p>
-<p>缓冲区对象的注册使用 <code class="docutils literal notranslate"><span class="pre">cudaGraphicsGLRegisterBuffer()</span></code>。在 CUDA 中，它显示为设备指针，因此可以由内核或通过 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code> 来电。</p>
-<p>纹理或渲染缓冲区对象是使用注册的 <code class="docutils literal notranslate"><span class="pre">cudaGraphicsGLRegisterImage()</span></code>。在 CUDA 中，它显示为 CUDA 数组。内核可以通过将数组绑定到纹理或表面引用来读取数组。如果资源已注册到，他们还可以通过表面写入函数对其进行写入 <code class="docutils literal notranslate"><span class="pre">cudaGraphicsRegisterFlagsSurfaceLoadStore</span></code> 旗帜。该数组还可以通过以下方式读取和写入 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy2D()</span></code> 来电。 <code class="docutils literal notranslate"><span class="pre">cudaGraphicsGLRegisterImage()</span></code> 支持具有 1、2 或 4 个组件和内部浮点数类型的所有纹理格式（例如， <code class="docutils literal notranslate"><span class="pre">GL_RGBA_FLOAT32</span></code>），归一化整数（例如， <code class="docutils literal notranslate"><span class="pre">GL_RGBA8,</span><span class="pre">GL_INTENSITY16</span></code>）和非标准化整数（例如， <code class="docutils literal notranslate"><span class="pre">GL_RGBA8UI</span></code>）（请注意，由于非标准化整数格式需要 OpenGL 3.0，因此它们只能由着色器编写，而不能由固定函数管道编写）。</p>
-<p>共享资源的 OpenGL 上下文对于进行任何 OpenGL 互操作性 API 调用的主机线程来说必须是最新的。</p>
-<p>请注意：当 OpenGL 纹理变为无绑定时（例如通过使用 <code class="docutils literal notranslate"><span class="pre">glGetTextureHandle</span></code>*/<code class="docutils literal notranslate"><span class="pre">glGetImageHandle</span></code>* API) 无法注册到 CUDA。应用程序需要在请求图像或纹理句柄之前注册纹理以进行互操作。</p>
-<p>以下代码示例使用内核动态修改 2D <code class="docutils literal notranslate"><span class="pre">width</span></code> x <code class="docutils literal notranslate"><span class="pre">height</span></code> 存储在顶点缓冲区对象中的顶点网格：</p>
+<p>缓冲区对象通过 <code class="docutils literal notranslate"><span class="pre">cudaGraphicsGLRegisterBuffer()</span></code> 注册；在 CUDA 侧表现为设备指针，内核或 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code> 均可直接访问。</p>
+<p>纹理或渲染缓冲区对象通过 <code class="docutils literal notranslate"><span class="pre">cudaGraphicsGLRegisterImage()</span></code> 注册；在 CUDA 侧表现为 CUDA 数组。内核可将数组绑定到纹理或表面引用后读取；若在注册时带有 <code class="docutils literal notranslate"><span class="pre">cudaGraphicsRegisterFlagsSurfaceLoadStore</span></code> 标志，还可通过表面写函数写入。亦可用 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy2D()</span></code> 对该数组做主机—设备传输。<code class="docutils literal notranslate"><span class="pre">cudaGraphicsGLRegisterImage()</span></code> 支持分量为 1、2 或 4 且内部类型为浮点（如 <code class="docutils literal notranslate"><span class="pre">GL_RGBA_FLOAT32</span></code>）、归一化整型（如 <code class="docutils literal notranslate"><span class="pre">GL_RGBA8</span></code>、<code class="docutils literal notranslate"><span class="pre">GL_INTENSITY16</span></code>）或非归一化整型（如 <code class="docutils literal notranslate"><span class="pre">GL_RGBA8UI</span></code>）的纹理格式。非归一化整型格式需要 OpenGL 3.0，因而只能由可编程着色器写入，固定管线无法写入。</p>
+<p>调用任意 OpenGL 互操作 API 时，共享该资源的 OpenGL 上下文必须在当前线程上为 current。</p>
+<p>注意：当纹理被设为 bindless（例如通过 <code class="docutils literal notranslate"><span class="pre">glGetTextureHandle*</span></code>/<code class="docutils literal notranslate"><span class="pre">glGetImageHandle*</span></code> 等 API 取得句柄）后，便不能再向 CUDA 注册；须在申请图像或纹理句柄 <em>之前</em> 完成互操作注册。</p>
+<p>以下示例用内核动态更新顶点缓冲区对象（VBO）中 <code class="docutils literal notranslate"><span class="pre">width</span></code>×<code class="docutils literal notranslate"><span class="pre">height</span></code> 的二维顶点网格：</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="n">GLuint</span><span class="w"> </span><span class="n">positionsVBO</span><span class="p">;</span><span class="w"></span>
 <span class="k">struct</span><span class="w"> </span><span class="nc">cudaGraphicsResource</span><span class="o">*</span><span class="w"> </span><span class="n">positionsVBO_CUDA</span><span class="p">;</span><span class="w"></span>
@@ -5013,10 +5011,10 @@
 <span id="id96"></span><h4>
 <span class="section-number">6.2.15.2. </span>Direct3D 互操作性<a class="headerlink" href="#direct3d-interoperability" title="跳转到此标题"></a>
 </h4>
-<p>Direct3D 9Ex、Direct3D 10 和 Direct3D 11 支持 Direct3D 互操作性。</p>
-<p>CUDA 上下文只能与满足以下条件的 Direct3D 设备进行互操作： Direct3D 9Ex 设备必须使用以下命令创建 <code class="docutils literal notranslate"><span class="pre">DeviceType</span></code> 设置为 <code class="docutils literal notranslate"><span class="pre">D3DDEVTYPE_HAL</span></code> 和 <code class="docutils literal notranslate"><span class="pre">BehaviorFlags</span></code> 与 <code class="docutils literal notranslate"><span class="pre">D3DCREATE_HARDWARE_VERTEXPROCESSING</span></code> 旗帜; Direct3D 10 和 Direct3D 11 设备必须使用以下命令创建 <code class="docutils literal notranslate"><span class="pre">DriverType</span></code> 设置为 <code class="docutils literal notranslate"><span class="pre">D3D_DRIVER_TYPE_HARDWARE</span></code>.</p>
-<p>可以映射到 CUDA 地址空间的 Direct3D 资源是 Direct3D 缓冲区、纹理和表面。这些资源是使用注册的 <code class="docutils literal notranslate"><span class="pre">cudaGraphicsD3D9RegisterResource()</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaGraphicsD3D10RegisterResource()</span></code>，以及 <code class="docutils literal notranslate"><span class="pre">cudaGraphicsD3D11RegisterResource()</span></code>.</p>
-<p>以下代码示例使用内核动态修改 2D <code class="docutils literal notranslate"><span class="pre">width</span></code> x <code class="docutils literal notranslate"><span class="pre">height</span></code> 存储在顶点缓冲区对象中的顶点网格。</p>
+<p>Direct3D 互操作支持 Direct3D 9Ex、Direct3D 10 与 Direct3D 11。</p>
+<p>CUDA 上下文仅能与满足下列条件的 Direct3D 设备互操作：Direct3D 9Ex 设备创建时须将 <code class="docutils literal notranslate"><span class="pre">DeviceType</span></code> 设为 <code class="docutils literal notranslate"><span class="pre">D3DDEVTYPE_HAL</span></code>，且 <code class="docutils literal notranslate"><span class="pre">BehaviorFlags</span></code> 含 <code class="docutils literal notranslate"><span class="pre">D3DCREATE_HARDWARE_VERTEXPROCESSING</span></code>；Direct3D 10/11 设备创建时须将 <code class="docutils literal notranslate"><span class="pre">DriverType</span></code> 设为 <code class="docutils literal notranslate"><span class="pre">D3D_DRIVER_TYPE_HARDWARE</span></code>。</p>
+<p>可映射到 CUDA 地址空间的 Direct3D 资源包括缓冲区、纹理与表面（surface），分别通过 <code class="docutils literal notranslate"><span class="pre">cudaGraphicsD3D9RegisterResource()</span></code>、<code class="docutils literal notranslate"><span class="pre">cudaGraphicsD3D10RegisterResource()</span></code>、<code class="docutils literal notranslate"><span class="pre">cudaGraphicsD3D11RegisterResource()</span></code> 注册。</p>
+<p>以下示例用内核动态更新顶点缓冲区中 <code class="docutils literal notranslate"><span class="pre">width</span></code>×<code class="docutils literal notranslate"><span class="pre">height</span></code> 的二维顶点网格。</p>
 <section id="direct3d-9-version">
 <span id="id97"></span><h5>
 <span class="section-number">6.2.15.2.1. </span>Direct3D 9 版本<a class="headerlink" href="#direct3d-9-version" title="跳转到此标题"></a>
@@ -5381,20 +5379,20 @@
 <span id="id100"></span><h4>
 <span class="section-number">6.2.15.3. </span>SLI 互操作性<a class="headerlink" href="#sli-interoperability" title="跳转到此标题"></a>
 </h4>
-<p>在具有多个 GPU 的系统中，所有支持 CUDA 的 GPU 都可以作为单独的设备通过 CUDA 驱动程序和运行时进行访问。然而，当系统处于 SLI 模式时，有如下所述的特殊注意事项。</p>
-<p>首先，一个 GPU 上的一个 CUDA 设备中的分配将消耗其他 GPU 上的内存，这些 GPU 是 Direct3D 或 OpenGL 设备的 SLI 配置的一部分。因此，分配可能会比预期更早失败。</p>
-<p>其次，应用程序应创建多个 CUDA 上下文，每个上下文对应 SLI 配置中的每个 GPU。虽然这不是严格要求，但它避免了设备之间不必要的数据传输。该应用程序可以使用 <code class="docutils literal notranslate"><span class="pre">cudaD3D[9|10|11]GetDevices()</span></code> 对于 Direct3D 和 <code class="docutils literal notranslate"><span class="pre">cudaGLGetDevices()</span></code> 用于 OpenGL 的一组调用，用于识别在当前帧和下一帧中执行渲染的设备的 CUDA 设备句柄。给定此信息后，应用程序通常会选择适当的设备并将 Direct3D 或 OpenGL 资源映射到由 <code class="docutils literal notranslate"><span class="pre">cudaD3D[9|10|11]GetDevices()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaGLGetDevices()</span></code> 当 <code class="docutils literal notranslate"><span class="pre">deviceList</span></code> 参数设置为 <code class="docutils literal notranslate"><span class="pre">cudaD3D[9|10|11]DeviceListCurrentFrame</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaGLDeviceListCurrentFrame</span></code>.</p>
-<p>请注意，资源返回自 <code class="docutils literal notranslate"><span class="pre">cudaGraphicsD9D[9|10|11]RegisterResource</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaGraphicsGLRegister[Buffer|Image]</span></code> 必须仅在注册发生的设备上使用。因此，在 SLI 配置中，当在不同 CUDA 设备上计算不同帧的数据时，有必要分别注册每个帧的资源。</p>
-<p>见 <a class="reference internal" href="#direct3d-interoperability"><span class="std std-ref">Direct3D 互操作性</span></a> 和 <a class="reference internal" href="#opengl-interoperability"><span class="std std-ref">OpenGL 互操作性</span></a> 有关 CUDA 运行时如何分别与 Direct3D 和 OpenGL 互操作的详细信息。</p>
+<p>多 GPU 系统中，CUDA 驱动与运行时将每张支持 CUDA 的 GPU 视为独立设备；但若系统处于 SLI 模式，则另有下列注意点。</p>
+<p>其一：在某一 GPU 的 CUDA 设备上分配内存，也会占用属于同一 Direct3D/OpenGL SLI 组内其他 GPU 的显存，因而分配可能较单卡场景更早失败。</p>
+<p>其二：建议为 SLI 组内每张 GPU 各建一个 CUDA 上下文（非硬性要求，但可减少跨设备不必要拷贝）。应用可调用 <code class="docutils literal notranslate"><span class="pre">cudaD3D[9|10|11]GetDevices()</span></code>（Direct3D）或 <code class="docutils literal notranslate"><span class="pre">cudaGLGetDevices()</span></code>（OpenGL），在 <code class="docutils literal notranslate"><span class="pre">deviceList</span></code> 取 <code class="docutils literal notranslate"><span class="pre">cudaD3D[9|10|11]DeviceListCurrentFrame</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaGLDeviceListCurrentFrame</span></code> 时，查询当前帧与下一帧实际承担渲染的 CUDA 设备句柄，据此选择设备并把图形资源映射到对应设备。</p>
+<p>另请注意：<code class="docutils literal notranslate"><span class="pre">cudaGraphicsD3D[9|10|11]RegisterResource()</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaGraphicsGLRegister[Buffer|Image]()</span></code> 返回的资源句柄只能在执行注册的那张 CUDA 设备上使用。故在 SLI 下若不同帧的数据在不同 CUDA 设备上计算，需要按帧（或按设备）分别注册资源。</p>
+<p>更多细节见 <a class="reference internal" href="#direct3d-interoperability"><span class="std std-ref">Direct3D 互操作性</span></a> 与 <a class="reference internal" href="#opengl-interoperability"><span class="std std-ref">OpenGL 互操作性</span></a>。</p>
 </section>
 </section>
 <section id="external-resource-interoperability">
 <span id="id101"></span><h3>
 <span class="section-number">6.2.16. </span>外部资源互操作性<a class="headerlink" href="#external-resource-interoperability" title="跳转到此标题"></a>
 </h3>
-<p>外部资源互操作性允许 CUDA 导入由其他 API 显式导出的某些资源。这些对象通常由其他 API 使用操作系统本机句柄导出，例如 Linux 上的文件描述符或 Windows 上的 NT 句柄。它们还可以使用其他统一接口（例如 NVIDIA 软件通信接口）导出。可以导入两种类型的资源：内存对象和同步对象。</p>
-<p>可以使用以下命令将内存对象导入到 CUDA 中 <code class="docutils literal notranslate"><span class="pre">cudaImportExternalMemory()</span></code>。可以使用映射到内存对象的设备指针从内核内部访问导入的内存对象 <code class="docutils literal notranslate"><span class="pre">cudaExternalMemoryGetMappedBuffer()</span></code>或 CUDA mipmaped 数组通过映射 <code class="docutils literal notranslate"><span class="pre">cudaExternalMemoryGetMappedMipmappedArray()</span></code>。根据存储器对象的类型，可以在单个存储器对象上设置多个映射。映射必须与导出 API 中的映射设置匹配。任何不匹配的映射都会导致未定义的行为。导入的内存对象必须使用释放 <code class="docutils literal notranslate"><span class="pre">cudaDestroyExternalMemory()</span></code>。释放内存对象不会释放到该对象的任何映射。因此，映射到该对象的任何设备指针都必须使用显式释放 <code class="docutils literal notranslate"><span class="pre">cudaFree()</span></code> 并且映射到该对象的任何 CUDA mipmap 数组必须使用显式释放 <code class="docutils literal notranslate"><span class="pre">cudaFreeMipmappedArray()</span></code>。在对象被销毁后访问对象的映射是非法的。</p>
-<p>可以使用以下命令将同步对象导入到 CUDA 中 <code class="docutils literal notranslate"><span class="pre">cudaImportExternalSemaphore()</span></code>。然后可以使用以下命令向导入的同步对象发出信号 <code class="docutils literal notranslate"><span class="pre">cudaSignalExternalSemaphoresAsync()</span></code> 并等待使用 <code class="docutils literal notranslate"><span class="pre">cudaWaitExternalSemaphoresAsync()</span></code>。在发出相应信号之前发出等待是非法的。此外，根据导入的同步对象的类型，可能会对如何发出信号和等待它们施加额外的约束，如后续部分所述。导入的信号量对象必须使用以下方式释放 <code class="docutils literal notranslate"><span class="pre">cudaDestroyExternalSemaphore()</span></code>。所有未完成的信号和等待必须在信号量对象被销毁之前完成。</p>
+<p>外部资源互操作使 CUDA 能够导入由其他 API 显式导出的特定资源。导出侧通常使用操作系统原生句柄（如 Linux 上的文件描述符、Windows 上的 NT 句柄），亦可经由 NVIDIA 软件通信接口（NVSCI）等统一机制导出。可导入的资源分为两类：内存对象与同步对象。</p>
+<p>内存对象通过 <code class="docutils literal notranslate"><span class="pre">cudaImportExternalMemory()</span></code> 导入；内核中可通过 <code class="docutils literal notranslate"><span class="pre">cudaExternalMemoryGetMappedBuffer()</span></code> 映射得到设备指针访问，或通过 <code class="docutils literal notranslate"><span class="pre">cudaExternalMemoryGetMappedMipmappedArray()</span></code> 映射为 CUDA mipmap 数组。视内存对象类型，同一对象上可建立多组映射；映射方式须与导出 API 侧约定一致，否则行为未定义。使用 <code class="docutils literal notranslate"><span class="pre">cudaDestroyExternalMemory()</span></code> 释放导入的内存对象并不会自动释放其上的映射，故已映射的设备指针须再调用 <code class="docutils literal notranslate"><span class="pre">cudaFree()</span></code>，mipmap 数组须调用 <code class="docutils literal notranslate"><span class="pre">cudaFreeMipmappedArray()</span></code>。对象销毁后再访问其映射属于非法操作。</p>
+<p>同步对象通过 <code class="docutils literal notranslate"><span class="pre">cudaImportExternalSemaphore()</span></code> 导入；随后可用 <code class="docutils literal notranslate"><span class="pre">cudaSignalExternalSemaphoresAsync()</span></code> 发信号、用 <code class="docutils literal notranslate"><span class="pre">cudaWaitExternalSemaphoresAsync()</span></code> 等待。在对应信号发出之前先发起等待属于非法操作；具体对象类型还可能附带额外约束，见后文各小节。使用 <code class="docutils literal notranslate"><span class="pre">cudaDestroyExternalSemaphore()</span></code> 释放导入的信号量前，须确保其上所有未完成的信号与等待均已结束。</p>
 <section id="vulkan-interoperability">
 <span id="id102"></span><h4>
 <span class="section-number">6.2.16.1. </span>Vulkan 互操作性<a class="headerlink" href="#vulkan-interoperability" title="跳转到此标题"></a>
@@ -6721,7 +6719,7 @@
 <span id="id120"></span><h5>
 <span class="section-number">6.2.16.5.5. </span>对导入的同步对象发出信号/等待<a class="headerlink" href="#signaling-waiting-on-imported-synchronization-objects-nvsci" title="跳转到此标题"></a>
 </h5>
-<p>进口的 <code class="docutils literal notranslate"><span class="pre">NvSciSyncObj</span></code> 可以如下所述向对象发出信号。发信号通知 NvSciSync 支持的信号量对象初始化 <em>栅栏</em> 作为输入传递的参数。对应于上述信号的等待操作等待该栅栏参数。此外，等待该信号的等待必须在该信号发出后发出。如果标志设置为 <code class="docutils literal notranslate"><span class="pre">cudaExternalSemaphoreSignalSkipNvSciBufMemSync</span></code> 那么默认情况下作为信号操作一部分执行的内存同步操作（在此过程中所有导入的 NvSciBuf 上）将被跳过。什么时候 <code class="docutils literal notranslate"><span class="pre">NvsciBufGeneralAttrKey_GpuSwNeedCacheCoherency</span></code> 为 FALSE，则应设置此标志。</p>
+<p>对导入的 <code class="docutils literal notranslate"><span class="pre">NvSciSyncObj</span></code> 可按如下方式发信号。对由 NvSciSync 支持的信号量对象发信号时，会用传入的 <em>fence</em> 参数完成初始化；与之配对的等待操作将阻塞在该 fence 上。必须先发出信号，再发出对应的等待。若将标志设为 <code class="docutils literal notranslate"><span class="pre">cudaExternalSemaphoreSignalSkipNvSciBufMemSync</span></code>，则默认在发信号过程中对本进程内所有已导入 NvSciBuf 执行的内存同步将被跳过。当 <code class="docutils literal notranslate"><span class="pre">NvSciBufGeneralAttrKey_GpuSwNeedCacheCoherency</span></code> 为 FALSE 时应设置该标志。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">signalExternalSemaphore</span><span class="p">(</span><span class="n">cudaExternalSemaphore_t</span><span class="w"> </span><span class="n">extSem</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">fence</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaExternalSemaphoreSignalParams</span><span class="w"> </span><span class="n">signalParams</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span><span class="w"></span>
@@ -6736,7 +6734,7 @@
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>进口的 <code class="docutils literal notranslate"><span class="pre">NvSciSyncObj</span></code> 可以如下所述等待对象。等待 NvSciSync 支持的信号量对象等待输入 <em>栅栏</em> 参数由相应的信号器发出信号。此外，必须在发出等待之前发出信号。如果标志设置为 <code class="docutils literal notranslate"><span class="pre">cudaExternalSemaphoreWaitSkipNvSciBufMemSync</span></code> 那么默认情况下作为信号操作一部分执行的内存同步操作（在此过程中所有导入的 NvSciBuf 上）将被跳过。什么时候 <code class="docutils literal notranslate"><span class="pre">NvsciBufGeneralAttrKey_GpuSwNeedCacheCoherency</span></code> 为 FALSE，则应设置此标志。</p>
+<p>对导入的 <code class="docutils literal notranslate"><span class="pre">NvSciSyncObj</span></code> 可按如下方式等待。对由 NvSciSync 支持的信号量对象执行等待时，会阻塞在由对应发信号方完成信号化的输入 <em>fence</em> 上；同样必须先有信号，再有等待。若将标志设为 <code class="docutils literal notranslate"><span class="pre">cudaExternalSemaphoreWaitSkipNvSciBufMemSync</span></code>，则默认在等待过程中对本进程内所有已导入 NvSciBuf 执行的内存同步将被跳过。当 <code class="docutils literal notranslate"><span class="pre">NvSciBufGeneralAttrKey_GpuSwNeedCacheCoherency</span></code> 为 FALSE 时应设置该标志。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">waitExternalSemaphore</span><span class="p">(</span><span class="n">cudaExternalSemaphore_t</span><span class="w"> </span><span class="n">extSem</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">fence</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaExternalSemaphoreWaitParams</span><span class="w"> </span><span class="n">waitParams</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span><span class="w"></span>
@@ -6758,13 +6756,13 @@
 <span id="id121"></span><h2>
 <span class="section-number">6.3. </span>版本控制和兼容性<a class="headerlink" href="#versioning-and-compatibility" title="跳转到此标题"></a>
 </h2>
-<p>在开发 CUDA 应用程序时，开发人员应关注两个版本号： 计算能力，描述计算设备的一般规格和功能（请参阅 <a class="reference internal" href="#compute-capability"><span class="std std-ref">计算能力</span></a>）以及描述驱动程序 API 和运行时支持的功能的 CUDA 驱动程序 API 版本。</p>
-<p>驱动程序 API 的版本在驱动程序头文件中定义为 <code class="docutils literal notranslate"><span class="pre">CUDA_VERSION</span></code>。它允许开发人员检查他们的应用程序是否需要比当前安装的设备驱动程序更新的设备驱动程序。这很重要，因为驱动程序 API 是 <em>向后兼容</em>，这意味着针对特定版本的驱动程序 API 编译的应用程序、插件和库（包括 CUDA 运行时）将继续在后续设备驱动程序版本上工作，如下所示 <a class="reference internal" href="#versioning-and-compatibility-driver-api-is-backward-but-not-forward-compatible"><span class="std std-numref">图26</span></a>。驱动程序 API 不是 <em>向前兼容</em>，这意味着针对特定版本的驱动程序 API 编译的应用程序、插件和库（包括 CUDA 运行时）将无法在以前版本的设备驱动程序上运行。</p>
-<p>需要注意的是，支持的版本的混合和匹配存在限制：</p>
+<p>开发 CUDA 应用时通常需关注两类版本号：一是 <a class="reference internal" href="#compute-capability"><span class="std std-ref">计算能力</span></a>，概括计算设备的规格与特性；二是 CUDA 驱动 API 的版本号，反映驱动 API 与运行时所支持的功能集合。</p>
+<p>驱动 API 版本在驱动头文件中以 <code class="docutils literal notranslate"><span class="pre">CUDA_VERSION</span></code> 定义，便于判断当前安装的驱动是否满足应用要求。驱动 API 具有 <em>向后兼容</em>：针对某一驱动 API 版本编译的应用、插件与库（含 CUDA 运行时）可在更高版本的驱动上继续运行，如 <a class="reference internal" href="#versioning-and-compatibility-driver-api-is-backward-but-not-forward-compatible"><span class="std std-numref">图26</span></a> 所示。驱动 API <em>不向前兼容</em>：用较新驱动 API 编译的二进制无法在更旧的驱动上运行。</p>
+<p>版本混用仍受下列约束：</p>
 <ul class="simple">
-<li><p>由于系统上一次只能安装一个版本的 CUDA 驱动程序，因此安装的驱动程序的版本必须等于或高于构建必须在该系统上运行的任何应用程序、插件或库的最大驱动程序 API 版本。</p></li>
-<li><p>应用程序使用的所有插件和库必须使用相同版本的 CUDA 运行时，除非它们静态链接到运行时，在这种情况下，多个版本的运行时可以共存于同一进程空间中。请注意，如果 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 用于链接应用程序，默认情况下将使用 CUDA 运行时库的静态版本，并且所有 CUDA Toolkit 库都针对 CUDA 运行时静态链接。</p></li>
-<li><p>应用程序使用的所有插件和库必须使用与使用运行时的任何库（例如 cuFFT、cuBLAS 等）相同版本的库，除非静态链接到这些库。</p></li>
+<li><p>系统同一时间只能安装一套 CUDA 驱动，故已装驱动版本须不低于将在该机器上运行的任意应用、插件或库所依赖的 <em>最大</em> 驱动 API 版本。</p></li>
+<li><p>同一应用加载的各插件与库须使用相同版本的 CUDA 运行时，除非它们均静态链接运行时——此时同一进程内可并存多份运行时。若用 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 链接应用，默认会静态链接 CUDA 运行时，且 Toolkit 中各库默认亦对运行时静态链接。</p></li>
+<li><p>凡依赖运行时的库（如 cuFFT、cuBLAS 等），应用所加载的全部插件与库须与之版本一致，除非改为对这些库进行静态链接。</p></li>
 </ul>
 <figure class="align-center" id="versioning-and-compatibility-driver-api-is-backward-but-not-forward-compatible">
 <img alt="The Driver API Is Backward but Not Forward Compatible" src="_images/compatibility-of-cuda-versions.png"/>
@@ -6772,35 +6770,35 @@
 <p><span class="caption-number">图26 </span><span class="caption-text">驱动程序 API 向后兼容，但不向前兼容</span><a class="headerlink" href="#versioning-and-compatibility-driver-api-is-backward-but-not-forward-compatible" title="跳转到此图片"></a></p>
 </figcaption>
 </figure>
-<p>对于 Tesla GPU 产品，CUDA 10 为 CUDA 驱动程序的用户模式组件引入了新的前向兼容升级路径。此功能描述于 <a class="reference external" href="https://docs.nvidia.com/deploy/cuda-compatibility/index.html">CUDA 兼容性</a>。此处描述的 CUDA 驱动程序版本要求适用于用户模式组件的版本。</p>
+<p>针对 Tesla GPU，CUDA 10 起为 CUDA 驱动的用户态组件提供了新的前向兼容升级路径，详见 <a class="reference external" href="https://docs.nvidia.com/deploy/cuda-compatibility/index.html">CUDA 兼容性</a> 文档。本节所述的驱动版本要求系指用户态组件版本。</p>
 </section>
 <section id="compute-modes">
 <span id="id122"></span><h2>
 <span class="section-number">6.4. </span>计算模式<a class="headerlink" href="#compute-modes" title="跳转到此标题"></a>
 </h2>
-<p>在运行 Windows Server 2008 及更高版本或 Linux 的 Tesla 解决方案上，可以使用 NVIDIA 的系统管理界面 (nvidia-smi)（一种作为驱动程序的一部分分发的工具）将系统中的任何设备设置为以下三种模式之一：</p>
+<p>在运行 Windows Server 2008 及更高版本或 Linux 的 Tesla 方案上，可使用随驱动分发的 NVIDIA 系统管理工具 nvidia-smi，将系统中任一设备设为下列三种计算模式之一：</p>
 <ul class="simple">
-<li><p><em>默认</em> 计算模式：多个主机线程可以使用该设备（通过调用 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code> 在此设备上（使用运行时 API 时），或者同时将当前上下文设置为与设备关联（使用驱动程序 API 时）。</p></li>
-<li><p><em>独家工艺</em> 计算模式：设备上只能跨系统中的所有进程创建一个 CUDA 上下文。该上下文对于创建该上下文的进程内的任意数量的线程来说可以是当前的。</p></li>
-<li><p><em>禁止</em> 计算模式：无法在设备上创建 CUDA 上下文。</p></li>
+<li><p><em>默认（default）</em> 模式：多个主机线程可同时使用该设备——使用运行时 API 时通过 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code> 选中该设备，使用驱动 API 时则可将与该设备关联的上下文设为当前。</p></li>
+<li><p><em>独占进程（exclusive-process）</em> 模式：全系统范围内该设备上只能存在一个 CUDA 上下文；该上下文可在创建它的进程内对任意数量的线程设为 current。</p></li>
+<li><p><em>禁止（prohibited）</em> 模式：不允许在该设备上创建任何 CUDA 上下文。</p></li>
 </ul>
-<p>这尤其意味着主机线程使用运行时 API 而无需显式调用 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code> 如果设备 0 处于禁止模式或独占进程模式并被另一个进程使用，则可能与设备 0 以外的设备关联。 <code class="docutils literal notranslate"><span class="pre">cudaSetValidDevices()</span></code> 可用于从设备的优先级列表中设置设备。</p>
-<p>另请注意，对于具有 Pascal 架构及以上版本的设备（主要修订版号为 6 及更高版本的计算能力），存在对计算抢占的支持。这允许计算任务在指令级粒度上被抢占，而不是像之前的 Maxwell 和 Kepler GPU 架构那样在线程块粒度上被抢占，这样做的好处是可以防止具有长时间运行内核的应用程序独占系统或超时。但是，会产生与计算抢占相关的上下文切换开销，计算抢占会在支持的设备上自动启用。个人属性查询功能 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetAttribute()</span></code> 与属性 <code class="docutils literal notranslate"><span class="pre">cudaDevAttrComputePreemptionSupported</span></code> 可用于确定正在使用的设备是否支持计算抢占。希望避免与不同进程相关的上下文切换开销的用户可以通过选择独占进程模式来确保 GPU 上只有一个进程处于活动状态。</p>
-<p>应用程序可以通过检查属性来查询设备的计算模式 <code class="docutils literal notranslate"><span class="pre">cudaDevAttrComputeMode</span></code>.</p>
+<p>因此，若主机线程使用运行时 API 却未显式调用 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code>，当设备 0 处于禁止或独占进程模式且已被其他进程占用时，该线程实际绑定的可能是非 0 号设备。可配合 <code class="docutils literal notranslate"><span class="pre">cudaSetValidDevices()</span></code> 从优先级列表中选择设备。</p>
+<p>自 Pascal 起（计算能力主版本号 ≥ 6），硬件支持 <em>计算抢占</em>：计算任务可在指令级粒度被抢占，而不再像 Maxwell、Kepler 时代那样仅能在线程块粒度抢占，从而减轻长时间内核独占系统或触发超时的风险；但会引入与抢占相关的上下文切换开销，且在支持的设备上默认开启。可用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetAttribute()</span></code> 查询 <code class="docutils literal notranslate"><span class="pre">cudaDevAttrComputePreemptionSupported</span></code> 判断是否支持。若希望规避多进程间的抢占切换开销，可选用独占进程模式，使 GPU 上同时仅有一个进程处于活动状态。</p>
+<p>应用可通过查询属性 <code class="docutils literal notranslate"><span class="pre">cudaDevAttrComputeMode</span></code> 获知设备当前计算模式。</p>
 </section>
 <section id="mode-switches">
 <span id="id123"></span><h2>
 <span class="section-number">6.5. </span>模式开关<a class="headerlink" href="#mode-switches" title="跳转到此标题"></a>
 </h2>
-<p>具有显示输出的 GPU 将一些 DRAM 内存专用于所谓的 <em>主表面</em>，用于刷新用户查看其输出的显示设备。当用户发起一个 <em>模式开关</em> 通过更改显示器的分辨率或位深度（使用 NVIDIA 控制面板或 Windows 上的显示控制面板），主表面所需的内存量会发生变化。例如，如果用户将显示分辨率从 1280x1024x32 位更改为 1600x1200x32 位，系统必须将 7.68 MB 专用于主表面，而不是 5.24 MB。 （启用抗锯齿功能运行的全屏图形应用程序可能需要更多的主表面显示内存。）在 Windows 上，可能启动显示模式切换的其他事件包括启动全屏 DirectX 应用程序、按 Alt+Tab 从全屏 DirectX 应用程序切换任务，或按 Ctrl+Alt+Del 锁定计算机。</p>
-<p>如果模式切换增加了主表面所需的内存量，系统可能必须蚕食专用于 CUDA 应用程序的内存分配。因此，模式切换会导致对 CUDA 运行时的任何调用失败并返回无效上下文错误。</p>
+<p>带显示输出的 GPU 会将部分 DRAM 划给所谓 <em>主表面（primary surface）</em>，用于刷新用户所见的显示器。用户通过 NVIDIA 控制面板或 Windows 显示设置改变分辨率或色深时会触发 <em>显示模式切换（mode switch）</em>，主表面所需显存随之变化：例如由 1280×1024×32 位改为 1600×1200×32 位时，主表面由约 5.24 MB 增至约 7.68 MB（全屏图形程序若开启抗锯齿，主表面占用可能更大）。在 Windows 上，启动全屏 DirectX 应用、用 Alt+Tab 切离全屏 DirectX、或按 Ctrl+Alt+Del 锁屏等操作也可能引发显示模式切换。</p>
+<p>若模式切换抬高了主表面需求，系统可能挤占原先留给 CUDA 应用的显存，其后果是随后任意 CUDA 运行时调用可能失败并返回无效上下文错误。</p>
 </section>
 <section id="tesla-compute-cluster-mode-for-windows">
 <h2>
-<span class="section-number">6.6. </span>适用于 Windows 的 Tesla 计算集群模式<a class="headerlink" href="#tesla-compute-cluster-mode-for-windows" title="跳转到此标题"></a>
+<span class="section-number">6.6. </span>Windows 下的 Tesla 计算集群（TCC）模式<a class="headerlink" href="#tesla-compute-cluster-mode-for-windows" title="跳转到此标题"></a>
 </h2>
-<p>使用 NVIDIA 的系统管理界面 (<em>nvidia-smi</em>），对于 Tesla 和 Quadro 系列的设备，Windows 设备驱动程序可以置于 TCC（Tesla 计算集群）模式。</p>
-<p>TCC 模式取消了对任何图形功能的支持。</p>
+<p>借助 NVIDIA 系统管理工具 <em>nvidia-smi</em>，可将 Tesla 与 Quadro 系列设备在 Windows 下的驱动切换为 TCC（Tesla Compute Cluster）模式。</p>
+<p>TCC 模式下不提供任何图形显示相关功能。</p>
 </section>
 </section>
 <section id="hardware-implementation">
