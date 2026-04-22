@@ -6817,13 +6817,13 @@
 <span id="id125"></span><h2>
 <span class="section-number">7.1. </span>SIMT 架构<a class="headerlink" href="#simt-architecture" title="跳转到此标题"></a>
 </h2>
-<p>多处理器以 32 个并行线程为一组创建、管理、调度和执行线程，称为 <em>warp</em>。构成 warp 的各个线程在同一程序地址处一起启动，但它们具有自己的指令地址计数器和寄存器状态，因此可以自由地独立分支和执行。期限 <em>经</em> 起源于编织，这是第一个并行线程技术。一个 <em>半 warp</em> 是warp的前半部分或后半部分。一个 <em>四分之一 warp</em> 是warp的第一、第二、第三或第四四分之一。</p>
-<p>当多处理器被赋予一个或多个线程块来执行时，它将它们划分为 warp，并且每个 warp 都由一个线程调度 <em>warp 调度器</em> 以便执行。块被划分为warp的方式始终是相同的；每个 warp 包含连续的、递增的线程 ID，第一个 warp 包含线程 0。 <a class="reference internal" href="#thread-hierarchy"><span class="std std-ref">线程层次结构</span></a> 描述线程 ID 如何与块中的线程索引相关。</p>
-<p>Warp 一次执行一条公共指令，因此当 Warp 的所有 32 个线程都同意其执行路径时，即可实现最高效率。如果 warp 的线程通过依赖于数据的条件分支发生分歧，则 warp 会执行所采用的每个分支路径，从而禁用不在该路径上的线程。分支发散仅发生在warp内；不同的 warp 独立执行，无论它们执行的是公共还是不相交的代码路径。</p>
-<p>SIMT 架构类似于 SIMD（单指令、多数据）向量组织，因为单指令控制多个处理元素。一个关键的区别是 SIMD 向量组织向软件公开 SIMD 宽度，而 SIMT 指令指定单个线程的执行和分支行为。与 SIMD 向量机相比，SIMT 使程序员能够为独立的标量线程编写线程级并行代码，以及为协调线程编写数据并行代码。为了正确性，程序员基本上可以忽略 SIMT 行为；然而，通过注意代码很少需要线程束中的线程发散，可以实现显着的性能改进。实际上，这类似于传统代码中缓存行的作用：在设计正确性时可以安全地忽略缓存行大小，但在设计峰值性能时必须在代码结构中考虑缓存行大小。另一方面，矢量架构需要软件将负载合并为矢量并手动管理分歧。</p>
-<p>在 NVIDIA Volta 之前，warp 使用一个在 32 个线程间共享的程序计数器以及指定 warp 的活动线程的活动掩码。因此，来自不同区域或不同执行状态的同一 warp 的线程无法相互发送信号或交换数据，而需要对细粒度共享数据（由锁或互斥保护）进行访问的算法很容易导致死锁，具体取决于竞争线程来自哪个 warp。</p>
-<p>从 NVIDIA Volta 架构开始， <em>独立线程调度</em> 允许线程之间完全并发，无论 warp 如何。通过独立线程调度，GPU 可以维护每个线程的执行状态，包括程序计数器和调用堆栈，并且可以按线程粒度生成执行，以便更好地利用执行资源或允许一个线程等待另一个线程生成数据。调度优化器确定如何将来自同一 warp 的活动线程分组到 SIMT 单元中。这保留了之前 NVIDIA GPU 中 SIMT 执行的高吞吐量，但具有更大的灵活性：线程现在可以在子 warp 粒度上发散和重新收敛。</p>
-<p>如果开发人员对warp 同步做出假设，独立线程调度可能会导致参与执行代码的线程集与预期的完全不同<a class="footnote-reference brackets" href="#fn2" id="id126">2</a> 以前的硬件架构。特别是，任何 warp 同步代码（例如无同步、warp 内归约）都应重新审视，以确保与 NVIDIA Volta 及更高版本的兼容性。见 <a class="reference internal" href="#compute-capability-7-x"><span class="std std-ref">计算能力7.x</span></a> 了解更多详情。</p>
+<p>多处理器以每 32 条并行线程为一组来创建、管理、调度与执行线程，该组称为 <em>warp（线程束）</em>。同一 warp 内的线程从同一程序地址一起启动，但各自拥有指令地址计数器与寄存器状态，因而可独立分支与执行。<em>Warp</em> 一词来自纺织业中对并行经线的比喻。<em>Half-warp</em> 指一个 warp 的前半或后半；<em>quarter-warp</em> 指其第一、第二、第三或第四四分之一。</p>
+<p>多处理器接到一个或多个待执行的线程块后，会将其划分为若干 warp，并由 <em>warp 调度器（warp scheduler）</em> 调度执行。块到 warp 的划分方式固定不变：每个 warp 包含连续递增的线程 ID，首个 warp 含线程 0。<a class="reference internal" href="#thread-hierarchy"><span class="std std-ref">线程层次结构</span></a> 说明了线程 ID 与块内索引的对应关系。</p>
+<p>同一时刻一个 warp 只执行一条公共指令，故当 32 条线程走同一路径时效率最高。若因数据相关分支导致 warp 内线程分歧，硬件会依次执行各被选中分支路径，并屏蔽不在当前路径上的线程。分支分歧只发生在同一 warp 内部；不同 warp 彼此独立，无论其代码路径是否相同。</p>
+<p>SIMT 与 SIMD（单指令多数据）向量机相似之处在于单条指令驱动多个处理单元；关键差异在于 SIMD 往往把向量宽度暴露给软件，而 SIMT 的指令描述的是单条线程的执行与分支语义。相对 SIMD 向量机，SIMT 既便于编写独立标量线程的线程级并行代码，也便于编写协同线程的数据并行代码。就正确性而言，程序员通常可不必细究 SIMT；但若尽量少让同一 warp 内线程分歧，则常能获得可观性能收益——这与传统代码中的缓存行类似：为正确性可忽略行宽，为峰值性能则需在代码结构上加以考虑。向量机则往往要求软件把访存合并为向量并手工处理分歧。</p>
+<p>在 NVIDIA Volta 之前，一个 warp 内 32 条线程共享同一程序计数器，并以活动掩码表示当前活跃线程。因而在分歧区域或不同执行状态下，同一 warp 内线程难以相互发信号或交换数据；若用锁或互斥量做细粒度共享，还容易因竞争线程分属不同 warp 而出现死锁。</p>
+<p>自 NVIDIA Volta 起，<em>独立线程调度（Independent Thread Scheduling）</em> 允许线程在 warp 边界之外仍保持充分并发：GPU 为每条线程维护执行状态（含程序计数器与调用栈），并可在线程粒度上让出执行权，以更好利用执行资源或使某线程等待另一线程产出数据。调度优化器负责把同一 warp 中的活跃线程组合到 SIMT 执行单元上。这样既保留以往 GPU 上 SIMT 的高吞吐，又赋予更大灵活性：线程可在子 warp 粒度上分歧与再收敛。</p>
+<p>若代码仍按旧硬件上隐含的 <em>warp 同步（warp-synchronicity）</em> 假设编写，独立线程调度可能导致实际参与执行的线程集合与预期不符<a class="footnote-reference brackets" href="#fn2" id="id126">2</a>。凡依赖 warp 同步的写法（例如无显式同步的 warp 内归约）都应复查，以兼容 Volta 及更新架构。详见 <a class="reference internal" href="#compute-capability-7-x"><span class="std std-ref">计算能力 7.x</span></a>。</p>
 <div class="admonition note" id="simt-architecture-notes">
 <p class="admonition-title">注意</p>
 <p>参与当前指令的 warp 线程称为 <em>活动</em> 线程，而不在当前指令上的线程是 <em>非活动</em> （已禁用）。线程可能由于多种原因而处于不活动状态，包括比其warp 中的其他线程更早退出、采用了与warp 当前执行的分支路径不同的分支路径，或者是线程数不是warp 大小的倍数的块的最后一个线程。</p>
@@ -6835,28 +6835,28 @@
 <span id="id127"></span><h2>
 <span class="section-number">7.2. </span>硬件多线程<a class="headerlink" href="#hardware-multithreading" title="跳转到此标题"></a>
 </h2>
-<p>多处理器处理的每个 warp 的执行上下文（程序计数器、寄存器等）在 warp 的整个生命周期内都在片上维护。因此，从一个执行上下文切换到另一个执行上下文是没有成本的，并且在每次指令发出时，warp 调度程序都会选择一个具有准备好执行其下一条指令的线程的 warp（即 <a class="reference internal" href="#simt-architecture-notes"><span class="std std-ref">活动线程</span></a> 所在的 warp）并向这些线程发出指令。</p>
-<p>特别是，每个多处理器都有一组 32 位寄存器，它们在 warp 之间进行分区，以及一个 <em>并行数据缓存</em> 或 <em>共享内存</em> 它在在线程块之间划分。</p>
-<p>对于给定内核，可以驻留在多处理器上并一起处理的块和 warp 的数量取决于内核使用的寄存器和共享内存的数量以及多处理器上可用的寄存器和共享内存的数量。每个多处理器还有最大驻留块数和最大驻留 warp 数。这些限制以及多处理器上可用的寄存器和共享内存的数量是设备计算能力的函数，并在 <a class="reference internal" href="#compute-capabilities"><span class="std std-ref">计算能力</span></a>。如果每个多处理器没有足够的寄存器或共享内存来处理至少一个块，则内核将无法启动。</p>
+<p>多处理器为每个 warp 维护的执行上下文（程序计数器、寄存器等）在其整个生命周期内保存在片上，因而在 warp 之间切换上下文几乎无额外开销。每个指令发射周期，warp 调度器会挑选一条已就绪、可执行下一条指令的 warp（即其中含有 <a class="reference internal" href="#simt-architecture-notes"><span class="std std-ref">活跃线程</span></a> 的 warp），并向这些线程发射该指令。</p>
+<p>具体而言，每个多处理器拥有一组在 warp 间划分的 32 位寄存器，以及在线程块间划分的 <em>并行数据缓存（parallel data cache）</em>，亦即 <em>共享内存（shared memory）</em>。</p>
+<p>对某一内核而言，能同时驻留并在多处理器上推进的块数与 warp 数，取决于该内核占用的寄存器与共享内存，以及硬件上可用的寄存器与共享内存。每个多处理器还存在最大驻留块数与最大驻留 warp 数等上限；这些限制及资源容量均为设备计算能力的函数，列于 <a class="reference internal" href="#compute-capabilities"><span class="std std-ref">计算能力</span></a>。若每颗多处理器上的寄存器或共享内存不足以至少容纳一个块，则该内核无法成功启动。</p>
 <p>一个块中的 warp 总数如下：</p>
 <p><span class="math notranslate nohighlight">\(\text{ceil}\left( \frac{T}{W_{size}},1 \right)\)</span></p>
 <ul class="simple">
-<li><p><em>时间</em> 是每个块的线程数，</p></li>
-<li><p><em>尺寸</em> 是warp 大小，等于 32，</p></li>
-<li><p>ceil(x, y) 等于 x 四舍五入到最接近的 y 倍数。</p></li>
+<li><p><em>T</em> 为每个线程块的线程数；</p></li>
+<li><p><em>Wsize</em> 为 warp 大小，等于 32；</p></li>
+<li><p>ceil(<em>x</em>, <em>y</em>) 表示将 <em>x</em> 向上取整到不小于 <em>x</em> 的 <em>y</em> 的最小整数倍（即按 <em>y</em> 对齐的上取整）。</p></li>
 </ul>
-<p>为块分配的寄存器总数和共享内存总量记录在 CUDA 工具包中提供的 CUDA 占用计算器中。</p>
+<p>为每个块分配的寄存器总数与共享内存总量可在 CUDA Toolkit 附带的 CUDA Occupancy Calculator 中查阅。</p>
 <dl class="footnote brackets">
 <dt class="label" id="fn2"><span class="brackets"><a class="fn-backref" href="#id126">2</a></span></dt>
 <dd>
-<p>期限 <em>曲速同步</em> 指隐式假设同一线程束中的线程在每条指令上同步的代码。</p>
+<p>术语 <em>warp 同步（warp-synchronous）</em> 指隐式假定同一线程束内各线程在每条指令处彼此同步的代码。</p>
 </dd>
 </dl>
 </section>
 </section>
 <section id="performance-guidelines">
 <span id="id128"></span><h1>
-<span class="section-number">8. </span>绩效指南<a class="headerlink" href="#performance-guidelines" title="跳转到此标题"></a>
+<span class="section-number">8. </span>性能指南<a class="headerlink" href="#performance-guidelines" title="跳转到此标题"></a>
 </h1>
 <div class="admonition warning">
 <p class="admonition-title">警告</p>
@@ -6871,15 +6871,15 @@
 <li><p>最大化并行执行以达到最大利用率；</p></li>
 <li><p>优化内存使用，实现最大内存吞吐量；</p></li>
 <li><p>优化指令使用，实现最大指令吞吐量；</p></li>
-<li><p>最大限度地减少内存抖动。</p></li>
+<li><p>尽量减少内存颠簸（thrashing）。</p></li>
 </ul>
-<p>哪种策略将为应用程序的特定部分带来最佳性能增益取决于该部分的性能限制因素；例如，优化主要受内存访问限制的内核指令使用不会产生任何显着的性能增益。因此，应通过测量和监控性能限制因素（例如使用 CUDA 分析器）不断指导优化工作。此外，将特定内核的浮点运算吞吐量或内存吞吐量（以更有意义的为准）与设备的相应峰值理论吞吐量进行比较，可以表明内核还有多少改进空间。</p>
+<p>对应用某一部分而言，哪条策略收益最大，取决于该部分的性能瓶颈；例如，若内核主要受内存访问制约，则单纯优化指令侧往往收效甚微。因此优化应持续以测量与监控瓶颈为导向（例如使用 CUDA 分析器）。此外，将某内核的浮点吞吐或内存吞吐（视何者更相关）与设备对应峰值理论吞吐对比，可判断该内核尚有多少提升余地。</p>
 </section>
 <section id="maximize-utilization">
 <span id="id130"></span><h2>
 <span class="section-number">8.2. </span>最大化利用率<a class="headerlink" href="#maximize-utilization" title="跳转到此标题"></a>
 </h2>
-<p>为了最大限度地提高利用率，应用程序的结构应使其暴露尽可能多的并行性，并将这种并行性有效地映射到系统的各个组件，以使它们在大部分时间保持忙碌。</p>
+<p>为最大化利用率，应用结构应尽可能暴露并行性，并将其有效映射到系统各部件，使它们在绝大部分时间内保持忙碌。</p>
 <section id="application-level">
 <span id="id131"></span><h3>
 <span class="section-number">8.2.1. </span>应用层<a class="headerlink" href="#application-level" title="跳转到此标题"></a>
@@ -6892,45 +6892,44 @@
 <span class="section-number">8.2.2. </span>设备级<a class="headerlink" href="#device-level" title="跳转到此标题"></a>
 </h3>
 <p>在较低级别，应用程序应最大化设备的多处理器之间的并行执行。</p>
-<p>多个内核可以在设备上同时执行，因此还可以通过使用流使足够的内核同时执行来实现最大利用率，如中所述 <a class="reference internal" href="#asynchronous-concurrent-execution"><span class="std std-ref">异步并发执行</span></a>。</p>
+<p>设备上可同时执行多个内核，故亦可借助流启动足够多的并发内核以逼近最大利用率，见 <a class="reference internal" href="#asynchronous-concurrent-execution"><span class="std std-ref">异步并发执行</span></a>。</p>
 </section>
 <section id="multiprocessor-level">
 <span id="id133"></span><h3>
 <span class="section-number">8.2.3. </span>多处理器级别<a class="headerlink" href="#multiprocessor-level" title="跳转到此标题"></a>
 </h3>
 <p>在更低的层面上，应用程序应该最大限度地提高多处理器内各个功能单元之间的并行执行。</p>
-<p>如中所述 <a class="reference internal" href="#hardware-multithreading"><span class="std std-ref">硬件多线程</span></a>，GPU 多处理器主要依靠线程级并行性来最大化其功能单元的利用率。因此，利用率与常驻 warp的数量直接相关。在每次指令发出时，warp 调度程序都会选择一条准备执行的指令。该指令可以是同一 warp的另一条独立指令，利用指令级并行性，或更常见的是另一条 warp的指令，利用线程级并行性。如果选择了准备执行指令，则将其发送到 <a class="reference internal" href="#simt-architecture-notes"><span class="std std-ref">活动</span></a> warp。 warp 准备好执行下一条指令所需的时钟周期数称为 <em>延迟</em>，并且当所有 warp 调度器在该延迟期间的每个时钟周期总是有一些指令为某些 warp发出一些指令时，或者换句话说，当延迟完全“隐藏”时，就可以实现充分利用。隐藏 L 个时钟周期的延迟所需的指令数量取决于这些指令各自的吞吐量（参见 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#arithmetic-instructions">CUDA C++ 最佳实践指南</a> 各种算术指令的吞吐量）。如果我们假设指令具有最大吞吐量，则它等于：</p>
+<p>如 <a class="reference internal" href="#hardware-multithreading"><span class="std std-ref">硬件多线程</span></a> 所述，GPU 多处理器主要依赖线程级并行以拉高各功能单元利用率，因而利用率与驻留 warp 数直接相关。每个指令发射周期，warp 调度器会选取一条已就绪指令：可能是同一线程束中的另一条独立指令（利用指令级并行），更常见的是另一线程束的指令（利用线程级并行）。若选中一条可执行指令，则将其发射给该 warp 的 <a class="reference internal" href="#simt-architecture-notes"><span class="std std-ref">活跃</span></a> 线程。某 warp 再次具备执行下一条指令条件前所经历的时钟周期数称为 <em>延迟（latency）</em>；当在该延迟窗口内，各 warp 调度器于几乎每个周期都能为某 warp 发出指令时，即称延迟被完全“隐藏”，从而达到充分利用。隐藏长度为 <em>L</em> 个周期的延迟所需指令条数取决于各指令的吞吐（见 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#arithmetic-instructions">CUDA C++ 最佳实践指南</a> 中各类算术指令吞吐）。若假定所发指令均达最大吞吐，则所需条数等于：</p>
 <ul class="simple">
-<li><p><em>4升</em> 对于计算能力为 5.x、6.1、6.2、7.x 和 8.x 的设备，因为对于这些设备，多处理器在一个时钟周期内为每个warp发出一条指令，一次发出四个warp，如 <a class="reference internal" href="#compute-capabilities"><span class="std std-ref">计算能力</span></a>。</p></li>
-<li><p><em>2升</em> 对于计算能力 6.0 的设备，因为对于这些设备，每个周期发出的两条指令是针对两个不同warp的一条指令。</p></li>
+<li><p><em>4L</em>：适用于计算能力 5.x、6.1、6.2、7.x 与 8.x 的设备——如 <a class="reference internal" href="#compute-capabilities"><span class="std std-ref">计算能力</span></a> 所述，这些设备上每个周期可向四个 warp 各发射一条指令；</p></li>
+<li><p><em>2L</em>：适用于计算能力 6.0 的设备——每周期发射的两条指令分属两条不同 warp，各一条。</p></li>
 </ul>
-<p>warp 未准备好执行下一条指令的最常见原因是指令的输入操作数尚不可用。</p>
-<p>如果所有输入操作数都是寄存器，则延迟是由寄存器依赖性引起的，即某些输入操作数是由执行尚未完成的某些先前指令写入的。在这种情况下，延迟等于前一条指令的执行时间，并且线程束调度器必须在该时间内调度其他线程束的指令。执行时间根据指令而变化。在计算能力 7.x 的设备上，对于大多数算术指令，通常为 4 个时钟周期。这意味着每个多处理器需要 16 个活动 warp（4 个周期，4 个 warp 调度程序）来隐藏算术指令延迟（假设 warp 执行具有最大吞吐量的指令，否则需要更少的 warp）。如果各个 warp 表现出指令级并行性，即在其指令流中具有多个独立指令，则需要更少的 warp，因为来自单个 warp 的多个独立指令可以连续发出。</p>
-<p>如果某些输入操作数驻留在片外存储器中，则延迟会更高：通常为数百个时钟周期。在如此高的延迟期间保持warp 调度器繁忙所需的warp数量取决于内核代码及其指令级并行度。一般来说，如果没有片外存储器操作数的指令（即大部分时间为算术指令）的数量与有片外存储器操作数的指令数量的比率较低（该比率通常称为程序的算术强度），则需要更多的warp。</p>
-<p>warp未准备好执行下一条指令的另一个原因是它正在某个内存栅栏处等待（<a class="reference internal" href="#memory-fence-functions"><span class="std std-ref">内存栅栏功能</span></a>）或同步点（<a class="reference internal" href="#synchronization-functions"><span class="std std-ref">同步功能</span></a>）。当越来越多的线程束等待同一块中的其他线程束在同步点之前完成指令的执行时，同步点可以强制多处理器空闲。在这种情况下，每个多处理器拥有多个驻留块有助于减少空闲，因为来自不同块的warp不需要在同步点彼此等待。</p>
-<p>对于给定的内核调用，驻留在每个多处理器上的块和 warp 的数量取决于调用的执行配置（<a class="reference internal" href="#execution-configuration"><span class="std std-ref">执行配置</span></a>）、多处理器的内存资源以及内核的资源需求，如中所述 <a class="reference internal" href="#hardware-multithreading"><span class="std std-ref">硬件多线程</span></a>。编译器在使用以下命令进行编译时会报告寄存器和共享内存的使用情况 <code class="docutils literal notranslate"><span class="pre">--ptxas-options=-v</span></code> 选项。</p>
+<p>warp 无法继续执行下一条指令的最常见原因，是指令的输入操作数尚未就绪。</p>
+<p>若输入均在寄存器中，则延迟多由寄存器依赖引起：部分源操作数仍由尚未完成的前序指令写入。此时延迟约等于前序指令的执行时间，warp 调度器须在此期间穿插调度其他 warp 的指令。执行周期随指令而异；在计算能力 7.x 设备上，多数算术指令典型为 4 个时钟周期，故常需每多处理器约 16 个活跃 warp（4 周期 × 4 个调度器）以掩盖算术延迟（若指令非最大吞吐则所需 warp 更少）。若各 warp 指令流内存在多条相互独立指令（指令级并行），则可减少所需 warp 数，因同一线程束内多条独立指令可背靠背连续发射。</p>
+<p>若部分源操作数位于片外存储器，则延迟往往达数百个周期；为在此期间仍喂饱调度器，所需 warp 数取决于内核代码及其指令级并行度。一般而言，当“无片外操作数的指令（多为算术）”与“含片外操作数的指令”之比较低——即所谓程序 <em>算术强度（arithmetic intensity）</em> 较低时，需要更多 warp。</p>
+<p>另一常见原因是 warp 停在 <a class="reference internal" href="#memory-fence-functions"><span class="std std-ref">内存栅栏函数</span></a> 或 <a class="reference internal" href="#synchronization-functions"><span class="std std-ref">同步函数</span></a> 同步点处。同步点处若越来越多 warp 等待同块其他 warp 完成先前指令，可能迫使多处理器空转；此时每多处理器驻留多个块有助于缓解，因为不同块的 warp 在同步点互不等待。</p>
+<p>对某次内核调用，每颗多处理器上驻留的块数与 warp 数取决于该次调用的 <a class="reference internal" href="#execution-configuration"><span class="std std-ref">执行配置</span></a>、多处理器可用资源及内核资源需求，详见 <a class="reference internal" href="#hardware-multithreading"><span class="std std-ref">硬件多线程</span></a>。使用编译选项 <code class="docutils literal notranslate"><span class="pre">--ptxas-options=-v</span></code> 时，编译器会报告寄存器与共享内存用量。</p>
 <p>一个块所需的共享内存总量等于静态分配的共享内存量和动态分配的共享内存量之和。</p>
-<p>内核使用的寄存器数量会对常驻 warp数量产生重大影响。例如，对于计算能力 6.x 的设备，如果内核使用 64 个寄存器，每个块有 512 个线程，并且需要很少的共享内存，则两个块（即 32 个 warp）可以驻留在多处理器上，因为它们需要 2x512x64 个寄存器，这与多处理器上可用的寄存器数量完全匹配。但是，一旦内核多使用一个寄存器，就只能驻留一个块（即 16 个warp），因为两个块将需要 2x512x65 寄存器，这比多处理器上可用的寄存器还要多。因此，编译器尝试最小化寄存器使用，同时保持寄存器溢出（请参见 <a class="reference internal" href="#device-memory-accesses"><span class="std std-ref">设备内存访问</span></a>）并将指令数量降至最低。寄存器的使用可以使用控制 <code class="docutils literal notranslate"><span class="pre">maxrregcount</span></code> 编译器选项， <code class="docutils literal notranslate"><span class="pre">__launch_bounds__()</span></code> 限定符如中所述 <a class="reference internal" href="#launch-bounds"><span class="std std-ref">发射范围</span></a>，或 <code class="docutils literal notranslate"><span class="pre">__maxnreg__()</span></code>
-限定符如中所述 <a class="reference internal" href="#maximum-number-of-registers-per-thread"><span class="std std-ref">每个线程的最大寄存器数</span></a>。</p>
+<p>内核占用的寄存器数对驻留 warp 数影响显著。例如在某计算能力 6.x 设备上，若内核每线程用 64 个寄存器、每块 512 线程且共享内存很少，则单个多处理器上可同时驻留两个块（共 32 个 warp），因 2×512×64 枚寄存器恰好占满该 SM 的寄存器文件；但若每线程多占 1 枚寄存器，则只能驻留一块（16 个 warp），因 2×512×65 将超出容量。故编译器在控制寄存器溢出（见 <a class="reference internal" href="#device-memory-accesses"><span class="std std-ref">设备内存访问</span></a>）与指令条数的前提下尽量压低寄存器占用。可用 <code class="docutils literal notranslate"><span class="pre">maxrregcount</span></code> 编译选项、<a class="reference internal" href="#launch-bounds"><span class="std std-ref">发射范围</span></a> 中的 <code class="docutils literal notranslate"><span class="pre">__launch_bounds__()</span></code> 限定符，或 <a class="reference internal" href="#maximum-number-of-registers-per-thread"><span class="std std-ref">每个线程的最大寄存器数</span></a> 中的 <code class="docutils literal notranslate"><span class="pre">__maxnreg__()</span></code> 限定符加以约束。</p>
 <p>寄存器文件被组织为 32 位寄存器。因此，寄存器中存储的每个变量至少需要一个32位寄存器，例如一个 <code class="docutils literal notranslate"><span class="pre">double</span></code> 变量使用两个 32 位寄存器。</p>
 <p>执行配置对给定内核调用性能的影响通常取决于内核代码。因此建议进行实验。应用程序还可以根据寄存器文件大小和共享内存大小对执行配置进行参数化，这取决于设备的计算能力，以及设备的多处理器数量和内存带宽，所有这些都可以使用运行时进行查询（请参阅参考手册）。</p>
-<p>每个块的线程数应选择为warp 大小的倍数，以避免尽可能避免因填充不足而浪费计算资源。</p>
+<p>每块线程数宜取为 warp 大小的整数倍，以尽量避免因未填满 warp 而浪费算力。</p>
 <section id="occupancy-calculator">
 <span id="id134"></span><h4>
-<span class="section-number">8.2.3.1. </span>入住计算器<a class="headerlink" href="#occupancy-calculator" title="跳转到此标题"></a>
+<span class="section-number">8.2.3.1. </span>占用率计算器<a class="headerlink" href="#occupancy-calculator" title="跳转到此标题"></a>
 </h4>
-<p>有几个 API 函数可帮助程序员根据寄存器和共享内存要求选择线程块大小和簇大小。</p>
+<p>下列 API 可依据寄存器与共享内存需求，辅助选择线程块大小与簇（cluster）规模。</p>
 <ul class="simple">
 <li>
-<p>占用率计算器 API， <code class="docutils literal notranslate"><span class="pre">cudaOccupancyMaxActiveBlocksPerMultiprocessor</span></code>，可以根据内核的块大小和共享内存使用情况提供占用率预测。此函数根据每个多处理器的并发线程块数报告占用情况。</p>
+<p>占用率 API <code class="docutils literal notranslate"><span class="pre">cudaOccupancyMaxActiveBlocksPerMultiprocessor</span></code> 可根据内核块大小与共享内存用量给出占用预测，返回值以每多处理器上并发线程块数表示。</p>
 <ul>
-<li><p>请注意，该值可以转换为其他指标。乘以每个块的warp数量就得出每个多处理器的并发warp数量；将并发warp进一步除以每个多处理器的最大warp，得出占用率的百分比。</p></li>
+<li><p>该值可换算为其他指标：乘以每块 warp 数即得每多处理器并发 warp 数；再除以每多处理器最大 warp 数即得占用率百分比。</p></li>
 </ul>
 </li>
-<li><p>基于占用的启动配置器 API， <code class="docutils literal notranslate"><span class="pre">cudaOccupancyMaxPotentialBlockSize</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaOccupancyMaxPotentialBlockSizeVariableSMem</span></code>，启发式计算实现最大多处理器级别占用率的执行配置。</p></li>
-<li><p>占用率计算器 API， <code class="docutils literal notranslate"><span class="pre">cudaOccupancyMaxActiveClusters</span></code>，可以根据内核的簇大小、块大小和共享内存使用情况提供占用率预测。此函数以系统中存在的 GPU 上给定大小的最大活动集群的数量来报告占用率。</p></li>
+<li><p>基于占用率的启动配置 API <code class="docutils literal notranslate"><span class="pre">cudaOccupancyMaxPotentialBlockSize</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaOccupancyMaxPotentialBlockSizeVariableSMem</span></code> 以启发式方式求解使多处理器级占用率趋于最大的执行配置。</p></li>
+<li><p>簇占用 API <code class="docutils literal notranslate"><span class="pre">cudaOccupancyMaxActiveClusters</span></code> 可根据内核簇尺寸、块大小与共享内存用量预测占用，返回值表示系统中 GPU 上指定规模下可同时活跃的簇（cluster）的最大数量。</p></li>
 </ul>
-<p>以下代码示例计算 MyKernel 的占用率。然后，它报告占用率以及每个多处理器的并发warp与最大warp之间的比率。</p>
+<p>以下示例计算 <code class="docutils literal notranslate"><span class="pre">MyKernel</span></code> 的占用率，并输出占用百分比（以每多处理器并发 warp 与最大 warp 之比表示）。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="c1">// 设备端代码</span>
 <span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">MyKernel</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">b</span><span class="p">)</span><span class="w"></span>
@@ -6969,7 +6968,7 @@
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>以下代码示例根据用户输入配置 MyKernel 的基于占用的内核启动。</p>
+<p>以下示例根据输入数据规模，为 <code class="docutils literal notranslate"><span class="pre">MyKernel</span></code> 选择基于占用率的启动配置。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="c1">// 设备端代码</span>
 <span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">MyKernel</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">array</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">arrayCount</span><span class="p">)</span><span class="w"></span>
@@ -7010,8 +7009,8 @@
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>以下代码示例演示如何使用集群占用 API 查找给定大小的活动集群的最大数量。下面的示例代码计算大小为 2 且每块有 128 个线程的集群的占用率。</p>
-<p>集群大小为 8 是向前兼容的，从计算能力 9.0 开始，除非 GPU 硬件或 MIG 配置太小而无法支持 8 个多处理器，在这种情况下，最大集群大小将减小。但建议用户在启动集群内核之前查询最大集群大小。可以使用以下命令查询最大簇大小 <code class="docutils literal notranslate"><span class="pre">cudaOccupancyMaxPotentialClusterSize</span></code> API。</p>
+<p>以下示例演示如何用簇占用 API 求取给定簇规模下最大活跃簇数；片段中簇尺寸为 2、每块 128 线程。</p>
+<p>自计算能力 9.0 起，簇大小 8 具有前向兼容语义；若 GPU 硬件或 MIG 划分过小、无法容纳 8 个多处理器组成的簇，则最大簇尺寸会相应缩小。仍建议在启动簇内核前查询硬件允许的最大簇规模，可调用 <code class="docutils literal notranslate"><span class="pre">cudaOccupancyMaxPotentialClusterSize</span></code>。</p>
 <div class="highlight-c++ notranslate">
 <div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
 <span class="w"> </span><span class="n">cudaLaunchConfig_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">};</span><span class="w"></span>
@@ -7037,7 +7036,7 @@
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>CUDA Nsight 计算用户界面还提供独立的占用计算器并启动配置器实现 <code class="docutils literal notranslate"><span class="pre">&lt;CUDA_Toolkit_Path&gt;/include/cuda_occupancy.h</span></code> 适用于任何不能依赖 CUDA 软件堆栈的用例。占用计算器的 Nsight Compute 版本作为一种学习工具特别有用，它可以可视化影响占用的参数（块大小、每个线程的寄存器和每个线程的共享内存）更改的影响。</p>
+<p>CUDA Nsight Compute 还在 <code class="docutils literal notranslate"><span class="pre">&lt;CUDA_Toolkit_Path&gt;/include/cuda_occupancy.h</span></code> 中提供可脱离 CUDA 软件栈单独使用的占用率计算器与启动配置实现。Nsight Compute 自带的占用率视图尤其适合作为学习工具，用于直观展示块大小、每线程寄存器数、每线程共享内存等参数变化对占用的影响。</p>
 </section>
 </section>
 </section>
