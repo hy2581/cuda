@@ -1,0 +1,1046 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>2.4. 统一内存与系统内存 &#8212; CUDA 编程指南</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tables.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js" />
+
+
+<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript"
+  data-document-language="true" charset="UTF-8" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5">
+</script>
+<script type="text/javascript">
+  function OptanonWrapper() {
+    var event = new Event('bannerLoaded');
+    window.dispatchEvent(event);
+  }
+</script>
+<script src="https://images.nvidia.com/aem-dam/Solutions/ot-js/ot-custom.js" type="text/javascript">
+</script>
+
+
+    <script rel="preload" src="../_static/modal-table.js"></script>
+    <script src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scrollspy-patch.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '02-basics/understanding-memory';</script>
+    <script src="../_static/version-patch.js"></script>
+
+<script type="text/javascript" src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
+
+    <link rel="icon" href="../_static/favicon.ico"/>
+
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="2.5. NVCC: The NVIDIA CUDA Compiler" href="nvcc.html" />
+    <link rel="prev" title="2.3. Asynchronous Execution" href="asynchronous-execution.html" />
+
+<link rel="preload" as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png">
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+    <meta name="docbuild:last-update" content="Mar 04, 2026"/>
+
+
+  </head>
+
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="understanding-memory.html#main-content">Skip to main content</a></div>
+
+<img src="https://www.nvidia.com/content/dam/1x1-00000000.png" width="1" height="1" style="display:none;" alt="country_code">
+
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../contents.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
+    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
+  
+  
+    <p class="title logo__title">CUDA Programming Guide</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+
+<div>
+  <ul class="bd-navbar-elements navbar-nav">
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>v13.2 |</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>|</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
+      
+    </li>
+  
+  </ul>
+</div>
+</div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../contents.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
+    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
+  
+  
+    <p class="title logo__title">CUDA Programming Guide</p>
+  
+</a>
+
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+
+<div>
+  <ul class="bd-navbar-elements navbar-nav">
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>v13.2 |</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>|</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
+      
+    </li>
+  
+  </ul>
+</div>
+</div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Table of Contents">
+  <p class="bd-links__title" role="heading" aria-level="1">目录</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA Programming Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. Introduction to CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/introduction.html">1.1. Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/programming-model.html">1.2. Programming Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/cuda-platform.html">1.3. The CUDA platform</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../part2.html">2. Programming GPUs in CUDA</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="intro-to-cuda-cpp.html">2.1. Intro to CUDA C++</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writing-cuda-kernels.html">2.2. Writing CUDA SIMT Kernels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="asynchronous-execution.html">2.3. Asynchronous Execution</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="understanding-memory.html#">2.4. Unified and System Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nvcc.html">2.5. NVCC: The NVIDIA CUDA Compiler</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. Advanced CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. Advanced CUDA APIs and Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. Advanced Kernel Programming</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. The CUDA Driver API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. Programming Systems with Multiple GPUs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. A Tour of CUDA Features</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part4.html">4. CUDA Features</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/unified-memory.html">4.1. Unified Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cuda-graphs.html">4.2. CUDA Graphs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/stream-ordered-memory-allocation.html">4.3. Stream-Ordered Memory Allocator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cooperative-groups.html">4.4. Cooperative Groups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/programmatic-dependent-launch.html">4.5. Programmatic Dependent Launch and Synchronization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/green-contexts.html">4.6. Green Contexts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/lazy-loading.html">4.7. Lazy Loading</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/error-log-management.html">4.8. Error Log Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/async-barriers.html">4.9. Asynchronous Barriers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/pipelines.html">4.10. Pipelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/async-copies.html">4.11. Asynchronous Data Copies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cluster-launch-control.html">4.12. Work Stealing with Cluster Launch Control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/l2-cache-control.html">4.13. L2 Cache Control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/memory-sync-domains.html">4.14. Memory Synchronization Domains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/inter-process-communication.html">4.15. Interprocess Communication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/virtual-memory-management.html">4.16. Virtual Memory Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/extended-gpu-memory.html">4.17. Extended GPU Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/dynamic-parallelism.html">4.18. CUDA Dynamic Parallelism</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/graphics-interop.html">4.19. CUDA Interoperability with APIs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/driver-entry-point-access.html">4.20. Driver Entry Point Access</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part5.html">5. Technical Appendices</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/compute-capabilities.html">5.1. Compute Capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/environment-variables.html">5.2. CUDA Environment Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-support.html">5.3. C++ Language Support</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-extensions.html">5.4. C/C++ Language Extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/mathematical-functions.html">5.5. Floating-Point Computation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/device-callable-apis.html">5.6. Device-Callable APIs and Intrinsics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-memory-model.html">5.7. CUDA C++ Memory Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-execution-model.html">5.8. CUDA C++ Execution model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. Notices</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../contents.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">CUDA Programming Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../part2.html" class="nav-link"><span class="section-number">2. </span>Programming GPUs in CUDA</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">2.4. </span>Unified and System Memory</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+<div class="header-article-item">
+  <div class="d-flex justify-content-end w-100">
+    <a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">Is this page helpful?</a>
+  </div>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="unified-and-system-memory">
+<span id="id1"></span><h1><span class="section-number">2.4. </span>统一内存与系统内存<a class="headerlink" href="understanding-memory.html#unified-and-system-memory" title="跳转到此标题">#</a></h1>
+<p>异构系统中存在多个可存储数据的物理内存。主机 CPU 连接主机 DRAM，而系统中的每块 GPU 也有各自连接的 DRAM。当数据驻留在访问它的处理器本地内存中时，性能最佳。CUDA 提供了用于<a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-explicit-memory-management"><span class="std std-ref">显式管理内存放置</span></a>的 API，但这往往较为冗长并增加软件设计复杂度。CUDA 也提供了多种特性来简化不同物理内存间的数据分配、放置与迁移。</p>
+<p>本章旨在介绍并解释这些特性，以及它们对应用开发者在功能和性能层面的意义。统一内存在不同操作系统、驱动版本和 GPU 条件下会呈现不同形态。本章将说明如何判断当前适用的统一内存范式，以及各范式下统一内存的行为。关于统一内存的更深入内容见后续<a class="reference internal" href="../04-special-topics/unified-memory.html#um-details-intro"><span class="std std-ref">统一内存章节</span></a>。</p>
+<p>本章将定义并解释以下概念：</p>
+<ul>
+<li><p><a class="reference internal" href="understanding-memory.html#memory-unified-virtual-address-space"><span class="std std-ref">Unified Virtual Address Space</span></a> - CPU memory and each GPU’s memory have a distinct range within a single virtual address space</p></li>
+<li><p><a class="reference internal" href="understanding-memory.html#memory-unified-memory"><span class="std std-ref">Unified Memory</span></a> - A CUDA feature that enables managed memory which can be automatically migrated between CPU and GPUs</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference internal" href="understanding-memory.html#memory-limited-unified-memory-support"><span class="std std-ref">Limited Unified Memory</span></a> - A unified memory paradigm with some limitations</p></li>
+<li><p><a class="reference internal" href="understanding-memory.html#memory-unified-memory-full"><span class="std std-ref">Full Unified Memory</span></a> - Full support for unified memory features</p></li>
+<li><p><a class="reference internal" href="understanding-memory.html#memory-unified-address-translation-services"><span class="std std-ref">Full Unified Memory with Hardware Coherency</span></a> - Full support for unified memory using hardware capabilities</p></li>
+<li><p><a class="reference internal" href="understanding-memory.html#memory-mem-advise-prefetch"><span class="std std-ref">Unified memory hints</span></a> - APIs to guide unified memory behavior for specific allocations</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><a class="reference internal" href="understanding-memory.html#memory-page-locked-host-memory"><span class="std std-ref">Page-locked Host Memory</span></a> - Non-pageable system memory, which is necessary for some CUDA operations</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference internal" href="understanding-memory.html#memory-mapped-memory"><span class="std std-ref">Mapped memory</span></a> - A mechanism (different from unified memory) for accessing host memory directly from a kernel</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<p>此外，本章还会介绍讨论统一内存与系统内存时常见的术语：</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="understanding-memory.html#memory-heterogeneous-memory-management"><span class="std std-ref">Heterogeneous Managed Memory</span></a> (HMM) - A feature of the Linux kernel that enables software coherency for full unified memory</p></li>
+<li><p><a class="reference internal" href="understanding-memory.html#memory-unified-address-translation-services"><span class="std std-ref">Address Translation Services</span></a> (ATS) - A hardware feature, available when GPUs are connected to the CPU by the NVLink Chip-to-Chip (C2C) interconnect, which provides hardware coherency for full unified memory</p></li>
+</ul>
+<section id="unified-virtual-address-space">
+<span id="memory-unified-virtual-address-space"></span><h2><span class="section-number">2.4.1. </span>统一虚拟地址空间<a class="headerlink" href="understanding-memory.html#unified-virtual-address-space" title="跳转到此标题">#</a></h2>
+<p>在同一操作系统进程内，系统中所有主机内存与所有 GPU 全局内存共享一个虚拟地址空间。主机端与各设备上的所有分配都位于该空间中。无论通过 CUDA API（如 <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code>、<code class="docutils literal notranslate"><span class="pre">cudaMallocHost</span></code>）还是系统分配 API（如 <code class="docutils literal notranslate"><span class="pre">new</span></code>、<code class="docutils literal notranslate"><span class="pre">malloc</span></code>、<code class="docutils literal notranslate"><span class="pre">mmap</span></code>）进行分配，均如此。CPU 与每块 GPU 都在该统一虚拟地址空间中拥有各自独立的地址范围。</p>
+<p>这意味着：</p>
+<ul class="simple">
+<li><p>可通过 <code class="docutils literal notranslate"><span class="pre">cudaPointerGetAttributes()</span></code> 根据指针值判断任意内存所在位置（CPU 或某块 GPU 的内存）</p></li>
+<li><p>可将 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy*()</span></code> 的 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyKind</span></code> 参数设为 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyDefault</span></code>，由指针自动判定拷贝类型</p></li>
+</ul>
+</section>
+<section id="unified-memory">
+<span id="memory-unified-memory"></span><h2><span class="section-number">2.4.2. </span>统一内存<a class="headerlink" href="understanding-memory.html#unified-memory" title="跳转到此标题">#</a></h2>
+<p><em>统一内存</em>是 CUDA 的一种内存特性，允许称为<em>托管内存</em>的分配被 CPU 端与 GPU 端代码共同访问。我们已在 <a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-unified-memory"><span class="std std-ref">CUDA C++ 入门</span></a> 中展示过统一内存。统一内存在所有 CUDA 支持的系统上均可用。</p>
+<p>在某些系统上，托管内存需要显式分配。CUDA 中可通过以下几种方式显式分配托管内存：</p>
+<ul class="simple">
+<li><p>CUDA API：<code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code></p></li>
+<li><p>在内存池的 <code class="docutils literal notranslate"><span class="pre">allocType</span></code> 设置为 <code class="docutils literal notranslate"><span class="pre">cudaMemAllocationTypeManaged</span></code> 时，使用 CUDA API <code class="docutils literal notranslate"><span class="pre">cudaMallocFromPoolAsync</span></code></p></li>
+<li><p>使用 <code class="docutils literal notranslate"><span class="pre">__managed__</span></code> 说明符的全局变量（见 <a class="reference internal" href="../05-appendices/cpp-language-extensions.html#memory-space-specifiers"><span class="std std-ref">内存空间说明符</span></a>）</p></li>
+</ul>
+<p>在支持 <a class="reference internal" href="understanding-memory.html#memory-heterogeneous-memory-management"><span class="std std-ref">HMM</span></a> 或 <a class="reference internal" href="understanding-memory.html#memory-unified-address-translation-services"><span class="std std-ref">ATS</span></a> 的系统上，无论系统内存如何分配，都会隐式作为托管内存，无需特殊分配。</p>
+<section id="unified-memory-paradigms">
+<h3><span class="section-number">2.4.2.1. </span>统一内存范式<a class="headerlink" href="understanding-memory.html#unified-memory-paradigms" title="跳转到此标题">#</a></h3>
+<p>统一内存的特性与行为会随操作系统、Linux 内核版本、GPU 硬件以及 GPU-CPU 互连方式而变化。可通过 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetAttribute</span></code> 查询以下属性来判断可用的统一内存形态：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaDevAttrConcurrentManagedAccess</span></code> - 1 for full unified memory support, 0 for limited support</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccess</span></code> - 1 means all system memory is fully-supported unified memory, 0 means only memory explicitly allocated as managed memory is fully-supported unified memory</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccessUsesHostPageTables</span></code> - Indicates the mechanism of CPU/GPU coherence: 1 is hardware, 0 is software.</p></li>
+</ul>
+<p><a class="reference internal" href="understanding-memory.html#unified-memory-flow-chart"><span class="std std-numref">Figure 18</span></a> illustrates how to determine the unified memory paradigm visually and is followed by a <a class="reference internal" href="understanding-memory.html#memory-unified-querying-code"><span class="std std-ref">code sample</span></a> implementing the same logic.</p>
+<p>统一内存共有四种工作范式：</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="understanding-memory.html#memory-unified-memory-full"><span class="std std-ref">Full support for explicit managed memory allocations</span></a></p></li>
+<li><p><a class="reference internal" href="understanding-memory.html#memory-unified-memory-full"><span class="std std-ref">Full support for all allocations with software coherence</span></a></p></li>
+<li><p><a class="reference internal" href="understanding-memory.html#memory-unified-address-translation-services"><span class="std std-ref">Full support for all allocations with hardware coherence</span></a></p></li>
+<li><p><a class="reference internal" href="understanding-memory.html#memory-limited-unified-memory-support"><span class="std std-ref">Limited unified memory support</span></a></p></li>
+</ul>
+<p>当具备完整支持时，可能仍需显式分配，也可能所有系统内存都被隐式视为统一内存。若全部内存都隐式统一，则一致性机制可能由软件或硬件实现。Windows 与部分 Tegra 设备仅支持有限统一内存。</p>
+<figure class="align-center" id="unified-memory-flow-chart">
+<a class="reference internal image-reference" href="../_images/unified-memory-explainer.png"><img alt="Unified Memory Paradigm Flowchart" src="../_images/unified-memory-explainer.png" style="width: 90%;" />
+</a>
+<figcaption>
+<p><span class="caption-number">图 18 </span><span class="caption-text">当前所有 GPU 均使用统一虚拟地址空间，并具备统一内存能力。当 <code class="docutils literal notranslate"><span class="pre">cudaDevAttrConcurrentManagedAccess</span></code> 为 1 时，表示支持完整统一内存；否则仅有限支持。若已完整支持且 <code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccess</span></code> 也为 1，则所有系统内存都属于统一内存；否则仅 CUDA API（如 <code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code>）分配的内存属于统一内存。当系统内存全部统一时，<code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccessUsesHostPageTables</span></code> 指示一致性由硬件（值为 1）还是软件（值为 0）提供。</span><a class="headerlink" href="understanding-memory.html#unified-memory-flow-chart" title="跳转到此图片">#</a></p>
+</figcaption>
+</figure>
+<p><a class="reference internal" href="understanding-memory.html#table-unified-memory-levels"><span class="std std-numref">Table 3</span></a> shows the same information as <a class="reference internal" href="understanding-memory.html#unified-memory-flow-chart"><span class="std std-numref">Figure 18</span></a> as a table with links to the relevant sections of this chapter and more complete documentation in a later section of this guide.</p>
+<div class="pst-scrollable-table-container"><table class="table" id="table-unified-memory-levels">
+<caption><span class="caption-number">表 3 </span><span class="caption-text">统一内存范式概览</span><a class="headerlink" href="understanding-memory.html#table-unified-memory-levels" title="跳转到此表格">#</a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>统一内存范式</p></th>
+<th class="head"><p>设备属性</p></th>
+<th class="head"><p>完整文档</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="understanding-memory.html#memory-limited-unified-memory-support"><span class="std std-ref">Limited unified memory support</span></a></p></td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">cudaDevAttrConcurrentManagedAccess</span></code> is 0</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><a class="reference internal" href="../04-special-topics/unified-memory.html#um-legacy-devices"><span class="std std-ref">Unified Memory on Windows, WSL, and Tegra</span></a></div>
+<div class="line"><a class="reference external" href="https://docs.nvidia.com/cuda/cuda-for-tegra-appnote/index.html#memory-management">CUDA for Tegra Memory Management</a></div>
+<div class="line"><a class="reference external" href="https://docs.nvidia.com/cuda/cuda-for-tegra-appnote/index.html#effective-usage-of-unified-memory-on-tegra">Unified memory on Tegra</a></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="understanding-memory.html#memory-unified-memory-full"><span class="std std-ref">Full support for explicit managed memory allocations</span></a></p></td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccess</span></code> is 0</div>
+<div class="line">and <code class="docutils literal notranslate"><span class="pre">cudaDevAttrConcurrentManagedAccess</span></code> is 1</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><a class="reference internal" href="../04-special-topics/unified-memory.html#um-no-pageable-systems"><span class="std std-ref">Unified Memory on Devices with only CUDA Managed Memory Support</span></a></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="understanding-memory.html#memory-unified-memory-full"><span class="std std-ref">Full support for all allocations with software coherence</span></a></p></td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccessUsesHostPageTables</span></code> is 0</div>
+<div class="line">and <code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccess</span></code> is 1</div>
+<div class="line">and <code class="docutils literal notranslate"><span class="pre">cudaDevAttrConcurrentManagedAccess</span></code> is 1</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><a class="reference internal" href="../04-special-topics/unified-memory.html#um-pageable-systems"><span class="std std-ref">Unified Memory on Devices with Full CUDA Unified Memory Support</span></a></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="understanding-memory.html#memory-unified-address-translation-services"><span class="std std-ref">Full support for all allocations with hardware coherence</span></a></p></td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccessUsesHostPageTables</span></code> is 1</div>
+<div class="line">and <code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccess</span></code> is 1</div>
+<div class="line">and <code class="docutils literal notranslate"><span class="pre">cudaDevAttrConcurrentManagedAccess</span></code> is 1</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><a class="reference internal" href="../04-special-topics/unified-memory.html#um-pageable-systems"><span class="std std-ref">Unified Memory on Devices with Full CUDA Unified Memory Support</span></a></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="unified-memory-paradigm-code-example">
+<span id="memory-unified-querying-code"></span><h4><span class="section-number">2.4.2.1.1. </span>统一内存范式：代码示例<a class="headerlink" href="understanding-memory.html#unified-memory-paradigm-code-example" title="跳转到此标题">#</a></h4>
+<p>下面的代码示例展示了如何按照 <a class="reference internal" href="understanding-memory.html#unified-memory-flow-chart"><span class="std std-numref">图 18</span></a> 的逻辑，为系统中的每块 GPU 查询设备属性并判断统一内存范式。</p>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">queryDevices</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">numDevices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">cudaGetDeviceCount</span><span class="p">(</span><span class="o">&amp;</span><span class="n">numDevices</span><span class="p">);</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">numDevices</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">cudaSetDevice</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+<span class="w">        </span><span class="n">cudaInitDevice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">deviceId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">concurrentManagedAccess</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w">     </span>
+<span class="w">        </span><span class="n">cudaDeviceGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="o">&amp;</span><span class="n">concurrentManagedAccess</span><span class="p">,</span><span class="w"> </span><span class="n">cudaDevAttrConcurrentManagedAccess</span><span class="p">,</span><span class="w"> </span><span class="n">deviceId</span><span class="p">);</span><span class="w">    </span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">pageableMemoryAccess</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">        </span><span class="n">cudaDeviceGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="o">&amp;</span><span class="n">pageableMemoryAccess</span><span class="p">,</span><span class="w"> </span><span class="n">cudaDevAttrPageableMemoryAccess</span><span class="p">,</span><span class="w"> </span><span class="n">deviceId</span><span class="p">);</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">pageableMemoryAccessUsesHostPageTables</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">        </span><span class="n">cudaDeviceGetAttribute</span><span class="w"> </span><span class="p">(</span><span class="o">&amp;</span><span class="n">pageableMemoryAccessUsesHostPageTables</span><span class="p">,</span><span class="w"> </span><span class="n">cudaDevAttrPageableMemoryAccessUsesHostPageTables</span><span class="p">,</span><span class="w"> </span><span class="n">deviceId</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Device %d has &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">deviceId</span><span class="p">);</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">concurrentManagedAccess</span><span class="p">){</span>
+<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="n">pageableMemoryAccess</span><span class="p">){</span>
+<span class="w">                </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;full unified memory support&quot;</span><span class="p">);</span>
+<span class="w">                </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">pageableMemoryAccessUsesHostPageTables</span><span class="p">)</span>
+<span class="w">                    </span><span class="p">{</span><span class="w"> </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; with hardware coherency</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">  </span><span class="p">}</span>
+<span class="w">                </span><span class="k">else</span>
+<span class="w">                    </span><span class="p">{</span><span class="w"> </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; with software coherency</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="k">else</span>
+<span class="w">                </span><span class="p">{</span><span class="w"> </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;full unified memory support for CUDA-made managed allocations</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">else</span>
+<span class="w">        </span><span class="p">{</span><span class="w">   </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;limited unified memory support: Windows, WSL, or Tegra</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">  </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="full-unified-memory-feature-support">
+<span id="memory-unified-memory-full"></span><h3><span class="section-number">2.4.2.2. </span>完整统一内存特性支持<a class="headerlink" href="understanding-memory.html#full-unified-memory-feature-support" title="跳转到此标题">#</a></h3>
+<p>多数 Linux 系统支持完整统一内存。若设备属性 <code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccess</span></code> 为 1，则无论通过 CUDA API 还是系统 API 分配，所有系统内存都以具备完整特性的统一内存方式运行，其中也包括通过 <code class="docutils literal notranslate"><span class="pre">mmap</span></code> 创建的文件映射内存。</p>
+<p>若 <code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccess</span></code> 为 0，则只有通过 CUDA 作为托管内存分配的内存才表现为统一内存。通过系统 API 分配的内存不受托管，也不一定能被 GPU 内核访问。</p>
+<p>总体而言，在“完整支持”下，统一内存分配通常具有以下行为：</p>
+<ul class="simple">
+<li><p>托管内存通常会分配在“首次访问它”的处理器所在内存空间；</p></li>
+<li><p>当被当前驻留处理器以外的处理器使用时，托管内存通常会发生迁移；</p></li>
+<li><p>托管内存以页粒度（软件一致性）或缓存行粒度（硬件一致性）进行迁移或访问；</p></li>
+<li><p>允许超额订阅：应用可分配超过 GPU 物理可用容量的托管内存。</p></li>
+</ul>
+<p>实际分配与迁移行为也可能偏离上述规则。开发者可通过<a class="reference internal" href="understanding-memory.html#memory-mem-advise-prefetch"><span class="std std-ref">提示与预取</span></a>进行影响。关于完整统一内存支持的全面说明见 <a class="reference internal" href="../04-special-topics/unified-memory.html#um-pageable-systems"><span class="std std-ref">具备完整 CUDA 统一内存支持的设备上的统一内存</span></a>。</p>
+<section id="full-unified-memory-with-hardware-coherency">
+<span id="memory-unified-address-translation-services"></span><h4><span class="section-number">2.4.2.2.1. </span>具备硬件一致性的完整统一内存<a class="headerlink" href="understanding-memory.html#full-unified-memory-with-hardware-coherency" title="跳转到此标题">#</a></h4>
+<p>在 Grace Hopper、Grace Blackwell 等硬件上，当采用 NVIDIA CPU 且 CPU-GPU 互连为 NVLink Chip-to-Chip（C2C）时，可用地址转换服务（ATS）。当 ATS 可用时，<code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccessUsesHostPageTables</span></code> 为 1。</p>
+<p>在 ATS 下，除对全部主机分配提供完整统一内存支持外，还具备：</p>
+<ul class="simple">
+<li><p>CPU 可访问 GPU 分配（如 <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code>），此时 <code class="docutils literal notranslate"><span class="pre">cudaDevAttrDirectManagedMemAccessFromHost</span></code> 为 1；</p></li>
+<li><p>CPU 与 GPU 间链路支持原生原子操作（<code class="docutils literal notranslate"><span class="pre">cudaDevAttrHostNativeAtomicSupported</span></code> 为 1）；</p></li>
+<li><p>硬件一致性通常较软件一致性具有更好的性能。</p></li>
+</ul>
+<p>ATS 覆盖了 <a class="reference internal" href="understanding-memory.html#memory-heterogeneous-memory-management"><span class="std std-ref">HMM</span></a> 的全部能力。ATS 可用时，HMM 会自动禁用。关于硬件一致性与软件一致性的更多讨论见 <a class="reference internal" href="../04-special-topics/unified-memory.html#um-hw-coherency"><span class="std std-ref">CPU 与 GPU 页表：硬件一致性 vs 软件一致性</span></a>。</p>
+</section>
+<section id="hmm-full-unified-memory-with-software-coherency">
+<span id="memory-heterogeneous-memory-management"></span><h4><span class="section-number">2.4.2.2.2. </span>HMM：具备软件一致性的完整统一内存<a class="headerlink" href="understanding-memory.html#hmm-full-unified-memory-with-software-coherency" title="跳转到此标题">#</a></h4>
+<p><em>Heterogeneous Memory Management</em> (HMM) is a feature available on Linux operating systems (with appropriate kernel versions) which enables software-coherent <a class="reference internal" href="understanding-memory.html#memory-unified-memory-full"><span class="std std-ref">full unified memory support</span></a>. Heterogeneous memory management brings some of the capabilities and convenience provided by ATS to PCIe-connected GPUs.</p>
+<p>在 Linux 内核版本至少为 6.1.24、6.2.11 或 6.3+ 的系统上，可能支持异构内存管理（HMM）。可用以下命令检查寻址模式是否为 <code class="docutils literal notranslate"><span class="pre">HMM</span></code>。</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">$</span><span class="w"> </span><span class="n">nvidia</span><span class="o">-</span><span class="n">smi</span><span class="w"> </span><span class="o">-</span><span class="n">q</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">grep</span><span class="w"> </span><span class="n">Addressing</span>
+<span class="n">Addressing</span><span class="w"> </span><span class="n">Mode</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">HMM</span>
+</pre></div>
+</div>
+<p>当 HMM 可用时，系统支持<a class="reference internal" href="understanding-memory.html#memory-unified-memory-full"><span class="std std-ref">完整统一内存</span></a>，且所有系统分配都被隐式视为统一内存。若系统同时支持 <a class="reference internal" href="understanding-memory.html#memory-unified-address-translation-services"><span class="std std-ref">ATS</span></a>，则会禁用 HMM 并改用 ATS，因为 ATS 能提供 HMM 的全部能力并更进一步。</p>
+</section>
+</section>
+<section id="limited-unified-memory-support">
+<span id="memory-limited-unified-memory-support"></span><h3><span class="section-number">2.4.2.3. </span>有限统一内存支持<a class="headerlink" href="understanding-memory.html#limited-unified-memory-support" title="跳转到此标题">#</a></h3>
+<p>在 Windows（含 WSL）及部分 Tegra 系统上，仅提供统一内存的有限子集功能。在这些系统中虽然可用托管内存，但 CPU 与 GPU 间迁移行为有所不同。</p>
+<ul class="simple">
+<li><p>托管内存首先分配在 CPU 物理内存中；</p></li>
+<li><p>托管内存迁移粒度大于虚拟内存页；</p></li>
+<li><p>GPU 开始执行时，托管内存迁移到 GPU；</p></li>
+<li><p>GPU 活跃期间，CPU 不得访问托管内存；</p></li>
+<li><p>GPU 同步时，托管内存迁回 CPU；</p></li>
+<li><p>不允许 GPU 内存超额订阅；</p></li>
+<li><p>只有 CUDA 显式分配为托管内存的分配才属于统一内存。</p></li>
+</ul>
+<p>该范式的完整说明见 <a class="reference internal" href="../04-special-topics/unified-memory.html#um-legacy-devices"><span class="std std-ref">Windows、WSL 与 Tegra 上的统一内存</span></a>。</p>
+</section>
+<section id="memory-advise-and-prefetch">
+<span id="memory-mem-advise-prefetch"></span><h3><span class="section-number">2.4.2.4. </span>内存建议与预取<a class="headerlink" href="understanding-memory.html#memory-advise-and-prefetch" title="跳转到此标题">#</a></h3>
+<p>开发者可向管理统一内存的 NVIDIA 驱动提供提示，以帮助最大化应用性能。CUDA API <code class="docutils literal notranslate"><span class="pre">cudaMemAdvise</span></code> 允许指定分配属性，从而影响其放置位置以及被其他设备访问时是否迁移。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaMemPrefetchAsync</span></code> 允许开发者建议异步启动某个分配到其他位置的迁移。常见用法是在内核启动前预先传输其将使用的数据，从而让数据拷贝与其他 GPU 内核执行重叠。</p>
+<p><a class="reference internal" href="../04-special-topics/unified-memory.html#um-perf-hints"><span class="std std-ref">性能提示</span></a>一节介绍了可传给 <code class="docutils literal notranslate"><span class="pre">cudaMemAdvise</span></code> 的不同提示，并给出 <code class="docutils literal notranslate"><span class="pre">cudaMemPrefetchAsync</span></code> 的示例。</p>
+</section>
+</section>
+<section id="page-locked-host-memory">
+<span id="memory-page-locked-host-memory"></span><h2><span class="section-number">2.4.3. </span>页锁定主机内存<a class="headerlink" href="understanding-memory.html#page-locked-host-memory" title="跳转到此标题">#</a></h2>
+<p>在<a class="reference internal" href="intro-to-cuda-cpp.html#intro-cuda-cpp-all-together"><span class="std std-ref">入门示例</span></a>中，我们使用 <code class="docutils literal notranslate"><span class="pre">cudaMallocHost</span></code> 在 CPU 端分配内存。这会在主机端分配<em>页锁定</em>（也称 <em>pinned</em>）内存。通过传统机制（如 <code class="docutils literal notranslate"><span class="pre">malloc</span></code>、<code class="docutils literal notranslate"><span class="pre">new</span></code>、<code class="docutils literal notranslate"><span class="pre">mmap</span></code>）得到的主机内存并非页锁定，因此可能被操作系统换出到磁盘或发生物理重定位。</p>
+<p>进行<a class="reference internal" href="asynchronous-execution.html#async-execution-memory-transfers"><span class="std std-ref">CPU 与 GPU 之间的异步拷贝</span></a>需要页锁定主机内存。页锁定主机内存也能提升同步拷贝性能。此外，页锁定内存可被<a class="reference internal" href="understanding-memory.html#memory-mapped-memory"><span class="std std-ref">映射</span></a>到 GPU，供 GPU 内核直接访问。</p>
+<p>CUDA 运行时提供了用于分配页锁定主机内存或对已有分配执行页锁定的 API：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaMallocHost</span></code>：分配页锁定主机内存</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaHostAlloc</span></code>：默认行为与 <code class="docutils literal notranslate"><span class="pre">cudaMallocHost</span></code> 相同，也可通过标志位指定其他内存参数</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaFreeHost</span></code>：释放由 <code class="docutils literal notranslate"><span class="pre">cudaMallocHost</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc</span></code> 分配的内存</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaHostRegister</span></code>：对 CUDA API 之外（如 <code class="docutils literal notranslate"><span class="pre">malloc</span></code>、<code class="docutils literal notranslate"><span class="pre">mmap</span></code>）分配的已有内存区间执行页锁定</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">cudaHostRegister</span></code> 使得由第三方库或开发者不可控代码分配的主机内存也可被页锁定，从而可用于异步拷贝或映射访问。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>系统中的所有 GPU 都可使用页锁定主机内存进行异步拷贝与映射内存访问。</p>
+<p>在非 I/O 一致性的 Tegra 设备上，页锁定主机内存不会被缓存；且这些设备不支持 <code class="docutils literal notranslate"><span class="pre">cudaHostRegister()</span></code>。</p>
+</div>
+<section id="mapped-memory">
+<span id="memory-mapped-memory"></span><h3><span class="section-number">2.4.3.1. </span>映射内存<a class="headerlink" href="understanding-memory.html#mapped-memory" title="跳转到此标题">#</a></h3>
+在支持 <a class="reference internal" href="understanding-memory.html#memory-heterogeneous-memory-management"><span class="std std-ref">HMM</span></a> 或 <a class="reference internal" href="understanding-memory.html#memory-unified-address-translation-services"><span class="std std-ref">ATS</span></a> 的系统上，GPU 可直接通过主机指针访问全部主机内存。若 ATS/HMM 不可用，则可通过将主机内存<em>映射</em>到 GPU 内存空间来实现访问。映射内存始终是页锁定内存。</p>
+<p>下面的代码示例将展示如下数组复制内核如何直接在映射主机内存上工作。</p>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">copyKernel</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">blockDim</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">blockIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+<span class="w">        </span><span class="n">a</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">idx</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>在某些无需拷贝到 GPU、但内核仍需访问的数据场景中，映射内存可能有用。然而内核访问映射内存需要跨越 CPU-GPU 互连（PCIe 或 NVLink C2C）进行事务，延迟更高、带宽更低，不如访问设备内存高效。对于内核的大多数内存需求，不应将映射内存视为 <a class="reference internal" href="understanding-memory.html#memory-unified-memory"><span class="std std-ref">统一内存</span></a> 或 <a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-explicit-memory-management"><span class="std std-ref">显式内存管理</span></a> 的高性能替代方案。</p>
+<section id="cudamallochost-and-cudahostalloc">
+<h4><span class="section-number">2.4.3.1.1. </span>cudaMallocHost 与 cudaHostAlloc<a class="headerlink" href="understanding-memory.html#cudamallochost-and-cudahostalloc" title="跳转到此标题">#</a></h4>
+<p>通过 <code class="docutils literal notranslate"><span class="pre">cudaHostMalloc</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc</span></code> 分配的主机内存会自动映射。其返回指针可直接在内核代码中访问主机内存；访问路径经过 CPU-GPU 互连。</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-0">
+cudaMallocHost</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">usingMallocHost</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaMallocHost</span><span class="p">(</span><span class="o">&amp;</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">vLen</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">)));</span>
+<span class="w">  </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaMallocHost</span><span class="p">(</span><span class="o">&amp;</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">vLen</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">)));</span>
+
+<span class="w">  </span><span class="n">initVector</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">vLen</span><span class="p">);</span>
+<span class="w">  </span><span class="n">memset</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">vLen</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">threads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">256</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">blocks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vLen</span><span class="o">/</span><span class="n">threads</span><span class="p">;</span>
+<span class="w">  </span><span class="n">copyKernel</span><span class="o">&lt;&lt;&lt;</span><span class="n">blocks</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">);</span>
+<span class="w">  </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaGetLastError</span><span class="p">());</span>
+<span class="w">  </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaDeviceSynchronize</span><span class="p">());</span>
+
+<span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Using cudaMallocHost: &quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="n">checkAnswer</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1">
+cudaAllocHost</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">usingCudaHostAlloc</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
+
+<span class="w">  </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaHostAlloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">vLen</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">),</span><span class="w"> </span><span class="n">cudaHostAllocMapped</span><span class="p">));</span>
+<span class="w">  </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaHostAlloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">vLen</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">),</span><span class="w"> </span><span class="n">cudaHostAllocMapped</span><span class="p">));</span>
+
+<span class="w">  </span><span class="n">initVector</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">vLen</span><span class="p">);</span>
+<span class="w">  </span><span class="n">memset</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">vLen</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">threads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">256</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">blocks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vLen</span><span class="o">/</span><span class="n">threads</span><span class="p">;</span>
+<span class="w">  </span><span class="n">copyKernel</span><span class="o">&lt;&lt;&lt;</span><span class="n">blocks</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">);</span>
+<span class="w">  </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaGetLastError</span><span class="p">());</span>
+<span class="w">  </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaDeviceSynchronize</span><span class="p">());</span>
+
+<span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Using cudaAllocHost: &quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="n">checkAnswer</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="cudahostregister">
+<h4><span class="section-number">2.4.3.1.2. </span>cudaHostRegister<a class="headerlink" href="understanding-memory.html#cudahostregister" title="跳转到此标题">#</a></h4>
+<p>当 ATS 与 HMM 不可用时，仍可通过 <code class="docutils literal notranslate"><span class="pre">cudaHostRegister</span></code> 将系统分配器分配的内存映射给 GPU 内核直接访问。不同于 CUDA API 直接创建的内存，这类内存不能在内核中直接使用主机指针访问；必须先通过 <code class="docutils literal notranslate"><span class="pre">cudaHostGetDevicePointer()</span></code> 获取设备地址空间中的指针，并在内核中使用该指针。</p>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">usingRegister</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">devA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">devB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
+
+<span class="w">  </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">vLen</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+<span class="w">  </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">vLen</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+<span class="w">  </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaHostRegister</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">vLen</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">));</span>
+<span class="w">  </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaHostRegister</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">vLen</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="w">  </span><span class="p">));</span>
+
+<span class="w">  </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaHostGetDevicePointer</span><span class="p">((</span><span class="kt">void</span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">devA</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">));</span>
+<span class="w">  </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaHostGetDevicePointer</span><span class="p">((</span><span class="kt">void</span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">devB</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">));</span>
+
+<span class="w">  </span><span class="n">initVector</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">vLen</span><span class="p">);</span>
+<span class="w">  </span><span class="n">memset</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">vLen</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">threads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">256</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">blocks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vLen</span><span class="o">/</span><span class="n">threads</span><span class="p">;</span>
+<span class="w">  </span><span class="n">copyKernel</span><span class="o">&lt;&lt;&lt;</span><span class="n">blocks</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">devA</span><span class="p">,</span><span class="w"> </span><span class="n">devB</span><span class="p">);</span>
+<span class="w">  </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaGetLastError</span><span class="p">());</span>
+<span class="w">  </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaDeviceSynchronize</span><span class="p">());</span>
+
+<span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Using cudaHostRegister: &quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="n">checkAnswer</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="comparing-unified-memory-and-mapped-memory">
+<span id="um-difference-with-mapped-memory"></span><h4><span class="section-number">2.4.3.1.3. </span>统一内存与映射内存对比<a class="headerlink" href="understanding-memory.html#comparing-unified-memory-and-mapped-memory" title="跳转到此标题">#</a></h4>
+<p>映射内存让 GPU 可以访问 CPU 内存，但并不保证所有访问类型（例如原子操作）在所有系统上都受支持。统一内存则保证所有访问类型均可用。</p>
+<p>映射内存始终驻留在 CPU 内存中，这意味着 GPU 的所有访问都必须经过 CPU-GPU 互连（PCIe 或 NVLink）。跨该链路访问的延迟明显高于访问 GPU 内存，且总可用带宽更低。因此，将映射内存用于内核的全部内存访问通常难以充分利用 GPU 计算资源。</p>
+<p>统一内存通常会迁移到当前访问它的处理器物理内存中。首次迁移后，内核对同一内存页或缓存行的重复访问可利用完整 GPU 内存带宽。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>在以往文档中，映射内存也常被称为 <em>zero-copy</em>（零拷贝）内存。</p>
+<p>在所有 CUDA 应用都使用<a class="reference internal" href="understanding-memory.html#memory-unified-virtual-address-space"><span class="std std-ref">统一虚拟地址空间</span></a>之前，需要额外 API 才能启用内存映射（<code class="docutils literal notranslate"><span class="pre">cudaSetDeviceFlags</span></code> 配合 <code class="docutils literal notranslate"><span class="pre">cudaDeviceMapHost</span></code>）。这些 API 现已不再需要。</p>
+<p>对映射主机内存执行的原子函数（见 <a class="reference internal" href="../05-appendices/cpp-language-extensions.html#atomic-functions"><span class="std std-ref">原子函数</span></a>）从主机或其他 GPU 视角看不具备原子性。</p>
+<p>CUDA 运行时要求：由设备发起并作用于主机内存的 1/2/4/8/16 字节自然对齐读写，从主机和其他设备视角看必须保持为单次访问。在某些平台上，硬件可能将内存原子操作拆分为独立的加载与存储；这些子操作同样需满足自然对齐访问保持要求。CUDA 运行时不支持会拆分 8 字节自然对齐操作的 PCIe 拓扑；NVIDIA 也不了解会拆分 16 字节自然对齐操作的拓扑。</p>
+</div>
+</section>
+</section>
+</section>
+<section id="summary">
+<h2><span class="section-number">2.4.4. </span>总结<a class="headerlink" href="understanding-memory.html#summary" title="跳转到此标题">#</a></h2>
+<ul>
+<li><p>在支持异构内存管理（HMM）或地址转换服务（ATS）的 Linux 平台上，所有系统分配内存都属于托管内存；</p></li>
+<li><p>在不支持 HMM/ATS 的 Linux、Tegra 处理器以及所有 Windows 平台上，托管内存必须通过 CUDA 显式分配：</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code> or</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaMallocFromPoolAsync</span></code> with a pool created with <code class="docutils literal notranslate"><span class="pre">allocType=cudaMemAllocationTypeManaged</span></code></p></li>
+<li><p>使用 <code class="docutils literal notranslate"><span class="pre">__managed__</span></code> 说明符的全局变量</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>在 Windows 与 Tegra 平台上，统一内存存在功能限制；</p></li>
+<li><p>在具备 ATS 的 NVLINK C2C 系统上，<code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code> 分配的设备内存可被 CPU 或其他 GPU 直接访问。</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="asynchronous-execution.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><span class="section-number">2.3. </span>Asynchronous Execution</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="nvcc.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><span class="section-number">2.5. </span>NVCC: The NVIDIA CUDA Compiler</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+
+
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 本页内容
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#unified-virtual-address-space">2.4.1. Unified Virtual Address Space</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#unified-memory">2.4.2. Unified Memory</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#unified-memory-paradigms">2.4.2.1. Unified Memory Paradigms</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#unified-memory-paradigm-code-example">2.4.2.1.1. Unified Memory Paradigm: Code Example</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#full-unified-memory-feature-support">2.4.2.2. Full Unified Memory Feature Support</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#full-unified-memory-with-hardware-coherency">2.4.2.2.1. Full Unified Memory with Hardware Coherency</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#hmm-full-unified-memory-with-software-coherency">2.4.2.2.2. HMM - Full Unified Memory with Software Coherency</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#limited-unified-memory-support">2.4.2.3. Limited Unified Memory Support</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#memory-advise-and-prefetch">2.4.2.4. Memory Advise and Prefetch</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#page-locked-host-memory">2.4.3. Page-Locked Host Memory</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#mapped-memory">2.4.3.1. Mapped Memory</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#cudamallochost-and-cudahostalloc">2.4.3.1.1. cudaMallocHost and cudaHostAlloc</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#cudahostregister">2.4.3.1.2. cudaHostRegister</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#comparing-unified-memory-and-mapped-memory">2.4.3.1.3. 统一内存与映射内存对比</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#summary">2.4.4. Summary</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js"></script>
+
+
+<script type="text/javascript">if (typeof _satellite !== "undefined") {_satellite.pageBottom();}</script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+<a class="footer-brand logo" href="https://www.nvidia.com">
+  <img src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
+  <img src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+</a></div>
+      
+        <div class="footer-item">
+
+<div class="footer-links">
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/accessibility/">Accessibility</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
+  
+  
+  
+</div>
+</div>
+      
+        <div class="footer-item">
+
+
+
+
+  <p class="copyright">
+    
+      Copyright © 2007-2026, NVIDIA Corporation &amp; affiliates. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item"><p class="last-updated">
+  Last updated on Mar 04, 2026.
+  <br/>
+</p></div>
+      
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+  </body>
+</html>

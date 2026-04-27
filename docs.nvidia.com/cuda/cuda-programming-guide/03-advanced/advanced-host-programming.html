@@ -1,0 +1,1061 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>3.1. Advanced CUDA APIs and Features &#8212; CUDA Programming Guide</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tables.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js" />
+
+
+<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript"
+  data-document-language="true" charset="UTF-8" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5">
+</script>
+<script type="text/javascript">
+  function OptanonWrapper() {
+    var event = new Event('bannerLoaded');
+    window.dispatchEvent(event);
+  }
+</script>
+<script src="https://images.nvidia.com/aem-dam/Solutions/ot-js/ot-custom.js" type="text/javascript">
+</script>
+
+
+    <script rel="preload" src="../_static/modal-table.js"></script>
+    <script src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scrollspy-patch.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '03-advanced/advanced-host-programming';</script>
+    <script src="../_static/version-patch.js"></script>
+
+<script type="text/javascript" src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
+
+    <link rel="icon" href="../_static/favicon.ico"/>
+
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="3.2. Advanced Kernel Programming" href="advanced-kernel-programming.html" />
+    <link rel="prev" title="3. Advanced CUDA" href="../part3.html" />
+
+<link rel="preload" as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png">
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+    <meta name="docbuild:last-update" content="Mar 04, 2026"/>
+
+
+  </head>
+
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="advanced-host-programming.html#main-content">Skip to main content</a></div>
+
+<img src="https://www.nvidia.com/content/dam/1x1-00000000.png" width="1" height="1" style="display:none;" alt="country_code">
+
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../contents.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
+    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
+  
+  
+    <p class="title logo__title">CUDA Programming Guide</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+
+<div>
+  <ul class="bd-navbar-elements navbar-nav">
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>v13.2 |</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>|</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
+      
+    </li>
+  
+  </ul>
+</div>
+</div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../contents.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
+    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
+  
+  
+    <p class="title logo__title">CUDA Programming Guide</p>
+  
+</a>
+
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+
+<div>
+  <ul class="bd-navbar-elements navbar-nav">
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>v13.2 |</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>|</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
+      
+    </li>
+  
+  </ul>
+</div>
+</div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Table of Contents">
+  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA Programming Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. Introduction to CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/introduction.html">1.1. Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/programming-model.html">1.2. Programming Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/cuda-platform.html">1.3. The CUDA platform</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part2.html">2. Programming GPUs in CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html">2.1. Intro to CUDA C++</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/writing-cuda-kernels.html">2.2. Writing CUDA SIMT Kernels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/asynchronous-execution.html">2.3. Asynchronous Execution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/understanding-memory.html">2.4. Unified and System Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/nvcc.html">2.5. NVCC: The NVIDIA CUDA Compiler</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../part3.html">3. Advanced CUDA</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="advanced-host-programming.html#">3.1. Advanced CUDA APIs and Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="advanced-kernel-programming.html">3.2. Advanced Kernel Programming</a></li>
+<li class="toctree-l3"><a class="reference internal" href="driver-api.html">3.3. The CUDA Driver API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multi-gpu-systems.html">3.4. Programming Systems with Multiple GPUs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="feature-survey.html">3.5. A Tour of CUDA Features</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part4.html">4. CUDA Features</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/unified-memory.html">4.1. Unified Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cuda-graphs.html">4.2. CUDA Graphs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/stream-ordered-memory-allocation.html">4.3. Stream-Ordered Memory Allocator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cooperative-groups.html">4.4. Cooperative Groups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/programmatic-dependent-launch.html">4.5. Programmatic Dependent Launch and Synchronization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/green-contexts.html">4.6. Green Contexts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/lazy-loading.html">4.7. Lazy Loading</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/error-log-management.html">4.8. Error Log Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/async-barriers.html">4.9. Asynchronous Barriers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/pipelines.html">4.10. Pipelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/async-copies.html">4.11. Asynchronous Data Copies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cluster-launch-control.html">4.12. Work Stealing with Cluster Launch Control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/l2-cache-control.html">4.13. L2 Cache Control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/memory-sync-domains.html">4.14. Memory Synchronization Domains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/inter-process-communication.html">4.15. Interprocess Communication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/virtual-memory-management.html">4.16. Virtual Memory Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/extended-gpu-memory.html">4.17. Extended GPU Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/dynamic-parallelism.html">4.18. CUDA Dynamic Parallelism</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/graphics-interop.html">4.19. CUDA Interoperability with APIs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/driver-entry-point-access.html">4.20. Driver Entry Point Access</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part5.html">5. Technical Appendices</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/compute-capabilities.html">5.1. Compute Capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/environment-variables.html">5.2. CUDA Environment Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-support.html">5.3. C++ Language Support</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-extensions.html">5.4. C/C++ Language Extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/mathematical-functions.html">5.5. Floating-Point Computation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/device-callable-apis.html">5.6. Device-Callable APIs and Intrinsics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-memory-model.html">5.7. CUDA C++ Memory Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-execution-model.html">5.8. CUDA C++ Execution model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. Notices</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../contents.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">CUDA Programming Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../part3.html" class="nav-link"><span class="section-number">3. </span>Advanced CUDA</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">3.1. </span>Advanced CUDA APIs and Features</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+<div class="header-article-item">
+  <div class="d-flex justify-content-end w-100">
+    <a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">Is this page helpful?</a>
+  </div>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="advanced-cuda-apis-and-features">
+<span id="advanced-apis-and-features"></span><h1><span class="section-number">3.1. </span>Advanced CUDA APIs and Features<a class="headerlink" href="advanced-host-programming.html#advanced-cuda-apis-and-features" title="Link to this heading">#</a></h1>
+<p>This section will cover use of more advanced CUDA APIs and features. These topics cover techniques or features that do not usually require CUDA kernel modifications, but can still influence, from the host-side, application-level behavior, both in terms of GPU work execution and performance as well as CPU-side performance.</p>
+<section id="cudalaunchkernelex">
+<span id="advanced-host-cudalaunchkernelex"></span><h2><span class="section-number">3.1.1. </span>cudaLaunchKernelEx<a class="headerlink" href="advanced-host-programming.html#cudalaunchkernelex" title="Link to this heading">#</a></h2>
+<p>When the <a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html#intro-cpp-launching-kernels-triple-chevron"><span class="std std-ref">triple chevron notation</span></a> was introduced in first versions of, the <a class="reference internal" href="../05-appendices/cpp-language-extensions.html#execution-configuration"><span class="std std-ref">Kernel Configuration</span></a> of a kernel had only four programmable parameters:
+- thread block dimensions
+- grid dimensions
+- dynamic shared-memory (optional, 0 if unspecified)
+- stream (default stream used if unspecified)</p>
+<p>Some CUDA features can benefit from additional attributes and hints provided with a kernel launch. The <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code> enables a program to set the above mentioned execution configuration parameters via the <code class="docutils literal notranslate"><span class="pre">cudaLaunchConfig_t</span></code> structure.  In addition, the <code class="docutils literal notranslate"><span class="pre">cudaLaunchConfig_t</span></code> structure allows the program to pass in zero or more <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributes</span></code> to control or suggest other parameters for the kernel launch. For example, the <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributePreferredSharedMemoryCarveout</span></code> discussed later in this chapter (see <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernel-l1-shared-config"><span class="std std-ref">Configuring L1/Shared Memory Balance</span></a>) is specified using <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code>. The <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeClusterDimension</span></code> attribute, discussed later in this chapter, is used to specify the desired cluster size for the kernel launch.</p>
+<p>The complete list of supported attributes and their meaning is captured in the <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html#group__CUDART__TYPES_1gfc5ed48085f05863b1aeebb14934b056">CUDA Runtime API Reference Documentation</a>.</p>
+</section>
+<section id="launching-clusters">
+<h2><span class="section-number">3.1.2. </span>Launching Clusters:<a class="headerlink" href="advanced-host-programming.html#launching-clusters" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../01-introduction/programming-model.html#programming-model-thread-block-clusters"><span class="std std-ref">Thread block clusters</span></a>, introduced in previous sections, are an optional level of thread block organization available in compute capability 9.0 and higher which enable applications to guarantee that thread blocks of a cluster are simultaneously executed on single GPC. This enables larger groups of threads than those that fit in a single SM to exchange data and synchronize with each other.</p>
+<p>Section <a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html#intro-cpp-launching-cluster-triple-chevron"><span class="std std-numref">Section 2.1.10.1</span></a> showed how a kernel which uses clusters can be specified and launched using triple chevron notation. In this section, the <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code> annotation was used to specify the dimensions of the cluster which must be used to launch the kernel. When using triple chevron notation, the size of the clusters is determined implicitly.</p>
+<section id="launching-with-clusters-using-cudalaunchkernelex">
+<span id="advanced-host-clusters-cudalaunchkernelex"></span><h3><span class="section-number">3.1.2.1. </span>Launching with Clusters using cudaLaunchKernelEx<a class="headerlink" href="advanced-host-programming.html#launching-with-clusters-using-cudalaunchkernelex" title="Link to this heading">#</a></h3>
+<p>Unlike <a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html#intro-cpp-launching-cluster-triple-chevron"><span class="std std-ref">launching kernels using clusters with triple chevron notation</span></a>, the size of the thread block cluster can be configured on a per-launch basis. The code example below shows how to launch a cluster kernel using <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code>.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// Kernel definition</span>
+<span class="c1">// No compile time attribute attached to the kernel</span>
+<span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">cluster_kernel</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">output</span><span class="p">)</span>
+<span class="p">{</span>
+
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">output</span><span class="p">;</span>
+<span class="w">    </span><span class="n">dim3</span><span class="w"> </span><span class="nf">threadsPerBlock</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">);</span>
+<span class="w">    </span><span class="n">dim3</span><span class="w"> </span><span class="nf">numBlocks</span><span class="p">(</span><span class="n">N</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">threadsPerBlock</span><span class="p">.</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">threadsPerBlock</span><span class="p">.</span><span class="n">y</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Kernel invocation with runtime cluster size</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">cudaLaunchConfig_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+<span class="w">        </span><span class="c1">// The grid dimension is not affected by cluster launch, and is still enumerated</span>
+<span class="w">        </span><span class="c1">// using number of blocks.</span>
+<span class="w">        </span><span class="c1">// The grid dimension should be a multiple of cluster size.</span>
+<span class="w">        </span><span class="n">config</span><span class="p">.</span><span class="n">gridDim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">numBlocks</span><span class="p">;</span>
+<span class="w">        </span><span class="n">config</span><span class="p">.</span><span class="n">blockDim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">threadsPerBlock</span><span class="p">;</span>
+
+<span class="w">        </span><span class="n">cudaLaunchAttribute</span><span class="w"> </span><span class="n">attribute</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+<span class="w">        </span><span class="n">attribute</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaLaunchAttributeClusterDimension</span><span class="p">;</span>
+<span class="w">        </span><span class="n">attribute</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">val</span><span class="p">.</span><span class="n">clusterDim</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="c1">// Cluster size in X-dimension</span>
+<span class="w">        </span><span class="n">attribute</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">val</span><span class="p">.</span><span class="n">clusterDim</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">        </span><span class="n">attribute</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">val</span><span class="p">.</span><span class="n">clusterDim</span><span class="p">.</span><span class="n">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">        </span><span class="n">config</span><span class="p">.</span><span class="n">attrs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">attribute</span><span class="p">;</span>
+<span class="w">        </span><span class="n">config</span><span class="p">.</span><span class="n">numAttrs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+
+<span class="w">        </span><span class="n">cudaLaunchKernelEx</span><span class="p">(</span><span class="o">&amp;</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">cluster_kernel</span><span class="p">,</span><span class="w"> </span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="n">output</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>There are two <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttribute</span></code> types which are relevant to thread block clusters clusters:  <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeClusterDimension</span></code> and <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributePreferredClusterDimension</span></code>.</p>
+<p>The attribute id <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeClusterDimension</span></code> specifies the required dimensions with which to execute the cluster. The value for this attribute, <code class="docutils literal notranslate"><span class="pre">clusterDim</span></code>, is a 3-dimensional value. The corresponding dimensions of the grid (x, y, and z) must be divisible by the respective dimensions of the specified cluster dimension. Setting this is similar to using the  <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code> attribute on the kernel definition at compile time as shown in <a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html#intro-cpp-launching-cluster-triple-chevron"><span class="std std-ref">Launching with Clusters in Triple Chevron Notation</span></a>, but can be changed at runtime for different launches of the same kernel.</p>
+<p>On GPUs with compute capability of 10.0 and higher, another attribute id <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributePreferredClusterDimension</span></code> allows the application to additionally specify a preferred dimension for the cluster. The preferred dimension must be an integer multiple of the minimum cluster dimensions specified by the <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code> attribute on the kernel or the <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeClusterDimension</span></code> attribute to <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code>. That is, a minimum cluster dimension must be specified in addition to the preferred cluster dimension. The corresponding dimensions of the grid (x, y, and z) must be divisible by the respective dimension of the specified preferred cluster dimension.</p>
+<p>All thread blocks will execute in clusters of at least the minimum cluster dimension. Where possible, clusters of the preferred dimension will be used, but not all clusters are guaranteed to execute with the preferred dimensions. All thread blocks will execute in clusters with either the minimum or preferred cluster dimension. Kernels which use a preferred cluster dimension must be written to operate correctly in either the minimum or the preferred cluster dimension.</p>
+</section>
+<section id="blocks-as-clusters">
+<span id="advanced-host-block-as-cluster"></span><h3><span class="section-number">3.1.2.2. </span>Blocks as Clusters<a class="headerlink" href="advanced-host-programming.html#blocks-as-clusters" title="Link to this heading">#</a></h3>
+<p>When a kernel is defined with the  <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code> annotation, the number of clusters in the grid is implicit and can be calculated from the size of the grid divided into the specified cluster size.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">__cluster_dims__</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">))</span><span class="w"> </span><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">foo</span><span class="p">();</span>
+
+<span class="c1">// 8x8x8 clusters each with 2x2x2 thread blocks.</span>
+<span class="n">foo</span><span class="o">&lt;&lt;&lt;</span><span class="n">dim3</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">),</span><span class="w"> </span><span class="n">dim3</span><span class="p">(</span><span class="mi">1024</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>In the above example, the kernel is launched as a grid of 16x16x16 thread blocks, which means a grid of of 8x8x8 clusters is used.</p>
+<p>A kernel can alternatively use the  <code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> annotation, which specifies both the required block size and cluster size at the time the kernel is defined. When this annotation is used, the triple chevron launch becomes the grid dimension in terms of clusters rather than thread blocks, as shown below.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// Implementation detail of how many threads per block and blocks per cluster</span>
+<span class="c1">// is handled as an attribute of the kernel.</span>
+<span class="n">__block_size__</span><span class="p">((</span><span class="mi">1024</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">))</span><span class="w"> </span><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">foo</span><span class="p">();</span>
+
+<span class="c1">// 8x8x8 clusters.</span>
+<span class="n">foo</span><span class="o">&lt;&lt;&lt;</span><span class="n">dim3</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> requires two fields each being a tuple of 3 elements. The first tuple denotes block dimension and second cluster size. The second tuple is assumed to be <code class="docutils literal notranslate"><span class="pre">(1,1,1)</span></code> if it’s not passed. To specify the stream, one must pass <code class="docutils literal notranslate"><span class="pre">1</span></code> and <code class="docutils literal notranslate"><span class="pre">0</span></code> as the second and third arguments within <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;&gt;&gt;&gt;</span></code> and lastly the stream. Passing other values would lead to undefined behavior.</p>
+<p>Note that it is illegal for the second tuple of <code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> and <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code> to be specified at the same time. It’s also illegal to use <code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> with an empty <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code>. When the second tuple of <code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> is specified, it implies the “Blocks as Clusters” being enabled and the compiler would recognize the first argument inside <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;&gt;&gt;&gt;</span></code> as the number of clusters instead of thread blocks.</p>
+</section>
+</section>
+<section id="more-on-streams-and-events">
+<span id="advanced-host-streams-and-events"></span><h2><span class="section-number">3.1.3. </span>More on Streams and Events<a class="headerlink" href="advanced-host-programming.html#more-on-streams-and-events" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-streams"><span class="std std-ref">CUDA Streams</span></a> introduced the basics of CUDA streams. By default, operations submitted on a given CUDA stream are serialized: one cannot start executing until the previous one has completed. The only exception is the recently added <a class="reference internal" href="../04-special-topics/programmatic-dependent-launch.html#programmatic-dependent-launch-and-synchronization"><span class="std std-ref">Programmatic Dependent Launch and Synchronization</span></a> feature. Having multiple CUDA streams is a way to enable concurrent execution; another way is using <a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs"><span class="std std-ref">CUDA Graphs</span></a>. The two approaches can also be combined.</p>
+<p>Work submitted on different CUDA streams <cite>may</cite> execute concurrently under specific circumstances, e.g., if there are no event dependencies, if there is no implicit synchronization, if there are sufficient resources, etc.</p>
+<p>Independent operations from different CUDA streams cannot run concurrently if any CUDA operation on the NULL stream is submitted in between them, unless the streams are non-blocking CUDA streams. These are streams created with <code class="docutils literal notranslate"><span class="pre">cudaStreamCreateWithFlags()</span></code> runtime API with the <code class="docutils literal notranslate"><span class="pre">cudaStreamNonBlocking</span></code> flag. To improve potential for concurrent GPU work execution, it is recommended that the user creates non-blocking CUDA streams.</p>
+<p>It is also recommended that the user selects the least general synchronization option that is sufficient for their problem.
+For example, if the requirement is for the CPU to wait (block) for all work on a specific CUDA stream to complete,
+using <code class="docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code> for that stream would be preferable to <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code>, as the latter would unnecessarily wait for GPU work on all CUDA streams of the device to complete.
+And if the requirement is for the CPU to wait without blocking, then using <code class="docutils literal notranslate"><span class="pre">cudaStreamQuery()</span></code> and checking its return value, in a polling loop, may be preferable.</p>
+<p>A similar synchronization effect can also be achieved with CUDA events (<a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-events"><span class="std std-ref">CUDA Events</span></a>), e.g., by recording an event on that stream and calling
+<code class="docutils literal notranslate"><span class="pre">cudaEventSynchronize()</span></code> to wait, in a blocking manner, for the work captured in that event to complete.
+Again, this would be preferable and more focused than using <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code>.
+Calling <code class="docutils literal notranslate"><span class="pre">cudaEventQuery()</span></code> and checking its return value, e.g., in a polling loop, would be a non-blocking alternative.</p>
+<p>The choice of the explicit synchronization method is particularly important if this operation happens in the application’s critical path.
+<a class="reference internal" href="advanced-host-programming.html#table-streams-event-sync-summary"><span class="std std-numref">Table 4</span></a> provides a high-level summary of various synchronization options
+with the host.</p>
+<div class="pst-scrollable-table-container"><table class="small table table-center" id="table-streams-event-sync-summary">
+<caption><span class="caption-number">Table 4 </span><span class="caption-text">Summary of explicit synchronization options with the host</span><a class="headerlink" href="advanced-host-programming.html#table-streams-event-sync-summary" title="Link to this table">#</a></caption>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Wait for specific
+stream</p></th>
+<th class="head"><p>Wait for specific
+event</p></th>
+<th class="head"><p>Wait for everything
+on the device</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Non-blocking
+(would need a
+polling loop)</p></td>
+<td><p>cudaStreamQuery()</p></td>
+<td><p>cudaEventQuery()</p></td>
+<td><p>N/A</p></td>
+</tr>
+<tr class="row-odd"><td><p>Blocking</p></td>
+<td><p>cudaStreamSynchronize()</p></td>
+<td><p>cudaEventSynchronize()</p></td>
+<td><p>cudaDeviceSynchronize()</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>For synchronization, i.e., to express dependencies, between CUDA streams, use of non-timing CUDA events is recommended, as described in <a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-events"><span class="std std-ref">CUDA Events</span></a>.
+A user can call <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code> to force future submitted operations on a specific stream to wait for the completion of a previously recorded event (e.g., on another stream).
+Note that for any CUDA API waiting or querying an event, it is the responsibility of the user to ensure the cudaEventRecord API has been already called,
+as a non-recorded event will always return success.</p>
+<p>CUDA events carry, by default, timing information, as they can be used in <code class="docutils literal notranslate"><span class="pre">cudaEventElapsedTime()</span></code> API calls.
+However, a CUDA event that is solely used to express dependencies across streams does not need timing information.
+For such cases, it is recommended to create events with timing information disabled for improved performance. This is possible using <code class="docutils literal notranslate"><span class="pre">cudaEventCreateWithFlags()</span></code> API
+with the <code class="docutils literal notranslate"><span class="pre">cudaEventDisableTiming</span></code> flag.</p>
+<section id="stream-priorities">
+<h3><span class="section-number">3.1.3.1. </span>Stream Priorities<a class="headerlink" href="advanced-host-programming.html#stream-priorities" title="Link to this heading">#</a></h3>
+<p>The relative priorities of streams can be specified at creation time using <code class="docutils literal notranslate"><span class="pre">cudaStreamCreateWithPriority()</span></code>. The range of allowable priorities, ordered as [greatest priority, least priority] can be obtained using the <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetStreamPriorityRange()</span></code> function. At runtime, the GPU scheduler utilizes stream priorities to determine task execution order, but these priorities serve as hints rather than guarantees. When selecting work to launch, pending tasks in higher-priority streams take precedence over those in lower-priority streams. Higher-priority tasks do not preempt already running lower-priority tasks. The GPU does not reassess work queues during task execution, and increasing a stream’s priority will not interrupt ongoing work. Stream priorities influence task execution without enforcing strict ordering, so users can leverage stream priorities to influence task execution without relying on strict ordering guarantees.</p>
+<p>The following code sample obtains the allowable range of priorities for the current device, and creates two non-blocking CUDA streams with the highest and lowest available priorities.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// get the range of stream priorities for this device</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">leastPriority</span><span class="p">,</span><span class="w"> </span><span class="n">greatestPriority</span><span class="p">;</span>
+<span class="n">cudaDeviceGetStreamPriorityRange</span><span class="p">(</span><span class="o">&amp;</span><span class="n">leastPriority</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">greatestPriority</span><span class="p">);</span>
+
+<span class="c1">// create streams with highest and lowest available priorities</span>
+<span class="n">cudaStream_t</span><span class="w"> </span><span class="n">st_high</span><span class="p">,</span><span class="w"> </span><span class="n">st_low</span><span class="p">;</span>
+<span class="n">cudaStreamCreateWithPriority</span><span class="p">(</span><span class="o">&amp;</span><span class="n">st_high</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamNonBlocking</span><span class="p">,</span><span class="w"> </span><span class="n">greatestPriority</span><span class="p">));</span>
+<span class="n">cudaStreamCreateWithPriority</span><span class="p">(</span><span class="o">&amp;</span><span class="n">st_low</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamNonBlocking</span><span class="p">,</span><span class="w"> </span><span class="n">leastPriority</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="explicit-synchronization">
+<span id="advanced-host-explicit-synchronization"></span><h3><span class="section-number">3.1.3.2. </span>Explicit Synchronization<a class="headerlink" href="advanced-host-programming.html#explicit-synchronization" title="Link to this heading">#</a></h3>
+<p>As previously outlined, there are a number of ways that streams can synchronize with other streams. The following provides common methods at different levels of granularity:
+- <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code> waits until all preceding commands in all streams of all host threads have completed.
+- <code class="docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code>takes a stream as a parameter and waits until all preceding commands in the given stream have completed. It can be used to synchronize the host with a specific stream, allowing other streams to continue executing on the device.
+- <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code>takes a stream and an event as parameters (see <a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-events"><span class="std std-ref">CUDA Events</span></a> for a description of events) and makes all the commands added to the given stream after the call to <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code>delay their execution until the given event has completed.
+- <code class="docutils literal notranslate"><span class="pre">cudaStreamQuery()</span></code>provides applications with a way to know if all preceding commands in a stream have completed.</p>
+</section>
+<section id="implicit-synchronization">
+<span id="advanced-host-implicit-synchronization"></span><h3><span class="section-number">3.1.3.3. </span>Implicit Synchronization<a class="headerlink" href="advanced-host-programming.html#implicit-synchronization" title="Link to this heading">#</a></h3>
+<p>Two commands from different streams cannot run concurrently if any one of the following operations is issued in-between them by the host thread:</p>
+<ul class="simple">
+<li><p>a page-locked host memory allocation</p></li>
+<li><p>a device memory allocation</p></li>
+<li><p>a device memory set</p></li>
+<li><p>a memory copy between two addresses to the same device memory</p></li>
+<li><p>any CUDA command to the NULL stream</p></li>
+<li><p>a switch between the L1/shared memory configurations</p></li>
+</ul>
+<p>Operations that require a dependency check include any other commands within the same stream as the launch being checked
+and any call to <code class="docutils literal notranslate"><span class="pre">cudaStreamQuery()</span></code> on that stream. Therefore, applications should follow these guidelines to improve
+their potential for concurrent kernel execution:</p>
+<ul class="simple">
+<li><p>All independent operations should be issued before dependent operations,</p></li>
+<li><p>Synchronization of any kind should be delayed as long as possible.</p></li>
+</ul>
+<span class="target" id="overlapping-behavior"></span></section>
+</section>
+<section id="programmatic-dependent-kernel-launch">
+<h2><span class="section-number">3.1.4. </span>Programmatic Dependent Kernel Launch<a class="headerlink" href="advanced-host-programming.html#programmatic-dependent-kernel-launch" title="Link to this heading">#</a></h2>
+<p>As we have discussed earlier, the semantics of CUDA Streams are such that kernels execute in order. This is so that if we have two successive kernels, where the second kernel depends on results from the first one, the programmer can be safe in the knowledge that by the time the second kernel starts executing the dependent data will be available. However, it may be the case that the first kernel can have the data on which a subsequent kernel depends already written to global memory and it still has more work to do. Likewise the dependent second kernel may have some independent work before it needs the data from the first kernel. In such a situation it is possible to partially overlap the execution of the two kernels (assuming that hardware resources are available). The overlapping can also overlap the launch overheads of the second kernel too. Other than the availability of hardware resources,the degree of overlap which can be achieved is dependent on the specific structure of the kernels, such as</p>
+<ul class="simple">
+<li><p>when in its execution does the first kernel finish the work on which the second kernel depends?</p></li>
+<li><p>when in its execution does the second kernel start working on the data from the first kernel?</p></li>
+</ul>
+<p>since this is very much dependent on the specific kernels in question it is difficult to automate completely and hence CUDA provides a mechanism to allow the application developer to specify the synchronization point between the two kernels. This is done via a technique known as Programmatic Dependent Kernel Launch. The situation is depicted in the figure below.</p>
+<figure class="align-center" id="figure-programmatic-dependent-launch">
+<a class="reference internal image-reference" href="../_images/pdl.png"><img alt="Programmatic Dependent Kernel Launch" src="../_images/pdl.png" style="width: 50%;" />
+</a>
+</figure>
+<p>PDL has three main components.</p>
+<ol class="lowerroman simple">
+<li><p>The first kernel (the so called <em>primary kernel</em>) needs to call a special function to indicate that it is done with the everything that the subsequent dependent kernels (also called <em>secondary kernel</em>) will need. This is done by calling the function  <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaTriggerProgrammaticLaunchCompletion()</span></code>.</p></li>
+<li><p>In turn, the dependent secondary kernel needs to indicate that it has reached the portion of the its work which is independent of the primary kernel and that it is now waiting on the primary kernel to finish the work on which it depends. This is done with the function <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaGridDependencySynchronize()</span></code>.</p></li>
+<li><p>THe second kernel needs to be launched with a special attribute <cite>cudaLaunchAttributeProgrammaticStreamSerialization</cite> with its <cite>programmaticStreamSerializationAllowed</cite> field set to ‘1’.</p></li>
+</ol>
+<p>The following code snippet shows an example of how this can be done.</p>
+<div class="literal-block-wrapper docutils container" id="pdl-example">
+<div class="code-block-caption"><span class="caption-number">Listing 3 </span><span class="caption-text">Example of Programmatic Dependent Kernel Launch with two Kernels</span><a class="headerlink" href="advanced-host-programming.html#pdl-example" title="Link to this code">#</a></div>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">primary_kernel</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Initial work that should finish before starting secondary kernel</span>
+
+<span class="w">    </span><span class="c1">// Trigger the secondary kernel</span>
+<span class="w">    </span><span class="n">cudaTriggerProgrammaticLaunchCompletion</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// Work that can coincide with the secondary kernel</span>
+<span class="p">}</span>
+
+<span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">secondary_kernel</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// Initialization, Independent work, etc.</span>
+
+<span class="w">    </span><span class="c1">// Will block until all primary kernels the secondary kernel is dependent on have</span>
+<span class="w">    </span><span class="c1">// completed and flushed results to global memory</span>
+<span class="w">    </span><span class="n">cudaGridDependencySynchronize</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// Dependent work</span>
+<span class="p">}</span>
+
+<span class="c1">// Launch the secondary kernel with the special attribute</span>
+
+<span class="c1">// Set Up the attribute</span>
+<span class="n">cudaLaunchAttribute</span><span class="w"> </span><span class="n">attribute</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+<span class="n">attribute</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaLaunchAttributeProgrammaticStreamSerialization</span><span class="p">;</span>
+<span class="n">attribute</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">val</span><span class="p">.</span><span class="n">programmaticStreamSerializationAllowed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+
+<span class="c1">// Set the attribute in a kernel launch configuration</span>
+<span class="w"> </span><span class="n">cudaLaunchConfig_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+
+<span class="c1">// Base launch configuration</span>
+<span class="n">config</span><span class="p">.</span><span class="n">gridDim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">grid_dim</span><span class="p">;</span>
+<span class="n">config</span><span class="p">.</span><span class="n">blockDim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">block_dim</span><span class="p">;</span>
+<span class="n">config</span><span class="p">.</span><span class="n">dynamicSmemBytes</span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="n">config</span><span class="p">.</span><span class="n">stream</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stream</span><span class="p">;</span>
+
+<span class="c1">// Add special attribute for PDL</span>
+<span class="n">config</span><span class="p">.</span><span class="n">attrs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">attribute</span><span class="p">;</span>
+<span class="n">config</span><span class="p">.</span><span class="n">numAttrs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+
+<span class="c1">// Launch primary kernel</span>
+<span class="n">primary_kernel</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid_dim</span><span class="p">,</span><span class="w"> </span><span class="n">block_dim</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span>
+
+<span class="c1">// Launch secondary (dependent) kernel using the configuration with</span>
+<span class="c1">// the attribute</span>
+<span class="n">cudaLaunchKernelEx</span><span class="p">(</span><span class="o">&amp;</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">secondary_kernel</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="batched-memory-transfers">
+<h2><span class="section-number">3.1.5. </span>Batched Memory Transfers<a class="headerlink" href="advanced-host-programming.html#batched-memory-transfers" title="Link to this heading">#</a></h2>
+<p>A common pattern in CUDA development is to use a technique of batching. By batching we loosely mean that we have several (typically small)tasks grouped together into a single (typically bigger) operation. The components of the batch do not necessarily all have to be identical although they often are. An example of this idea is the batch matrix multiplication operation provided by cuBLAS.</p>
+<p>Generally as with CUDA Graphs, and PDL, the purpose of batching is to reduce overheads associated with dispatching the individual batch tasks separately. In terms of memory transfers launching a memory transfer can incur some CPU and driver overheads. Further, the regular <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyAsync()</span></code> function in its current form does not necessarily provide enough information for the driver to optimize the transfer, for example, in terms of hints about the source and destination. On Tegra platforms one has the choice of using SMs or Copy Engines (CEs)o perform transfers. The choice of which is currently specified by a heuristic in the driver. This can be important because using the SMs may result in a faster transfer, however it ties down some of the available compute power. On the other hand, using the CEs may result in a slower transfer but overall higher application performance, since it leaves the SMs free to perform other work.</p>
+<p>These considerations motivated the design of the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyBatchAsync()</span></code> function (and its relative <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyBatch3DAsync()</span></code>).  These functions allow batched memory transfers to be optimized. Apart from the lists of source and destination pointers, the API uses memory copy attributes to specify expectations of orderings, with hints for source and destination locations, as well as for whether one prefers to overlap the transfer with compute (something that is currently only supported on Tegra platforms with CEs).</p>
+<p>Let us first consider the simplest case of a simple batch transfer of data from pinned host memory to pinned device memory</p>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-number">Listing 4 </span><span class="caption-text">Example of Homogeneous Batched Memory Transfer from Pinned Host Memory to Pinned Device Memory</span><a class="headerlink" href="advanced-host-programming.html#id1" title="Link to this code">#</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">void</span><span class="w"> </span><span class="o">*&gt;</span><span class="w"> </span><span class="n">srcs</span><span class="p">(</span><span class="n">batch_size</span><span class="p">);</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">void</span><span class="w"> </span><span class="o">*&gt;</span><span class="w"> </span><span class="n">dsts</span><span class="p">(</span><span class="n">batch_size</span><span class="p">);</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">void</span><span class="w"> </span><span class="o">*&gt;</span><span class="w"> </span><span class="n">sizes</span><span class="p">(</span><span class="n">batch_size</span><span class="p">);</span>
+
+<span class="c1">// Allocate the source and destination buffers</span>
+<span class="c1">// initialize with the stream number</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">batch_size</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">cudaMallocHost</span><span class="p">(</span><span class="o">&amp;</span><span class="n">srcs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">sizes</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">    </span><span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dsts</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">sizes</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">    </span><span class="n">cudaMemsetAsync</span><span class="p">(</span><span class="n">srcs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">sizes</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// Setup attributes for this batch of copies</span>
+<span class="n">cudaMemcpyAttributes</span><span class="w"> </span><span class="n">attrs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+<span class="n">attrs</span><span class="p">.</span><span class="n">srcAccessOrder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaMemcpySrcAccessOrderStream</span><span class="p">;</span>
+
+<span class="c1">// All copies in the batch have same copy attributes.</span>
+<span class="kt">size_t</span><span class="w"> </span><span class="n">attrsIdxs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">  </span><span class="c1">// Index of the attributes</span>
+
+<span class="c1">// Launch the batched memory transfer</span>
+<span class="n">cudaMemcpyBatchAsync</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dsts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="o">&amp;</span><span class="n">srcs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="o">&amp;</span><span class="n">sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">batch_size</span><span class="p">,</span>
+<span class="w">    </span><span class="o">&amp;</span><span class="n">attrs</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">attrsIdxs</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="cm">/*numAttrs*/</span><span class="p">,</span><span class="w"> </span><span class="k">nullptr</span><span class="w"> </span><span class="cm">/*failIdx*/</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<p>The first few parameters to the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyBatchAsync()</span></code> function seem immediately sensible. The are comprised of arrays containing the source and destination pointers, as well as the transfer sizes. Each array has to have``batch_size`` elements. The new information comes from the attributes. The function needs a pointer to an array of attributes, and a corresponding array of attribute indices. In principle it is also possible to pass an array of <code class="docutils literal notranslate"><span class="pre">size_t</span></code> and in this array the indices of an failed transfers can be recorded, however it is safe to pass a <code class="docutils literal notranslate"><span class="pre">nullptr</span></code> here, in this case the indices of failures will simply not be recorded.</p>
+<p>Turning to the attributes, in this instance the transfers are homogeneous. So we use only one attribute, which will apply to
+all the transfers. This is controlled by the <cite>attrIndex</cite> parameter. In principle this can be an array. Element <em>i</em> of the array contains the index of the first transfer to which the <em>i</em>-th element of the attribute array applies.  In this case, <cite>attrIndex</cite> is treated as a single element array, with the value ‘0’ meaning that <code class="docutils literal notranslate"><span class="pre">attribute[0]</span></code> will apply to all transfers with index 0 and up, in other words all the transfers.</p>
+<p>Finally, we note that we have set the <code class="docutils literal notranslate"><span class="pre">srcAccessOrder</span></code> attribute to <code class="docutils literal notranslate"><span class="pre">cudaMemcpySrcAccessOrderStream</span></code>. This means that the source data will be accessed in regular stream order. In other words, the memcpy will block until previous kernels dealing with the data from any of these source and destination pointers are completed.</p>
+<p>In the next example we will consider a more complex case of a heterogeneous batch transfer.</p>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-number">Listing 5 </span><span class="caption-text">Example of Heterogeneous Batched Memory Transfer using some Ephemeral Host Memory to Pinned Device Memory</span><a class="headerlink" href="advanced-host-programming.html#id2" title="Link to this code">#</a></div>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">void</span><span class="w"> </span><span class="o">*&gt;</span><span class="w"> </span><span class="n">srcs</span><span class="p">(</span><span class="n">batch_size</span><span class="p">);</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">void</span><span class="w"> </span><span class="o">*&gt;</span><span class="w"> </span><span class="n">dsts</span><span class="p">(</span><span class="n">batch_size</span><span class="p">);</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">void</span><span class="w"> </span><span class="o">*&gt;</span><span class="w"> </span><span class="n">sizes</span><span class="p">(</span><span class="n">batch_size</span><span class="p">);</span>
+
+<span class="c1">// Allocate the src and dst buffers</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">batch_size</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">cudaMallocHost</span><span class="p">(</span><span class="o">&amp;</span><span class="n">srcs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">sizes</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">    </span><span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dsts</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">sizes</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">buffer</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span>
+
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">batch_size</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">batch_size</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">srcs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">buffer</span><span class="p">[</span><span class="mi">10</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="n">batch_size</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">i</span><span class="p">];</span>
+<span class="w">    </span><span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dsts</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">sizes</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="p">}</span>
+
+<span class="c1">// Setup attributes for this batch of copies</span>
+<span class="n">cudaMemcpyAttributes</span><span class="w"> </span><span class="n">attrs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+<span class="n">attrs</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">srcAccessOrder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaMemcpySrcAccessOrderStream</span><span class="p">;</span>
+<span class="n">attrs</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">srcAccessOrder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaMemcpySrcAccessOrderDuringApiCall</span><span class="p">;</span>
+
+<span class="kt">size_t</span><span class="w"> </span><span class="n">attrsIdxs</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+<span class="n">attrsIdxs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="n">attrsIdxs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">batch_size</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+
+<span class="c1">// Launch the batched memory transfer</span>
+<span class="n">cudaMemcpyBatchAsync</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dsts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="o">&amp;</span><span class="n">srcs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="o">&amp;</span><span class="n">sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">batch_size</span><span class="p">,</span>
+<span class="w">    </span><span class="o">&amp;</span><span class="n">attrs</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">attrsIdxs</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="cm">/*numAttrs*/</span><span class="p">,</span><span class="w"> </span><span class="n">nullptr</span><span class="w"> </span><span class="cm">/*failIdx*/</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<p>Here we have two kinds of transfers: <code class="docutils literal notranslate"><span class="pre">batch_size-10</span></code> transfer from pinned host memory to pinned device memory,
+and 10 transfers from a host array to pinned device memory. Further, the <cite>buffer</cite> array is not only on the host but is only in existence in the current scope – its address is what is known as an <em>ephemeral pointer</em>. This pointer may not be valid after the API call completes (it is asynchronous). To perform the copies with such ephemeral pointers, the <cite>srcAccessOrder</cite> in the attribute must be set to  <cite>cudaMemcpySrcAccessOrderDuringApiCall</cite>.</p>
+<p>We now have two attributes, the first one applies to all transfers with indices starting at 0, and less than <code class="docutils literal notranslate"><span class="pre">batch_size-10</span></code>. The second one applies to all transfers with indices starting at <code class="docutils literal notranslate"><span class="pre">batch_size-10</span></code> and less than <code class="docutils literal notranslate"><span class="pre">batch_size</span></code>.</p>
+<p>If instead of allocating the <cite>buffer</cite> array from the stack, we had allocated it from the heap using <cite>malloc</cite> the data would not be ephemeral any more. It would be valid until the pointer was explicitly freed. In such a case the best option for how to stage the copies would depend on whether the system had hardware managed memory or coherent GPU access to host memory via address translation in which case it would be best to use stream ordering, or whether it did not in which case staging the transfers immediately would make most sense. In this situation, one should use the value <code class="docutils literal notranslate"><span class="pre">cudaMemcpyAccessOrderAny</span></code> for the <code class="docutils literal notranslate"><span class="pre">srcAccessOrder</span></code> of the attribute.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">cudaMemcpyBatchAsync</span></code> function also allows the programmer to provide hints about the source and destination locations. This is done by setting the <code class="docutils literal notranslate"><span class="pre">srcLocation</span></code> and <code class="docutils literal notranslate"><span class="pre">dstLocation</span></code> fields of the <code class="docutils literal notranslate"><span class="pre">cudaMemcpyAttributes</span></code> structure. The <code class="docutils literal notranslate"><span class="pre">srcLocation``and</span> <span class="pre">``dstLocation</span></code> fields are both of type <code class="docutils literal notranslate"><span class="pre">cudaMemLocation</span></code> which is a structure that contains the type of the location and the ID of the location. This is the same <code class="docutils literal notranslate"><span class="pre">cudaMemLocation</span></code> structure that can be used to give prefetching hints to the runtime when using <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemPrefetchAsync()</span></code>. We illustrate how to set up the hints for a transfer from the device, to a specific NUMA node of the host in the code example below:</p>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-number">Listing 6 </span><span class="caption-text">Example of Setting Source and Destination Location Hints</span><a class="headerlink" href="advanced-host-programming.html#id3" title="Link to this code">#</a></div>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// Allocate the source and destination buffers</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">void</span><span class="w"> </span><span class="o">*&gt;</span><span class="w"> </span><span class="n">srcs</span><span class="p">(</span><span class="n">batch_size</span><span class="p">);</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">void</span><span class="w"> </span><span class="o">*&gt;</span><span class="w"> </span><span class="n">dsts</span><span class="p">(</span><span class="n">batch_size</span><span class="p">);</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">void</span><span class="w"> </span><span class="o">*&gt;</span><span class="w"> </span><span class="n">sizes</span><span class="p">(</span><span class="n">batch_size</span><span class="p">);</span>
+
+<span class="c1">// cudaMemLocation structures we will use tp provide location hints</span>
+<span class="c1">// Device device_id</span>
+<span class="n">cudaMemLocation</span><span class="w"> </span><span class="n">srcLoc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">cudaMemLocationTypeDevice</span><span class="p">,</span><span class="w"> </span><span class="n">dev_id</span><span class="p">};</span>
+
+<span class="c1">// Host with numa Node numa_id</span>
+<span class="n">cudaMemLocation</span><span class="w"> </span><span class="n">dstLoc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">cudaMemLocationTypeHostNuma</span><span class="p">,</span><span class="w"> </span><span class="n">numa_id</span><span class="p">};</span>
+
+<span class="c1">// Allocate the src and dst buffers</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">batch_size</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">cudaMallocManaged</span><span class="p">(</span><span class="o">&amp;</span><span class="n">srcs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">sizes</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">    </span><span class="n">cudaMallocManaged</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dsts</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">sizes</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+
+<span class="w">    </span><span class="n">cudaMemPrefetchAsync</span><span class="p">(</span><span class="n">srcs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">sizes</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">srcLoc</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cudaMemPrefetchAsync</span><span class="p">(</span><span class="n">dsts</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">sizes</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">dstLoc</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cudaMemsetAsync</span><span class="p">(</span><span class="n">srcs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">sizes</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// Setup attributes for this batch of copies</span>
+<span class="n">cudaMemcpyAttributes</span><span class="w"> </span><span class="n">attrs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+
+<span class="c1">// These are managed memory pointers so Stream Order is appropriate</span>
+<span class="n">attrs</span><span class="p">.</span><span class="n">srcAccessOrder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaMemcpySrcAccessOrderStream</span><span class="p">;</span>
+
+<span class="c1">// Now we can specify the location hints here.</span>
+<span class="n">attrs</span><span class="p">.</span><span class="n">srcLocHint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">srcLoc</span><span class="p">;</span>
+<span class="n">attrs</span><span class="p">.</span><span class="n">dstlocHint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dstLoc</span><span class="p">;</span>
+
+<span class="c1">// All copies in the batch have same copy attributes.</span>
+<span class="kt">size_t</span><span class="w"> </span><span class="n">attrsIdxs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="c1">// Launch the batched memory transfer</span>
+<span class="n">cudaMemcpyBatchAsync</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dsts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="o">&amp;</span><span class="n">srcs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="o">&amp;</span><span class="n">sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">batch_size</span><span class="p">,</span>
+<span class="w">    </span><span class="o">&amp;</span><span class="n">attrs</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">attrsIdxs</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="cm">/*numAttrs*/</span><span class="p">,</span><span class="w"> </span><span class="n">nullptr</span><span class="w"> </span><span class="cm">/*failIdx*/</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<p>THe last thing to cover is the flag for hinting whether we want to use SM’s or CEs for the transfers.
+The field for this is the  <code class="docutils literal notranslate"><span class="pre">cudaMemcpyAttributesflags::flags</span></code> and the possible values are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaMemcpyFlagDefault</span></code> – default behavior</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaMemcpyFlagPreferOverlapWithCompute</span></code> – this hints that the system should prefer to use CEs for the transfers overlapping the transfer with computations. This flag is ignored on non-Tegra platforms</p></li>
+</ul>
+<p>In summary, the main points regarding “cudaMemcpyBatchAsync” are as follows:</p>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">cudaMemcpyBatchAsync</span></code> function (and its 3D variant) allows the programmer to specify a batch of memory transfers, allowing the amortization of transfer setup overheads.</p></li>
+<li><p>Other than the source and destination pointers and the transfer sizes, the function can take one or more memory copy attributes providing information about the kind of memory being transferred and the corresponding stream ordering behavior of the source pointers, hints about the source and destination locations, and hints as to whether to prefer to overlap the transfer with compute (if possible) or whether to use SMs for the transfer.</p></li>
+<li><p>Given the above information the runtime can attempt to optimize the transfer to the maximum degree possible..</p></li>
+</ul>
+</section>
+<section id="environment-variables">
+<h2><span class="section-number">3.1.6. </span>Environment Variables<a class="headerlink" href="advanced-host-programming.html#environment-variables" title="Link to this heading">#</a></h2>
+<p>CUDA provides various environment variables (see <a class="reference internal" href="../05-appendices/environment-variables.html#cuda-environment-variables"><span class="std std-numref">Section 5.2</span></a>), which can affect execution and performance.
+If they are not explicitly set, CUDA uses reasonable default values for them, but
+special handling may be required on a per-case basis, e.g., for debugging purposes or to get improved performance.</p>
+<p>For example, increasing the value of the <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_CONNECTIONS</span></code> environment variable may be necessary to reduce the possibility that
+independent work from different CUDA streams gets serialized due to false dependencies. Such false dependencies may be introduced when
+the same underlying resource(s) are used.
+It is recommended to start by using the default value and only explore the impact of this environment variable in case of performance issues (e.g., unexpected serialization of independent
+work across CUDA streams that cannot be attributed to other factors like lack of available SM resources).
+Worth noting that this environment variable has a different (lower) default value in case of MPS.</p>
+<p>Similarly, setting the <code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_LOADING</span></code> environment variable to <code class="docutils literal notranslate"><span class="pre">EAGER</span></code> may be preferable
+for latency-sensitive applications, in order to move all overhead
+due to module loading to the application initialization phase and outside its critical phase. The current default mode is lazy module loading.
+In this default mode, a similar effect to eager module loading could be achieved
+by adding “warm-up” calls of the various kernels during the application’s initialization phase, to force module loading to happen sooner.</p>
+<p>Please refer to <a class="reference internal" href="../05-appendices/environment-variables.html#cuda-environment-variables"><span class="std std-ref">CUDA Environment Variables</span></a> for more details about the various CUDA environment variables.
+It is recommended that you set the environment variables to new values <em>before</em> you launch the application; attempting to set them within your application
+may have no effect.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../part3.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><span class="section-number">3. </span>Advanced CUDA</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="advanced-kernel-programming.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><span class="section-number">3.2. </span>Advanced Kernel Programming</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+
+
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#cudalaunchkernelex">3.1.1. cudaLaunchKernelEx</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#launching-clusters">3.1.2. Launching Clusters:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#launching-with-clusters-using-cudalaunchkernelex">3.1.2.1. Launching with Clusters using cudaLaunchKernelEx</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#blocks-as-clusters">3.1.2.2. Blocks as Clusters</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#more-on-streams-and-events">3.1.3. More on Streams and Events</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#stream-priorities">3.1.3.1. Stream Priorities</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#explicit-synchronization">3.1.3.2. Explicit Synchronization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#implicit-synchronization">3.1.3.3. Implicit Synchronization</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#programmatic-dependent-kernel-launch">3.1.4. Programmatic Dependent Kernel Launch</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#batched-memory-transfers">3.1.5. Batched Memory Transfers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#environment-variables">3.1.6. Environment Variables</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js"></script>
+
+
+<script type="text/javascript">if (typeof _satellite !== "undefined") {_satellite.pageBottom();}</script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+<a class="footer-brand logo" href="https://www.nvidia.com">
+  <img src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
+  <img src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+</a></div>
+      
+        <div class="footer-item">
+
+<div class="footer-links">
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/accessibility/">Accessibility</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
+  
+  
+  
+</div>
+</div>
+      
+        <div class="footer-item">
+
+
+
+
+  <p class="copyright">
+    
+      Copyright © 2007-2026, NVIDIA Corporation &amp; affiliates. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item"><p class="last-updated">
+  Last updated on Mar 04, 2026.
+  <br/>
+</p></div>
+      
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+  </body>
+</html>

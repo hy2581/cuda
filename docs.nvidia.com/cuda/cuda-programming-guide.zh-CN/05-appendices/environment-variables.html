@@ -1,0 +1,1036 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>5.2. CUDA Environment Variables &#8212; CUDA Programming Guide</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tables.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js" />
+
+
+<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript"
+  data-document-language="true" charset="UTF-8" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5">
+</script>
+<script type="text/javascript">
+  function OptanonWrapper() {
+    var event = new Event('bannerLoaded');
+    window.dispatchEvent(event);
+  }
+</script>
+<script src="https://images.nvidia.com/aem-dam/Solutions/ot-js/ot-custom.js" type="text/javascript">
+</script>
+
+
+    <script rel="preload" src="../_static/modal-table.js"></script>
+    <script src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scrollspy-patch.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '05-appendices/environment-variables';</script>
+    <script src="../_static/version-patch.js"></script>
+
+<script type="text/javascript" src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
+
+    <link rel="icon" href="../_static/favicon.ico"/>
+
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="5.3. C++ Language Support" href="cpp-language-support.html" />
+    <link rel="prev" title="5.1. Compute Capabilities" href="compute-capabilities.html" />
+
+<link rel="preload" as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png">
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+    <meta name="docbuild:last-update" content="Mar 04, 2026"/>
+
+
+  </head>
+
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="environment-variables.html#main-content">Skip to main content</a></div>
+
+<img src="https://www.nvidia.com/content/dam/1x1-00000000.png" width="1" height="1" style="display:none;" alt="country_code">
+
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../contents.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
+    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
+  
+  
+    <p class="title logo__title">CUDA Programming Guide</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+
+<div>
+  <ul class="bd-navbar-elements navbar-nav">
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>v13.2 |</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>|</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
+      
+    </li>
+  
+  </ul>
+</div>
+</div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../contents.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
+    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
+  
+  
+    <p class="title logo__title">CUDA Programming Guide</p>
+  
+</a>
+
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+
+<div>
+  <ul class="bd-navbar-elements navbar-nav">
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>v13.2 |</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>|</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
+      
+    </li>
+  
+  </ul>
+</div>
+</div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Table of Contents">
+  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA Programming Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. Introduction to CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/introduction.html">1.1. Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/programming-model.html">1.2. Programming Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/cuda-platform.html">1.3. The CUDA platform</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part2.html">2. Programming GPUs in CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html">2.1. Intro to CUDA C++</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/writing-cuda-kernels.html">2.2. Writing CUDA SIMT Kernels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/asynchronous-execution.html">2.3. Asynchronous Execution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/understanding-memory.html">2.4. Unified and System Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/nvcc.html">2.5. NVCC: The NVIDIA CUDA Compiler</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. Advanced CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. Advanced CUDA APIs and Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. Advanced Kernel Programming</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. The CUDA Driver API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. Programming Systems with Multiple GPUs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. A Tour of CUDA Features</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part4.html">4. CUDA Features</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/unified-memory.html">4.1. Unified Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cuda-graphs.html">4.2. CUDA Graphs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/stream-ordered-memory-allocation.html">4.3. Stream-Ordered Memory Allocator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cooperative-groups.html">4.4. Cooperative Groups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/programmatic-dependent-launch.html">4.5. Programmatic Dependent Launch and Synchronization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/green-contexts.html">4.6. Green Contexts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/lazy-loading.html">4.7. Lazy Loading</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/error-log-management.html">4.8. Error Log Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/async-barriers.html">4.9. Asynchronous Barriers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/pipelines.html">4.10. Pipelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/async-copies.html">4.11. Asynchronous Data Copies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cluster-launch-control.html">4.12. Work Stealing with Cluster Launch Control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/l2-cache-control.html">4.13. L2 Cache Control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/memory-sync-domains.html">4.14. Memory Synchronization Domains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/inter-process-communication.html">4.15. Interprocess Communication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/virtual-memory-management.html">4.16. Virtual Memory Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/extended-gpu-memory.html">4.17. Extended GPU Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/dynamic-parallelism.html">4.18. CUDA Dynamic Parallelism</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/graphics-interop.html">4.19. CUDA Interoperability with APIs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/driver-entry-point-access.html">4.20. Driver Entry Point Access</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../part5.html">5. Technical Appendices</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="compute-capabilities.html">5.1. Compute Capabilities</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="environment-variables.html#">5.2. CUDA Environment Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpp-language-support.html">5.3. C++ Language Support</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpp-language-extensions.html">5.4. C/C++ Language Extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mathematical-functions.html">5.5. Floating-Point Computation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="device-callable-apis.html">5.6. Device-Callable APIs and Intrinsics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda-cpp-memory-model.html">5.7. CUDA C++ Memory Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda-cpp-execution-model.html">5.8. CUDA C++ Execution model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. Notices</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../contents.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">CUDA Programming Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../part5.html" class="nav-link"><span class="section-number">5. </span>Technical Appendices</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">5.2. </span>CUDA Environment Variables</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+<div class="header-article-item">
+  <div class="d-flex justify-content-end w-100">
+    <a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">Is this page helpful?</a>
+  </div>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="cuda-environment-variables">
+<span id="id1"></span><h1><span class="section-number">5.2. </span>CUDA Environment Variables<a class="headerlink" href="environment-variables.html#cuda-environment-variables" title="Link to this heading">#</a></h1>
+<p>The following section lists the CUDA environment variables. Those related to the Multi-Process Service (MPS) are documented in the <a class="reference external" href="https://docs.nvidia.com/deploy/mps/index.html#environment-variables">GPU Deployment and Management Guide</a>.</p>
+<section id="device-enumeration-and-properties">
+<h2><span class="section-number">5.2.1. </span>Device Enumeration and Properties<a class="headerlink" href="environment-variables.html#device-enumeration-and-properties" title="Link to this heading">#</a></h2>
+<section id="cuda-visible-devices">
+<h3><span class="section-number">5.2.1.1. </span><code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES</span></code><a class="headerlink" href="environment-variables.html#cuda-visible-devices" title="Link to this heading">#</a></h3>
+<p>The environment variable controls which GPU devices are visible to a CUDA application and in what order they are enumerated.</p>
+<ul class="simple">
+<li><p>If the variable is not set, all GPU devices are visible.</p></li>
+<li><p>If the variable is set to an empty string, no GPU devices are visible.</p></li>
+</ul>
+<p><strong>Possible Values</strong>: A comma-separated sequence of GPU identifiers.</p>
+<p>GPU identifiers are provided as:</p>
+<ul class="simple">
+<li><p><strong>Integer indices</strong>: These correspond to the ordinal number of the GPU in the system, as determined by <code class="docutils literal notranslate"><span class="pre">nvidia-smi</span></code>, starting from 0. For example, setting <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES=2,1</span></code> makes device 0 not visible and enumerates device 2 before device 1.</p>
+<ul>
+<li><p>If an invalid index is encountered, only devices with indices that appear before the invalid index in the list are visible. For example, setting <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES=0,2,-1,1</span></code> makes devices 0 and 2 visible, while device 1 is not visible because it appears after the invalid index <code class="docutils literal notranslate"><span class="pre">-1</span></code>.</p></li>
+</ul>
+</li>
+<li><p><strong>GPU UUID strings</strong>: These should follow the same format as given by <code class="docutils literal notranslate"><span class="pre">nvidia-smi</span> <span class="pre">-L</span></code>, such as <code class="docutils literal notranslate"><span class="pre">GPU-8932f937-d72c-4106-c12f-20bd9faed9f6</span></code>. However, for convenience, abbreviated forms are allowed; simply specify enough digits from the beginning of the GPU UUID to uniquely identify that GPU in the target system. For example, <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES=GPU-8932f937</span></code> may be a valid way to refer to the above GPU UUID, assuming no other GPU in the system shares this prefix.</p></li>
+<li><p><a class="reference external" href="https://docs.nvidia.com/datacenter/tesla/mig-user-guide/">Multi-Instance GPU (MIG)</a> support: <code class="docutils literal notranslate"><span class="pre">MIG-&lt;GPU-UUID&gt;/&lt;GPU</span> <span class="pre">instance</span> <span class="pre">ID&gt;/&lt;compute</span> <span class="pre">instance</span> <span class="pre">ID&gt;</span></code>. For example, <code class="docutils literal notranslate"><span class="pre">MIG-GPU-8932f937-d72c-4106-c12f-20bd9faed9f6/1/2</span></code>. Only single MIG instance enumeration is supported.</p></li>
+</ul>
+<p>The device count returned by the <code class="docutils literal notranslate"><span class="pre">cudaGetDeviceCount()</span></code> API includes only the visible devices, so CUDA APIs that use integer device identifiers only support ordinals in the range [0, visible device count - 1]. The enumeration order of the GPU devices determines the ordinal values. For example, with <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES=2,1</span></code>, calling <code class="docutils literal notranslate"><span class="pre">cudaSetDevice(0)</span></code> will set device 2 as the current device, as it is enumerated first and assigned an ordinal of 0. Calling <code class="docutils literal notranslate"><span class="pre">cudaGetDevice(&amp;device_ordinal)</span></code> after that will also set <code class="docutils literal notranslate"><span class="pre">device_ordinal</span></code> to 0, which corresponds to device 2.</p>
+<p><strong>Examples</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nvidia-smi<span class="w"> </span>-L<span class="w"> </span><span class="c1"># Get list of GPU UUIDs</span>
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span>GPU-8932f937-d72c-4106-c12f-20bd9faed9f6
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span>MIG-GPU-8932f937-d72c-4106-c12f-20bd9faed9f6/1/2
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="cuda-device-order">
+<h3><span class="section-number">5.2.1.2. </span><code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_ORDER</span></code><a class="headerlink" href="environment-variables.html#cuda-device-order" title="Link to this heading">#</a></h3>
+<p>The environment variable controls the order in which CUDA enumerates the available devices.</p>
+<p><strong>Possible Values</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">FASTEST_FIRST</span></code>: The available devices are enumerated from fastest to slowest using a simple heuristic (default).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PCI_BUS_ID</span></code>: The available devices are enumerated by PCI bus ID in ascending order. The PCI bus IDs can be obtained with <code class="docutils literal notranslate"><span class="pre">nvidia-smi</span> <span class="pre">--query-gpu=name,pci.bus_id</span></code>.</p></li>
+</ul>
+<p><strong>Examples</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_DEVICE_ORDER</span><span class="o">=</span>FASTEST_FIRST
+<span class="nv">CUDA_DEVICE_ORDER</span><span class="o">=</span>PCI_BUS_ID
+nvidia-smi<span class="w"> </span>--query-gpu<span class="o">=</span>name,pci.bus_id<span class="w"> </span><span class="c1"># Get list of PCI bus IDs</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="cuda-managed-force-device-alloc">
+<h3><span class="section-number">5.2.1.3. </span><code class="docutils literal notranslate"><span class="pre">CUDA_MANAGED_FORCE_DEVICE_ALLOC</span></code><a class="headerlink" href="environment-variables.html#cuda-managed-force-device-alloc" title="Link to this heading">#</a></h3>
+<p>The environment variable alters how <a class="reference internal" href="../02-basics/understanding-memory.html#memory-unified-memory"><span class="std std-ref">Unified Memory</span></a> is physically stored in multi-GPU systems.</p>
+<p><strong>Possible Values</strong>: Numerical value, either zero or non-zero.</p>
+<ul class="simple">
+<li><p><strong>Non-zero value</strong>: Forces the driver to use device memory for physical storage. All devices used in the process that support managed memory must be peer-to-peer compatible. Otherwise, <code class="docutils literal notranslate"><span class="pre">cudaErrorInvalidDevice</span></code> is returned.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: Default behavior.</p></li>
+</ul>
+<p><strong>Examples</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_MANAGED_FORCE_DEVICE_ALLOC</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">CUDA_MANAGED_FORCE_DEVICE_ALLOC</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># force device memory</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+</section>
+</section>
+<section id="jit-compilation">
+<span id="cuda-environment-variables-compilation"></span><h2><span class="section-number">5.2.2. </span>JIT Compilation<a class="headerlink" href="environment-variables.html#jit-compilation" title="Link to this heading">#</a></h2>
+<section id="cuda-cache-disable">
+<h3><span class="section-number">5.2.2.1. </span><code class="docutils literal notranslate"><span class="pre">CUDA_CACHE_DISABLE</span></code><a class="headerlink" href="environment-variables.html#cuda-cache-disable" title="Link to this heading">#</a></h3>
+<p>The environment variable controls the behavior of the on-disk <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-just-in-time-compilation"><span class="std std-ref">Just-In-Time (JIT) compilation</span></a> cache.
+Disabling the JIT cache forces PTX to CUBIN compilation for a CUDA application each time it is executed, unless the CUBIN code for the running architecture is found in the binary.</p>
+<p>Disabling the JIT cache increases an application’s load time during initial execution. However, it can be useful for reducing the application’s disk space and for diagnosing differences across driver versions or build flags.</p>
+<p><strong>Possible Values</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>: Disables PTX JIT caching.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: Enables PTX JIT caching (default).</p></li>
+</ul>
+<p><strong>Examples</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_CACHE_DISABLE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># disables caching</span>
+<span class="nv">CUDA_CACHE_DISABLE</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="c1"># enables caching</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="cuda-cache-path">
+<h3><span class="section-number">5.2.2.2. </span><code class="docutils literal notranslate"><span class="pre">CUDA_CACHE_PATH</span></code><a class="headerlink" href="environment-variables.html#cuda-cache-path" title="Link to this heading">#</a></h3>
+<p>The environment variable specifies the directory path for the <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-just-in-time-compilation"><span class="std std-ref">Just-In-Time (JIT) compilation</span></a> cache.</p>
+<p><strong>Possible Values</strong>: The absolute path to the cache directory (with appropriate access permissions). The default values are:</p>
+<ul class="simple">
+<li><p>on Windows, <code class="docutils literal notranslate"><span class="pre">%APPDATA%\NVIDIA\ComputeCache</span></code></p></li>
+<li><p>on Linux, <code class="docutils literal notranslate"><span class="pre">~/.nv/ComputeCache</span></code></p></li>
+</ul>
+<p><strong>Example</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_CACHE_PATH</span><span class="o">=</span>~/tmp
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="cuda-cache-maxsize">
+<h3><span class="section-number">5.2.2.3. </span><code class="docutils literal notranslate"><span class="pre">CUDA_CACHE_MAXSIZE</span></code><a class="headerlink" href="environment-variables.html#cuda-cache-maxsize" title="Link to this heading">#</a></h3>
+<p>The environment variable specifies the <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-just-in-time-compilation"><span class="std std-ref">Just-In-Time (JIT) compilation</span></a> cache size in bytes. Binaries that exceed this size are not cached. If needed, older binaries are evicted from the cache to make room for newer ones.</p>
+<p><strong>Possible Values</strong>: Number of bytes. The default values are:</p>
+<ul class="simple">
+<li><p>On desktop/server platforms, <code class="docutils literal notranslate"><span class="pre">1073741824</span></code> (1 GiB)</p></li>
+<li><p>On embedded platforms, <code class="docutils literal notranslate"><span class="pre">268435456</span></code> (256 MiB)</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">4294967296</span></code> (4 GiB) is the maximum size.</p>
+<p><strong>Example</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_CACHE_MAXSIZE</span><span class="o">=</span><span class="m">268435456</span><span class="w"> </span><span class="c1"># 256 MiB</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="cuda-force-ptx-jit-and-cuda-force-jit">
+<h3><span class="section-number">5.2.2.4. </span><code class="docutils literal notranslate"><span class="pre">CUDA_FORCE_PTX_JIT</span></code> and <code class="docutils literal notranslate"><span class="pre">CUDA_FORCE_JIT</span></code><a class="headerlink" href="environment-variables.html#cuda-force-ptx-jit-and-cuda-force-jit" title="Link to this heading">#</a></h3>
+<p>The environment variables instruct the CUDA driver to ignore any CUBIN embedded in an application and perform <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-just-in-time-compilation"><span class="std std-ref">Just-In-Time (JIT) compilation</span></a> of the embedded PTX code instead.</p>
+<p>Forcing JIT compilation increases an application’s load time during initial execution. However, it can be used to validate that PTX code is embedded in an application and that its Just-In-Time compilation is functioning properly.
+This ensures <a class="reference external" href="https://docs.nvidia.com/deploy/cuda-compatibility/">forward compatibility</a> with future architectures.</p>
+<p><code class="docutils literal notranslate"><span class="pre">CUDA_FORCE_PTX_JIT</span></code> overrides <code class="docutils literal notranslate"><span class="pre">CUDA_FORCE_JIT</span></code>.</p>
+<p><strong>Possible Values</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>: Forces PTX JIT compilation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: Default behavior.</p></li>
+</ul>
+<p><strong>Example</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_FORCE_PTX_JIT</span><span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="cuda-disable-ptx-jit-and-cuda-disable-jit">
+<h3><span class="section-number">5.2.2.5. </span><code class="docutils literal notranslate"><span class="pre">CUDA_DISABLE_PTX_JIT</span></code> and <code class="docutils literal notranslate"><span class="pre">CUDA_DISABLE_JIT</span></code><a class="headerlink" href="environment-variables.html#cuda-disable-ptx-jit-and-cuda-disable-jit" title="Link to this heading">#</a></h3>
+<p>The environment variables disable the <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-just-in-time-compilation"><span class="std std-ref">Just-In-Time (JIT) compilation</span></a> of embedded PTX code and use the compatible CUBIN embedded in an application.</p>
+<p>A kernel will fail to load if it does not have embedded binary code, or if the embedded binary was compiled for an incompatible architecture. These environment variables can be used to validate that an application has compatible CUBIN code generated for each kernel. See the <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-compute-binary-compatibility"><span class="std std-ref">Binary Compatibility</span></a> section for more details.</p>
+<p><code class="docutils literal notranslate"><span class="pre">CUDA_DISABLE_PTX_JIT</span></code> overrides <code class="docutils literal notranslate"><span class="pre">CUDA_DISABLE_JIT</span></code>.</p>
+<p><strong>Possible Values</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>: Disables PTX JIT compilation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: Default behavior.</p></li>
+</ul>
+<p><strong>Example</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_DISABLE_PTX_JIT</span><span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="cuda-force-preload-libraries">
+<h3><span class="section-number">5.2.2.6. </span><code class="docutils literal notranslate"><span class="pre">CUDA_FORCE_PRELOAD_LIBRARIES</span></code><a class="headerlink" href="environment-variables.html#cuda-force-preload-libraries" title="Link to this heading">#</a></h3>
+<p>The environment variable affects the preloading of libraries required for <a class="reference external" href="https://docs.nvidia.com/cuda/nvvm-ir-spec/">NVVM</a> and <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-just-in-time-compilation"><span class="std std-ref">Just-In-Time (JIT) compilation</span></a>.</p>
+<p><strong>Possible Values</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>: This forces the driver to preload the libraries required for <a class="reference external" href="https://docs.nvidia.com/cuda/nvvm-ir-spec/">NVVM</a> and <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-just-in-time-compilation"><span class="std std-ref">Just-In-Time (JIT) compilation</span></a> during initialization. This increases the memory footprint and the time required for CUDA driver initialization. Setting this environment variable is necessary to avoid certain deadlock situations involving multiple threads.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: Default behavior.</p></li>
+</ul>
+<p><strong>Example</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_FORCE_PRELOAD_LIBRARIES</span><span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="execution">
+<h2><span class="section-number">5.2.3. </span>Execution<a class="headerlink" href="environment-variables.html#execution" title="Link to this heading">#</a></h2>
+<section id="cuda-launch-blocking">
+<h3><span class="section-number">5.2.3.1. </span><code class="docutils literal notranslate"><span class="pre">CUDA_LAUNCH_BLOCKING</span></code><a class="headerlink" href="environment-variables.html#cuda-launch-blocking" title="Link to this heading">#</a></h3>
+<p>The environment variable specifies whether to disable or enable asynchronous kernel launches.</p>
+<p>Disabling asynchronous execution results in slower execution but is useful for debugging. It forces GPU work to run synchronously from the CPU’s perspective. This allows CUDA API errors to be observed at the exact API call that triggered them, rather than later in the execution. Synchronous execution is useful for debugging purposes.</p>
+<p><strong>Possible Values</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>: Disables asynchronous execution.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: Asynchronous execution (default).</p></li>
+</ul>
+<p><strong>Example</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_LAUNCH_BLOCKING</span><span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="cuda-device-max-connections">
+<h3><span class="section-number">5.2.3.2. </span><code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_CONNECTIONS</span></code><a class="headerlink" href="environment-variables.html#cuda-device-max-connections" title="Link to this heading">#</a></h3>
+<p>The environment variable controls the number of concurrent compute and copy engine connections (work queues), setting both to the specified value.
+If independent GPU tasks, namely kernels or copy operations launched from different CUDA streams, map to the same work queue, a false dependency is created which can lead to GPU work serialization, since the same underlying resource(s) are used.
+To reduce the probability of such false dependencies, it is recommended that the work queue count, controlled via this environment variable, be greater than or equal to the number of active CUDA streams per context.</p>
+<p>Setting this environment variable also modifies the number of copy connections, unless they are explicitly set via the <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_COPY_CONNECTIONS</span></code> environment variable.</p>
+<p><strong>Possible Values</strong>: <code class="docutils literal notranslate"><span class="pre">1</span></code> to <code class="docutils literal notranslate"><span class="pre">32</span></code> connections, default is <code class="docutils literal notranslate"><span class="pre">8</span></code> (assumes no MPS)</p>
+<p><strong>Example</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_DEVICE_MAX_CONNECTIONS</span><span class="o">=</span><span class="m">16</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="cuda-device-max-copy-connections">
+<h3><span class="section-number">5.2.3.3. </span><code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_COPY_CONNECTIONS</span></code><a class="headerlink" href="environment-variables.html#cuda-device-max-copy-connections" title="Link to this heading">#</a></h3>
+<p>The environment variable controls the number of concurrent copy connections (work queues) involved in copy operations.
+It affects only devices of <a class="reference internal" href="compute-capabilities.html#compute-capabilities"><span class="std std-ref">compute capability</span></a> 8.0 and above.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_COPY_CONNECTIONS</span></code> overrides the value of copy connections set via <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_CONNECTIONS</span></code>, if both were set.</p>
+<p><strong>Possible Values</strong>: <code class="docutils literal notranslate"><span class="pre">1</span></code> to <code class="docutils literal notranslate"><span class="pre">32</span></code> connections, default is <code class="docutils literal notranslate"><span class="pre">8</span></code> (assumes no MPS)</p>
+<p><strong>Example</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_DEVICE_MAX_COPY_CONNECTIONS</span><span class="o">=</span><span class="m">16</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="cuda-scale-launch-queues">
+<h3><span class="section-number">5.2.3.4. </span><code class="docutils literal notranslate"><span class="pre">CUDA_SCALE_LAUNCH_QUEUES</span></code><a class="headerlink" href="environment-variables.html#cuda-scale-launch-queues" title="Link to this heading">#</a></h3>
+<p>The environment variable specifies the scaling factor for the size of the queues available for launching work (command buffer), namely the total number of pending kernels or host/device copy operations that can be enqueued on a device.</p>
+<p><strong>Possible Values</strong>: <code class="docutils literal notranslate"><span class="pre">0.25x</span></code>, <code class="docutils literal notranslate"><span class="pre">0.5x</span></code>, <code class="docutils literal notranslate"><span class="pre">2x</span></code>, <code class="docutils literal notranslate"><span class="pre">4x</span></code></p>
+<ul class="simple">
+<li><p>Any value other than <code class="docutils literal notranslate"><span class="pre">0.25x</span></code>, <code class="docutils literal notranslate"><span class="pre">0.5x</span></code>, <code class="docutils literal notranslate"><span class="pre">2x</span></code> or <code class="docutils literal notranslate"><span class="pre">4x</span></code> is interpreted as <code class="docutils literal notranslate"><span class="pre">1x</span></code>.</p></li>
+</ul>
+<p><strong>Example</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_SCALE_LAUNCH_QUEUES</span><span class="o">=</span>2x
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="cuda-graphs-use-node-priority">
+<h3><span class="section-number">5.2.3.5. </span><code class="docutils literal notranslate"><span class="pre">CUDA_GRAPHS_USE_NODE_PRIORITY</span></code><a class="headerlink" href="environment-variables.html#cuda-graphs-use-node-priority" title="Link to this heading">#</a></h3>
+<p>The environment variable controls the CUDA graph’s execution priority relative to the stream priority it inherits from the stream in which it is launched.</p>
+<p><code class="docutils literal notranslate"><span class="pre">CUDA_GRAPHS_USE_NODE_PRIORITY</span></code> overrides the <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH_1gd4d586536547040944c05249ee26bc62">cudaGraphInstantiateFlagUseNodePriority</a> flag on graph instantiation.</p>
+<p><strong>Possible Values</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: Inherit the priority of the stream the graph is launched into (default).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>: Honor per-node launch priorities. The CUDA runtime treats node-level priorities as a scheduling hint for ready-to-run graph nodes.</p></li>
+</ul>
+<p><strong>Example</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_GRAPHS_USE_NODE_PRIORITY</span><span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="cuda-device-waits-on-exception">
+<h3><span class="section-number">5.2.3.6. </span><code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_WAITS_ON_EXCEPTION</span></code><a class="headerlink" href="environment-variables.html#cuda-device-waits-on-exception" title="Link to this heading">#</a></h3>
+<p>The environment variable controls the behavior of a CUDA application when an exception (error) occurs.</p>
+<p>When enabled, a CUDA application will halt and wait when a device-side exception occurs, allowing a debugger, such as  <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-gdb/index.html">cuda-gdb</a>, to be attached to inspect the live GPU state before the process exits or continues.</p>
+<p><strong>Possible Values</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: Default behavior.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>: Halt when a device exception occurs.</p></li>
+</ul>
+<p><strong>Example</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_DEVICE_WAITS_ON_EXCEPTION</span><span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="cuda-device-default-persisting-l2-cache-percentage-limit">
+<h3><span class="section-number">5.2.3.7. </span><code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_DEFAULT_PERSISTING_L2_CACHE_PERCENTAGE_LIMIT</span></code><a class="headerlink" href="environment-variables.html#cuda-device-default-persisting-l2-cache-percentage-limit" title="Link to this heading">#</a></h3>
+<p>The environment variable controls the default “set-aside” portion of the GPU’s L2 cache reserved for <a class="reference internal" href="../04-special-topics/l2-cache-control.html#l2-set-aside"><span class="std std-ref">persisting accesses</span></a>, expressed as a percentage of the L2 size.</p>
+<p>It is relevant for GPUs that support persistent L2 cache, specifically devices with <a class="reference internal" href="compute-capabilities.html#compute-capabilities"><span class="std std-ref">compute capability</span></a> 8.0 or higher when using the <a class="reference external" href="https://docs.nvidia.com/deploy/mps/index.html">CUDA Multi-Process Service (MPS)</a>. The environment variable must be set before starting the CUDA MPS Control Daemon, namely before running the <code class="docutils literal notranslate"><span class="pre">nvidia-cuda-mps-control</span> <span class="pre">-d</span></code> command.</p>
+<p><strong>Possible Values</strong>: Percentage value between 0 and 100, default is 0.</p>
+<p><strong>Example</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_DEVICE_DEFAULT_PERSISTING_L2_CACHE_PERCENTAGE_LIMIT</span><span class="o">=</span><span class="m">25</span><span class="w"> </span><span class="c1"># 25%</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="cuda-disable-perf-boost">
+<h3><span class="section-number">5.2.3.8. </span><code class="docutils literal notranslate"><span class="pre">CUDA_DISABLE_PERF_BOOST</span></code><a class="headerlink" href="environment-variables.html#cuda-disable-perf-boost" title="Link to this heading">#</a></h3>
+<p>On Linux hosts, setting this environment variable to 1 prevents boosting the device performance state, instead pstate can be selected implicitly based on various heuristics.  This option can potentially be used to reduce power consumption, but may result in higher latency in certain scenarios due to dynamic performance state selection.</p>
+<p><strong>Example</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_DISABLE_PERF_BOOST</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># perf boost disabled, Linux only.</span>
+<span class="nv">CUDA_DISABLE_PERF_BOOST</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="c1"># default behavior</span>
+</pre></div>
+</div>
+</section>
+<section id="cuda-auto-boost-deprecated">
+<h3><span class="section-number">5.2.3.9. </span><code class="docutils literal notranslate"><span class="pre">CUDA_AUTO_BOOST</span></code> [[deprecated]]<a class="headerlink" href="environment-variables.html#cuda-auto-boost-deprecated" title="Link to this heading">#</a></h3>
+<p>The environment variable affects the GPU clock “auto boost” behavior, namely dynamic clock boosting.
+It overrides the “auto boost” option of the <code class="docutils literal notranslate"><span class="pre">nvidia-smi</span></code> tool, namely <code class="docutils literal notranslate"><span class="pre">nvidia-smi</span> <span class="pre">--auto-boost-default=0</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This environment variable is deprecated. It is strongly suggested to use <code class="docutils literal notranslate"><span class="pre">nvidia-smi</span> <span class="pre">--applications-clocks=&lt;memory,graphics&gt;</span></code> or the <a class="reference external" href="https://docs.nvidia.com/deploy/nvml-api/group__nvmlDeviceCommands.html#group__nvmlDeviceCommands">NVML API</a> instead of the <code class="docutils literal notranslate"><span class="pre">CUDA_AUTO_BOOST</span></code> environment variable.</p>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="module-loading">
+<h2><span class="section-number">5.2.4. </span>Module Loading<a class="headerlink" href="environment-variables.html#module-loading" title="Link to this heading">#</a></h2>
+<section id="cuda-module-loading">
+<h3><span class="section-number">5.2.4.1. </span><code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_LOADING</span></code><a class="headerlink" href="environment-variables.html#cuda-module-loading" title="Link to this heading">#</a></h3>
+<p>The environment variable affects how the CUDA runtime loads modules, specifically how it initializes the device code.</p>
+<p><strong>Possible Values</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">DEFAULT</span></code>: Default behavior, equivalent to <code class="docutils literal notranslate"><span class="pre">LAZY</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LAZY</span></code>: The loading of specific kernels is delayed until a CUDA function handle, <code class="docutils literal notranslate"><span class="pre">CUfunc</span></code>,  is extracted using the <code class="docutils literal notranslate"><span class="pre">cuModuleGetFunction()</span></code> or <code class="docutils literal notranslate"><span class="pre">cuKernelGetFunction()</span></code> API calls. In this case, the data from the CUBIN is loaded when the first kernel in the CUBIN is loaded or when the first variable in the CUBIN is accessed.</p>
+<ul>
+<li><p>The driver loads the required code on the first call to a kernel; subsequent calls incur no extra overhead. This reduces startup time and GPU memory footprint.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">EAGER</span></code>: Fully loads CUDA modules and kernels at program initialization. All kernels and data from a CUBIN, FATBIN, or PTX file are fully loaded upon the corresponding <code class="docutils literal notranslate"><span class="pre">cuModuleLoad*</span></code> and <code class="docutils literal notranslate"><span class="pre">cuLibraryLoad*</span></code> driver API call.</p>
+<ul>
+<li><p>Higher startup time and GPU memory footprint. Kernel launch overhead is predictable.</p></li>
+</ul>
+</li>
+</ul>
+<p><strong>Examples</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_MODULE_LOADING</span><span class="o">=</span>EAGER
+<span class="nv">CUDA_MODULE_LOADING</span><span class="o">=</span>LAZY
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="cuda-module-data-loading">
+<h3><span class="section-number">5.2.4.2. </span><code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_DATA_LOADING</span></code><a class="headerlink" href="environment-variables.html#cuda-module-data-loading" title="Link to this heading">#</a></h3>
+<p>The environment variable affects how the CUDA runtime loads data associated to modules.</p>
+<p>This is a complementary setting to the kernel-focused setting in <code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_LOADING</span></code>. This environment variable does not affect the <code class="docutils literal notranslate"><span class="pre">LAZY</span></code> or <code class="docutils literal notranslate"><span class="pre">EAGER</span></code> loading of kernels.
+Data loading behavior is inherited from <code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_LOADING</span></code> if this environment variable is not set.</p>
+<p><strong>Possible Values</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">DEFAULT</span></code>: Default behavior, equivalent to <code class="docutils literal notranslate"><span class="pre">LAZY</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LAZY</span></code>: The loading of module data is delayed until a CUDA function handle, <code class="docutils literal notranslate"><span class="pre">CUfunc</span></code>, is required. In this case, the data from the CUBIN is loaded when the first kernel in the CUBIN is loaded or when the first variable in the CUBIN is accessed.</p>
+<ul>
+<li><p>Lazy data loads can require context synchronization, which can slow down concurrent execution.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">EAGER</span></code>: All data from a CUBIN, FATBIN, or PTX file are fully loaded upon the corresponding <code class="docutils literal notranslate"><span class="pre">cuModuleLoad*</span></code> and <code class="docutils literal notranslate"><span class="pre">cuLibraryLoad*</span></code> API call.</p></li>
+</ul>
+<p><strong>Example</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_MODULE_DATA_LOADING</span><span class="o">=</span>EAGER
+</pre></div>
+</div>
+</section>
+<section id="cuda-binary-loader-thread-count">
+<h3><span class="section-number">5.2.4.3. </span><code class="docutils literal notranslate"><span class="pre">CUDA_BINARY_LOADER_THREAD_COUNT</span></code><a class="headerlink" href="environment-variables.html#cuda-binary-loader-thread-count" title="Link to this heading">#</a></h3>
+<p>Sets the number of CPU threads to use when loading device binaries. When set to 0, the number of CPU threads used is set to a default value of 1.</p>
+<p><strong>Possible Values</strong>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Integer number of threads to use. Defaults to 0, which uses 1 thread.</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Example</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_BINARY_LOADER_THREAD_COUNT</span><span class="o">=</span><span class="m">4</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="cuda-error-log-management">
+<h2><span class="section-number">5.2.5. </span>CUDA Error Log Management<a class="headerlink" href="environment-variables.html#cuda-error-log-management" title="Link to this heading">#</a></h2>
+<section id="cuda-log-file">
+<span id="env-vars-cuda-log-file"></span><h3><span class="section-number">5.2.5.1. </span><code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code><a class="headerlink" href="environment-variables.html#cuda-log-file" title="Link to this heading">#</a></h3>
+<p>The environment variable specifies a location where descriptive error log messages will be printed as they occur
+for supported CUDA API calls that returned an error.</p>
+<p>For example, if one attempts to launch a kernel with an invalid grid configuration, such as <code class="docutils literal notranslate"><span class="pre">kernel&lt;&lt;&lt;1,</span> <span class="pre">dim3(1,1,128)&gt;&gt;&gt;(...)</span></code>, that kernel will fail to launch and <code class="docutils literal notranslate"><span class="pre">cudaGetLastError()</span></code> will return a generic <code class="docutils literal notranslate"><span class="pre">invalid</span> <span class="pre">configuration</span> <span class="pre">argument</span></code> error. <br />
+If the <code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code> environment variable is set, the user can see the following descriptive error message in the log: <code class="docutils literal notranslate"><span class="pre">[CUDA][E]</span> <span class="pre">Block</span> <span class="pre">Dimensions</span> <span class="pre">(1,1,128)</span> <span class="pre">include</span> <span class="pre">one</span> <span class="pre">or</span> <span class="pre">more</span> <span class="pre">values</span> <span class="pre">that</span> <span class="pre">exceed</span> <span class="pre">the</span> <span class="pre">device</span> <span class="pre">limit</span> <span class="pre">of</span> <span class="pre">(1024,1024,64)</span></code> and easily determine that the specified z-dimension of the block was invalid. See <a class="reference internal" href="../04-special-topics/error-log-management.html#error-log-management"><span class="std std-ref">Error Log Management</span></a> for more details.</p>
+<p><strong>Possible Values</strong>: <code class="docutils literal notranslate"><span class="pre">stdout</span></code>, <code class="docutils literal notranslate"><span class="pre">stderr</span></code>, or a valid file path (with appropriate access permissions)</p>
+<p><strong>Examples</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_LOG_FILE</span><span class="o">=</span>stdout
+<span class="nv">CUDA_LOG_FILE</span><span class="o">=</span>/tmp/dbg_cuda_log
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="compute-capabilities.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><span class="section-number">5.1. </span>Compute Capabilities</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="cpp-language-support.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><span class="section-number">5.3. </span>C++ Language Support</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+
+
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#device-enumeration-and-properties">5.2.1. Device Enumeration and Properties</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-visible-devices">5.2.1.1. <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-device-order">5.2.1.2. <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_ORDER</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-managed-force-device-alloc">5.2.1.3. <code class="docutils literal notranslate"><span class="pre">CUDA_MANAGED_FORCE_DEVICE_ALLOC</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#jit-compilation">5.2.2. JIT Compilation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-cache-disable">5.2.2.1. <code class="docutils literal notranslate"><span class="pre">CUDA_CACHE_DISABLE</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-cache-path">5.2.2.2. <code class="docutils literal notranslate"><span class="pre">CUDA_CACHE_PATH</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-cache-maxsize">5.2.2.3. <code class="docutils literal notranslate"><span class="pre">CUDA_CACHE_MAXSIZE</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-force-ptx-jit-and-cuda-force-jit">5.2.2.4. <code class="docutils literal notranslate"><span class="pre">CUDA_FORCE_PTX_JIT</span></code> and <code class="docutils literal notranslate"><span class="pre">CUDA_FORCE_JIT</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-disable-ptx-jit-and-cuda-disable-jit">5.2.2.5. <code class="docutils literal notranslate"><span class="pre">CUDA_DISABLE_PTX_JIT</span></code> and <code class="docutils literal notranslate"><span class="pre">CUDA_DISABLE_JIT</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-force-preload-libraries">5.2.2.6. <code class="docutils literal notranslate"><span class="pre">CUDA_FORCE_PRELOAD_LIBRARIES</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#execution">5.2.3. Execution</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-launch-blocking">5.2.3.1. <code class="docutils literal notranslate"><span class="pre">CUDA_LAUNCH_BLOCKING</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-device-max-connections">5.2.3.2. <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_CONNECTIONS</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-device-max-copy-connections">5.2.3.3. <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_COPY_CONNECTIONS</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-scale-launch-queues">5.2.3.4. <code class="docutils literal notranslate"><span class="pre">CUDA_SCALE_LAUNCH_QUEUES</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-graphs-use-node-priority">5.2.3.5. <code class="docutils literal notranslate"><span class="pre">CUDA_GRAPHS_USE_NODE_PRIORITY</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-device-waits-on-exception">5.2.3.6. <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_WAITS_ON_EXCEPTION</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-device-default-persisting-l2-cache-percentage-limit">5.2.3.7. <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_DEFAULT_PERSISTING_L2_CACHE_PERCENTAGE_LIMIT</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-disable-perf-boost">5.2.3.8. <code class="docutils literal notranslate"><span class="pre">CUDA_DISABLE_PERF_BOOST</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-auto-boost-deprecated">5.2.3.9. <code class="docutils literal notranslate"><span class="pre">CUDA_AUTO_BOOST</span></code> [[deprecated]]</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#module-loading">5.2.4. Module Loading</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-module-loading">5.2.4.1. <code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_LOADING</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-module-data-loading">5.2.4.2. <code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_DATA_LOADING</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-binary-loader-thread-count">5.2.4.3. <code class="docutils literal notranslate"><span class="pre">CUDA_BINARY_LOADER_THREAD_COUNT</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-error-log-management">5.2.5. CUDA Error Log Management</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-log-file">5.2.5.1. <code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js"></script>
+
+
+<script type="text/javascript">if (typeof _satellite !== "undefined") {_satellite.pageBottom();}</script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+<a class="footer-brand logo" href="https://www.nvidia.com">
+  <img src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
+  <img src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+</a></div>
+      
+        <div class="footer-item">
+
+<div class="footer-links">
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/accessibility/">Accessibility</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
+  
+  
+  
+</div>
+</div>
+      
+        <div class="footer-item">
+
+
+
+
+  <p class="copyright">
+    
+      Copyright © 2007-2026, NVIDIA Corporation &amp; affiliates. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item"><p class="last-updated">
+  Last updated on Mar 04, 2026.
+  <br/>
+</p></div>
+      
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+  </body>
+</html>

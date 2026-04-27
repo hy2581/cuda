@@ -1,0 +1,1381 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>2.1. CUDA C++ 入门 &#8212; CUDA 编程指南</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tables.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js" />
+
+
+<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript"
+  data-document-language="true" charset="UTF-8" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5">
+</script>
+<script type="text/javascript">
+  function OptanonWrapper() {
+    var event = new Event('bannerLoaded');
+    window.dispatchEvent(event);
+  }
+</script>
+<script src="https://images.nvidia.com/aem-dam/Solutions/ot-js/ot-custom.js" type="text/javascript">
+</script>
+
+
+    <script rel="preload" src="../_static/modal-table.js"></script>
+    <script src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scrollspy-patch.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '02-basics/intro-to-cuda-cpp';</script>
+    <script src="../_static/version-patch.js"></script>
+
+<script type="text/javascript" src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
+
+    <link rel="icon" href="../_static/favicon.ico"/>
+
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="2.2. 编写 CUDA SIMT 内核" href="writing-cuda-kernels.html" />
+    <link rel="prev" title="2. Programming GPUs in CUDA" href="../part2.html" />
+
+<link rel="preload" as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png">
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+    <meta name="docbuild:last-update" content="Mar 04, 2026"/>
+
+
+  </head>
+
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="intro-to-cuda-cpp.html#main-content">Skip to main content</a></div>
+
+<img src="https://www.nvidia.com/content/dam/1x1-00000000.png" width="1" height="1" style="display:none;" alt="country_code">
+
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../contents.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
+    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
+  
+  
+    <p class="title logo__title">CUDA Programming Guide</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+
+<div>
+  <ul class="bd-navbar-elements navbar-nav">
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>v13.2 |</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>|</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
+      
+    </li>
+  
+  </ul>
+</div>
+</div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../contents.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
+    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
+  
+  
+    <p class="title logo__title">CUDA Programming Guide</p>
+  
+</a>
+
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+
+<div>
+  <ul class="bd-navbar-elements navbar-nav">
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>v13.2 |</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>|</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
+      
+    </li>
+  
+  </ul>
+</div>
+</div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Table of Contents">
+  <p class="bd-links__title" role="heading" aria-level="1">目录</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA Programming Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. Introduction to CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/introduction.html">1.1. Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/programming-model.html">1.2. Programming Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/cuda-platform.html">1.3. The CUDA platform</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../part2.html">2. Programming GPUs in CUDA</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="intro-to-cuda-cpp.html#">2.1. CUDA C++ 入门</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writing-cuda-kernels.html">2.2. 编写 CUDA SIMT 内核</a></li>
+<li class="toctree-l3"><a class="reference internal" href="asynchronous-execution.html">2.3. 异步执行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-memory.html">2.4. 统一内存与系统内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nvcc.html">2.5. NVCC：NVIDIA CUDA 编译器</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. Advanced CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. Advanced CUDA APIs and Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. Advanced Kernel Programming</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. The CUDA Driver API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. Programming Systems with Multiple GPUs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. A Tour of CUDA Features</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part4.html">4. CUDA Features</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/unified-memory.html">4.1. Unified Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cuda-graphs.html">4.2. CUDA Graphs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/stream-ordered-memory-allocation.html">4.3. Stream-Ordered Memory Allocator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cooperative-groups.html">4.4. Cooperative Groups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/programmatic-dependent-launch.html">4.5. Programmatic Dependent Launch and Synchronization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/green-contexts.html">4.6. Green Contexts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/lazy-loading.html">4.7. Lazy Loading</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/error-log-management.html">4.8. Error Log Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/async-barriers.html">4.9. Asynchronous Barriers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/pipelines.html">4.10. Pipelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/async-copies.html">4.11. Asynchronous Data Copies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cluster-launch-control.html">4.12. Work Stealing with Cluster Launch Control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/l2-cache-control.html">4.13. L2 Cache Control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/memory-sync-domains.html">4.14. Memory Synchronization Domains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/inter-process-communication.html">4.15. Interprocess Communication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/virtual-memory-management.html">4.16. Virtual Memory Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/extended-gpu-memory.html">4.17. Extended GPU Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/dynamic-parallelism.html">4.18. CUDA Dynamic Parallelism</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/graphics-interop.html">4.19. CUDA Interoperability with APIs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/driver-entry-point-access.html">4.20. Driver Entry Point Access</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part5.html">5. Technical Appendices</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/compute-capabilities.html">5.1. Compute Capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/environment-variables.html">5.2. CUDA Environment Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-support.html">5.3. C++ Language Support</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-extensions.html">5.4. C/C++ Language Extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/mathematical-functions.html">5.5. Floating-Point Computation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/device-callable-apis.html">5.6. Device-Callable APIs and Intrinsics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-memory-model.html">5.7. CUDA C++ Memory Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-execution-model.html">5.8. CUDA C++ Execution model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. Notices</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../contents.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">CUDA Programming Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../part2.html" class="nav-link"><span class="section-number">2. </span>Programming GPUs in CUDA</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">2.1. </span>Intro to CUDA C++</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+<div class="header-article-item">
+  <div class="d-flex justify-content-end w-100">
+    <a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">Is this page helpful?</a>
+  </div>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="intro-to-cuda-c">
+<span id="intro-applications-cpp"></span><h1><span class="section-number">2.1. </span>CUDA C++ 入门<a class="headerlink" href="intro-to-cuda-cpp.html#intro-to-cuda-c" title="跳转到此标题">#</a></h1>
+<p>本章通过 C++ 示例介绍 CUDA 编程模型中的一些基础概念。</p>
+<p>本编程指南聚焦 CUDA Runtime API。它是 C++ 中最常用的 CUDA 使用方式，并构建在更底层的 CUDA Driver API 之上。</p>
+<p><a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-driver-and-runtime"><span class="std std-ref">CUDA Runtime API and CUDA Driver API</span></a> discusses the difference between the APIs and <a class="reference internal" href="../03-advanced/driver-api.html#driver-api"><span class="std std-ref">CUDA driver API</span></a> discusses writing code that mixes the APIs.</p>
+<p>This guide assumes the CUDA Toolkit and NVIDIA Driver are installed and that a supported NVIDIA GPU is present. See <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-quick-start-guide/index.html">The CUDA Quickstart Guide</a> for instructions on installing the necessary CUDA components.</p>
+<section id="compilation-with-nvcc">
+<span id="id1"></span><h2><span class="section-number">2.1.1. </span>使用 NVCC 编译<a class="headerlink" href="intro-to-cuda-cpp.html#compilation-with-nvcc" title="跳转到此标题">#</a></h2>
+<p>使用 C++ 编写的 GPU 代码通过 NVIDIA CUDA 编译器 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 进行编译。 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> is a compiler driver that simplifies the process of compiling C++ or PTX code: It provides simple and familiar command line options and executes them by invoking the collection of tools that implement the different compilation stages.</p>
+<p>This guide will show <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> command lines which can be used on any Linux system with the CUDA Toolkit installed, at a Windows command line or power shell, or on Windows Subsystem for Linux with the CUDA Toolkit.  The <a class="reference internal" href="nvcc.html#nvcc"><span class="std std-ref">nvcc chapter</span></a> of this guide covers common use cases of <code class="docutils literal notranslate"><span class="pre">nvcc</span></code>, and complete documentation is provided by <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html">the nvcc user manual</a>.</p>
+</section>
+<section id="kernels">
+<span id="id2"></span><h2><span class="section-number">2.1.2. </span>内核（Kernel）<a class="headerlink" href="intro-to-cuda-cpp.html#kernels" title="跳转到此标题">#</a></h2>
+<p>正如 <a class="reference internal" href="../01-introduction/programming-model.html#programming-model"><span class="std std-ref">CUDA 编程模型</span></a> 一章所述，可由主机端调用并在 GPU 上执行的函数称为内核（kernel）。 Kernels are written to be run by many parallel threads simultaneously.</p>
+<section id="specifying-kernels">
+<span id="intro-cpp-specifying-kernels"></span><h3><span class="section-number">2.1.2.1. </span>定义内核<a class="headerlink" href="intro-to-cuda-cpp.html#specifying-kernels" title="跳转到此标题">#</a></h3>
+<p>The code for a kernel is specified using the <code class="docutils literal notranslate"><span class="pre">__global__</span></code> declaration specifier. This indicates to the compiler that this function will be compiled for the GPU in a way that allows it to be invoked from a kernel launch. A kernel launch is an operation which starts a kernel running, usually from the CPU. Kernels are functions with a <code class="docutils literal notranslate"><span class="pre">void</span></code> return type.</p>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// Kernel definition</span>
+<span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">vecAdd</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">C</span><span class="p">)</span>
+<span class="p">{</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="launching-kernels">
+<span id="intro-cpp-launching-kernels"></span><h3><span class="section-number">2.1.2.2. </span>启动内核<a class="headerlink" href="intro-to-cuda-cpp.html#launching-kernels" title="跳转到此标题">#</a></h3>
+<p>内核并行执行的线程数量在内核启动时进行指定，这称为执行配置（execution configuration）。 Different invocations of the same kernel may use different execution configurations, such as a different number of threads or thread blocks.</p>
+<p>There are two ways of launching kernels from CPU code, <a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-launching-kernels-triple-chevron"><span class="std std-ref">triple chevron notation</span></a> and <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code>. Triple chevron notation, the most common way of launching kernels, is introduced here. An example of launching a kernel using <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code> is shown and discussed in detail in in section <a class="reference internal" href="../03-advanced/advanced-host-programming.html#advanced-host-cudalaunchkernelex"><span class="std std-numref">Section 3.1.1</span></a>.</p>
+<section id="triple-chevron-notation">
+<span id="intro-cpp-launching-kernels-triple-chevron"></span><h4><span class="section-number">2.1.2.2.1. </span>三尖括号语法<a class="headerlink" href="intro-to-cuda-cpp.html#triple-chevron-notation" title="跳转到此标题">#</a></h4>
+<p>Triple chevron notation is a <a class="reference internal" href="../05-appendices/cpp-language-extensions.html#execution-configuration"><span class="std std-ref">CUDA C++ Language Extension</span></a> which is used to launch kernels. It is called triple chevron because it uses three chevron characters to encapsulate the execution configuration for the kernel launch, i.e. <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;</span> <span class="pre">&gt;&gt;&gt;</span></code>. Execution configuration parameters are specified as a comma separated list inside the chevrons, similar to parameters to a function call. The syntax for a kernel launch of the <code class="docutils literal notranslate"><span class="pre">vecAdd</span></code> kernel is shown below.</p>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="w"> </span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">vecAdd</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">C</span><span class="p">)</span>
+<span class="w"> </span><span class="p">{</span>
+
+<span class="w"> </span><span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="w">    </span><span class="c1">// Kernel invocation</span>
+<span class="w">    </span><span class="n">vecAdd</span><span class="o">&lt;&lt;&lt;</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">256</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">C</span><span class="p">);</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The first two parameters to the triple chevron notation are the grid dimensions and the thread block dimensions, respectively. When using 1-dimensional thread blocks or grids, integers can be used to specify dimensions.</p>
+<p>The above code launches a single thread block containing 256 threads. Each thread will execute the exact same kernel code. In <a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-thread-indexing"><span class="std std-ref">Thread and Grid Index Intrinsics</span></a>, we’ll show how each thread can use its index within the thread block and grid to change the data it operates on.</p>
+<p>There is a limit to the number of threads per block, since all threads of a block reside on the same streaming multiprocessor(SM) and must share the resources of the SM. On current GPUs, a thread block may contain up to 1024 threads. If resources allow, more than one thread block can be scheduled on an SM simultaneously.</p>
+<p>Kernel launches are asynchronous with respect to the host thread. That is, the kernel will be setup for execution on the GPU, but the host code will not wait for the kernel to complete (or even start) executing on the GPU before proceeding. Some form of synchronization between the GPU and CPU must be used to determine that the kernel has completed. The most basic version, completely synchronizing the entire GPU, is shown in <a class="reference internal" href="intro-to-cuda-cpp.html#intro-synchronizing-the-gpu"><span class="std std-ref">Synchronizing CPU and GPU</span></a>. More sophisticated methods of synchronization are covered in <a class="reference internal" href="asynchronous-execution.html#asynchronous-execution"><span class="std std-ref">Asynchronous Execution</span></a>.</p>
+<p>When using 2 or 3-dimensional grids or thread blocks, the CUDA type <code class="docutils literal notranslate"><span class="pre">dim3</span></code> is used as the grid and thread block dimension parameters. The code fragment below shows a kernel launch of a <code class="docutils literal notranslate"><span class="pre">MatAdd</span></code> kernel using 16 by 16 grid of thread blocks, each thread block is 8 by 8.</p>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="w">    </span><span class="kt">dim3</span><span class="w"> </span><span class="n">grid</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="mi">16</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">dim3</span><span class="w"> </span><span class="n">block</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">);</span>
+<span class="w">    </span><span class="n">MatAdd</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">C</span><span class="p">);</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="thread-and-grid-index-intrinsics">
+<span id="intro-cpp-thread-indexing"></span><h3><span class="section-number">2.1.2.3. </span>线程与网格索引内建变量<a class="headerlink" href="intro-to-cuda-cpp.html#thread-and-grid-index-intrinsics" title="跳转到此标题">#</a></h3>
+<p>在内核代码中，CUDA 提供了一组内建变量，可访问执行配置参数以及线程/线程块索引。</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">threadIdx</span></code> gives the index of a thread within its thread block. Each thread in a thread block will have a different index.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">blockDim</span></code> gives the dimensions of the thread block, which was specified in the execution configuration of the kernel launch.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">blockIdx</span></code> gives the index of a thread block within the grid. Each thread block will have a different index.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gridDim</span></code> gives the dimensions of the grid, which was specified in the execution configuration when the kernel was launched.</p></li>
+</ul>
+</div></blockquote>
+<p>Each of these intrinsics is a 3-component vector with a <code class="docutils literal notranslate"><span class="pre">.x</span></code>, <code class="docutils literal notranslate"><span class="pre">.y</span></code>, and <code class="docutils literal notranslate"><span class="pre">.z</span></code> member. Dimensions not specified by a launch configuration will default to 1.
+<code class="docutils literal notranslate"><span class="pre">threadIdx</span></code> and <code class="docutils literal notranslate"><span class="pre">blockIdx</span></code> are zero indexed. That is, <code class="docutils literal notranslate"><span class="pre">threadIdx.x</span></code> will take on values from 0 up to and including <code class="docutils literal notranslate"><span class="pre">blockDim.x-1</span></code>. <code class="docutils literal notranslate"><span class="pre">.y</span></code> and <code class="docutils literal notranslate"><span class="pre">.z</span></code> operate the same in their respective dimensions.</p>
+<p>Similarly, <code class="docutils literal notranslate"><span class="pre">blockIdx.x</span></code> will have values from 0 up to and including <code class="docutils literal notranslate"><span class="pre">gridDim.x-1</span></code>, and the same for <code class="docutils literal notranslate"><span class="pre">.y</span></code> and <code class="docutils literal notranslate"><span class="pre">.z</span></code> dimensions, respectively.</p>
+<p>These allow an individual thread to identify what work it should carry out. Returning to the <code class="docutils literal notranslate"><span class="pre">vecAdd</span></code> kernel, the kernel takes three parameters, each is a vector of floats. The kernel performs an element-wise addition of <code class="docutils literal notranslate"><span class="pre">A</span></code> and <code class="docutils literal notranslate"><span class="pre">B</span></code> and stores the result in <code class="docutils literal notranslate"><span class="pre">C</span></code>. The kernel is parallelized such that each thread will perform one addition. Which element it computes is determined by its thread and grid index.</p>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">vecAdd</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">C</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">   </span><span class="c1">// calculate which element this thread is responsible for computing</span>
+<span class="w">   </span><span class="kt">int</span><span class="w"> </span><span class="n">workIndex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">blockDim</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">blockIdx</span><span class="p">.</span><span class="n">x</span>
+
+<span class="w">   </span><span class="c1">// Perform computation</span>
+<span class="w">   </span><span class="n">C</span><span class="p">[</span><span class="n">workIndex</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">A</span><span class="p">[</span><span class="n">workIndex</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">B</span><span class="p">[</span><span class="n">workIndex</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="w">    </span><span class="c1">// A, B, and C are vectors of 1024 elements</span>
+<span class="w">    </span><span class="n">vecAdd</span><span class="o">&lt;&lt;&lt;</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">256</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">C</span><span class="p">);</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In this example, 4 thread blocks of 256 threads are used to add a vector of 1024 elements. In the first thread block, <code class="docutils literal notranslate"><span class="pre">blockIdx.x</span></code> will be zero, and so each thread’s workIndex will simply be its <code class="docutils literal notranslate"><span class="pre">threadIdx.x</span></code>. In the second thread block, <code class="docutils literal notranslate"><span class="pre">blockIdx.x</span></code> will be 1, so <code class="docutils literal notranslate"><span class="pre">blockDim.x</span> <span class="pre">*</span> <span class="pre">blockIdx.x</span></code> will be the same as <code class="docutils literal notranslate"><span class="pre">blockDim.x</span></code>, which is 256 in this case. The <code class="docutils literal notranslate"><span class="pre">workIndex</span></code> for each thread in the second thread block will be its <code class="docutils literal notranslate"><span class="pre">threadIdx.x</span> <span class="pre">+</span> <span class="pre">256</span></code>. In the third thread block <code class="docutils literal notranslate"><span class="pre">workIndex</span></code> will be <code class="docutils literal notranslate"><span class="pre">threadIdx.x</span> <span class="pre">+</span> <span class="pre">512</span></code>.</p>
+<p>This computation of <code class="docutils literal notranslate"><span class="pre">workIndex</span></code> is very common for 1-dimensional parallelizations. Expanding to two or three dimensions often follows the same pattern in each of those dimensions.</p>
+<section id="bounds-checking">
+<span id="intro-cpp-bounds-checking"></span><h4><span class="section-number">2.1.2.3.1. </span>Bounds Checking<a class="headerlink" href="intro-to-cuda-cpp.html#bounds-checking" title="Link to this heading">#</a></h4>
+<p>The example given above assumes that the length of the vector is a multiple of the thread block size, 256 threads in this case. To make the kernel handle any vector length, we can add checks that the memory access is not exceeding the bounds of the arrays as shown below, and then launch one thread block which will have some inactive threads.</p>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">vecAdd</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">     </span><span class="c1">// calculate which element this thread is responsible for computing</span>
+<span class="w">     </span><span class="kt">int</span><span class="w"> </span><span class="n">workIndex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">blockDim</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">blockIdx</span><span class="p">.</span><span class="n">x</span>
+
+<span class="w">     </span><span class="k">if</span><span class="p">(</span><span class="n">workIndex</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">)</span>
+<span class="w">     </span><span class="p">{</span>
+<span class="w">         </span><span class="c1">// Perform computation</span>
+<span class="w">         </span><span class="n">C</span><span class="p">[</span><span class="n">workIndex</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">A</span><span class="p">[</span><span class="n">workIndex</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">B</span><span class="p">[</span><span class="n">workIndex</span><span class="p">];</span>
+<span class="w">     </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>With the above kernel code, more threads than needed can be launched without causing out-of-bounds accesses to the arrays. When <code class="docutils literal notranslate"><span class="pre">workIndex</span></code> exceeds <code class="docutils literal notranslate"><span class="pre">vectorLength</span></code>, threads exit and do not do any work. Launching extra threads in a block that do no work does not incur a large overhead cost, however launching thread blocks in which no threads do work should be avoided. This kernel can now handle vector lengths which are not a multiple of the block size.</p>
+<p>The number of thread blocks which are needed can be calculated as the ceiling of the number of threads needed, the vector length in this case, divided by the number of threads per block. That is, the integer division of the number of threads needed by the number of threads per block, rounded up. A common way of expressing this as a single integer division is given below. By adding <code class="docutils literal notranslate"><span class="pre">threads</span> <span class="pre">-</span> <span class="pre">1</span></code> before the integer division, this behaves like a ceiling function, adding another thread block only if the vector length is not divisible by the number of threads per block.</p>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// vectorLength is an integer storing number of elements in the vector</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">threads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">256</span><span class="p">;</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">blocks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">vectorLength</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">threads</span><span class="mi">-1</span><span class="p">)</span><span class="o">/</span><span class="n">threads</span><span class="p">;</span>
+<span class="n">vecAdd</span><span class="o">&lt;&lt;&lt;</span><span class="n">blocks</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">devA</span><span class="p">,</span><span class="w"> </span><span class="n">devB</span><span class="p">,</span><span class="w"> </span><span class="n">devC</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The <a class="reference external" href="https://nvidia.github.io/cccl/">CUDA Core Compute Library (CCCL)</a> provides a convenient utility, <code class="docutils literal notranslate"><span class="pre">cuda::ceil_div</span></code>, for doing this ceiling divide  to calculate the number of blocks needed for a kernel launch. This utility is available by including the header <code class="docutils literal notranslate"><span class="pre">&lt;cuda/cmath&gt;</span></code>.</p>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// vectorLength is an integer storing number of elements in the vector</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">threads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">256</span><span class="p">;</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">blocks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">ceil_div</span><span class="p">(</span><span class="n">vectorLength</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="p">);</span>
+<span class="n">vecAdd</span><span class="o">&lt;&lt;&lt;</span><span class="n">blocks</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">devA</span><span class="p">,</span><span class="w"> </span><span class="n">devB</span><span class="p">,</span><span class="w"> </span><span class="n">devC</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The choice of 256 threads per block here is arbitrary, but this is quite often a good value to start with.</p>
+</section>
+</section>
+</section>
+<section id="memory-in-gpu-computing">
+<span id="intro-cpp-allocating-memory"></span><h2><span class="section-number">2.1.3. </span>GPU 计算中的内存<a class="headerlink" href="intro-to-cuda-cpp.html#memory-in-gpu-computing" title="跳转到此标题">#</a></h2>
+<p>要使用上文的 <code class="docutils literal notranslate"><span class="pre">vecAdd</span></code> 内核，数组 <code class="docutils literal notranslate"><span class="pre">A</span></code>、<code class="docutils literal notranslate"><span class="pre">B</span></code>、<code class="docutils literal notranslate"><span class="pre">C</span></code> 必须位于 GPU 可访问的内存中。 There are several different ways to do this, two of which will be illustrated here. Other methods will be covered in later sections on <a class="reference internal" href="understanding-memory.html#memory-unified-memory"><span class="std std-ref">unified memory</span></a>. The memory spaces available to code running on the GPU were introduced in <a class="reference internal" href="../01-introduction/programming-model.html#programming-model-memory"><span class="std std-ref">GPU Memory</span></a> and are covered in more detail in <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-gpu-device-memory-spaces"><span class="std std-ref">GPU Device Memory Spaces</span></a>.</p>
+<section id="unified-memory">
+<span id="intro-cpp-unified-memory"></span><h3><span class="section-number">2.1.3.1. </span>统一内存<a class="headerlink" href="intro-to-cuda-cpp.html#unified-memory" title="跳转到此标题">#</a></h3>
+<p>Unified memory is a feature of the CUDA runtime which lets the NVIDIA Driver manage movement of data between host and device(s). Memory is allocated using the <code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code> API or by declaring a variable with the <code class="docutils literal notranslate"><span class="pre">__managed__</span></code> specifier. The NVIDIA Driver will make sure that the memory is accessible to the GPU or CPU whenever either tries to access it.</p>
+<p>The code below shows a complete function to launch the <code class="docutils literal notranslate"><span class="pre">vecAdd</span></code> kernel which uses unified memory for the input and output vectors that will be used on the GPU. <code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code> allocates buffers which can be accessed from either the CPU or the GPU. These buffers are released using <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code>.</p>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">unifiedMemExample</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// Pointers to memory vectors</span>
+<span class="w">    </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">C</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">comparisonResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+
+<span class="w">    </span><span class="c1">// Use unified memory to allocate buffers</span>
+<span class="w">    </span><span class="n">cudaMallocManaged</span><span class="p">(</span><span class="o">&amp;</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+<span class="w">    </span><span class="n">cudaMallocManaged</span><span class="p">(</span><span class="o">&amp;</span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+<span class="w">    </span><span class="n">cudaMallocManaged</span><span class="p">(</span><span class="o">&amp;</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+
+<span class="w">    </span><span class="c1">// Initialize vectors on the host</span>
+<span class="w">    </span><span class="n">initArray</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">);</span>
+<span class="w">    </span><span class="n">initArray</span><span class="p">(</span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Launch the kernel. Unified memory will make sure A, B, and C are</span>
+<span class="w">    </span><span class="c1">// accessible to the GPU</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">threads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">256</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">blocks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">ceil_div</span><span class="p">(</span><span class="n">vectorLength</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="p">);</span>
+<span class="w">    </span><span class="n">vecAdd</span><span class="o">&lt;&lt;&lt;</span><span class="n">blocks</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// Wait for the kernel to complete execution</span>
+<span class="w">    </span><span class="n">cudaDeviceSynchronize</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// Perform computation serially on CPU for comparison</span>
+<span class="w">    </span><span class="n">serialVecAdd</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">comparisonResult</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Confirm that CPU and GPU got the same answer</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">vectorApproximatelyEqual</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">comparisonResult</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">))</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Unified Memory: CPU and GPU answers match</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Unified Memory: Error - CPU and GPU answers do not match</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Clean Up</span>
+<span class="w">    </span><span class="n">cudaFree</span><span class="p">(</span><span class="n">A</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cudaFree</span><span class="p">(</span><span class="n">B</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cudaFree</span><span class="p">(</span><span class="n">C</span><span class="p">);</span>
+<span class="w">    </span><span class="n">free</span><span class="p">(</span><span class="n">comparisonResult</span><span class="p">);</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Unified memory is supported on all operating systems and GPUs supported by CUDA, though the underlying mechanism and performance may differ based on system architecture. <a class="reference internal" href="understanding-memory.html#memory-unified-memory"><span class="std std-ref">Unified Memory</span></a> provides more details. On some Linux systems, (e.g. those with <a class="reference internal" href="understanding-memory.html#memory-unified-address-translation-services"><span class="std std-ref">address translation services</span></a> or <a class="reference internal" href="understanding-memory.html#memory-heterogeneous-memory-management"><span class="std std-ref">heterogeneous memory management</span></a>) all system memory is automatically unified memory, and there is no need to use <code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code> or the <code class="docutils literal notranslate"><span class="pre">__managed__</span></code> specifier.</p>
+</section>
+<section id="explicit-memory-management">
+<span id="intro-cpp-explicit-memory-management"></span><h3><span class="section-number">2.1.3.2. </span>显式内存管理<a class="headerlink" href="intro-to-cuda-cpp.html#explicit-memory-management" title="跳转到此标题">#</a></h3>
+<p>Explicitly managing memory allocation and data migration between memory spaces can help improve application performance, though it does make for more verbose code. The code below explicitly allocates memory on the GPU using <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code>. Memory on the GPU is freed using the same <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code> API as was used for unified memory in the previous example.</p>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">explicitMemExample</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// Pointers for host memory</span>
+<span class="w">    </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">C</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">comparisonResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Pointers for device memory</span>
+<span class="w">    </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">devA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">devB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">devC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">//Allocate Host Memory using cudaMallocHost API. This is best practice</span>
+<span class="w">    </span><span class="c1">// when buffers will be used for copies between CPU and GPU memory</span>
+<span class="w">    </span><span class="n">cudaMallocHost</span><span class="p">(</span><span class="o">&amp;</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+<span class="w">    </span><span class="n">cudaMallocHost</span><span class="p">(</span><span class="o">&amp;</span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+<span class="w">    </span><span class="n">cudaMallocHost</span><span class="p">(</span><span class="o">&amp;</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+
+<span class="w">    </span><span class="c1">// Initialize vectors on the host</span>
+<span class="w">    </span><span class="n">initArray</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">);</span>
+<span class="w">    </span><span class="n">initArray</span><span class="p">(</span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// start-allocate-and-copy</span>
+<span class="w">    </span><span class="c1">// Allocate memory on the GPU</span>
+<span class="w">    </span><span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">devA</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+<span class="w">    </span><span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">devB</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+<span class="w">    </span><span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">devC</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+
+<span class="w">    </span><span class="c1">// Copy data to the GPU</span>
+<span class="w">    </span><span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">devA</span><span class="p">,</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">),</span><span class="w"> </span><span class="n">cudaMemcpyDefault</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">devB</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">),</span><span class="w"> </span><span class="n">cudaMemcpyDefault</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cudaMemset</span><span class="p">(</span><span class="n">devC</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+<span class="w">    </span><span class="c1">// end-allocate-and-copy</span>
+
+<span class="w">    </span><span class="c1">// Launch the kernel</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">threads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">256</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">blocks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">ceil_div</span><span class="p">(</span><span class="n">vectorLength</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="p">);</span>
+<span class="w">    </span><span class="n">vecAdd</span><span class="o">&lt;&lt;&lt;</span><span class="n">blocks</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">devA</span><span class="p">,</span><span class="w"> </span><span class="n">devB</span><span class="p">,</span><span class="w"> </span><span class="n">devC</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// wait for kernel execution to complete</span>
+<span class="w">    </span><span class="n">cudaDeviceSynchronize</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// Copy results back to host</span>
+<span class="w">    </span><span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">devC</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">),</span><span class="w"> </span><span class="n">cudaMemcpyDefault</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Perform computation serially on CPU for comparison</span>
+<span class="w">    </span><span class="n">serialVecAdd</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">comparisonResult</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Confirm that CPU and GPU got the same answer</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">vectorApproximatelyEqual</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">comparisonResult</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">))</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Explicit Memory: CPU and GPU answers match</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Explicit Memory: Error - CPU and GPU answers to not match</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// clean up</span>
+<span class="w">    </span><span class="n">cudaFree</span><span class="p">(</span><span class="n">devA</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cudaFree</span><span class="p">(</span><span class="n">devB</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cudaFree</span><span class="p">(</span><span class="n">devC</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cudaFreeHost</span><span class="p">(</span><span class="n">A</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cudaFreeHost</span><span class="p">(</span><span class="n">B</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cudaFreeHost</span><span class="p">(</span><span class="n">C</span><span class="p">);</span>
+<span class="w">    </span><span class="n">free</span><span class="p">(</span><span class="n">comparisonResult</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The CUDA API <code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code> is used to copy data from a buffer residing on the CPU to a buffer residing on the GPU. Along with the destination pointer, source pointer, and size in bytes, the final parameter of <code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code> is a <code class="docutils literal notranslate"><span class="pre">cudaMemcpyKind_t</span></code>. This can have values such as <code class="docutils literal notranslate"><span class="pre">cudaMemcpyHostToDevice</span></code> for copies from the CPU to a GPU, <code class="docutils literal notranslate"><span class="pre">cudaMemcpyDeviceToHost</span></code> for copies from the CPU to the GPU, or <code class="docutils literal notranslate"><span class="pre">cudaMemcpyDeviceToDevice</span></code> for copies within a GPU or between GPUs.</p>
+<p>In this example, <code class="docutils literal notranslate"><span class="pre">cudaMemcpyDefault</span></code> is passed as the last argument to <code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code>.  This causes CUDA to use the value of the source and destination pointers to determine the type of copy to perform.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code> API is synchronous. That is, it does not return until the copy has completed. Asynchronous copies are introduced in <a class="reference internal" href="asynchronous-execution.html#async-execution-memory-transfers"><span class="std std-ref">Launching Memory Transfers in CUDA Streams</span></a>.</p>
+<p>The code uses <code class="docutils literal notranslate"><span class="pre">cudaMallocHost</span></code> to allocate memory on the CPU. This allocates <a class="reference internal" href="understanding-memory.html#memory-page-locked-host-memory"><span class="std std-ref">page-locked memory</span></a> on the host, which can improve copy performance and is necessary for  <a class="reference internal" href="asynchronous-execution.html#async-execution-memory-transfers"><span class="std std-ref">asynchronous</span></a> memory transfers. In general, it is good practice to use page-locked memory for CPU buffers that will be used in data transfers to and from GPUs. Performance can degrade on some systems if too much host memory is page-locked. Best practice is to page-lock only buffers which will be used for sending or receiving data from the GPU.</p>
+</section>
+<section id="memory-management-and-application-performance">
+<h3><span class="section-number">2.1.3.3. </span>内存管理与应用性能<a class="headerlink" href="intro-to-cuda-cpp.html#memory-management-and-application-performance" title="跳转到此标题">#</a></h3>
+<p>As can be seen in the above example, explicit memory management is more verbose, requiring the programmer to specify copies between the host and device. This is the advantage and disadvantage of explicit memory management: it affords more control of when data is copied between host and devices, where memory is resident, and exactly what memory is allocated where. Explicit memory management can provide performance opportunities controlling memory transfers and overlapping them with other computations.</p>
+<p>When using unified memory, there are CUDA APIs (which will be covered in <a class="reference internal" href="understanding-memory.html#memory-mem-advise-prefetch"><span class="std std-ref">Memory Advise and Prefetch</span></a>), which provide hints to the NVIDIA driver managing the memory, which can enable some of the performance benefits of using explicit memory management when using unified memory.</p>
+</section>
+</section>
+<section id="synchronizing-cpu-and-gpu">
+<span id="intro-synchronizing-the-gpu"></span><h2><span class="section-number">2.1.4. </span>CPU 与 GPU 同步<a class="headerlink" href="intro-to-cuda-cpp.html#synchronizing-cpu-and-gpu" title="跳转到此标题">#</a></h2>
+<p>如 <a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-launching-kernels"><span class="std std-ref">启动内核</span></a> 一节所述，内核启动相对于发起调用的 CPU 线程是异步的。这意味着 CPU 线程的控制流会在内核完成之前继续向前执行，甚至可能在内核尚未真正启动前就继续执行。若要保证主机端后续代码执行前内核已经完成，就必须使用某种同步机制。</p>
+<p>The simplest way to synchronize the GPU and a host thread is with the use of <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize</span></code>, which blocks the host thread until all previously issued work on the GPU has completed. In the examples of this chapter this is sufficient because only single operations are being executed on the GPU. In larger applications, there may be multiple <a class="reference internal" href="asynchronous-execution.html#cuda-streams"><span class="std std-ref">streams</span></a> executing work on the GPU and <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize</span></code> will wait for work in all streams to complete. In these applications, using <a class="reference internal" href="asynchronous-execution.html#async-execution-stream-synchronization"><span class="std std-ref">Stream Synchronization</span></a> APIs to synchronize only with a specific stream or <a class="reference internal" href="asynchronous-execution.html#cuda-events"><span class="std std-ref">CUDA Events</span></a> is recommended. These will be covered in detail in the <a class="reference internal" href="asynchronous-execution.html#asynchronous-execution"><span class="std std-ref">Asynchronous Execution</span></a> chapter.</p>
+</section>
+<section id="putting-it-all-together">
+<span id="intro-cuda-cpp-all-together"></span><h2><span class="section-number">2.1.5. </span>整合示例<a class="headerlink" href="intro-to-cuda-cpp.html#putting-it-all-together" title="跳转到此标题">#</a></h2>
+<p>The following listings show the entire code for the simple vector addition kernel introduced in this chapter along with all host code and utility functions for checking to verify that the answer obtained is correct. These examples default to using a vector length of 1024, but accept a different vector length as a command line argument to the executable.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-0">
+Unified Memory</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cuda_runtime_api.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;memory.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdlib&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ctime&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cuda/cmath&gt;</span>
+
+<span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">vecAdd</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">workIndex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">blockIdx</span><span class="p">.</span><span class="n">x</span><span class="o">*</span><span class="nb">blockDim</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">workIndex</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">C</span><span class="p">[</span><span class="n">workIndex</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">A</span><span class="p">[</span><span class="n">workIndex</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">B</span><span class="p">[</span><span class="n">workIndex</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">initArray</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">length</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">     </span><span class="n">std</span><span class="o">::</span><span class="n">srand</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">time</span><span class="p">({}));</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">length</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rand</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="p">)</span><span class="n">RAND_MAX</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">serialVecAdd</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">C</span><span class="p">,</span><span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">length</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">length</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">bool</span><span class="w"> </span><span class="n">vectorApproximatelyEqual</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">length</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">epsilon</span><span class="o">=</span><span class="mf">0.00001</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">length</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">fabs</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">epsilon</span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Index %d mismatch: %f != %f&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">//unified-memory-begin</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">unifiedMemExample</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// Pointers to memory vectors</span>
+<span class="w">    </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">C</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">comparisonResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+
+<span class="w">    </span><span class="c1">// Use unified memory to allocate buffers</span>
+<span class="w">    </span><span class="n">cudaMallocManaged</span><span class="p">(</span><span class="o">&amp;</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+<span class="w">    </span><span class="n">cudaMallocManaged</span><span class="p">(</span><span class="o">&amp;</span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+<span class="w">    </span><span class="n">cudaMallocManaged</span><span class="p">(</span><span class="o">&amp;</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+
+<span class="w">    </span><span class="c1">// Initialize vectors on the host</span>
+<span class="w">    </span><span class="n">initArray</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">);</span>
+<span class="w">    </span><span class="n">initArray</span><span class="p">(</span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Launch the kernel. Unified memory will make sure A, B, and C are</span>
+<span class="w">    </span><span class="c1">// accessible to the GPU</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">threads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">256</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">blocks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">ceil_div</span><span class="p">(</span><span class="n">vectorLength</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="p">);</span>
+<span class="w">    </span><span class="n">vecAdd</span><span class="o">&lt;&lt;&lt;</span><span class="n">blocks</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// Wait for the kernel to complete execution</span>
+<span class="w">    </span><span class="n">cudaDeviceSynchronize</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// Perform computation serially on CPU for comparison</span>
+<span class="w">    </span><span class="n">serialVecAdd</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">comparisonResult</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Confirm that CPU and GPU got the same answer</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">vectorApproximatelyEqual</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">comparisonResult</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">))</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Unified Memory: CPU and GPU answers match</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Unified Memory: Error - CPU and GPU answers do not match</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Clean Up</span>
+<span class="w">    </span><span class="n">cudaFree</span><span class="p">(</span><span class="n">A</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cudaFree</span><span class="p">(</span><span class="n">B</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cudaFree</span><span class="p">(</span><span class="n">C</span><span class="p">);</span>
+<span class="w">    </span><span class="n">free</span><span class="p">(</span><span class="n">comparisonResult</span><span class="p">);</span>
+
+<span class="p">}</span>
+<span class="c1">//unified-memory-end</span>
+
+
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="o">**</span><span class="w"> </span><span class="n">argv</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">vectorLength</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1024</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">argc</span><span class="w"> </span><span class="o">&gt;=</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">vectorLength</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">atoi</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">unifiedMemExample</span><span class="p">(</span><span class="n">vectorLength</span><span class="p">);</span><span class="w">		</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1">
+Explicit Memory Management</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cuda_runtime_api.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;memory.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdlib&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ctime&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cuda/cmath&gt;</span>
+
+<span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">vecAdd</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">workIndex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">blockIdx</span><span class="p">.</span><span class="n">x</span><span class="o">*</span><span class="nb">blockDim</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">workIndex</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">C</span><span class="p">[</span><span class="n">workIndex</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">A</span><span class="p">[</span><span class="n">workIndex</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">B</span><span class="p">[</span><span class="n">workIndex</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">initArray</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">length</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">     </span><span class="n">std</span><span class="o">::</span><span class="n">srand</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">time</span><span class="p">({}));</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">length</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rand</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="p">)</span><span class="n">RAND_MAX</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">serialVecAdd</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">C</span><span class="p">,</span><span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">length</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">length</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">bool</span><span class="w"> </span><span class="n">vectorApproximatelyEqual</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">length</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">epsilon</span><span class="o">=</span><span class="mf">0.00001</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">length</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">fabs</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">epsilon</span><span class="p">)</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Index %d mismatch: %f != %f&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">//explicit-memory-begin</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">explicitMemExample</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// Pointers for host memory</span>
+<span class="w">    </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">C</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">comparisonResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Pointers for device memory</span>
+<span class="w">    </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">devA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">devB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">devC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">//Allocate Host Memory using cudaMallocHost API. This is best practice</span>
+<span class="w">    </span><span class="c1">// when buffers will be used for copies between CPU and GPU memory</span>
+<span class="w">    </span><span class="n">cudaMallocHost</span><span class="p">(</span><span class="o">&amp;</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+<span class="w">    </span><span class="n">cudaMallocHost</span><span class="p">(</span><span class="o">&amp;</span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+<span class="w">    </span><span class="n">cudaMallocHost</span><span class="p">(</span><span class="o">&amp;</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+
+<span class="w">    </span><span class="c1">// Initialize vectors on the host</span>
+<span class="w">    </span><span class="n">initArray</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">);</span>
+<span class="w">    </span><span class="n">initArray</span><span class="p">(</span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// start-allocate-and-copy</span>
+<span class="w">    </span><span class="c1">// Allocate memory on the GPU</span>
+<span class="w">    </span><span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">devA</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+<span class="w">    </span><span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">devB</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+<span class="w">    </span><span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">devC</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+
+<span class="w">    </span><span class="c1">// Copy data to the GPU</span>
+<span class="w">    </span><span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">devA</span><span class="p">,</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">),</span><span class="w"> </span><span class="n">cudaMemcpyDefault</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">devB</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">),</span><span class="w"> </span><span class="n">cudaMemcpyDefault</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cudaMemset</span><span class="p">(</span><span class="n">devC</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+<span class="w">    </span><span class="c1">// end-allocate-and-copy</span>
+
+<span class="w">    </span><span class="c1">// Launch the kernel</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">threads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">256</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">blocks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">ceil_div</span><span class="p">(</span><span class="n">vectorLength</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="p">);</span>
+<span class="w">    </span><span class="n">vecAdd</span><span class="o">&lt;&lt;&lt;</span><span class="n">blocks</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">devA</span><span class="p">,</span><span class="w"> </span><span class="n">devB</span><span class="p">,</span><span class="w"> </span><span class="n">devC</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// wait for kernel execution to complete</span>
+<span class="w">    </span><span class="n">cudaDeviceSynchronize</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// Copy results back to host</span>
+<span class="w">    </span><span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">devC</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">),</span><span class="w"> </span><span class="n">cudaMemcpyDefault</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Perform computation serially on CPU for comparison</span>
+<span class="w">    </span><span class="n">serialVecAdd</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">comparisonResult</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Confirm that CPU and GPU got the same answer</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">vectorApproximatelyEqual</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">comparisonResult</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">))</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Explicit Memory: CPU and GPU answers match</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Explicit Memory: Error - CPU and GPU answers to not match</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// clean up</span>
+<span class="w">    </span><span class="n">cudaFree</span><span class="p">(</span><span class="n">devA</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cudaFree</span><span class="p">(</span><span class="n">devB</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cudaFree</span><span class="p">(</span><span class="n">devC</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cudaFreeHost</span><span class="p">(</span><span class="n">A</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cudaFreeHost</span><span class="p">(</span><span class="n">B</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cudaFreeHost</span><span class="p">(</span><span class="n">C</span><span class="p">);</span>
+<span class="w">    </span><span class="n">free</span><span class="p">(</span><span class="n">comparisonResult</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="c1">//explicit-memory-end</span>
+
+
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="o">**</span><span class="w"> </span><span class="n">argv</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">vectorLength</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1024</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">argc</span><span class="w"> </span><span class="o">&gt;=</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">vectorLength</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">atoi</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">explicitMemExample</span><span class="p">(</span><span class="n">vectorLength</span><span class="p">);</span><span class="w">		</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>These can be built and run using <cite>nvcc</cite> as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>nvcc<span class="w"> </span>vecAdd_unifiedMemory.cu<span class="w"> </span>-o<span class="w"> </span>vecAdd_unifiedMemory
+$<span class="w"> </span>./vecAdd_unifiedMemory
+Unified<span class="w"> </span>Memory:<span class="w"> </span>CPU<span class="w"> </span>and<span class="w"> </span>GPU<span class="w"> </span>answers<span class="w"> </span>match
+$<span class="w"> </span>./vecAdd_unifiedMemory<span class="w"> </span><span class="m">4096</span>
+Unified<span class="w"> </span>Memory:<span class="w"> </span>CPU<span class="w"> </span>and<span class="w"> </span>GPU<span class="w"> </span>answers<span class="w"> </span>match
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>nvcc<span class="w"> </span>vecAdd_explicitMemory.cu<span class="w"> </span>-o<span class="w"> </span>vecAdd_explicitMemory
+$<span class="w"> </span>./vecAdd_explicitMemory
+Explicit<span class="w"> </span>Memory:<span class="w"> </span>CPU<span class="w"> </span>and<span class="w"> </span>GPU<span class="w"> </span>answers<span class="w"> </span>match
+$<span class="w"> </span>./vecAdd_explicitMemory<span class="w"> </span><span class="m">4096</span>
+Explicit<span class="w"> </span>Memory:<span class="w"> </span>CPU<span class="w"> </span>and<span class="w"> </span>GPU<span class="w"> </span>answers<span class="w"> </span>match
+</pre></div>
+</div>
+<p>In these examples, all threads are doing independent work and do not need to coordinate or synchronize with each other. Frequently, threads will need to cooperate and communicate with other threads to carry out their work. Threads within a block can share data through  <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-shared-memory"><span class="std std-ref">shared memory</span></a> and synchronize to coordinate memory accesses.</p>
+<p>The most basic mechanism for synchronization at the block level is the <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> intrinsic, which acts as a barrier at which all threads in the block must wait before any threads are allowed to proceed. <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-shared-memory"><span class="std std-ref">Shared Memory</span></a> gives an example of using shared memory.</p>
+<p>For efficient cooperation, shared memory is expected to be a low-latency memory near each processor core (much like an L1 cache) and <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> is expected to be lightweight. <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> only synchronizes the threads within a single thread block. Synchronization between blocks is not supported by the CUDA programming model. <a class="reference internal" href="../04-special-topics/cooperative-groups.html#cooperative-groups"><span class="std std-ref">Cooperative Groups</span></a> provides mechanism to set synchronization domains other than a single thread block.</p>
+<p>Best performance is usually achieved when synchronization is kept within a thread block. Thread blocks can still work on common results using <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-atomics"><span class="std std-ref">atomic memory functions</span></a>, which will be covered in coming sections.</p>
+<p>Section <a class="reference internal" href="../03-advanced/advanced-kernel-programming.html#advanced-kernels-advanced-sync-primitives"><span class="std std-numref">Section 3.2.4</span></a> covers CUDA synchronization primitives that provide very fine-grained control for maximizing performance and resource utilization.</p>
+</section>
+<section id="runtime-initialization">
+<span id="intro-cpp-runtime-initialization"></span><h2><span class="section-number">2.1.6. </span>Runtime Initialization<a class="headerlink" href="intro-to-cuda-cpp.html#runtime-initialization" title="Link to this heading">#</a></h2>
+<p>The CUDA runtime creates a <a class="reference internal" href="../03-advanced/driver-api.html#driver-api-context"><span class="std std-ref">CUDA context</span></a> for each device in the system. This context is the primary context for this device and is initialized at the first runtime function which requires an active context on this device. The context is shared among all the host threads of the application. As part of context creation, the device code is <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-just-in-time-compilation"><span class="std std-ref">just-in-time compiled</span></a> if necessary and loaded into device memory. This all happens transparently. The primary context created by the CUDA runtime can be accessed from the driver API for interoperability as described in <a class="reference internal" href="../03-advanced/driver-api.html#driver-api-interop-with-runtime"><span class="std std-ref">Interoperability between Runtime and Driver APIs</span></a>.</p>
+<p>As of CUDA 12.0, the <code class="docutils literal notranslate"><span class="pre">cudaInitDevice</span></code> and <code class="docutils literal notranslate"><span class="pre">cudaSetDevice</span></code> calls initialize the runtime and the primary <a class="reference internal" href="../03-advanced/driver-api.html#driver-api-context"><span class="std std-ref">context</span></a> associated with the specified device. The runtime will implicitly use device 0 and self-initialize as needed to process runtime API requests if they occur before these calls. This is important when timing runtime function calls and when interpreting the error code from the first call into the runtime. Prior to CUDA 12.0, <code class="docutils literal notranslate"><span class="pre">cudaSetDevice</span></code> would not initialize the runtime.</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaDeviceReset</span></code> destroys the primary context of the current device. If CUDA runtime APIs are called after the primary context has been destroyed, a new primary context for that device will be created.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The CUDA interfaces use global state that is initialized during host program initiation and destroyed during host program termination. Using any of these interfaces (implicitly or explicitly) during program initiation or termination after main will result in undefined behavior.</p>
+<p>As of CUDA 12.0, <code class="docutils literal notranslate"><span class="pre">cudaSetDevice</span></code> explicitly initializes the runtime, if it has not already been initialized, after changing the current device for the host thread. Previous versions of CUDA delayed runtime initialization on the new device until the first runtime call was made after <code class="docutils literal notranslate"><span class="pre">cudaSetDevice</span></code>. Because of this, it is very important to check the return value of <code class="docutils literal notranslate"><span class="pre">cudaSetDevice</span></code> for initialization errors.</p>
+<p>The runtime functions from the error handling and version management sections of the reference manual do not initialize the runtime.</p>
+</div>
+</section>
+<section id="error-checking-in-cuda">
+<span id="intro-cpp-error-checking"></span><h2><span class="section-number">2.1.7. </span>Error Checking in CUDA<a class="headerlink" href="intro-to-cuda-cpp.html#error-checking-in-cuda" title="Link to this heading">#</a></h2>
+<p>Every CUDA API returns a value of an enumerated type, <code class="docutils literal notranslate"><span class="pre">cudaError_t</span></code>. In example code these errors are often not checked. In production applications, it is best practice to always check and manage the return value of every CUDA API call. When there are no errors, the value returned is <code class="docutils literal notranslate"><span class="pre">cudaSuccess</span></code>. Many applications choose to implement a utility macro such as the one shown below</p>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="cp">#define CUDA_CHECK(expr_to_check) do {            \</span>
+<span class="cp">    cudaError_t result  = expr_to_check;          \</span>
+<span class="cp">    if(result != cudaSuccess)                     \</span>
+<span class="cp">    {                                             \</span>
+<span class="cp">        fprintf(stderr,                           \</span>
+<span class="cp">                &quot;CUDA Runtime Error: %s:%i:%d = %s\n&quot;, \</span>
+<span class="cp">                __FILE__,                         \</span>
+<span class="cp">                __LINE__,                         \</span>
+<span class="cp">                result,\</span>
+<span class="cp">                cudaGetErrorString(result));      \</span>
+<span class="cp">    }                                             \</span>
+<span class="cp">} while(0)</span>
+</pre></div>
+</div>
+<p>This macro uses the <code class="docutils literal notranslate"><span class="pre">cudaGetErrorString</span></code> API, which returns a human readable string describing the meaning of a specific <code class="docutils literal notranslate"><span class="pre">cudaError_t</span></code> value.  Using the above macro, an application would call CUDA runtime API calls within a <code class="docutils literal notranslate"><span class="pre">CUDA_CHECK(expression)</span></code> macro, as shown below:</p>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">devA</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">)));</span>
+<span class="w">    </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">devB</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">)));</span>
+<span class="w">    </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">devC</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">)));</span>
+</pre></div>
+</div>
+<p>If any of these calls detect an error, it will be printed to <code class="docutils literal notranslate"><span class="pre">stderr</span></code> using this macro. This macro is common for smaller projects, but can be adapted to a logging system or other error handling mechanism in larger applications.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is important to note that the error state returned from any CUDA API call can also indicate an error from a previously issued asynchronous operation. Section <a class="reference internal" href="asynchronous-execution.html#asynchronous-execution-error-handling"><span class="std std-ref">Asynchronous Error Handling</span></a> covers this in more detail.</p>
+</div>
+<section id="error-state">
+<h3><span class="section-number">2.1.7.1. </span>Error State<a class="headerlink" href="intro-to-cuda-cpp.html#error-state" title="Link to this heading">#</a></h3>
+<p>The CUDA runtime maintains a <code class="docutils literal notranslate"><span class="pre">cudaError_t</span></code> state for each host thread. The value defaults to <code class="docutils literal notranslate"><span class="pre">cudaSuccess</span></code> and is overwritten whenever an error occurs. <code class="docutils literal notranslate"><span class="pre">cudaGetLastError</span></code> returns current error state and then resets it to <code class="docutils literal notranslate"><span class="pre">cudaSuccess</span></code>. Alternatively, <code class="docutils literal notranslate"><span class="pre">cudaPeekLastError</span></code> returns error state without resetting it.</p>
+<p>Kernel launches using <a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-launching-kernels-triple-chevron"><span class="std std-ref">triple chevron notation</span></a> do not return a <code class="docutils literal notranslate"><span class="pre">cudaError_t</span></code>. It is good practice to check the error state immediately after kernel launches to detect immediate errors in the kernel launch or <a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-error-checking-asynchronous"><span class="std std-ref">asynchronous errors</span></a> prior to the kernel launch. A value of <code class="docutils literal notranslate"><span class="pre">cudaSuccess</span></code> when checking the error state immediately after a kernel launch does not mean the kernel has executed successfully or even started execution. It only verifies that the kernel launch parameters and execution configuration passed to the runtime did not trigger any errors and that the error state is not a previous or asynchronous error before the kernel started.</p>
+</section>
+<section id="asynchronous-errors">
+<span id="intro-cpp-error-checking-asynchronous"></span><h3><span class="section-number">2.1.7.2. </span>Asynchronous Errors<a class="headerlink" href="intro-to-cuda-cpp.html#asynchronous-errors" title="Link to this heading">#</a></h3>
+<p>CUDA kernel launches and many runtime APIs are asynchronous. Asynchronous CUDA runtime APIs will be discussed in detail in <a class="reference internal" href="asynchronous-execution.html#asynchronous-execution"><span class="std std-ref">Asynchronous Execution</span></a>. The CUDA error state is set and overwritten whenever an error occurs. This means that errors which occur during the execution of asynchronous operations will only be reported when the error state is examined next. As noted, this may be a call to <code class="docutils literal notranslate"><span class="pre">cudaGetLastError</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaPeekLastError</span></code>, or it could be any CUDA API which returns <code class="docutils literal notranslate"><span class="pre">cudaError_t</span></code>.</p>
+<p>When errors are returned by CUDA runtime API functions, the error state is not cleared. This means that error code from an asynchronous error, such as an invalid memory access by a kernel, will be returned by every CUDA runtime API until the error state has been cleared by calling <code class="docutils literal notranslate"><span class="pre">cudaGetLastError</span></code>.</p>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="n">vecAdd</span><span class="o">&lt;&lt;&lt;</span><span class="n">blocks</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">devA</span><span class="p">,</span><span class="w"> </span><span class="n">devB</span><span class="p">,</span><span class="w"> </span><span class="n">devC</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// check error state after kernel launch</span>
+<span class="w">    </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaGetLastError</span><span class="p">());</span>
+<span class="w">    </span><span class="c1">// wait for kernel execution to complete</span>
+<span class="w">    </span><span class="c1">// The CUDA_CHECK will report errors that occurred during execution of the kernel</span>
+<span class="w">    </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaDeviceSynchronize</span><span class="p">());</span>
+<span class="w">    </span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">cudaError_t</span></code> value <code class="docutils literal notranslate"><span class="pre">cudaErrorNotReady</span></code>, which may be returned by <code class="docutils literal notranslate"><span class="pre">cudaStreamQuery</span></code> and <code class="docutils literal notranslate"><span class="pre">cudaEventQuery</span></code>, is not considered an error and is not reported by <code class="docutils literal notranslate"><span class="pre">cudaPeekAtLastError</span></code> or <code class="docutils literal notranslate"><span class="pre">cudaGetLastError</span></code>.</p>
+</div>
+</section>
+<section id="cuda-log-file">
+<h3><span class="section-number">2.1.7.3. </span><code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code><a class="headerlink" href="intro-to-cuda-cpp.html#cuda-log-file" title="Link to this heading">#</a></h3>
+<p>Another good way to identify CUDA errors is with the <code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code> environment variable. When this environment variable is set, the CUDA driver will write error messages encountered out to a file whose path is specified in the environment variable. For example, take the following incorrect CUDA code, which attemtps to launch a thread block which is larger than the maximum supported by any architecture.</p>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">k</span><span class="p">()</span>
+<span class="p">{</span><span class="w"> </span><span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">        </span><span class="n">k</span><span class="o">&lt;&lt;&lt;</span><span class="mi">8192</span><span class="p">,</span><span class="w"> </span><span class="mi">4096</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span><span class="w"> </span><span class="c1">// Invalid block size</span>
+<span class="w">        </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaGetLastError</span><span class="p">());</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Building and running this, the check after the kernel launch detects and reports the error using the macros illustrated in <a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-error-checking"><span class="std std-numref">Section 2.1.7</span></a>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>nvcc<span class="w"> </span>errorLogIllustration.cu<span class="w"> </span>-o<span class="w"> </span>errlog
+$<span class="w"> </span>./errlog
+CUDA<span class="w"> </span>Runtime<span class="w"> </span>Error:<span class="w"> </span>/home/cuda/intro-cpp/errorLogIllustration.cu:24:1<span class="w"> </span><span class="o">=</span><span class="w"> </span>invalid<span class="w"> </span>argument
+</pre></div>
+</div>
+<p>However, when the application is run with <code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code> set to a text file, that file contains a bit more information about the error.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>env<span class="w"> </span><span class="nv">CUDA_LOG_FILE</span><span class="o">=</span>cudaLog.txt<span class="w"> </span>./errlog
+CUDA<span class="w"> </span>Runtime<span class="w"> </span>Error:<span class="w"> </span>/home/cuda/intro-cpp/errorLogIllustration.cu:24:1<span class="w"> </span><span class="o">=</span><span class="w"> </span>invalid<span class="w"> </span>argument
+$<span class="w"> </span>cat<span class="w"> </span>cudaLog.txt
+<span class="o">[</span><span class="m">12</span>:46:23.854<span class="o">][</span><span class="m">137216133754880</span><span class="o">][</span>CUDA<span class="o">][</span>E<span class="o">]</span><span class="w"> </span>One<span class="w"> </span>or<span class="w"> </span>more<span class="w"> </span>of<span class="w"> </span>block<span class="w"> </span>dimensions<span class="w"> </span>of<span class="w"> </span><span class="o">(</span><span class="m">4096</span>,1,1<span class="o">)</span><span class="w"> </span>exceeds<span class="w"> </span>corresponding<span class="w"> </span>maximum<span class="w"> </span>value<span class="w"> </span>of<span class="w"> </span><span class="o">(</span><span class="m">1024</span>,1024,64<span class="o">)</span>
+<span class="o">[</span><span class="m">12</span>:46:23.854<span class="o">][</span><span class="m">137216133754880</span><span class="o">][</span>CUDA<span class="o">][</span>E<span class="o">]</span><span class="w"> </span>Returning<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="o">(</span>CUDA_ERROR_INVALID_VALUE<span class="o">)</span><span class="w"> </span>from<span class="w"> </span>cuLaunchKernel
+</pre></div>
+</div>
+<p>Setting <code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code>  to <code class="docutils literal notranslate"><span class="pre">stdout</span></code> or <code class="docutils literal notranslate"><span class="pre">stderr</span></code> will print to standard out and standard error, respectively. Using the <code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code> environment variable, it is possible to capture and identify CUDA errors, even if the application does not implement proper error checking on CUDA return values. This approach can be extremely powerful for debugging, but the environment variable alone does not allow an application to handle and recover from CUDA errors at runtime. The <a class="reference internal" href="../04-special-topics/error-log-management.html#error-log-management"><span class="std std-ref">error log management</span></a> feature of CUDA also allows a callback function to be registered with the driver which will be called whenever an error is detected. This can be used to capture and handle errors at runtime, and also to integrate CUDA error logging seamlessly into an application’s existing logging system.</p>
+<p><a class="reference internal" href="../04-special-topics/error-log-management.html#error-log-management"><span class="std std-numref">Section 4.8</span></a> shows more examples of the error log management feature of CUDA. Error log management and <code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code> are available with NVIDIA Driver version r570 and later.</p>
+</section>
+</section>
+<section id="device-and-host-functions">
+<span id="intro-device-host-functions"></span><h2><span class="section-number">2.1.8. </span>Device and Host Functions<a class="headerlink" href="intro-to-cuda-cpp.html#device-and-host-functions" title="Link to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">__global__</span></code> specifier is used to indicate the entry point for a kernel. That is, a function which will be invoked for parallel execution on the GPU. Most often, kernels are launched from the host, however it is possible to launch a kernel from within another kernel using <a class="reference internal" href="../04-special-topics/dynamic-parallelism.html#cuda-dynamic-parallelism"><span class="std std-ref">dynamic parallelism</span></a>.</p>
+<p>The specifier <code class="docutils literal notranslate"><span class="pre">__device__</span></code> indicates that a function should be compiled for the GPU and be callable from other <code class="docutils literal notranslate"><span class="pre">__device__</span></code> or <code class="docutils literal notranslate"><span class="pre">__global__</span></code> functions.  A function, including class member functions, functors, and lambdas, can be specified as both  <code class="docutils literal notranslate"><span class="pre">__device__</span></code> and <code class="docutils literal notranslate"><span class="pre">__host__</span></code> as in the example below.</p>
+</section>
+<section id="variable-specifiers">
+<span id="intro-device-managed-variables"></span><h2><span class="section-number">2.1.9. </span>Variable Specifiers<a class="headerlink" href="intro-to-cuda-cpp.html#variable-specifiers" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../05-appendices/cpp-language-extensions.html#memory-space-specifiers"><span class="std std-ref">CUDA specifiers</span></a> can be used on static variable declarations to control placement.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">__device__</span></code> specifies that a variable is stored in <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-global-memory"><span class="std std-ref">Global Memory</span></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">__constant__</span></code> specifies that a variable is stored in <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-constant-memory"><span class="std std-ref">Constant Memory</span></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">__managed__</span></code> specifies that a variable is stored as <a class="reference internal" href="understanding-memory.html#memory-unified-memory"><span class="std std-ref">Unified Memory</span></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">__shared__</span></code> specifies that a variable is store in <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-shared-memory"><span class="std std-ref">Shared Memory</span></a></p></li>
+</ul>
+<p>When a variable is declared with no specifier inside a <code class="docutils literal notranslate"><span class="pre">__device__</span></code> or <code class="docutils literal notranslate"><span class="pre">__global__</span></code> function, it is allocated to registers when possible, and <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-local-memory"><span class="std std-ref">local memory</span></a> when necessary. Any variable declared with no specifier outside a <code class="docutils literal notranslate"><span class="pre">__device__</span></code> or <code class="docutils literal notranslate"><span class="pre">__global__</span></code> function will be allocated in system memory.</p>
+<section id="detecting-device-compilation">
+<span id="intro-detecting-device-compilation"></span><h3><span class="section-number">2.1.9.1. </span>Detecting Device Compilation<a class="headerlink" href="intro-to-cuda-cpp.html#detecting-device-compilation" title="Link to this heading">#</a></h3>
+<p>When a function is specified with <code class="docutils literal notranslate"><span class="pre">__host__</span> <span class="pre">__device__</span></code>, the compiler is instructed to generate both a GPU and a CPU code for this function. In such functions, it may be desirable to use the preprocessor to specify code only for the GPU or the CPU copy of the function. Checking whether <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH_</span></code> is defined is the most common way of doing this, as illustrated in the example below.</p>
+</section>
+</section>
+<section id="thread-block-clusters">
+<span id="id3"></span><h2><span class="section-number">2.1.10. </span>Thread Block Clusters<a class="headerlink" href="intro-to-cuda-cpp.html#thread-block-clusters" title="Link to this heading">#</a></h2>
+<p>From compute capability 9.0 onward, the CUDA programming model includes an optional level of hierarchy called thread block clusters that are made up of thread blocks. Similar to how threads in a thread block are guaranteed to be co-scheduled on a streaming multiprocessor, thread blocks in a cluster are also guaranteed to be co-scheduled on a GPU Processing Cluster (GPC) in the GPU.</p>
+<p>Similar to thread blocks, clusters are also organized into a one-dimension, two-dimension, or three-dimension grid of thread block clusters as illustrated by <a class="reference internal" href="../01-introduction/programming-model.html#figure-thread-block-clusters"><span class="std std-numref">Figure 5</span></a>.</p>
+<p>The number of thread blocks in a cluster can be user-defined, and a maximum of 8 thread blocks in a cluster is supported as a portable cluster size in CUDA.
+Note that on GPU hardware or MIG configurations which are too small to support 8 multiprocessors the maximum cluster size will be reduced accordingly. Identification of these smaller configurations, as well as of larger configurations supporting a thread block cluster size beyond 8, is architecture-specific and can be queried using the <code class="docutils literal notranslate"><span class="pre">cudaOccupancyMaxPotentialClusterSize</span></code> API.</p>
+<p>All the thread blocks in the cluster are guaranteed to be co-scheduled to execute simultaneously on a single GPU Processing Cluster (GPC) and allow thread blocks in the cluster to perform hardware-supported synchronization using the <a class="reference internal" href="../04-special-topics/cooperative-groups.html#cooperative-groups"><span class="std std-ref">cooperative groups</span></a> API <code class="docutils literal notranslate"><span class="pre">cluster.sync()</span></code>. Cluster group also provides member functions to query cluster group size in terms of number of threads or number of blocks using <code class="docutils literal notranslate"><span class="pre">num_threads()</span></code> and <code class="docutils literal notranslate"><span class="pre">num_blocks()</span></code> API respectively. The rank of a thread or block in the cluster group can be queried using <code class="docutils literal notranslate"><span class="pre">dim_threads()</span></code> and <code class="docutils literal notranslate"><span class="pre">dim_blocks()</span></code> API respectively.</p>
+<p>Thread blocks that belong to a cluster have access to the <em>distributed shared memory</em>, which is the combined shared memory of all thread blocks in the cluster. Thread blocks in a cluster have the ability to read, write, and perform atomics to any address in the distributed shared memory. <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-distributed-shared-memory"><span class="std std-ref">Distributed Shared Memory</span></a> gives an example of performing histograms in distributed shared memory.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In a kernel launched using cluster support, the gridDim variable still denotes the size in terms of number of thread blocks, for compatibility purposes. The rank of a block in a cluster can be found using the <a class="reference internal" href="../04-special-topics/cooperative-groups.html#cooperative-groups"><span class="std std-ref">Cooperative Groups</span></a> API.</p>
+</div>
+<section id="launching-with-clusters-in-triple-chevron-notation">
+<span id="intro-cpp-launching-cluster-triple-chevron"></span><h3><span class="section-number">2.1.10.1. </span>Launching with Clusters in Triple Chevron Notation<a class="headerlink" href="intro-to-cuda-cpp.html#launching-with-clusters-in-triple-chevron-notation" title="Link to this heading">#</a></h3>
+<p>A thread block cluster can be enabled in a kernel either using a compile-time kernel attribute using <code class="docutils literal notranslate"><span class="pre">__cluster_dims__(X,Y,Z)</span></code> or using the CUDA kernel launch API <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code>. The example below shows how to launch a cluster using a compile-time kernel attribute. The cluster size using kernel attribute is fixed at compile time and then the kernel can be launched using the classical <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;</span> <span class="pre">,</span> <span class="pre">&gt;&gt;&gt;</span></code>. If a kernel uses compile-time cluster size, the cluster size cannot be modified when launching the kernel.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// Kernel definition</span>
+<span class="c1">// Compile time cluster size 2 in X-dimension and 1 in Y and Z dimension</span>
+<span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">__cluster_dims__</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">cluster_kernel</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">output</span><span class="p">)</span>
+<span class="p">{</span>
+
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">output</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// Kernel invocation with compile time cluster size</span>
+<span class="w">    </span><span class="n">dim3</span><span class="w"> </span><span class="nf">threadsPerBlock</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">);</span>
+<span class="w">    </span><span class="n">dim3</span><span class="w"> </span><span class="nf">numBlocks</span><span class="p">(</span><span class="n">N</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">threadsPerBlock</span><span class="p">.</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">threadsPerBlock</span><span class="p">.</span><span class="n">y</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// The grid dimension is not affected by cluster launch, and is still enumerated</span>
+<span class="w">    </span><span class="c1">// using number of blocks.</span>
+<span class="w">    </span><span class="c1">// The grid dimension must be a multiple of cluster size.</span>
+<span class="w">    </span><span class="n">cluster_kernel</span><span class="o">&lt;&lt;&lt;</span><span class="n">numBlocks</span><span class="p">,</span><span class="w"> </span><span class="n">threadsPerBlock</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="n">output</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../part2.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title"><span class="section-number">2. </span>使用 CUDA 进行 GPU 编程</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="writing-cuda-kernels.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title"><span class="section-number">2.2. </span>编写 CUDA SIMT 内核</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+
+
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 本页内容
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#compilation-with-nvcc">2.1.1. Compilation with NVCC</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#kernels">2.1.2. Kernels</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#specifying-kernels">2.1.2.1. Specifying Kernels</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#launching-kernels">2.1.2.2. Launching Kernels</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#triple-chevron-notation">2.1.2.2.1. Triple Chevron Notation</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#thread-and-grid-index-intrinsics">2.1.2.3. Thread and Grid Index Intrinsics</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#bounds-checking">2.1.2.3.1. Bounds Checking</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#memory-in-gpu-computing">2.1.3. Memory in GPU Computing</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#unified-memory">2.1.3.1. Unified Memory</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#explicit-memory-management">2.1.3.2. Explicit Memory Management</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#memory-management-and-application-performance">2.1.3.3. Memory Management and Application Performance</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#synchronizing-cpu-and-gpu">2.1.4. Synchronizing CPU and GPU</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#putting-it-all-together">2.1.5. Putting it All Together</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#runtime-initialization">2.1.6. Runtime Initialization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#error-checking-in-cuda">2.1.7. Error Checking in CUDA</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#error-state">2.1.7.1. Error State</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#asynchronous-errors">2.1.7.2. Asynchronous Errors</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#cuda-log-file">2.1.7.3. <code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#device-and-host-functions">2.1.8. Device and Host Functions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#variable-specifiers">2.1.9. Variable Specifiers</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#detecting-device-compilation">2.1.9.1. Detecting Device Compilation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#thread-block-clusters">2.1.10. Thread Block Clusters</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#launching-with-clusters-in-triple-chevron-notation">2.1.10.1. Launching with Clusters in Triple Chevron Notation</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js"></script>
+
+
+<script type="text/javascript">if (typeof _satellite !== "undefined") {_satellite.pageBottom();}</script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+<a class="footer-brand logo" href="https://www.nvidia.com">
+  <img src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
+  <img src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+</a></div>
+      
+        <div class="footer-item">
+
+<div class="footer-links">
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/accessibility/">Accessibility</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
+  
+  
+  
+</div>
+</div>
+      
+        <div class="footer-item">
+
+
+
+
+  <p class="copyright">
+    
+      Copyright © 2007-2026, NVIDIA Corporation &amp; affiliates. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item"><p class="last-updated">
+  Last updated on Mar 04, 2026.
+  <br/>
+</p></div>
+      
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+  </body>
+</html>

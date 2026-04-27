@@ -1,0 +1,1624 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>4.16. Virtual Memory Management &#8212; CUDA Programming Guide</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tables.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js" />
+
+
+<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript"
+  data-document-language="true" charset="UTF-8" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5">
+</script>
+<script type="text/javascript">
+  function OptanonWrapper() {
+    var event = new Event('bannerLoaded');
+    window.dispatchEvent(event);
+  }
+</script>
+<script src="https://images.nvidia.com/aem-dam/Solutions/ot-js/ot-custom.js" type="text/javascript">
+</script>
+
+
+    <script rel="preload" src="../_static/modal-table.js"></script>
+    <script src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scrollspy-patch.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '04-special-topics/virtual-memory-management';</script>
+    <script src="../_static/version-patch.js"></script>
+
+<script type="text/javascript" src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
+
+    <link rel="icon" href="../_static/favicon.ico"/>
+
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="4.17. Extended GPU Memory" href="extended-gpu-memory.html" />
+    <link rel="prev" title="4.15. Interprocess Communication" href="inter-process-communication.html" />
+
+<link rel="preload" as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png">
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+    <meta name="docbuild:last-update" content="Mar 04, 2026"/>
+
+
+  </head>
+
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="virtual-memory-management.html#main-content">Skip to main content</a></div>
+
+<img src="https://www.nvidia.com/content/dam/1x1-00000000.png" width="1" height="1" style="display:none;" alt="country_code">
+
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../contents.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
+    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
+  
+  
+    <p class="title logo__title">CUDA Programming Guide</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+
+<div>
+  <ul class="bd-navbar-elements navbar-nav">
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>v13.2 |</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>|</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
+      
+    </li>
+  
+  </ul>
+</div>
+</div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../contents.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
+    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
+  
+  
+    <p class="title logo__title">CUDA Programming Guide</p>
+  
+</a>
+
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+
+<div>
+  <ul class="bd-navbar-elements navbar-nav">
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>v13.2 |</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>|</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
+      
+    </li>
+  
+  </ul>
+</div>
+</div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Table of Contents">
+  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA Programming Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. Introduction to CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/introduction.html">1.1. Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/programming-model.html">1.2. Programming Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/cuda-platform.html">1.3. The CUDA platform</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part2.html">2. Programming GPUs in CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html">2.1. Intro to CUDA C++</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/writing-cuda-kernels.html">2.2. Writing CUDA SIMT Kernels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/asynchronous-execution.html">2.3. Asynchronous Execution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/understanding-memory.html">2.4. Unified and System Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/nvcc.html">2.5. NVCC: The NVIDIA CUDA Compiler</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. Advanced CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. Advanced CUDA APIs and Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. Advanced Kernel Programming</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. The CUDA Driver API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. Programming Systems with Multiple GPUs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. A Tour of CUDA Features</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../part4.html">4. CUDA Features</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="unified-memory.html">4.1. Unified Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda-graphs.html">4.2. CUDA Graphs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stream-ordered-memory-allocation.html">4.3. Stream-Ordered Memory Allocator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cooperative-groups.html">4.4. Cooperative Groups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="programmatic-dependent-launch.html">4.5. Programmatic Dependent Launch and Synchronization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="green-contexts.html">4.6. Green Contexts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lazy-loading.html">4.7. Lazy Loading</a></li>
+<li class="toctree-l3"><a class="reference internal" href="error-log-management.html">4.8. Error Log Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="async-barriers.html">4.9. Asynchronous Barriers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pipelines.html">4.10. Pipelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="async-copies.html">4.11. Asynchronous Data Copies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cluster-launch-control.html">4.12. Work Stealing with Cluster Launch Control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="l2-cache-control.html">4.13. L2 Cache Control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory-sync-domains.html">4.14. Memory Synchronization Domains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inter-process-communication.html">4.15. Interprocess Communication</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="virtual-memory-management.html#">4.16. Virtual Memory Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="extended-gpu-memory.html">4.17. Extended GPU Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamic-parallelism.html">4.18. CUDA Dynamic Parallelism</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graphics-interop.html">4.19. CUDA Interoperability with APIs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="driver-entry-point-access.html">4.20. Driver Entry Point Access</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part5.html">5. Technical Appendices</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/compute-capabilities.html">5.1. Compute Capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/environment-variables.html">5.2. CUDA Environment Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-support.html">5.3. C++ Language Support</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-extensions.html">5.4. C/C++ Language Extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/mathematical-functions.html">5.5. Floating-Point Computation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/device-callable-apis.html">5.6. Device-Callable APIs and Intrinsics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-memory-model.html">5.7. CUDA C++ Memory Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-execution-model.html">5.8. CUDA C++ Execution model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. Notices</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../contents.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">CUDA Programming Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../part4.html" class="nav-link"><span class="section-number">4. </span>CUDA Features</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">4.16. </span>Virtual Memory Management</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+<div class="header-article-item">
+  <div class="d-flex justify-content-end w-100">
+    <a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">Is this page helpful?</a>
+  </div>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="virtual-memory-management">
+<span id="id1"></span><h1><span class="section-number">4.16. </span>Virtual Memory Management<a class="headerlink" href="virtual-memory-management.html#virtual-memory-management" title="Link to this heading">#</a></h1>
+<p>In the CUDA programming model, memory allocation calls (such as
+<code class="docutils literal notranslate"><span class="pre">cudaMalloc()</span></code>) return a memory address that in GPU memory.
+The address can be used with any CUDA API or inside a device
+kernel.
+Developers can enable peer device access to that memory
+allocations by using  <code class="docutils literal notranslate"><span class="pre">cudaEnablePeerAccess</span></code>. By doing so,
+kernels on different devices can access the same data. However,
+all past and future user allocations are also mapped to the target peer device.
+This can lead to users unintentionally paying a runtime cost for
+mapping all <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code> allocations to peer devices. In most
+situations, applications communicate by sharing only a few allocations with
+another device. It is usually not necessary to map all allocations to all
+devices. In addition, extending this approach to multi-node settings becomes
+inherently difficult.</p>
+<p>CUDA provides a <em>virtual memory management</em>
+(VMM) API to give developers explicit, low-level control over this process.</p>
+<p>Virtual memory allocation, a complex process managed by the operating system
+and the Memory Management Unit (MMU), works in two key stages. First, the OS
+reserves a contiguous range of virtual addresses for a program without
+assigning any physical memory. Then, when the program attempts to use that
+memory for the first time, the OS commits the virtual addresses, assigning
+physical storage to the virtual pages as needed.</p>
+<p>CUDA’s VMM API brings a similar concept to GPU memory management by allowing
+developers to explicitly reserve a virtual address range and then later map it
+to physical GPU memory. With VMM, applications can specifically choose
+certain allocations to be accessible by other devices.</p>
+<p>The VMM API lets complex applications to manage
+memory more efficiently across multiple GPUs (and CPU cores). By enabling
+manual control over memory reservation, mapping, and access permissions, the
+VMM API enables advanced techniques like fine-grained data sharing, zero-copy
+transfers, and custom memory allocators. The CUDA VMM API expose fine grained
+control to the user for managing the GPU memory in applications.</p>
+<p>Developers can benefit from the VMM API in several key ways:</p>
+<ul class="simple">
+<li><p>Fine-grained control over virtual and physical memory management, allowing
+allocation and mapping of non-contiguous physical memory chunks to
+contiguous virtual address spaces. This helps reduce GPU memory
+fragmentation and improve memory utilization, especially for large
+workloads like deep neural network training.</p></li>
+<li><p>Efficient memory allocation and deallocation by separating the reservation
+of virtual address space from the physical memory allocation. Developers
+can reserve large virtual memory regions and map physical memory on demand
+without costly memory copies or reallocations, leading to performance
+improvements in dynamic data structures and variable-sized memory
+allocations.</p></li>
+<li><p>The ability to grow GPU memory allocations dynamically without needing to
+copy and reallocate all data, similar to how <code class="docutils literal notranslate"><span class="pre">realloc</span></code> or <code class="docutils literal notranslate"><span class="pre">std::vector</span></code> works
+in CPU memory management. This supports more flexible and efficient GPU
+memory use patterns.</p></li>
+<li><p>Enhancements to developer productivity and application performance by
+providing low-level APIs that allow building sophisticated memory
+allocators and cache management systems, such as dynamically managing
+key-value caches in large language models, improving throughput and
+latency.</p></li>
+<li><p>The CUDA VMM API is highly valuable in distributed multi-GPU settings as
+it enables efficient memory sharing and access across multiple GPUs. By
+decoupling virtual addresses from physical memory, the API allows
+developers to create a unified virtual address space where data can be
+dynamically mapped to different GPUs. This optimizes memory usage and
+reduces data transfer overhead. For instance, NVIDIA’s libraries like NCCL,
+and NVShmem actively uses VMM.</p></li>
+</ul>
+<p>In summary, the CUDA VMM API gives developers advanced tools for fine-tuned,
+efficient, flexible, and scalable GPU memory management beyond traditional
+malloc-like abstractions, which is important for high-performance and
+large-memory applications</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The suite of APIs described in this section require a system that
+supports UVA. See The <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__VA.html">Virtual Memory Management APIs</a>.</p>
+</div>
+<section id="preliminaries">
+<h2><span class="section-number">4.16.1. </span>Preliminaries<a class="headerlink" href="virtual-memory-management.html#preliminaries" title="Link to this heading">#</a></h2>
+<section id="definitions">
+<h3><span class="section-number">4.16.1.1. </span>Definitions<a class="headerlink" href="virtual-memory-management.html#definitions" title="Link to this heading">#</a></h3>
+<p><strong>Fabric Memory:</strong>
+Fabric memory refers to memory that is accessible over a high-speed
+interconnect fabric such as NVIDIA’s NVLink and NVSwitch. This fabric provides
+a memory coherence and high-bandwidth communication layer between multiple
+GPUs or nodes, enabling them to share memory efficiently as if the memory is
+attached to a unified fabric rather than isolated on individual devices.</p>
+<p>CUDA 12.4 and later have a VMM allocation handle type
+<code class="docutils literal notranslate"><span class="pre">CU_MEM_HANDLE_TYPE_FABRIC</span></code>. On supported platforms and provided the NVIDIA
+IMEX daemon is running, this allocation handle type enables sharing allocations
+not only intra-node with any communication mechanism, e.g. MPI, but also inter-node.
+This allows GPUs in a multi-node NVLink system to map the memory of all
+other GPUs part of the same NVLink fabric even if they are in different nodes.</p>
+<p><strong>Memory Handles:</strong>
+In VMM, handles are opaque identifiers that represent physical memory
+allocations. These handles are central to managing memory in the low-level
+CUDA VMM API. They enable flexible control over physical memory objects that
+can be mapped into virtual address spaces.
+A handle uniquely identifies a physical memory allocation.
+Handles serve as an abstract reference to memory resources without exposing
+direct pointers. Handles allow operations like exporting and importing memory
+across processes or devices, facilitating memory sharing and virtualization.</p>
+<p><strong>IMEX Channels:</strong>
+The name IMEX stands for <em>internode memory exchange</em> and is part of NVIDIA’s
+solution for GPU-to-GPU communication across different nodes.
+IMEX channels are a GPU driver feature that provides user-based memory
+isolation in multi-user or multi-node environments within an IMEX domain.
+IMEX channels serve as a security and isolation mechanism.</p>
+<p>IMEX channels are directly related to the fabric handle and has to be enabled
+in multi-node GPU communication. When a GPU allocates
+memory and wants to make it accessible to a GPU on a different node, it first
+needs to export a handle to that memory. The IMEX channel is used during
+this export process to generate a secure fabric handle that can only be
+imported by a remote process with the correct channel access.</p>
+<p><strong>Unicast Memory Access:</strong>
+Unicast memory access in the context of VMM API refers to the
+controlled, direct mapping and access of physical memory to a unique virtual
+address range by a specific device or process. Instead of broadcasting access
+to multiple devices, unicast memory access means that a particular GPU device
+is granted explicit read/write permissions to a reserved virtual address range
+that maps to a physical memory allocation.</p>
+<p><strong>Multicast Memory Access:</strong>
+Multicast memory access in the context of the VMM API refers to the capability
+for a single physical memory allocation or region to be mapped
+simultaneously to multiple devices’ virtual address spaces using a multicast
+mechanism. This allows data to be efficiently shared in a one-to-many fashion
+across multiple GPUs, reducing redundant data transfers and
+improving communication efficiency.
+NVIDIA’s CUDA VMM API supports creating a multicast object that binds together
+physical memory allocations from multiple devices.</p>
+</section>
+<section id="query-for-support">
+<h3><span class="section-number">4.16.1.2. </span>Query for Support<a class="headerlink" href="virtual-memory-management.html#query-for-support" title="Link to this heading">#</a></h3>
+<p>Applications should query for feature support before attempting to use
+them, as their availability can vary depending on the GPU architecture, driver
+version, and specific software libraries being used. The following sections
+detail how to programmatically check for the necessary support.</p>
+<p><strong>VMM Support</strong>
+Before attempting to use VMM APIs, applications must
+ensure that the devices they want to use support CUDA virtual memory
+management. The following code sample shows querying for VMM support:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">deviceSupportsVmm</span><span class="p">;</span>
+<span class="n">CUresult</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuDeviceGetAttribute</span><span class="p">(</span><span class="o">&amp;</span><span class="n">deviceSupportsVmm</span><span class="p">,</span><span class="w"> </span><span class="n">CU_DEVICE_ATTRIBUTE_VIRTUAL_MEMORY_MANAGEMENT_SUPPORTED</span><span class="p">,</span><span class="w"> </span><span class="n">device</span><span class="p">);</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">deviceSupportsVmm</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// `device` supports Virtual Memory Management</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Fabric Memory Support:</strong>
+Before attempting to use fabric memory, applications must ensure that the
+devices they want to use support fabric memory. The following code
+sample shows querying for fabric memory support:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">deviceSupportsFabricMem</span><span class="p">;</span>
+<span class="n">CUresult</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuDeviceGetAttribute</span><span class="p">(</span><span class="o">&amp;</span><span class="n">deviceSupportsFabricMem</span><span class="p">,</span><span class="w"> </span><span class="n">CU_DEVICE_ATTRIBUTE_HANDLE_TYPE_FABRIC_SUPPORTED</span><span class="p">,</span><span class="w"> </span><span class="n">device</span><span class="p">);</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">deviceSupportsFabricMem</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// `device` supports Fabric Memory</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Aside from using <code class="docutils literal notranslate"><span class="pre">CU_MEM_HANDLE_TYPE_FABRIC</span></code> as handle type and not
+requiring OS native mechanisms for inter-process communication to exchange
+sharable handles, there is no difference in using fabric memory compared to
+other allocation handle types.</p>
+<p><strong>IMEX Channels Support</strong>
+Within an IMEX domain, IMEX channels enable secure memory sharing in
+multi-user environments. The NVIDIA driver implements this by creating a
+character device, <code class="docutils literal notranslate"><span class="pre">nvidia-caps-imex-channels</span></code>. To use fabric handle-based
+sharing, users should verify two things:</p>
+<ul class="simple">
+<li><p>First, applications must verify that this device exists under
+<cite>/proc/devices</cite>:</p></li>
+</ul>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp"># cat /proc/devices | grep nvidia</span>
+<span class="mi">195</span><span class="w"> </span><span class="n">nvidia</span>
+<span class="mi">195</span><span class="w"> </span><span class="n">nvidiactl</span>
+<span class="mi">234</span><span class="w"> </span><span class="n">nvidia</span><span class="o">-</span><span class="n">caps</span><span class="o">-</span><span class="n">imex</span><span class="o">-</span><span class="n">channels</span>
+<span class="mi">509</span><span class="w"> </span><span class="n">nvidia</span><span class="o">-</span><span class="n">nvswitch</span>
+
+<span class="n">The</span><span class="w"> </span><span class="n">nvidia</span><span class="o">-</span><span class="n">caps</span><span class="o">-</span><span class="n">imex</span><span class="o">-</span><span class="n">channels</span><span class="w"> </span><span class="n">device</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">have</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">major</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.,</span><span class="w"> </span><span class="mi">234</span><span class="p">).</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Second, for two CUDA processes (an exporter and an importer) to share memory,
+they must both have access to the same IMEX channel file. These files, such
+as <cite>/dev/nvidia-caps-imex-channels/channel0</cite>, are nodes that represent
+individual IMEX channels. System administrators must create these files, for
+example, using the <cite>mknod()</cite> command.</p></li>
+</ul>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp"># mknod /dev/nvidia-caps-imex-channels/channelN c &lt;major_number&gt; 0</span>
+
+<span class="n">This</span><span class="w"> </span><span class="n">command</span><span class="w"> </span><span class="n">creates</span><span class="w"> </span><span class="n">channelN</span><span class="w"> </span><span class="k">using</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">major</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">obtained</span><span class="w"> </span><span class="n">from</span>
+<span class="o">/</span><span class="n">proc</span><span class="o">/</span><span class="n">devices</span><span class="p">.</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, the driver can create channel0
+if the <cite>NVreg_CreateImexChannel0</cite> module parameter is specified.</p>
+</div>
+<p><strong>Multicast Object Support:</strong>
+Before attempting to use multicast objects, applications must ensure that the
+devices they want to use support them. The following code sample
+shows querying for multicast object support:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">deviceSupportsMultiCast</span><span class="p">;</span>
+<span class="n">CUresult</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuDeviceGetAttribute</span><span class="p">(</span><span class="o">&amp;</span><span class="n">deviceSupportsMultiCast</span><span class="p">,</span><span class="w"> </span><span class="n">CU_DEVICE_ATTRIBUTE_MULTICAST_SUPPORTED</span><span class="p">,</span><span class="w"> </span><span class="n">device</span><span class="p">);</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">deviceSupportsMultiCast</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// `device` supports Multicast Objects</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="api-overview">
+<h2><span class="section-number">4.16.2. </span>API Overview<a class="headerlink" href="virtual-memory-management.html#api-overview" title="Link to this heading">#</a></h2>
+<p>The VMM API provides developers
+with granular control over virtual memory management. VMM, being a very low-level API,
+requires use of the <a class="reference internal" href="../03-advanced/driver-api.html#driver-api"><span class="std std-ref">CUDA Driver API</span></a> directly.
+This versatile API can be used in both single-node and multi-node
+environments.</p>
+<p>To use VMM effectively,
+developers must have a solid grasp of a few key concepts in memory management:
+- Knowledge of the operating system’s virtual memory fundamentals, including how it handles pages and address spaces
+- An understanding of memory hierarchy and hardware characteristics is necessary
+- Familiarity with inter-process communication (IPC) methods, such as sockets or message passing,
+- A basic knowledge of security for memory access rights</p>
+<figure class="align-center" id="vmm-overview-diagram">
+<a class="reference internal image-reference" href="../_images/vmm-overview-diagram.png"><img alt="VMM Usage Overview Diagram" src="../_images/vmm-overview-diagram.png" style="width: 350px;" />
+</a>
+<figcaption>
+<p><span class="caption-number">Figure 52 </span><span class="caption-text">VMM Usage Overview.
+This diagram outlines the series of steps required for VMM utilization.
+The process begins by evaluating the environmental setup. Based on this
+assessment, the user must make a critical initial decision: whether to
+utilize fabric memory handles or OS-specific handles.
+A distinct series of subsequent steps must be taken based on the initial
+handle choice. However, the final memory management operations—specifically
+mapping, reserving, and setting access rights of the allocated memory—are
+identical to the type of handle that was selected.</span><a class="headerlink" href="virtual-memory-management.html#vmm-overview-diagram" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The VMM API workflow involves a sequence of steps for memory management, with
+a key focus on sharing memory between different devices or processes.
+Initially, a developer must allocate physical memory on the source device. To
+facilitate sharing, the VMM API utilizes handles to convey necessary
+information to the target device or process. The user must export a handle for
+sharing, which can be either an OS-specific handle or a fabric-specific
+handle. OS-specific handles are limited to inter-process communication on a
+single node, while fabric-specific handles offer greater versatility and can
+be used in both single-node and multi-node environments. It’s important to
+note that using fabric-specific handles requires the enablement of IMEX
+channels.</p>
+<p>Once the handle is exported, it must be shared with the receiving process or
+processes using an inter-process communication protocol, with the choice
+of method left to the developer. The receiving process then uses the VMM API
+to import the handle. After the handle has been successfully exported, shared,
+and imported, both the source and target processes must reserve virtual
+address space where the allocated physical memory will be mapped. The final
+step is to set the memory access rights for each device, ensuring proper
+permissions are established. This entire process, including both handle
+approaches, is further detailed in the accompanying figure.</p>
+</section>
+<section id="unicast-memory-sharing">
+<h2><span class="section-number">4.16.3. </span>Unicast Memory Sharing<a class="headerlink" href="virtual-memory-management.html#unicast-memory-sharing" title="Link to this heading">#</a></h2>
+<p>Sharing GPU memory can happen on one machine with multiple GPUs or across a
+network of machines. The process follows these steps:</p>
+<ul class="simple">
+<li><p>Allocate and Export: A CUDA program on one GPU allocates memory and gets a
+sharable handle for it.</p></li>
+<li><p>Share and Import: The handle is then sent to other programs on the node
+using IPC, MPI, or NCCL etc. In the receiving GPUs, the CUDA driver imports
+the handle, creates the necessary memory objects</p></li>
+<li><p>Reserve and Map: The driver creates a mapping from the program’s Virtual
+Address (VA) to the GPU’s Physical Address (PA) to its network Fabric
+Address (FA).</p></li>
+<li><p>Access Rights: Setting access rights for the allocation.</p></li>
+<li><p>Releasing the Memory: Freeing all allocations when program ends its execution.</p></li>
+</ul>
+<figure class="align-center" id="unicast-memory-sharing-example">
+<a class="reference internal image-reference" href="../_images/unicast-memory-sharing.png"><img alt="Unicast Memory Sharing Example" src="../_images/unicast-memory-sharing.png" style="width: 600px;" />
+</a>
+<figcaption>
+<p><span class="caption-number">Figure 53 </span><span class="caption-text">Unicast Memory Sharing Example</span><a class="headerlink" href="virtual-memory-management.html#unicast-memory-sharing-example" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<section id="allocate-and-export">
+<h3><span class="section-number">4.16.3.1. </span>Allocate and Export<a class="headerlink" href="virtual-memory-management.html#allocate-and-export" title="Link to this heading">#</a></h3>
+<p><strong>Allocating Physical Memory</strong>
+The first step in memory allocation using virtual memory management APIs is to
+create a physical memory chunk that will provide a backing for the allocation.
+In order to allocate physical memory, applications must use the
+<code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code> API. The allocation created by this function does not have any
+device or host mappings. The function argument
+<code class="docutils literal notranslate"><span class="pre">CUmemGenericAllocationHandle</span></code> describes the properties of the memory to
+allocate such as the location of the allocation, if the allocation is going to
+be shared to another process (or graphics APIs), or the physical
+attributes of the memory to be allocated. Users must ensure the requested
+allocation’s size is aligned to appropriate granularity. Information
+regarding an allocation’s granularity requirements can be queried using
+<code class="docutils literal notranslate"><span class="pre">cuMemGetAllocationGranularity</span></code>.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-0">
+OS-Specific Handle (Linux)</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="n">CUmemGenericAllocationHandle</span><span class="w"> </span><span class="nf">allocatePhysicalMemory</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">device</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">CUmemAllocationHandleType</span><span class="w"> </span><span class="n">handleType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR</span><span class="p">;</span>
+<span class="w">    </span><span class="n">CUmemAllocationProp</span><span class="w"> </span><span class="n">prop</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+<span class="w">    </span><span class="n">prop</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CU_MEM_ALLOCATION_TYPE_PINNED</span><span class="p">;</span>
+<span class="w">    </span><span class="n">prop</span><span class="p">.</span><span class="n">location</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CU_MEM_LOCATION_TYPE_DEVICE</span><span class="p">;</span>
+<span class="w">    </span><span class="n">prop</span><span class="p">.</span><span class="n">location</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">device</span><span class="p">;</span>
+<span class="w">    </span><span class="n">prop</span><span class="p">.</span><span class="n">requestedHandleType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">handleType</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">granularity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">cuMemGetAllocationGranularity</span><span class="p">(</span><span class="o">&amp;</span><span class="n">granularity</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">prop</span><span class="p">,</span><span class="w"> </span><span class="n">CU_MEM_ALLOC_GRANULARITY_MINIMUM</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Ensure size matches granularity requirements for the allocation</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">padded_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ROUND_UP</span><span class="p">(</span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">granularity</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Allocate physical memory</span>
+<span class="w">    </span><span class="n">CUmemGenericAllocationHandle</span><span class="w"> </span><span class="n">allocHandle</span><span class="p">;</span>
+<span class="w">    </span><span class="n">cuMemCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">allocHandle</span><span class="p">,</span><span class="w"> </span><span class="n">padded_size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">prop</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">allocHandle</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1">
+Fabric Handle</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="n">CUmemGenericAllocationHandle</span><span class="w"> </span><span class="nf">allocatePhysicalMemory</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">device</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">CUmemAllocationHandleType</span><span class="w"> </span><span class="n">handleType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CU_MEM_HANDLE_TYPE_FABRIC</span><span class="p">;</span>
+<span class="w">    </span><span class="n">CUmemAllocationProp</span><span class="w"> </span><span class="n">prop</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+<span class="w">    </span><span class="n">prop</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CU_MEM_ALLOCATION_TYPE_PINNED</span><span class="p">;</span>
+<span class="w">    </span><span class="n">prop</span><span class="p">.</span><span class="n">location</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CU_MEM_LOCATION_TYPE_DEVICE</span><span class="p">;</span>
+<span class="w">    </span><span class="n">prop</span><span class="p">.</span><span class="n">location</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">device</span><span class="p">;</span>
+<span class="w">    </span><span class="n">prop</span><span class="p">.</span><span class="n">requestedHandleType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">handleType</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">granularity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">cuMemGetAllocationGranularity</span><span class="p">(</span><span class="o">&amp;</span><span class="n">granularity</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">prop</span><span class="p">,</span><span class="w"> </span><span class="n">CU_MEM_ALLOC_GRANULARITY_MINIMUM</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Ensure size matches granularity requirements for the allocation</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">padded_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ROUND_UP</span><span class="p">(</span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">granularity</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Allocate physical memory</span>
+<span class="w">    </span><span class="n">CUmemGenericAllocationHandle</span><span class="w"> </span><span class="n">allocHandle</span><span class="p">;</span>
+<span class="w">    </span><span class="n">cuMemCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">allocHandle</span><span class="p">,</span><span class="w"> </span><span class="n">padded_size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">prop</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">allocHandle</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The memory allocated by <code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code> is referenced by the
+<code class="docutils literal notranslate"><span class="pre">CUmemGenericAllocationHandle</span></code> it returns. Note that this reference is
+not a pointer and its memory is not accessible yet.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Properties of the allocation handle can be queried using
+<code class="docutils literal notranslate"><span class="pre">cuMemGetAllocationPropertiesFromHandle</span></code>.</p>
+</div>
+<p id="shareable-physical-memory"><strong>Exporting Memory Handle</strong>
+The CUDA virtual memory management API expose a new mechanism for interprocess
+communication using handles to exchange necessary information about the
+allocation and physical address space. One can export handles for OS-specific
+IPC or fabric-specific IPC. OS-specific IPC handles can only be used on a
+single-node setup. Fabric-specific handles can be used on a single or multi
+node setups.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-2">
+OS-Specific Handle (Linux)</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="n">CUmemAllocationHandleType</span><span class="w"> </span><span class="n">handleType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR</span><span class="p">;</span>
+<span class="n">CUmemGenericAllocationHandle</span><span class="w"> </span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">allocatePhysicalMemory</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">21</span><span class="p">);</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">fd</span><span class="p">;</span>
+<span class="n">cuMemExportToShareableHandle</span><span class="p">(</span><span class="o">&amp;</span><span class="n">fd</span><span class="p">,</span><span class="w"> </span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="n">handleType</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-3">
+Fabric Handle</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="n">CUmemAllocationHandleType</span><span class="w"> </span><span class="n">handleType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CU_MEM_HANDLE_TYPE_FABRIC</span><span class="p">;</span>
+<span class="n">CUmemGenericAllocationHandle</span><span class="w"> </span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">allocatePhysicalMemory</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">21</span><span class="p">);</span>
+<span class="n">CUmemFabricHandle</span><span class="w"> </span><span class="n">fh</span><span class="p">;</span>
+<span class="n">cuMemExportToShareableHandle</span><span class="p">(</span><span class="o">&amp;</span><span class="n">fh</span><span class="p">,</span><span class="w"> </span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="n">handleType</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>OS-specific handles require all processes to be part of the same OS.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Fabric-specific handles require IMEX channels to be enabled by sysadmin.</p>
+</div>
+<p>The <a class="reference external" href="https://github.com/NVIDIA/cuda-samples/tree/master/Samples/3_CUDA_Features/memMapIPCDrv/">memMapIpcDrv</a>
+sample can be used as an example for using IPC with VMM allocations.</p>
+</section>
+<section id="share-and-import">
+<h3><span class="section-number">4.16.3.2. </span>Share and Import<a class="headerlink" href="virtual-memory-management.html#share-and-import" title="Link to this heading">#</a></h3>
+<p><strong>Sharing Memory Handle</strong>
+Once the handle is exported, it must be shared with the receiving process or
+processes using an inter-process communication protocol. The developer is free to
+use any method for sharing the handle. The specific IPC method used depends on the
+application’s design and environment. Common methods include OS-specific
+inter-process sockets and distributed message passing. Using OS-specific IPC
+offers high-performance transfer, but is limited to processes on the
+same machine and not portable. Fabric-specific IPC is simpler and more
+portable. However, fabric-specific IPC requires system-level support. The chosen
+method must securely and reliably transfer the handle data to the target
+process so it can be used to import the memory and establish a valid mapping.
+The flexibility in choosing the IPC method allows the VMM API to be integrated
+into a wide range of system architectures, from single-node applications to
+distributed, multi-node setups. In the following code snippets, we’ll provide
+examples for sharing and receiving handles using both socket programming and
+MPI.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-4" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-4">
+Send: OS-Specific IPC (Linux)</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">ipcSendShareableHandle</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">socket</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">fd</span><span class="p">,</span><span class="w"> </span><span class="kt">pid_t</span><span class="w"> </span><span class="n">process</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">msghdr</span><span class="w"> </span><span class="n">msg</span><span class="p">;</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">iovec</span><span class="w"> </span><span class="n">iov</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+
+<span class="w">    </span><span class="k">union</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">cmsghdr</span><span class="w"> </span><span class="n">cm</span><span class="p">;</span>
+<span class="w">        </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">control</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">control_un</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">sizeof_control</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CMSG_SPACE</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">))</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">char</span><span class="p">);</span>
+<span class="w">    </span><span class="n">control_un</span><span class="p">.</span><span class="n">control</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">malloc</span><span class="p">(</span><span class="n">sizeof_control</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">cmsghdr</span><span class="w"> </span><span class="o">*</span><span class="n">cmptr</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">ssize_t</span><span class="w"> </span><span class="n">readResult</span><span class="p">;</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">sockaddr_un</span><span class="w"> </span><span class="n">cliaddr</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">socklen_t</span><span class="w"> </span><span class="n">len</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">cliaddr</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Construct client address to send this SHareable handle to</span>
+<span class="w">    </span><span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">cliaddr</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">cliaddr</span><span class="p">));</span>
+<span class="w">    </span><span class="n">cliaddr</span><span class="p">.</span><span class="n">sun_family</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AF_UNIX</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">temp</span><span class="p">[</span><span class="mi">20</span><span class="p">];</span>
+<span class="w">    </span><span class="n">sprintf</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%s%u&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;/tmp/&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">process</span><span class="p">);</span>
+<span class="w">    </span><span class="n">strcpy</span><span class="p">(</span><span class="n">cliaddr</span><span class="p">.</span><span class="n">sun_path</span><span class="p">,</span><span class="w"> </span><span class="n">temp</span><span class="p">);</span>
+<span class="w">    </span><span class="n">len</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">cliaddr</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Send corresponding shareable handle to the client</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">sendfd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fd</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">msg</span><span class="p">.</span><span class="n">msg_control</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">control_un</span><span class="p">.</span><span class="n">control</span><span class="p">;</span>
+<span class="w">    </span><span class="n">msg</span><span class="p">.</span><span class="n">msg_controllen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sizeof_control</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">cmptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CMSG_FIRSTHDR</span><span class="p">(</span><span class="o">&amp;</span><span class="n">msg</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cmptr</span><span class="o">-&gt;</span><span class="n">cmsg_len</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CMSG_LEN</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+<span class="w">    </span><span class="n">cmptr</span><span class="o">-&gt;</span><span class="n">cmsg_level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SOL_SOCKET</span><span class="p">;</span>
+<span class="w">    </span><span class="n">cmptr</span><span class="o">-&gt;</span><span class="n">cmsg_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SCM_RIGHTS</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">memmove</span><span class="p">(</span><span class="n">CMSG_DATA</span><span class="p">(</span><span class="n">cmptr</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">sendfd</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">sendfd</span><span class="p">));</span>
+
+<span class="w">    </span><span class="n">msg</span><span class="p">.</span><span class="n">msg_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">cliaddr</span><span class="p">;</span>
+<span class="w">    </span><span class="n">msg</span><span class="p">.</span><span class="n">msg_namelen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">sockaddr_un</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">iov</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">iov_base</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="s">&quot;&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">iov</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">iov_len</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="n">msg</span><span class="p">.</span><span class="n">msg_iov</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iov</span><span class="p">;</span>
+<span class="w">    </span><span class="n">msg</span><span class="p">.</span><span class="n">msg_iovlen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kt">ssize_t</span><span class="w"> </span><span class="n">sendResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sendmsg</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sendResult</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">perror</span><span class="p">(</span><span class="s">&quot;IPC failure: Sending data over socket failed&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">free</span><span class="p">(</span><span class="n">control_un</span><span class="p">.</span><span class="n">control</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">free</span><span class="p">(</span><span class="n">control_un</span><span class="p">.</span><span class="n">control</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-5" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-5">
+Send: OS-Specific IPC (WIN)</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">ipcSendShareableHandle</span><span class="p">(</span><span class="n">HANDLE</span><span class="w"> </span><span class="o">*</span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="n">HANDLE</span><span class="w"> </span><span class="o">&amp;</span><span class="n">shareableHandle</span><span class="p">,</span><span class="w"> </span><span class="n">PROCESS_INFORMATION</span><span class="w"> </span><span class="n">process</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">HANDLE</span><span class="w"> </span><span class="n">hProcess</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OpenProcess</span><span class="p">(</span><span class="n">PROCESS_DUP_HANDLE</span><span class="p">,</span><span class="w"> </span><span class="n">FALSE</span><span class="p">,</span><span class="w"> </span><span class="n">process</span><span class="p">.</span><span class="n">dwProcessId</span><span class="p">);</span>
+<span class="w">    </span><span class="n">HANDLE</span><span class="w"> </span><span class="n">hDup</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">INVALID_HANDLE_VALUE</span><span class="p">;</span>
+<span class="w">    </span><span class="n">DuplicateHandle</span><span class="p">(</span><span class="n">GetCurrentProcess</span><span class="p">(),</span><span class="w"> </span><span class="n">shareableHandle</span><span class="p">,</span><span class="w"> </span><span class="n">hProcess</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">hDup</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">FALSE</span><span class="p">,</span><span class="w"> </span><span class="n">DUPLICATE_SAME_ACCESS</span><span class="p">);</span>
+<span class="w">    </span><span class="n">DWORD</span><span class="w"> </span><span class="n">cbWritten</span><span class="p">;</span>
+<span class="w">    </span><span class="n">WriteFile</span><span class="p">(</span><span class="n">handle</span><span class="o">-&gt;</span><span class="n">hMailslot</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="o">&amp;</span><span class="n">hDup</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">DWORD</span><span class="p">)</span><span class="k">sizeof</span><span class="p">(</span><span class="n">hDup</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">cbWritten</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">LPOVERLAPPED</span><span class="p">)</span><span class="nb">NULL</span><span class="p">);</span>
+<span class="w">    </span><span class="n">CloseHandle</span><span class="p">(</span><span class="n">hProcess</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-6" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-6">
+Send: Fabric IPC</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="n">MPI_Send</span><span class="p">(</span><span class="o">&amp;</span><span class="n">fh</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">CUmemFabricHandle</span><span class="p">),</span><span class="w"> </span><span class="n">MPI_BYTE</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_COMM_WORLD</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-7" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-7">
+Receive: OS-Specific IPC (Linux)</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">ipcRecvShareableHandle</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">socket</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">*</span><span class="w"> </span><span class="n">fd</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">msghdr</span><span class="w"> </span><span class="n">msg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">iovec</span><span class="w"> </span><span class="n">iov</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">cmsghdr</span><span class="w"> </span><span class="n">cm</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Union to guarantee alignment requirements for control array</span>
+<span class="w">    </span><span class="k">union</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">cmsghdr</span><span class="w"> </span><span class="n">cm</span><span class="p">;</span>
+<span class="w">        </span><span class="c1">// This will not work on QNX as QNX CMSG_SPACE calls __cmsg_alignbytes</span>
+<span class="w">        </span><span class="c1">// And __cmsg_alignbytes is a runtime function instead of compile-time macros</span>
+<span class="w">        </span><span class="c1">// char control[CMSG_SPACE(sizeof(int))]</span>
+<span class="w">        </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">control</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="n">control_un</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">sizeof_control</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CMSG_SPACE</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">))</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">char</span><span class="p">);</span>
+<span class="w">    </span><span class="n">control_un</span><span class="p">.</span><span class="n">control</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">malloc</span><span class="p">(</span><span class="n">sizeof_control</span><span class="p">);</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">cmsghdr</span><span class="w"> </span><span class="o">*</span><span class="n">cmptr</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">ssize_t</span><span class="w"> </span><span class="n">n</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">receivedfd</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">dummy_buffer</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+<span class="w">    </span><span class="kt">ssize_t</span><span class="w"> </span><span class="n">sendResult</span><span class="p">;</span>
+<span class="w">    </span><span class="n">msg</span><span class="p">.</span><span class="n">msg_control</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">control_un</span><span class="p">.</span><span class="n">control</span><span class="p">;</span>
+<span class="w">    </span><span class="n">msg</span><span class="p">.</span><span class="n">msg_controllen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sizeof_control</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">iov</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">iov_base</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">dummy_buffer</span><span class="p">;</span>
+<span class="w">    </span><span class="n">iov</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">iov_len</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">dummy_buffer</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">msg</span><span class="p">.</span><span class="n">msg_iov</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iov</span><span class="p">;</span>
+<span class="w">    </span><span class="n">msg</span><span class="p">.</span><span class="n">msg_iovlen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">recvmsg</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">perror</span><span class="p">(</span><span class="s">&quot;IPC failure: Receiving data over socket failed&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">free</span><span class="p">(</span><span class="n">control_un</span><span class="p">.</span><span class="n">control</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(((</span><span class="n">cmptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CMSG_FIRSTHDR</span><span class="p">(</span><span class="o">&amp;</span><span class="n">msg</span><span class="p">))</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="w">        </span><span class="p">(</span><span class="n">cmptr</span><span class="o">-&gt;</span><span class="n">cmsg_len</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">CMSG_LEN</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">))))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">cmptr</span><span class="o">-&gt;</span><span class="n">cmsg_level</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">SOL_SOCKET</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="n">cmptr</span><span class="o">-&gt;</span><span class="n">cmsg_type</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">SCM_RIGHTS</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">free</span><span class="p">(</span><span class="n">control_un</span><span class="p">.</span><span class="n">control</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="n">memmove</span><span class="p">(</span><span class="o">&amp;</span><span class="n">receivedfd</span><span class="p">,</span><span class="w"> </span><span class="n">CMSG_DATA</span><span class="p">(</span><span class="n">cmptr</span><span class="p">),</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">receivedfd</span><span class="p">));</span>
+<span class="w">        </span><span class="o">*</span><span class="n">fd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">receivedfd</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">free</span><span class="p">(</span><span class="n">control_un</span><span class="p">.</span><span class="n">control</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">free</span><span class="p">(</span><span class="n">control_un</span><span class="p">.</span><span class="n">control</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-8" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-8">
+Receive: OS-Specific IPC (WIN)</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">ipcRecvShareableHandle</span><span class="p">(</span><span class="n">HANDLE</span><span class="w"> </span><span class="o">&amp;</span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="n">HANDLE</span><span class="w"> </span><span class="o">*</span><span class="n">shareableHandle</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">DWORD</span><span class="w"> </span><span class="n">cbRead</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ReadFile</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="n">shareableHandle</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">DWORD</span><span class="p">)</span><span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">shareableHandles</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">cbRead</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-9" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-9">
+Receive: Fabric IPC</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="n">MPI_Recv</span><span class="p">(</span><span class="o">&amp;</span><span class="n">fh</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">CUmemFabricHandle</span><span class="p">),</span><span class="w"> </span><span class="n">MPI_BYTE</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_COMM_WORLD</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p><strong>Importing Memory Handle</strong>
+Again, the user can import handles for OS-specific
+IPC or fabric-specific IPC. OS-specific IPC handles can only be used on a
+single-node. Fabric-specific handles can be used for single or multi node.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-10" name="sd-tab-set-3" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-10">
+OS-Specific Handle (Linux)</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="n">CUmemAllocationHandleType</span><span class="w"> </span><span class="n">handleType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR</span><span class="p">;</span>
+<span class="n">cuMemImportFromShareableHandle</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="n">fd</span><span class="p">,</span><span class="w"> </span><span class="n">handleType</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-11" name="sd-tab-set-3" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-11">
+Fabric Handle</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="n">CUmemAllocationHandleType</span><span class="w"> </span><span class="n">handleType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CU_MEM_HANDLE_TYPE_FABRIC</span><span class="p">;</span>
+<span class="n">cuMemImportFromShareableHandle</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="n">fh</span><span class="p">,</span><span class="w"> </span><span class="n">handleType</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="reserve-and-map">
+<h3><span class="section-number">4.16.3.3. </span>Reserve and Map<a class="headerlink" href="virtual-memory-management.html#reserve-and-map" title="Link to this heading">#</a></h3>
+<p><strong>Reserving a Virtual Address Range</strong></p>
+<p>Since notions of address and memory are distinct in VMM,
+applications must carve out an address range that can hold the
+memory allocations made by <code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code>. The address range reserved must be
+at least as large as the sum of the sizes of all the physical memory
+allocations the user plans to place in them.</p>
+<p>Applications can reserve a virtual address range by passing appropriate
+parameters to <code class="docutils literal notranslate"><span class="pre">cuMemAddressReserve</span></code>. The address range obtained will not
+have any device or host physical memory associated with it. The reserved
+virtual address range can be mapped to memory chunks belonging to any device
+in the system, thus providing the application a continuous VA range backed and
+mapped by memory belonging to different devices. Applications are expected to
+return the virtual address range back to CUDA using <code class="docutils literal notranslate"><span class="pre">cuMemAddressFree</span></code>.
+Users must ensure that the entire VA range is unmapped before calling
+<code class="docutils literal notranslate"><span class="pre">cuMemAddressFree</span></code>. These functions are conceptually similar to <code class="docutils literal notranslate"><span class="pre">mmap</span></code> and <code class="docutils literal notranslate"><span class="pre">munmap</span></code>
+on Linux or <code class="docutils literal notranslate"><span class="pre">VirtualAlloc</span></code> AND <code class="docutils literal notranslate"><span class="pre">VirtualFree</span></code> on Windows. The following
+code snippet illustrates the usage for the function:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">CUdeviceptr</span><span class="w"> </span><span class="n">ptr</span><span class="p">;</span>
+<span class="c1">// `ptr` holds the returned start of virtual address range reserved.</span>
+<span class="n">CUresult</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuMemAddressReserve</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="c1">// alignment = 0 for default alignment</span>
+</pre></div>
+</div>
+<p><strong>Mapping Memory</strong></p>
+<p>The allocated physical memory and the carved out virtual address space from
+the previous two sections represent the memory and address distinction
+introduced by the VMM APIs. For the allocated memory to
+be useable, the user must map the memory to the address space. The
+address range obtained from <code class="docutils literal notranslate"><span class="pre">cuMemAddressReserve</span></code> and the physical
+allocation obtained from <code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code> or <code class="docutils literal notranslate"><span class="pre">cuMemImportFromShareableHandle</span></code>
+must be associated with each other by using <code class="docutils literal notranslate"><span class="pre">cuMemMap</span></code>.</p>
+<p>Users can associate allocations from multiple devices to reside in contiguous
+virtual address ranges as long as they have carved out enough address space.
+To decouple the physical allocation and the address range, users must
+unmap the address of the mapping with <code class="docutils literal notranslate"><span class="pre">cuMemUnmap</span></code>. Users can map and
+unmap memory to the same address range as many times as they want, so long as
+they ensure that they don’t attempt to create mappings on VA range
+reservations that are already mapped. The following code snippet illustrates
+the usage for the function:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">CUdeviceptr</span><span class="w"> </span><span class="n">ptr</span><span class="p">;</span>
+<span class="c1">// `ptr`: address in the address range previously reserved by cuMemAddressReserve.</span>
+<span class="c1">// `allocHandle`: CUmemGenericAllocationHandle obtained by a previous call to cuMemCreate.</span>
+<span class="n">CUresult</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuMemMap</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">allocHandle</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="access-rights">
+<h3><span class="section-number">4.16.3.4. </span>Access Rights<a class="headerlink" href="virtual-memory-management.html#access-rights" title="Link to this heading">#</a></h3>
+<p>CUDA’s virtual memory management APIs enable applications to explicitly protect
+their VA ranges with access control mechanisms. Mapping the allocation to a
+region of the address range using <code class="docutils literal notranslate"><span class="pre">cuMemMap</span></code> does not make the address
+accessible, and would result in a program crash if accessed by a CUDA kernel.
+Users must specifically select access control using the <code class="docutils literal notranslate"><span class="pre">cuMemSetAccess</span></code>
+function on source and accessing devices. This allows or restricts access for
+specific devices to a mapped  address range. The following code snippet
+illustrates the usage for the function:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">setAccessOnDevice</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">device</span><span class="p">,</span><span class="w"> </span><span class="n">CUdeviceptr</span><span class="w"> </span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">CUmemAccessDesc</span><span class="w"> </span><span class="n">accessDesc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+<span class="w">    </span><span class="n">accessDesc</span><span class="p">.</span><span class="n">location</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CU_MEM_LOCATION_TYPE_DEVICE</span><span class="p">;</span>
+<span class="w">    </span><span class="n">accessDesc</span><span class="p">.</span><span class="n">location</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">device</span><span class="p">;</span>
+<span class="w">    </span><span class="n">accessDesc</span><span class="p">.</span><span class="n">flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CU_MEM_ACCESS_FLAGS_PROT_READWRITE</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Make the address accessible</span>
+<span class="w">    </span><span class="n">cuMemSetAccess</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">accessDesc</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The access control mechanism exposed with VMM allows
+users to be explicit about which allocations they want to share with other
+peer devices on the system. As specified earlier, <code class="docutils literal notranslate"><span class="pre">cudaEnablePeerAccess</span></code>
+forces all prior and future allocations made with <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code> to be mapped to the
+target peer device. This can be convenient in many cases as user doesn’t have
+to worry about tracking the mapping state of every allocation to every device
+in the system. But
+this approach <a class="reference external" href="https://devblogs.nvidia.com/introducing-low-level-gpu-virtual-memory-management/">has performance implications</a>.
+With access control at allocation granularity, VMM
+allows peer mappings with minimal overhead.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">vectorAddMMAP</span></code> <a class="reference external" href="https://github.com/NVIDIA/cuda-samples/tree/master/Samples/0_Introduction/vectorAddMMAP">sample</a>
+can be used as an example for using the Virtual
+Memory Management APIs.</p>
+</section>
+<section id="releasing-the-memory">
+<h3><span class="section-number">4.16.3.5. </span>Releasing the Memory<a class="headerlink" href="virtual-memory-management.html#releasing-the-memory" title="Link to this heading">#</a></h3>
+<p>To release the allocated memory and address space, both the source and target
+processes should use <cite>cuMemUnmap</cite>, <cite>cuMemRelease</cite>, and <cite>cuMemAddressFree</cite> functions
+in that order. The <cite>cuMemUnmap</cite> function un-maps a previously mapped memory
+region from an address range, effectively detaching the physical memory from
+the reserved virtual address space. Next, <cite>cuMemRelease</cite> deallocates the
+physical memory that was previously created, returning it to the system.
+Finally, <cite>cuMemAddressFree</cite> frees a virtual address range that was previously
+reserved, making it available for future use. This specific order ensures a
+clean and complete deallocation of both the physical memory and the virtual
+address space.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cuMemUnmap</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
+<span class="n">cuMemRelease</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span>
+<span class="n">cuMemAddressFree</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the OS-specific case, the exported handle must be closed using <cite>fclose</cite>.
+This step is not applicable to the fabric-based case.</p>
+</div>
+</section>
+</section>
+<section id="multicast-memory-sharing">
+<span id="multicast-obj-mem"></span><h2><span class="section-number">4.16.4. </span>Multicast Memory Sharing<a class="headerlink" href="virtual-memory-management.html#multicast-memory-sharing" title="Link to this heading">#</a></h2>
+<p>The <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__MULTICAST.html#group__CUDA__MULTICAST/">Multicast Object Management APIs</a>
+provide a way for the application to create multicast objects and, in combination with the <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__VA.html">Virtual Memory Management APIs</a>
+described above, allow applications to leverage NVLink SHARP on supported NVLink connected GPUs connected with NVSwitch. NVLink SHARP
+allows CUDA applications to leverage in-fabric computing to accelerate operations like broadcast and reductions between GPUs connected with
+NVSwitch. For this to work, multiple NVLink connected GPUs form a multicast team and each GPU from the team backs up a multicast object with
+physical memory. So a multicast team of N GPUs has N physical replicas of a multicast object, each local to one participating GPU.
+The <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-multimem-ld-reduce-multimem-st-multimem-red/">multimem PTX instructions</a>
+using mappings of multicast objects work with all replicas of the multicast object.</p>
+<p>To work with multicast objects, an application needs to</p>
+<ul class="simple">
+<li><p>Query multicast support</p></li>
+<li><p>Create a multicast handle with <code class="docutils literal notranslate"><span class="pre">cuMulticastCreate</span></code>.</p></li>
+<li><p>Share the multicast handle with all processes that control a GPU which should participate in a multicast team. This works with <code class="docutils literal notranslate"><span class="pre">cuMemExportToShareableHandle</span></code> as described above.</p></li>
+<li><p>Add all GPUs that should participate in the multicast team with <code class="docutils literal notranslate"><span class="pre">cuMulticastAddDevice</span></code>.</p></li>
+<li><p>For each participating GPU, bind physical memory allocated with <code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code> as described above to the multicast handle. All devices need to be added to the multicast team before binding memory on any device.</p></li>
+<li><p>Reserve an address range, map the multicast handle and set access rights as described above for regular unicast mappings. Unicast and multicast mappings to the same physical memory are possible. See the <a class="reference internal" href="virtual-memory-management.html#virtual-aliasing-support"><span class="std std-ref">Virtual Aliasing Support</span></a> section above on how to ensure consistency between multiple mappings to the same physical memory.</p></li>
+<li><p>Use the <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-multimem-ld-reduce-multimem-st-multimem-red/">multimem PTX instructions</a> with the multicast mappings.</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">multi_node_p2p</span></code> example in the <a class="reference external" href="https://github.com/NVIDIA/multi-gpu-programming-models/">Multi GPU Programming Models</a> GitHub
+repository contains a complete example using fabric memory including multicast objects to leverage NVLink SHARP. Please note that this example is
+for developers of libraries like NCCL or NVSHMEM. It shows how higher-level programming models like NVSHMEM work internally within a (multi-node)
+NVLink domain. Application developers generally should use the higher-level MPI, NCCL, or NVSHMEM interfaces instead of this API.</p>
+<section id="allocating-multicast-objects">
+<span id="alloc-multicast-obj"></span><h3><span class="section-number">4.16.4.1. </span>Allocating Multicast Objects<a class="headerlink" href="virtual-memory-management.html#allocating-multicast-objects" title="Link to this heading">#</a></h3>
+<p>Multicast objects can be created with <code class="docutils literal notranslate"><span class="pre">cuMulticastCreate</span></code>:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">CUmemGenericAllocationHandle</span><span class="w"> </span><span class="nf">createMCHandle</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">numDevices</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">CUmemAllocationProp</span><span class="w"> </span><span class="n">mcProp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+<span class="w">    </span><span class="n">mcProp</span><span class="p">.</span><span class="n">numDevices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">numDevices</span><span class="p">;</span>
+<span class="w">    </span><span class="n">mcProp</span><span class="p">.</span><span class="n">handleTypes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CU_MEM_HANDLE_TYPE_FABRIC</span><span class="p">;</span><span class="w"> </span><span class="c1">// or on single node CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR</span>
+
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">granularity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">cuMulticastGetGranularity</span><span class="p">(</span><span class="o">&amp;</span><span class="n">granularity</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">mcProp</span><span class="p">,</span><span class="w"> </span><span class="n">CU_MEM_ALLOC_GRANULARITY_MINIMUM</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Ensure size matches granularity requirements for the allocation</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">padded_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ROUND_UP</span><span class="p">(</span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">granularity</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">mcProp</span><span class="p">.</span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">padded_size</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Create Multicast Object this has no devices and no physical memory associated yet</span>
+<span class="w">    </span><span class="n">CUmemGenericAllocationHandle</span><span class="w"> </span><span class="n">mcHandle</span><span class="p">;</span>
+<span class="w">    </span><span class="n">cuMulticastCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mcHandle</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">mcProp</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">mcHandle</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="add-devices-to-multicast-objects">
+<span id="add-devices-to-multicast-obj"></span><h3><span class="section-number">4.16.4.2. </span>Add Devices to Multicast Objects<a class="headerlink" href="virtual-memory-management.html#add-devices-to-multicast-objects" title="Link to this heading">#</a></h3>
+<p>Devices can be added to a multicast team with <code class="docutils literal notranslate"><span class="pre">cuMulticastAddDevice</span></code>:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cuMulticastAddDevice</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mcHandle</span><span class="p">,</span><span class="w"> </span><span class="n">device</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>This step needs to be completed on all processes controlling devices that participate in a multicast team before memory on any device is
+bound to the multicast object.</p>
+</section>
+<section id="bind-memory-to-multicast-objects">
+<span id="bind-mem-to-multicast-obj"></span><h3><span class="section-number">4.16.4.3. </span>Bind Memory to Multicast Objects<a class="headerlink" href="virtual-memory-management.html#bind-memory-to-multicast-objects" title="Link to this heading">#</a></h3>
+<p>After a multicast object has been created and all participating devices have been added to the multicast object it needs to be backed with
+physical memory allocated with <code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code> for each device:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cuMulticastBindMem</span><span class="p">(</span><span class="n">mcHandle</span><span class="p">,</span><span class="w"> </span><span class="n">mcOffset</span><span class="p">,</span><span class="w"> </span><span class="n">memHandle</span><span class="p">,</span><span class="w"> </span><span class="n">memOffset</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="cm">/*flags*/</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="use-multicast-mappings">
+<span id="id2"></span><h3><span class="section-number">4.16.4.4. </span>Use Multicast Mappings<a class="headerlink" href="virtual-memory-management.html#use-multicast-mappings" title="Link to this heading">#</a></h3>
+<p>To use multicast mappings in CUDA C++, it is necessary to use the <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-multimem-ld-reduce-multimem-st-multimem-red/">multimem PTX instructions</a>
+with inline PTX:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">all_reduce_norm_barrier_kernel</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">l2_norm</span><span class="p">,</span>
+<span class="w">                                               </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">partial_l2_norm_mc</span><span class="p">,</span>
+<span class="w">                                               </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="o">*</span><span class="w"> </span><span class="n">arrival_counter_uc</span><span class="p">,</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="o">*</span><span class="w"> </span><span class="n">arrival_counter_mc</span><span class="p">,</span>
+<span class="w">                                               </span><span class="k">const</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">expected_count</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">assert</span><span class="p">(</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">blockDim</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">blockDim</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">blockDim</span><span class="p">.</span><span class="n">z</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">gridDim</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">gridDim</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">gridDim</span><span class="p">.</span><span class="n">z</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">l2_norm_sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span>
+<span class="cp">#if __CUDA_ARCH__ &gt;= 900</span>
+
+<span class="w">    </span><span class="c1">// atomic reduction to all replicas</span>
+<span class="w">    </span><span class="c1">// this can be conceptually thought of as __threadfence_system(); atomicAdd_system(arrival_counter_mc, 1);</span>
+<span class="w">    </span><span class="n">cuda</span><span class="o">::</span><span class="n">ptx</span><span class="o">::</span><span class="n">multimem_red</span><span class="p">(</span><span class="n">cuda</span><span class="o">::</span><span class="n">ptx</span><span class="o">::</span><span class="n">release_t</span><span class="p">,</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">ptx</span><span class="o">::</span><span class="n">scope_sys_t</span><span class="p">,</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">ptx</span><span class="o">::</span><span class="n">op_add_t</span><span class="p">,</span><span class="w"> </span><span class="n">arrival_counter_mc</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Need a fence between Multicast (mc) and Unicast (uc) access to the same memory `arrival_counter_uc` and `arrival_counter_mc`:</span>
+<span class="w">    </span><span class="c1">// - fence.proxy instructions establish an ordering between memory accesses that may happen through different proxies</span>
+<span class="w">    </span><span class="c1">// - Value .alias of the .proxykind qualifier refers to memory accesses performed using virtually aliased addresses to the same memory location.</span>
+<span class="w">    </span><span class="c1">// from https://docs.nvidia.com/cuda/parallel-thread-execution/#parallel-synchronization-and-communication-instructions-membar</span>
+<span class="w">    </span><span class="n">cuda</span><span class="o">::</span><span class="n">ptx</span><span class="o">::</span><span class="n">fence_proxy_alias</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// spin wait with acquire ordering on UC mapping till all peers have arrived in this iteration</span>
+<span class="w">    </span><span class="c1">// Note: all ranks need to reach another barrier after this kernel, such that it is not possible for the barrier to be unblocked by an</span>
+<span class="w">    </span><span class="c1">// arrival of a rank for the next iteration if some other rank is slow.</span>
+<span class="w">    </span><span class="n">cuda</span><span class="o">::</span><span class="n">atomic_ref</span><span class="o">&lt;</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="n">cuda</span><span class="o">::</span><span class="n">thread_scope_system</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ac</span><span class="p">(</span><span class="n">arrival_counter_uc</span><span class="p">);</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">expected_count</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">ac</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">cuda</span><span class="o">::</span><span class="n">memory_order_acquire</span><span class="p">));</span>
+
+<span class="w">    </span><span class="c1">// Atomic load reduction from all replicas. It does not provide ordering so it can be relaxed.</span>
+<span class="w">    </span><span class="k">asm</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;multimem.ld_reduce.relaxed.sys.global.add.f32 %0, [%1];&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;=f&quot;</span><span class="p">(</span><span class="n">l2_norm_sum</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;l&quot;</span><span class="p">(</span><span class="n">partial_l2_norm_mc</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;memory&quot;</span><span class="p">);</span>
+
+<span class="cp">#else</span>
+<span class="w">    </span><span class="cp">#error &quot;ERROR: multimem instructions require compute capability 9.0 or larger.&quot;</span>
+<span class="cp">#endif</span>
+
+<span class="w">    </span><span class="o">*</span><span class="n">l2_norm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">sqrt</span><span class="p">(</span><span class="n">l2_norm_sum</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="advanced-configuration">
+<h2><span class="section-number">4.16.5. </span>Advanced Configuration<a class="headerlink" href="virtual-memory-management.html#advanced-configuration" title="Link to this heading">#</a></h2>
+<section id="memory-type">
+<span id="physical-memory-type"></span><h3><span class="section-number">4.16.5.1. </span>Memory Type<a class="headerlink" href="virtual-memory-management.html#memory-type" title="Link to this heading">#</a></h3>
+<p>VMM also provides a mechanism for applications to allocate special types of memory that
+certain devices may support. With <code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code>,
+applications can  specify memory type requirements using the
+<code class="docutils literal notranslate"><span class="pre">CUmemAllocationProp::allocFlags</span></code> to opt-in to specific memory features.
+Applications must ensure that the requested memory type is supported by
+the device.</p>
+</section>
+<section id="compressible-memory">
+<span id="physical-memory-type-compression"></span><h3><span class="section-number">4.16.5.2. </span>Compressible Memory<a class="headerlink" href="virtual-memory-management.html#compressible-memory" title="Link to this heading">#</a></h3>
+<p>Compressible memory can be used to accelerate accesses to data with
+unstructured sparsity and other compressible data patterns. Compression can
+save DRAM bandwidth, L2 read bandwidth, and L2 capacity depending on the data.
+Applications that want to allocate compressible memory on
+devices that support compute data compression can do so by setting
+<code class="docutils literal notranslate"><span class="pre">CUmemAllocationProp::allocFlags::compressionType</span></code> to
+<code class="docutils literal notranslate"><span class="pre">CU_MEM_ALLOCATION_COMP_GENERIC</span></code>. Users must query if device supports
+Compute Data Compression by using
+<code class="docutils literal notranslate"><span class="pre">CU_DEVICE_ATTRIBUTE_GENERIC_COMPRESSION_SUPPORTED</span></code>. The following code
+snippet illustrates querying compressible memory support
+<code class="docutils literal notranslate"><span class="pre">cuDeviceGetAttribute</span></code>.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">compressionSupported</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="n">cuDeviceGetAttribute</span><span class="p">(</span><span class="o">&amp;</span><span class="n">compressionSupported</span><span class="p">,</span><span class="w"> </span><span class="n">CU_DEVICE_ATTRIBUTE_GENERIC_COMPRESSION_SUPPORTED</span><span class="p">,</span><span class="w"> </span><span class="n">device</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>On devices that support compute data compression, users must opt in at
+allocation time as shown below:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">prop</span><span class="p">.</span><span class="n">allocFlags</span><span class="p">.</span><span class="n">compressionType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CU_MEM_ALLOCATION_COMP_GENERIC</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>For a variety of reasons such as limited hardware resources, the allocation may not
+have compression attributes. To verify that the flags worked, the user query the properties
+of the allocated memory using <code class="docutils literal notranslate"><span class="pre">cuMemGetAllocationPropertiesFromHandle</span></code>.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">CUmemAllocationProp</span><span class="w"> </span><span class="n">allocationProp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+<span class="n">cuMemGetAllocationPropertiesFromHandle</span><span class="p">(</span><span class="o">&amp;</span><span class="n">allocationProp</span><span class="p">,</span><span class="w"> </span><span class="n">allocationHandle</span><span class="p">);</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">allocationProp</span><span class="p">.</span><span class="n">allocFlags</span><span class="p">.</span><span class="n">compressionType</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">CU_MEM_ALLOCATION_COMP_GENERIC</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// Obtained compressible memory allocation</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="virtual-aliasing-support">
+<span id="id3"></span><h3><span class="section-number">4.16.5.3. </span>Virtual Aliasing Support<a class="headerlink" href="virtual-memory-management.html#virtual-aliasing-support" title="Link to this heading">#</a></h3>
+<p>The virtual memory management APIs provide a way to create multiple virtual
+memory mappings or “proxies” to the same allocation using multiple calls to
+<code class="docutils literal notranslate"><span class="pre">cuMemMap</span></code> with different virtual addresses. This is called virtual aliasing.
+Unless otherwise noted in the PTX ISA, writes to one proxy of the allocation
+are considered inconsistent and incoherent with any other proxy of the same
+memory until the writing device operation (grid launch, memcpy, memset, and so
+on) completes. Grids present on the GPU prior to a writing device operation
+but reading after the writing device operation completes are also considered
+to have inconsistent and incoherent proxies.</p>
+<p>For example, the following snippet is considered undefined, assuming device
+pointers A and B are virtual aliases of the same memory allocation:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">foo</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">B</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="o">*</span><span class="n">A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0x1</span><span class="p">;</span>
+<span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">B</span><span class="p">);</span><span class="w">    </span><span class="c1">// Undefined behavior!  *B can take on either</span>
+<span class="c1">// the previous value or some value in-between.</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The following is defined behavior, assuming these two kernels are ordered
+monotonically (by streams or events).</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">foo1</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">A</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="o">*</span><span class="n">A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0x1</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">foo2</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">B</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">B</span><span class="p">);</span><span class="w">    </span><span class="c1">// *B == *A == 0x1 assuming foo2 waits for foo1</span>
+<span class="c1">// to complete before launching</span>
+<span class="p">}</span>
+
+<span class="n">cudaMemcpyAsync</span><span class="p">(</span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">stream1</span><span class="p">);</span><span class="w">    </span><span class="c1">// Aliases are allowed at</span>
+<span class="c1">// operation boundaries</span>
+<span class="n">foo1</span><span class="o">&lt;&lt;&lt;</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">stream1</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">A</span><span class="p">);</span><span class="w">                  </span><span class="c1">// allowing foo1 to access A.</span>
+<span class="n">cudaEventRecord</span><span class="p">(</span><span class="n">event</span><span class="p">,</span><span class="w"> </span><span class="n">stream1</span><span class="p">);</span>
+<span class="n">cudaStreamWaitEvent</span><span class="p">(</span><span class="n">stream2</span><span class="p">,</span><span class="w"> </span><span class="n">event</span><span class="p">);</span>
+<span class="n">foo2</span><span class="o">&lt;&lt;&lt;</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">stream2</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">B</span><span class="p">);</span>
+<span class="n">cudaStreamWaitEvent</span><span class="p">(</span><span class="n">stream3</span><span class="p">,</span><span class="w"> </span><span class="n">event</span><span class="p">);</span>
+<span class="n">cudaMemcpyAsync</span><span class="p">(</span><span class="n">output</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">stream3</span><span class="p">);</span><span class="w">  </span><span class="c1">// Both launches of foo2 and</span>
+<span class="w">                                            </span><span class="c1">// cudaMemcpy (which both</span>
+<span class="w">                                            </span><span class="c1">// read) wait for foo1 (which writes)</span>
+<span class="w">                                            </span><span class="c1">// to complete before proceeding</span>
+</pre></div>
+</div>
+<p>If accessing same allocation through different “proxies” is required in the
+same kernel, a <code class="docutils literal notranslate"><span class="pre">fence.proxy.alias</span></code> can be used between the two accesses. The
+above example can thus be made legal with inline PTX assembly:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">foo</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">B</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="o">*</span><span class="n">A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0x1</span><span class="p">;</span>
+<span class="w">  </span><span class="n">cuda</span><span class="o">::</span><span class="n">ptx</span><span class="o">::</span><span class="n">fence_proxy_alias</span><span class="p">();</span>
+<span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">B</span><span class="p">);</span><span class="w">    </span><span class="c1">// *B == *A == 0x1</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="os-specific-handle-details-for-ipc">
+<h3><span class="section-number">4.16.5.4. </span>OS-Specific Handle Details for IPC<a class="headerlink" href="virtual-memory-management.html#os-specific-handle-details-for-ipc" title="Link to this heading">#</a></h3>
+<p>With <code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code>, users have can indicate at
+allocation time that they have earmarked a particular allocation for inter-process communication
+or graphics interop purposes. Applications can do this
+by setting <code class="docutils literal notranslate"><span class="pre">CUmemAllocationProp::requestedHandleTypes</span></code> to a
+platform-specific field. On Windows, when
+<code class="docutils literal notranslate"><span class="pre">CUmemAllocationProp::requestedHandleTypes</span></code> is set to
+<code class="docutils literal notranslate"><span class="pre">CU_MEM_HANDLE_TYPE_WIN32</span></code> applications must also specify an
+LPSECURITYATTRIBUTES attribute in
+<code class="docutils literal notranslate"><span class="pre">CUmemAllocationProp::win32HandleMetaData</span></code>. This security attribute defines
+the scope of which exported allocations may be transferred to other processes.</p>
+<p>Users must ensure they query for support of the requested handle type before
+attempting to export memory allocated with <code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code>. The following
+code snippet illustrates query for handle type support in a platform-specific
+way.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">deviceSupportsIpcHandle</span><span class="p">;</span>
+<span class="cp">#if defined(__linux__)</span>
+<span class="w">    </span><span class="n">cuDeviceGetAttribute</span><span class="p">(</span><span class="o">&amp;</span><span class="n">deviceSupportsIpcHandle</span><span class="p">,</span><span class="w"> </span><span class="n">CU_DEVICE_ATTRIBUTE_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR_SUPPORTED</span><span class="p">,</span><span class="w"> </span><span class="n">device</span><span class="p">));</span>
+<span class="cp">#else</span>
+<span class="w">    </span><span class="n">cuDeviceGetAttribute</span><span class="p">(</span><span class="o">&amp;</span><span class="n">deviceSupportsIpcHandle</span><span class="p">,</span><span class="w"> </span><span class="n">CU_DEVICE_ATTRIBUTE_HANDLE_TYPE_WIN32_HANDLE_SUPPORTED</span><span class="p">,</span><span class="w"> </span><span class="n">device</span><span class="p">));</span>
+<span class="cp">#endif</span>
+</pre></div>
+</div>
+<p>Users should set the <code class="docutils literal notranslate"><span class="pre">CUmemAllocationProp::requestedHandleTypes</span></code> appropriately as shown below:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#if defined(__linux__)</span>
+<span class="w">    </span><span class="n">prop</span><span class="p">.</span><span class="n">requestedHandleTypes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR</span><span class="p">;</span>
+<span class="cp">#else</span>
+<span class="w">    </span><span class="n">prop</span><span class="p">.</span><span class="n">requestedHandleTypes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CU_MEM_HANDLE_TYPE_WIN32</span><span class="p">;</span>
+<span class="w">    </span><span class="n">prop</span><span class="p">.</span><span class="n">win32HandleMetaData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="c1">// Windows specific LPSECURITYATTRIBUTES attribute.</span>
+<span class="cp">#endif</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="inter-process-communication.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><span class="section-number">4.15. </span>Interprocess Communication</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="extended-gpu-memory.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><span class="section-number">4.17. </span>Extended GPU Memory</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+
+
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="virtual-memory-management.html#preliminaries">4.16.1. Preliminaries</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="virtual-memory-management.html#definitions">4.16.1.1. Definitions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="virtual-memory-management.html#query-for-support">4.16.1.2. Query for Support</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="virtual-memory-management.html#api-overview">4.16.2. API Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="virtual-memory-management.html#unicast-memory-sharing">4.16.3. Unicast Memory Sharing</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="virtual-memory-management.html#allocate-and-export">4.16.3.1. Allocate and Export</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="virtual-memory-management.html#share-and-import">4.16.3.2. Share and Import</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="virtual-memory-management.html#reserve-and-map">4.16.3.3. Reserve and Map</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="virtual-memory-management.html#access-rights">4.16.3.4. Access Rights</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="virtual-memory-management.html#releasing-the-memory">4.16.3.5. Releasing the Memory</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="virtual-memory-management.html#multicast-memory-sharing">4.16.4. Multicast Memory Sharing</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="virtual-memory-management.html#allocating-multicast-objects">4.16.4.1. Allocating Multicast Objects</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="virtual-memory-management.html#add-devices-to-multicast-objects">4.16.4.2. Add Devices to Multicast Objects</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="virtual-memory-management.html#bind-memory-to-multicast-objects">4.16.4.3. Bind Memory to Multicast Objects</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="virtual-memory-management.html#use-multicast-mappings">4.16.4.4. Use Multicast Mappings</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="virtual-memory-management.html#advanced-configuration">4.16.5. Advanced Configuration</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="virtual-memory-management.html#memory-type">4.16.5.1. Memory Type</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="virtual-memory-management.html#compressible-memory">4.16.5.2. Compressible Memory</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="virtual-memory-management.html#virtual-aliasing-support">4.16.5.3. Virtual Aliasing Support</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="virtual-memory-management.html#os-specific-handle-details-for-ipc">4.16.5.4. OS-Specific Handle Details for IPC</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js"></script>
+
+
+<script type="text/javascript">if (typeof _satellite !== "undefined") {_satellite.pageBottom();}</script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+<a class="footer-brand logo" href="https://www.nvidia.com">
+  <img src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
+  <img src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+</a></div>
+      
+        <div class="footer-item">
+
+<div class="footer-links">
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/accessibility/">Accessibility</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
+  
+  
+  
+</div>
+</div>
+      
+        <div class="footer-item">
+
+
+
+
+  <p class="copyright">
+    
+      Copyright © 2007-2026, NVIDIA Corporation &amp; affiliates. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item"><p class="last-updated">
+  Last updated on Mar 04, 2026.
+  <br/>
+</p></div>
+      
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,930 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>2.5. NVCC：NVIDIA CUDA 编译器 &#8212; CUDA 编程指南</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tables.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js" />
+
+
+<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript"
+  data-document-language="true" charset="UTF-8" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5">
+</script>
+<script type="text/javascript">
+  function OptanonWrapper() {
+    var event = new Event('bannerLoaded');
+    window.dispatchEvent(event);
+  }
+</script>
+<script src="https://images.nvidia.com/aem-dam/Solutions/ot-js/ot-custom.js" type="text/javascript">
+</script>
+
+
+    <script rel="preload" src="../_static/modal-table.js"></script>
+    <script src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scrollspy-patch.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '02-basics/nvcc';</script>
+    <script src="../_static/version-patch.js"></script>
+
+<script type="text/javascript" src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
+
+    <link rel="icon" href="../_static/favicon.ico"/>
+
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="3. Advanced CUDA" href="../part3.html" />
+    <link rel="prev" title="2.4. Unified and System Memory" href="understanding-memory.html" />
+
+<link rel="preload" as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png">
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+    <meta name="docbuild:last-update" content="Mar 04, 2026"/>
+
+
+  </head>
+
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="nvcc.html#main-content">Skip to main content</a></div>
+
+<img src="https://www.nvidia.com/content/dam/1x1-00000000.png" width="1" height="1" style="display:none;" alt="country_code">
+
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../contents.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
+    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
+  
+  
+    <p class="title logo__title">CUDA Programming Guide</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+
+<div>
+  <ul class="bd-navbar-elements navbar-nav">
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>v13.2 |</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>|</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
+      
+    </li>
+  
+  </ul>
+</div>
+</div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../contents.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
+    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
+  
+  
+    <p class="title logo__title">CUDA Programming Guide</p>
+  
+</a>
+
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+
+<div>
+  <ul class="bd-navbar-elements navbar-nav">
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>v13.2 |</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>|</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
+      
+    </li>
+  
+  </ul>
+</div>
+</div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Table of Contents">
+  <p class="bd-links__title" role="heading" aria-level="1">目录</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA Programming Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. Introduction to CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/introduction.html">1.1. Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/programming-model.html">1.2. Programming Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/cuda-platform.html">1.3. The CUDA platform</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../part2.html">2. Programming GPUs in CUDA</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="intro-to-cuda-cpp.html">2.1. Intro to CUDA C++</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writing-cuda-kernels.html">2.2. Writing CUDA SIMT Kernels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="asynchronous-execution.html">2.3. Asynchronous Execution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-memory.html">2.4. Unified and System Memory</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="nvcc.html#">2.5. NVCC: The NVIDIA CUDA Compiler</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. Advanced CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. Advanced CUDA APIs and Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. Advanced Kernel Programming</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. The CUDA Driver API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. Programming Systems with Multiple GPUs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. A Tour of CUDA Features</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part4.html">4. CUDA Features</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/unified-memory.html">4.1. Unified Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cuda-graphs.html">4.2. CUDA Graphs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/stream-ordered-memory-allocation.html">4.3. Stream-Ordered Memory Allocator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cooperative-groups.html">4.4. Cooperative Groups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/programmatic-dependent-launch.html">4.5. Programmatic Dependent Launch and Synchronization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/green-contexts.html">4.6. Green Contexts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/lazy-loading.html">4.7. Lazy Loading</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/error-log-management.html">4.8. Error Log Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/async-barriers.html">4.9. Asynchronous Barriers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/pipelines.html">4.10. Pipelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/async-copies.html">4.11. Asynchronous Data Copies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cluster-launch-control.html">4.12. Work Stealing with Cluster Launch Control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/l2-cache-control.html">4.13. L2 Cache Control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/memory-sync-domains.html">4.14. Memory Synchronization Domains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/inter-process-communication.html">4.15. Interprocess Communication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/virtual-memory-management.html">4.16. Virtual Memory Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/extended-gpu-memory.html">4.17. Extended GPU Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/dynamic-parallelism.html">4.18. CUDA Dynamic Parallelism</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/graphics-interop.html">4.19. CUDA Interoperability with APIs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/driver-entry-point-access.html">4.20. Driver Entry Point Access</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part5.html">5. Technical Appendices</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/compute-capabilities.html">5.1. Compute Capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/environment-variables.html">5.2. CUDA Environment Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-support.html">5.3. C++ Language Support</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-extensions.html">5.4. C/C++ Language Extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/mathematical-functions.html">5.5. Floating-Point Computation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/device-callable-apis.html">5.6. Device-Callable APIs and Intrinsics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-memory-model.html">5.7. CUDA C++ Memory Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-execution-model.html">5.8. CUDA C++ Execution model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. Notices</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../contents.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">CUDA Programming Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../part2.html" class="nav-link"><span class="section-number">2. </span>Programming GPUs in CUDA</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">2.5. </span>NVCC: The NVIDIA CUDA Compiler</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+<div class="header-article-item">
+  <div class="d-flex justify-content-end w-100">
+    <a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">Is this page helpful?</a>
+  </div>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="nvcc-the-nvidia-cuda-compiler">
+<span id="nvcc"></span><h1><span class="section-number">2.5. </span>NVCC：NVIDIA CUDA 编译器<a class="headerlink" href="nvcc.html#nvcc-the-nvidia-cuda-compiler" title="跳转到此标题">#</a></h1>
+<p><a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html">NVIDIA CUDA 编译器</a> <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 是 NVIDIA 提供的工具链，用于编译 CUDA C/C++ 以及 <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html">PTX</a> 代码。该工具链属于 <a class="reference external" href="https://developer.nvidia.com/cuda-toolkit">CUDA Toolkit</a>，包含编译器、链接器以及 PTX 与 <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-cubins-fatbins"><span class="std std-ref">Cubin</span></a> 汇编器等工具。顶层工具 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 负责协调整个编译流程，在各阶段调用相应工具。</p>
+<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 负责 CUDA 代码的离线编译；这与由 CUDA 运行时编译器 <a class="reference external" href="https://docs.nvidia.com/cuda/nvrtc/index.html">nvrtc</a> 驱动的在线或即时（JIT）编译相对。</p>
+<p>本章介绍构建应用时最常见的 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 用法与关键细节。更完整内容请参见 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html">nvcc 文档</a>。</p>
+<section id="cuda-source-files-and-headers">
+<h2><span class="section-number">2.5.1. </span>CUDA 源文件与头文件<a class="headerlink" href="nvcc.html#cuda-source-files-and-headers" title="跳转到此标题">#</a></h2>
+<p>由 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 编译的源文件可同时包含主机代码（在 CPU 上执行）与设备代码（在 GPU 上执行）。<code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 支持常见 C/C++ 源文件扩展名 <code class="docutils literal notranslate"><span class="pre">.c</span></code>、<code class="docutils literal notranslate"><span class="pre">.cpp</span></code>、<code class="docutils literal notranslate"><span class="pre">.cc</span></code>、<code class="docutils literal notranslate"><span class="pre">.cxx</span></code>（主机代码），以及 <code class="docutils literal notranslate"><span class="pre">.cu</span></code>（设备代码或主机/设备混合代码）。含设备代码的头文件通常采用 <code class="docutils literal notranslate"><span class="pre">.cuh</span></code> 扩展名，以区别于仅主机代码头文件（如 <code class="docutils literal notranslate"><span class="pre">.h</span></code>、<code class="docutils literal notranslate"><span class="pre">.hpp</span></code>、<code class="docutils literal notranslate"><span class="pre">.hh</span></code>、<code class="docutils literal notranslate"><span class="pre">.hxx</span></code> 等）。</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>文件扩展名</p></th>
+<th class="head"><p>说明</p></th>
+<th class="head"><p>内容</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">.c</span></code></p></td>
+<td><p>C 源文件</p></td>
+<td><p>仅主机代码</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">.cpp</span></code>, <code class="docutils literal notranslate"><span class="pre">.cc</span></code>, <code class="docutils literal notranslate"><span class="pre">.cxx</span></code></p></td>
+<td><p>C++ 源文件</p></td>
+<td><p>仅主机代码</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">.h</span></code>, <code class="docutils literal notranslate"><span class="pre">.hpp</span></code>, <code class="docutils literal notranslate"><span class="pre">.hh</span></code>, <code class="docutils literal notranslate"><span class="pre">.hxx</span></code></p></td>
+<td><p>C/C++ 头文件</p></td>
+<td><p>设备代码、主机代码或主机/设备混合代码</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">.cu</span></code></p></td>
+<td><p>CUDA 源文件</p></td>
+<td><p>设备代码、主机代码或主机/设备混合代码</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">.cuh</span></code></p></td>
+<td><p>CUDA 头文件</p></td>
+<td><p>设备代码、主机代码或主机/设备混合代码</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="nvcc-compilation-workflow">
+<h2><span class="section-number">2.5.2. </span>NVCC 编译工作流<a class="headerlink" href="nvcc.html#nvcc-compilation-workflow" title="跳转到此标题">#</a></h2>
+<p>在初始阶段，<code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 会将设备代码与主机代码分离，并分别交由 GPU 编译器与主机编译器处理。</p>
+<div class="line-block">
+<div class="line">编译主机代码时，CUDA 编译器 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 需要可用的兼容主机编译器。CUDA Toolkit 对 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#host-compiler-support-policy">Linux</a> 与 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html#system-requirements">Windows</a> 平台分别定义了主机编译器支持策略。</div>
+<div class="line">仅含主机代码的文件可用 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 或直接用主机编译器构建。生成的目标文件可在链接阶段与由 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 生成且包含 GPU 代码的目标文件合并。</div>
+</div>
+<div class="line-block">
+<div class="line">GPU 编译器会将 C/C++ 设备代码编译为 PTX 汇编。命令行中每指定一个虚拟机指令集架构（如 <code class="docutils literal notranslate"><span class="pre">compute_90</span></code>），GPU 编译器就会执行一次对应编译。</div>
+<div class="line">各 PTX 代码随后会传给 <code class="docutils literal notranslate"><span class="pre">ptxas</span></code> 工具，为目标硬件 ISA 生成 <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-cubins-fatbins"><span class="std std-ref">Cubin</span></a>。硬件 ISA 由其 <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-compute-capability-sm-version"><span class="std std-ref">SM 版本</span></a> 标识。</div>
+<div class="line">可在应用或库中将多个 PTX 与 Cubin 目标嵌入单个二进制 <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-cubins-fatbins"><span class="std std-ref">Fatbin</span></a> 容器，使一个二进制支持多个虚拟与目标硬件 ISA。</div>
+</div>
+<p>上述工具的调用与协同由 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 自动完成。可使用 <code class="docutils literal notranslate"><span class="pre">-v</span></code> 显示完整编译流程与工具调用；可使用 <code class="docutils literal notranslate"><span class="pre">-keep</span></code> 保存编译产生的<a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/#keeping-intermediate-phase-files">中间文件</a>，保存位置为当前目录或 <code class="docutils literal notranslate"><span class="pre">--keep-dir</span></code> 指定目录。</p>
+<p>下面示例展示了 CUDA 源文件 <code class="docutils literal notranslate"><span class="pre">example.cu</span></code> 的编译工作流：</p>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// ----- example.cu -----</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+<span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">kernel</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Hello from kernel</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">kernel_launcher</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">kernel</span><span class="o">&lt;&lt;&lt;</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span>
+<span class="w">    </span><span class="n">cudaDeviceSynchronize</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">kernel_launcher</span><span class="p">();</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 基本编译流程：</p>
+<figure class="align-center" id="high-level-nvcc-flow">
+<a class="reference internal image-reference" href="../_images/nvcc-flow.png"><img alt="High-level nvcc flow" src="../_images/nvcc-flow.png" style="height: 450px;" />
+</a>
+</figure>
+<p>包含多种 PTX 与 Cubin 架构目标的 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 编译流程：</p>
+<figure class="align-center" id="high-level-nvcc-flow-multi-archs">
+<a class="reference internal image-reference" href="../_images/nvcc-flow-multi-archs.png"><img alt="High-level nvcc flow multiple architectures" src="../_images/nvcc-flow-multi-archs.png" style="height: 450px;" />
+</a>
+</figure>
+<p>关于 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 编译流程的更详细说明见<a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/#the-cuda-compilation-trajectory">编译器文档</a>。</p>
+</section>
+<section id="nvcc-basic-usage">
+<h2><span class="section-number">2.5.3. </span>NVCC 基本用法<a class="headerlink" href="nvcc.html#nvcc-basic-usage" title="跳转到此标题">#</a></h2>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 编译 CUDA 源文件的基本命令为：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nvcc<span class="w"> </span>&lt;source_file&gt;.cu<span class="w"> </span>-o<span class="w"> </span>&lt;output_file&gt;
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 支持常见编译参数：指定头文件目录 <code class="docutils literal notranslate"><span class="pre">-I</span> <span class="pre">&lt;path&gt;</span></code>、库目录 <code class="docutils literal notranslate"><span class="pre">-L</span> <span class="pre">&lt;path&gt;</span></code>、链接库 <code class="docutils literal notranslate"><span class="pre">-l&lt;library&gt;</span></code>，以及定义宏 <code class="docutils literal notranslate"><span class="pre">-D&lt;macro&gt;=&lt;value&gt;</span></code>。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nvcc<span class="w"> </span>example.cu<span class="w"> </span>-I<span class="w"> </span>path_to_include/<span class="w"> </span>-L<span class="w"> </span>path_to_library/<span class="w"> </span>-lcublas<span class="w"> </span>-o<span class="w"> </span>&lt;output_file&gt;
+</pre></div>
+</div>
+<section id="nvcc-ptx-and-cubin-generation">
+<h3><span class="section-number">2.5.3.1. </span>NVCC 的 PTX 与 Cubin 生成<a class="headerlink" href="nvcc.html#nvcc-ptx-and-cubin-generation" title="跳转到此标题">#</a></h3>
+<p>默认情况下，为最大化兼容性，<code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 会面向 CUDA Toolkit 支持的最早 GPU 架构（最低 <code class="docutils literal notranslate"><span class="pre">compute_XY</span></code> 与 <code class="docutils literal notranslate"><span class="pre">sm_XY</span></code> 版本）生成 PTX 与 Cubin。</p>
+<ul class="simple">
+<li><p>可使用 <code class="docutils literal notranslate"><span class="pre">-arch</span></code> <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#gpu-architecture-arch">选项</a> 为特定 GPU 架构生成 PTX 与 Cubin。</p></li>
+<li><p>可使用 <code class="docutils literal notranslate"><span class="pre">-gencode</span></code> <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#generate-code-specification-gencode">选项</a> 为多个 GPU 架构生成 PTX 与 Cubin。</p></li>
+</ul>
+<p>可分别通过 <code class="docutils literal notranslate"><span class="pre">--list-gpu-code</span></code> 与 <code class="docutils literal notranslate"><span class="pre">--list-gpu-arch</span></code> 获取支持的真实/虚拟 GPU 架构列表，也可参考 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 文档中的 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#virtual-architecture-feature-list">虚拟架构列表</a> 与 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#gpu-feature-list">GPU 架构列表</a>。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nvcc<span class="w"> </span>--list-gpu-code<span class="w"> </span><span class="c1"># list all supported real GPU architectures</span>
+nvcc<span class="w"> </span>--list-gpu-arch<span class="w"> </span><span class="c1"># list all supported virtual GPU architectures</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nvcc<span class="w"> </span>example.cu<span class="w"> </span>-arch<span class="o">=</span>compute_&lt;XY&gt;<span class="w"> </span><span class="c1"># e.g. -arch=compute_80 for NVIDIA Ampere GPUs and later</span>
+<span class="w">                                   </span><span class="c1"># PTX-only, GPU forward compatible</span>
+
+nvcc<span class="w"> </span>example.cu<span class="w"> </span>-arch<span class="o">=</span>sm_&lt;XY&gt;<span class="w">      </span><span class="c1"># e.g. -arch=sm_80 for NVIDIA Ampere GPUs and later</span>
+<span class="w">                                   </span><span class="c1"># PTX and Cubin, GPU forward compatible</span>
+
+nvcc<span class="w"> </span>example.cu<span class="w"> </span>-arch<span class="o">=</span>native<span class="w">       </span><span class="c1"># automatically detects and generates Cubin for the current GPU</span>
+<span class="w">                                   </span><span class="c1"># no PTX, no GPU forward compatibility</span>
+
+nvcc<span class="w"> </span>example.cu<span class="w"> </span>-arch<span class="o">=</span>all<span class="w">          </span><span class="c1"># generate Cubin for all supported GPU architectures</span>
+<span class="w">                                   </span><span class="c1"># also includes the latest PTX for GPU forward compatibility</span>
+
+nvcc<span class="w"> </span>example.cu<span class="w"> </span>-arch<span class="o">=</span>all-major<span class="w">    </span><span class="c1"># generate Cubin for all major supported GPU architectures, e.g. sm_80, sm_90,</span>
+<span class="w">                                   </span><span class="c1"># also includes the latest PTX for GPU forward compatibility</span>
+</pre></div>
+</div>
+<p>更高级的用法允许分别指定 PTX 与 Cubin 目标：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># generate PTX for virtual architecture compute_80 and compile it to Cubin for real architecture sm_86, keep compute_80 PTX</span>
+nvcc<span class="w"> </span>example.cu<span class="w"> </span>-arch<span class="o">=</span>compute_80<span class="w"> </span>-gpu-code<span class="o">=</span>sm_86,compute_80<span class="w"> </span><span class="c1"># (PTX and Cubin)</span>
+
+<span class="c1"># generate PTX for virtual architecture compute_80 and compile it to Cubin for real architecture sm_86, sm_89</span>
+nvcc<span class="w"> </span>example.cu<span class="w"> </span>-arch<span class="o">=</span>compute_80<span class="w"> </span>-gpu-code<span class="o">=</span>sm_86,sm_89<span class="w">    </span><span class="c1"># (no PTX)</span>
+nvcc<span class="w"> </span>example.cu<span class="w"> </span>-gencode<span class="o">=</span><span class="nv">arch</span><span class="o">=</span>compute_80,code<span class="o">=</span>sm_86,sm_89<span class="w"> </span><span class="c1"># same as above</span>
+
+<span class="c1"># (1) generate PTX for virtual architecture compute_80 and compile it to Cubin for real architecture sm_86, sm_89</span>
+<span class="c1"># (2) generate PTX for virtual architecture compute_90 and compile it to Cubin for real architecture sm_90</span>
+nvcc<span class="w"> </span>example.cu<span class="w"> </span>-gencode<span class="o">=</span><span class="nv">arch</span><span class="o">=</span>compute_80,code<span class="o">=</span>sm_86,sm_89<span class="w"> </span>-gencode<span class="o">=</span><span class="nv">arch</span><span class="o">=</span>compute_90,code<span class="o">=</span>sm_90
+</pre></div>
+</div>
+<p>用于控制 GPU 代码生成的 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 完整命令行选项参考见 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#options-for-steering-gpu-code-generation">nvcc 文档</a>。</p>
+</section>
+<section id="host-code-compilation-notes">
+<h3><span class="section-number">2.5.3.2. </span>主机代码编译说明<a class="headerlink" href="nvcc.html#host-code-compilation-notes" title="跳转到此标题">#</a></h3>
+<p>若某个编译单元（源文件及其头文件）不包含设备代码或设备符号，可直接由主机编译器编译。若任一编译单元使用 CUDA 运行时 API，应用必须链接 CUDA 运行时库。CUDA 运行时同时提供静态库 <code class="docutils literal notranslate"><span class="pre">libcudart_static</span></code> 与共享库 <code class="docutils literal notranslate"><span class="pre">libcudart</span></code>。默认情况下，<code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 链接静态运行时库。若需使用共享库版本，可在编译或链接命令中传入 <code class="docutils literal notranslate"><span class="pre">--cudart=shared</span></code>。</p>
+<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 可通过 <code class="docutils literal notranslate"><span class="pre">-ccbin</span> <span class="pre">&lt;compiler&gt;</span></code> 指定用于主机函数的主机编译器。也可通过环境变量 <code class="docutils literal notranslate"><span class="pre">NVCC_CCBIN</span></code> 指定。<code class="docutils literal notranslate"><span class="pre">-Xcompiler</span></code> 用于把参数透传给主机编译器。例如下方示例中，<code class="docutils literal notranslate"><span class="pre">-O3</span></code> 由 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 传给主机编译器。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nvcc<span class="w"> </span>example.cu<span class="w"> </span>-ccbin<span class="o">=</span>clang++
+
+<span class="nb">export</span><span class="w"> </span><span class="nv">NVCC_CCBIN</span><span class="o">=</span><span class="s1">&#39;gcc&#39;</span>
+nvcc<span class="w"> </span>example.cu<span class="w"> </span>-Xcompiler<span class="o">=</span>-O3
+</pre></div>
+</div>
+</section>
+<section id="separate-compilation-of-gpu-code">
+<span id="nvcc-separate-compilation"></span><h3><span class="section-number">2.5.3.3. </span>GPU 代码的分离编译<a class="headerlink" href="nvcc.html#separate-compilation-of-gpu-code" title="跳转到此标题">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 默认采用<em>整程序编译</em>，即要求使用某段 GPU 代码/符号的编译单元中已包含其定义。CUDA 设备函数可调用其他编译单元中的设备函数，或访问其中定义的设备变量，但需在 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 命令行指定 <code class="docutils literal notranslate"><span class="pre">-rdc=true</span></code>（或其别名 <code class="docutils literal notranslate"><span class="pre">-dc</span></code>）以启用跨编译单元设备代码链接。该能力称为<em>分离编译</em>。</p>
+<p>分离编译能带来更灵活的代码组织、潜在更快编译速度以及更小二进制体积。相较整程序编译，分离编译在构建流程上可能更复杂。由于设备代码链接可能带来性能影响，因此默认未启用。<a class="reference internal" href="nvcc.html#nvcc-link-time-optimization"><span class="std std-ref">链接时优化（LTO）</span></a> 可帮助降低分离编译的性能开销。</p>
+<p>分离编译需要满足以下条件：</p>
+<ul class="simple">
+<li><p>在一个编译单元中定义的非 <code class="docutils literal notranslate"><span class="pre">const</span></code> 设备变量，在其他编译单元中引用时必须使用 <code class="docutils literal notranslate"><span class="pre">extern</span></code> 关键字。</p></li>
+<li><p>所有 <code class="docutils literal notranslate"><span class="pre">const</span></code> 设备变量在定义与引用时都应使用 <code class="docutils literal notranslate"><span class="pre">extern</span></code>。</p></li>
+<li><p>所有 CUDA 源文件 <code class="docutils literal notranslate"><span class="pre">.cu</span></code> 必须使用 <code class="docutils literal notranslate"><span class="pre">-dc</span></code> 或 <code class="docutils literal notranslate"><span class="pre">-rdc=true</span></code> 编译。</p></li>
+</ul>
+<p>主机函数与设备函数默认具有外部链接属性，通常无需显式添加 <code class="docutils literal notranslate"><span class="pre">extern</span></code>。需注意，<a class="reference external" href="https://developer.nvidia.com/blog/cuda-c-compiler-updates-impacting-elf-visibility-and-linkage/">从 CUDA 13 开始</a>，<code class="docutils literal notranslate"><span class="pre">__global__</span></code> 函数以及 <code class="docutils literal notranslate"><span class="pre">__managed__</span></code>/<code class="docutils literal notranslate"><span class="pre">__device__</span></code>/<code class="docutils literal notranslate"><span class="pre">__constant__</span></code> 变量默认改为内部链接属性。</p>
+<p>下例中，<code class="docutils literal notranslate"><span class="pre">definition.cu</span></code> 定义了变量与函数，而 <code class="docutils literal notranslate"><span class="pre">example.cu</span></code> 对其进行引用。两个文件分别编译后再链接为最终二进制。</p>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// ----- definition.cu -----</span>
+<span class="k">extern</span><span class="w"> </span><span class="kt">__device__</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">device_variable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+<span class="kt">__device__</span><span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">device_function</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// ----- example.cu -----</span>
+<span class="k">extern</span><span class="w"> </span><span class="kt">__device__</span><span class="w"> </span><span class="kt">int</span><span class="w">  </span><span class="n">device_variable</span><span class="p">;</span>
+<span class="kt">__device__</span><span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">device_function</span><span class="p">();</span>
+
+<span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">kernel</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="w"> </span><span class="n">ptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">device_variable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="o">*</span><span class="n">ptr</span><span class="w">            </span><span class="o">=</span><span class="w"> </span><span class="n">device_function</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nvcc<span class="w"> </span>-dc<span class="w"> </span>definition.cu<span class="w"> </span>-o<span class="w"> </span>definition.o
+nvcc<span class="w"> </span>-dc<span class="w"> </span>example.cu<span class="w">    </span>-o<span class="w"> </span>example.o
+nvcc<span class="w"> </span>definition.o<span class="w"> </span>example.o<span class="w"> </span>-o<span class="w"> </span>program
+</pre></div>
+</div>
+</section>
+</section>
+<section id="common-compiler-options">
+<h2><span class="section-number">2.5.4. </span>常用编译选项<a class="headerlink" href="nvcc.html#common-compiler-options" title="跳转到此标题">#</a></h2>
+<p>本节介绍可与 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 搭配使用的重点编译选项，覆盖语言特性、优化、调试、性能分析与构建等方面。所有选项的完整说明见 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#command-option-description">nvcc 文档</a>。</p>
+<section id="language-features">
+<h3><span class="section-number">2.5.4.1. </span>语言特性<a class="headerlink" href="nvcc.html#language-features" title="跳转到此标题">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 支持从 C++03 到 <a class="reference external" href="https://en.cppreference.com/w/cpp/compiler_support#cpp20">C++20</a> 的 C++ 核心语言特性。可通过 <code class="docutils literal notranslate"><span class="pre">-std</span></code> 指定语言标准：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--std={c++03|c++11|c++14|c++17|c++20}</span></code></p></li>
+</ul>
+<p>此外，<code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 支持以下语言扩展：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-restrict</span></code>：声明所有内核指针参数均为 <a class="reference internal" href="../05-appendices/cpp-language-extensions.html#restrict"><span class="std std-ref">restrict</span></a> 指针。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-extended-lambda</span></code>：允许在 lambda 声明中使用 <code class="docutils literal notranslate"><span class="pre">__host__</span></code>、<code class="docutils literal notranslate"><span class="pre">__device__</span></code> 注解。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-expt-relaxed-constexpr</span></code>：（实验性）允许主机代码调用 <code class="docutils literal notranslate"><span class="pre">__device__</span> <span class="pre">constexpr</span></code> 函数，也允许设备代码调用 <code class="docutils literal notranslate"><span class="pre">__host__</span> <span class="pre">constexpr</span></code> 函数。</p></li>
+</ul>
+<p>这些特性的更多细节可参见 <a class="reference internal" href="../05-appendices/cpp-language-support.html#extended-lambdas"><span class="std std-ref">extended lambda</span></a> 与 <a class="reference internal" href="../05-appendices/cpp-language-support.html#constexpr-functions"><span class="std std-ref">constexpr</span></a> 相关章节。</p>
+</section>
+<section id="debugging-options">
+<h3><span class="section-number">2.5.4.2. </span>调试选项<a class="headerlink" href="nvcc.html#debugging-options" title="跳转到此标题">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 提供以下调试信息生成选项：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-g</span></code>: Generate debug information for host code. <code class="docutils literal notranslate"><span class="pre">gdb/lldb</span></code> and similar tools rely on such information for host code debugging.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-G</span></code>: Generate debug information for device code. <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-gdb/index.html">cuda-gdb</a> relies on such information for device-code debugging. The flag also defines the <code class="docutils literal notranslate"><span class="pre">__CUDACC_DEBUG__</span></code> macro.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-lineinfo</span></code>: Generate line-number information for device code. This option does not affect execution performance and is useful in conjunction with the <a class="reference external" href="https://developer.nvidia.com/compute-sanitizer">compute-sanitizer</a> tool to trace the kernel execution.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> uses the highest optimization level <code class="docutils literal notranslate"><span class="pre">-O3</span></code> for GPU code by default. The debug flag <code class="docutils literal notranslate"><span class="pre">-G</span></code> prevents some compiler optimizations, and so debug code is expected to have lower performance than non-debug code.  The <code class="docutils literal notranslate"><span class="pre">-DNDEBUG</span></code> flag can be defined to disable runtime assertions, as these can also slow down execution.</p>
+</section>
+<section id="optimization-options">
+<span id="id1"></span><h3><span class="section-number">2.5.4.3. </span>优化选项<a class="headerlink" href="nvcc.html#optimization-options" title="跳转到此标题">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 提供了大量性能优化选项。本节仅概览开发者常用的一部分，并给出进一步资料链接。完整内容见 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html">nvcc 文档</a>。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-Xptxas</span></code> passes arguments to the PTX assembler tool <code class="docutils literal notranslate"><span class="pre">ptxas</span></code>. The <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> documentation provides a <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#ptxas-options">list of useful arguments</a> for <code class="docutils literal notranslate"><span class="pre">ptxas</span></code>. For example, <code class="docutils literal notranslate"><span class="pre">-Xptxas=-maxrregcount=N</span></code> specifies the maximum number of registers to use, per thread.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-extra-device-vectorization</span></code>: Enables more aggressive device code vectorization.</p></li>
+<li><p>用于细粒度控制浮点行为的更多选项见 <a class="reference internal" href="../05-appendices/mathematical-functions.html#floating-point-computation"><span class="std std-ref">浮点计算</span></a> 章节及 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#use-fast-math-use-fast-math">nvcc 文档</a>。</p></li>
+</ul>
+<p>以下选项可输出有助于高级优化分析的编译信息：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-res-usage</span></code>: Print resource usage report after compilation. It includes the number of registers, shared memory, constant memory, and local memory allocated for each kernel function.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-opt-info=inline</span></code>: Print information about inlined functions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-Xptxas=-warn-lmem-usage</span></code>: Warn if local memory is used.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-Xptxas=-warn-spills</span></code>: Warn if registers are spilled to local memory.</p></li>
+</ul>
+</section>
+<section id="link-time-optimization-lto">
+<span id="nvcc-link-time-optimization"></span><h3><span class="section-number">2.5.4.4. </span>链接时优化（LTO）<a class="headerlink" href="nvcc.html#link-time-optimization-lto" title="跳转到此标题">#</a></h3>
+<p>由于跨文件优化机会受限，<a class="reference internal" href="nvcc.html#nvcc-separate-compilation"><span class="std std-ref">分离编译</span></a> 的性能可能低于整程序编译。链接时优化（LTO）通过在链接阶段跨编译单元优化来缓解这一问题，但会增加编译时间。LTO 可在保留分离编译灵活性的同时，恢复大量整程序编译性能。</p>
+<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 需通过 <code class="docutils literal notranslate"><span class="pre">-dlto</span></code> <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#dlink-time-opt-dlto">选项</a> 或 <code class="docutils literal notranslate"><span class="pre">lto_&lt;SM</span> <span class="pre">version&gt;</span></code> 目标启用 LTO：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nvcc<span class="w"> </span>-dc<span class="w"> </span>-dlto<span class="w"> </span>-arch<span class="o">=</span>sm_100<span class="w"> </span>definition.cu<span class="w"> </span>-o<span class="w"> </span>definition.o
+nvcc<span class="w"> </span>-dc<span class="w"> </span>-dlto<span class="w"> </span>-arch<span class="o">=</span>sm_100<span class="w"> </span>example.cu<span class="w">    </span>-o<span class="w"> </span>example.o
+nvcc<span class="w"> </span>-dlto<span class="w"> </span>definition.o<span class="w"> </span>example.o<span class="w"> </span>-o<span class="w"> </span>program
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nvcc<span class="w"> </span>-dc<span class="w"> </span>-arch<span class="o">=</span>lto_100<span class="w"> </span>definition.cu<span class="w"> </span>-o<span class="w"> </span>definition.o
+nvcc<span class="w"> </span>-dc<span class="w"> </span>-arch<span class="o">=</span>lto_100<span class="w"> </span>example.cu<span class="w">    </span>-o<span class="w"> </span>example.o
+nvcc<span class="w"> </span>-dlto<span class="w"> </span>definition.o<span class="w"> </span>example.o<span class="w"> </span>-o<span class="w"> </span>program
+</pre></div>
+</div>
+</section>
+<section id="profiling-options">
+<h3><span class="section-number">2.5.4.5. </span>性能分析选项<a class="headerlink" href="nvcc.html#profiling-options" title="跳转到此标题">#</a></h3>
+<p>可直接使用 <a class="reference external" href="https://developer.nvidia.com/nsight-compute">Nsight Compute</a> 与 <a class="reference external" href="https://developer.nvidia.com/nsight-systems">Nsight Systems</a> 对 CUDA 应用进行分析，通常无需在编译时增加额外参数。不过，<code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 生成的附加信息可帮助将源码与生成代码关联，从而改进分析效果：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-lineinfo</span></code>: Generate line-number information for device code; this allows viewing the source code in the profiling tools. Profiling tools require the original source code to be available in the same location where the code was compiled.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-src-in-ptx</span></code>: Keep the original source code in the PTX, avoiding the limitations of <code class="docutils literal notranslate"><span class="pre">-lineinfo</span></code> mentioned above. Requires <code class="docutils literal notranslate"><span class="pre">-lineinfo</span></code>.</p></li>
+</ul>
+</section>
+<section id="fatbin-compression">
+<h3><span class="section-number">2.5.4.6. </span>Fatbin 压缩<a class="headerlink" href="nvcc.html#fatbin-compression" title="跳转到此标题">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 默认会压缩应用或库二进制中的 <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-cubins-fatbins"><span class="std std-ref">fatbin</span></a>。可通过以下选项控制 Fatbin 压缩行为：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-no-compress</span></code>：禁用 Fatbin 压缩。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--compress-mode={default|size|speed|balance|none}</span></code>：设置压缩模式。<code class="docutils literal notranslate"><span class="pre">speed</span></code> 侧重更快解压，<code class="docutils literal notranslate"><span class="pre">size</span></code> 侧重更小体积，<code class="docutils literal notranslate"><span class="pre">balance</span></code> 在二者间折中。默认模式为 <code class="docutils literal notranslate"><span class="pre">speed</span></code>，<code class="docutils literal notranslate"><span class="pre">none</span></code> 表示禁用压缩。</p></li>
+</ul>
+</section>
+<section id="compiler-performance-controls">
+<h3><span class="section-number">2.5.4.7. </span>编译器性能控制<a class="headerlink" href="nvcc.html#compiler-performance-controls" title="跳转到此标题">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 还提供了用于分析并加速编译过程本身的选项：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-t</span> <span class="pre">&lt;N&gt;</span></code>：为同一编译单元面向多个 GPU 架构并行编译时使用的 CPU 线程数。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-split-compile</span> <span class="pre">&lt;N&gt;</span></code>：优化阶段并行使用的 CPU 线程数。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-split-compile-extended</span> <span class="pre">&lt;N&gt;</span></code>：更激进的分段并行编译方式，需启用链接时优化。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-Ofc</span> <span class="pre">&lt;N&gt;</span></code>：设备代码编译速度等级。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-time</span> <span class="pre">&lt;filename&gt;</span></code>：生成包含各编译阶段耗时的 CSV 报表。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-fdevice-time-trace</span></code>：生成设备代码编译时间轨迹。</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="understanding-memory.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">上一页</p>
+        <p class="prev-next-title"><span class="section-number">2.4. </span>统一内存与系统内存</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../part3.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">下一页</p>
+        <p class="prev-next-title"><span class="section-number">3. </span>高级 CUDA</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+
+
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 本页内容
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#cuda-source-files-and-headers">2.5.1. CUDA 源文件与头文件</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#nvcc-compilation-workflow">2.5.2. NVCC 编译工作流</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#nvcc-basic-usage">2.5.3. NVCC 基本用法</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#nvcc-ptx-and-cubin-generation">2.5.3.1. NVCC 的 PTX 与 Cubin 生成</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#host-code-compilation-notes">2.5.3.2. 主机代码编译说明</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#separate-compilation-of-gpu-code">2.5.3.3. GPU 代码的分离编译</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#common-compiler-options">2.5.4. 常用编译选项</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#language-features">2.5.4.1. 语言特性</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#debugging-options">2.5.4.2. 调试选项</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#optimization-options">2.5.4.3. 优化选项</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#link-time-optimization-lto">2.5.4.4. 链接时优化（LTO）</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#profiling-options">2.5.4.5. 性能分析选项</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#fatbin-compression">2.5.4.6. Fatbin 压缩</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="nvcc.html#compiler-performance-controls">2.5.4.7. 编译器性能控制</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js"></script>
+
+
+<script type="text/javascript">if (typeof _satellite !== "undefined") {_satellite.pageBottom();}</script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+<a class="footer-brand logo" href="https://www.nvidia.com">
+  <img src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
+  <img src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+</a></div>
+      
+        <div class="footer-item">
+
+<div class="footer-links">
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/accessibility/">Accessibility</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
+  
+  
+  
+</div>
+</div>
+      
+        <div class="footer-item">
+
+
+
+
+  <p class="copyright">
+    
+      Copyright © 2007-2026, NVIDIA Corporation &amp; affiliates. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item"><p class="last-updated">
+  Last updated on Mar 04, 2026.
+  <br/>
+</p></div>
+      
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+  </body>
+</html>

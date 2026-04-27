@@ -1,0 +1,1216 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="zh-CN" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>2.3. 异步执行 &#8212; CUDA 编程指南</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tables.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js" />
+
+
+<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript"
+  data-document-language="true" charset="UTF-8" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5">
+</script>
+<script type="text/javascript">
+  function OptanonWrapper() {
+    var event = new Event('bannerLoaded');
+    window.dispatchEvent(event);
+  }
+</script>
+<script src="https://images.nvidia.com/aem-dam/Solutions/ot-js/ot-custom.js" type="text/javascript">
+</script>
+
+
+    <script rel="preload" src="../_static/modal-table.js"></script>
+    <script src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scrollspy-patch.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '02-basics/asynchronous-execution';</script>
+    <script src="../_static/version-patch.js"></script>
+
+<script type="text/javascript" src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
+
+    <link rel="icon" href="../_static/favicon.ico"/>
+
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="2.4. Unified and System Memory" href="understanding-memory.html" />
+    <link rel="prev" title="2.2. Writing CUDA SIMT Kernels" href="writing-cuda-kernels.html" />
+
+<link rel="preload" as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png">
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+    <meta name="docbuild:last-update" content="Mar 04, 2026"/>
+
+
+  </head>
+
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="asynchronous-execution.html#main-content">Skip to main content</a></div>
+
+<img src="https://www.nvidia.com/content/dam/1x1-00000000.png" width="1" height="1" style="display:none;" alt="country_code">
+
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../contents.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
+    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
+  
+  
+    <p class="title logo__title">CUDA Programming Guide</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+
+<div>
+  <ul class="bd-navbar-elements navbar-nav">
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>v13.2 |</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>|</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
+      
+    </li>
+  
+  </ul>
+</div>
+</div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../contents.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
+    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
+  
+  
+    <p class="title logo__title">CUDA Programming Guide</p>
+  
+</a>
+
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+
+<div>
+  <ul class="bd-navbar-elements navbar-nav">
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>v13.2 |</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <span>|</span>
+      
+    </li>
+  
+    <li class="nav-item pst-header-nav-item">
+      
+      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
+      
+    </li>
+  
+  </ul>
+</div>
+</div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Table of Contents">
+  <p class="bd-links__title" role="heading" aria-level="1">目录</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA Programming Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. Introduction to CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/introduction.html">1.1. Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/programming-model.html">1.2. Programming Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/cuda-platform.html">1.3. The CUDA platform</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../part2.html">2. Programming GPUs in CUDA</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="intro-to-cuda-cpp.html">2.1. Intro to CUDA C++</a></li>
+<li class="toctree-l3"><a class="reference internal" href="writing-cuda-kernels.html">2.2. Writing CUDA SIMT Kernels</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="asynchronous-execution.html#">2.3. 异步执行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-memory.html">2.4. Unified and System Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nvcc.html">2.5. NVCC: The NVIDIA CUDA Compiler</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. Advanced CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. Advanced CUDA APIs and Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. Advanced Kernel Programming</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. The CUDA Driver API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. Programming Systems with Multiple GPUs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. A Tour of CUDA Features</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part4.html">4. CUDA Features</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/unified-memory.html">4.1. Unified Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cuda-graphs.html">4.2. CUDA Graphs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/stream-ordered-memory-allocation.html">4.3. Stream-Ordered Memory Allocator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cooperative-groups.html">4.4. Cooperative Groups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/programmatic-dependent-launch.html">4.5. Programmatic Dependent Launch and Synchronization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/green-contexts.html">4.6. Green Contexts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/lazy-loading.html">4.7. Lazy Loading</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/error-log-management.html">4.8. Error Log Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/async-barriers.html">4.9. Asynchronous Barriers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/pipelines.html">4.10. Pipelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/async-copies.html">4.11. Asynchronous Data Copies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cluster-launch-control.html">4.12. Work Stealing with Cluster Launch Control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/l2-cache-control.html">4.13. L2 Cache Control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/memory-sync-domains.html">4.14. Memory Synchronization Domains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/inter-process-communication.html">4.15. Interprocess Communication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/virtual-memory-management.html">4.16. Virtual Memory Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/extended-gpu-memory.html">4.17. Extended GPU Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/dynamic-parallelism.html">4.18. CUDA Dynamic Parallelism</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/graphics-interop.html">4.19. CUDA Interoperability with APIs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/driver-entry-point-access.html">4.20. Driver Entry Point Access</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part5.html">5. Technical Appendices</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/compute-capabilities.html">5.1. Compute Capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/environment-variables.html">5.2. CUDA Environment Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-support.html">5.3. C++ Language Support</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-extensions.html">5.4. C/C++ Language Extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/mathematical-functions.html">5.5. Floating-Point Computation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/device-callable-apis.html">5.6. Device-Callable APIs and Intrinsics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-memory-model.html">5.7. CUDA C++ Memory Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-execution-model.html">5.8. CUDA C++ Execution model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. Notices</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../contents.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">CUDA Programming Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../part2.html" class="nav-link"><span class="section-number">2. </span>Programming GPUs in CUDA</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">2.3. </span>Asynchronous Execution</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+<div class="header-article-item">
+  <div class="d-flex justify-content-end w-100">
+    <a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">Is this page helpful?</a>
+  </div>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="asynchronous-execution">
+<span id="id1"></span><h1><span class="section-number">2.3. </span>异步执行<a class="headerlink" href="asynchronous-execution.html#asynchronous-execution" title="跳转到此标题">#</a></h1>
+<section id="what-is-asynchronous-concurrent-execution">
+<h2><span class="section-number">2.3.1. </span>什么是异步并发执行？<a class="headerlink" href="asynchronous-execution.html#what-is-asynchronous-concurrent-execution" title="跳转到此标题">#</a></h2>
+<p>CUDA 允许多个任务并发（即重叠）执行，具体包括：</p>
+<ul class="simple">
+<li><p>主机端计算</p></li>
+<li><p>设备端计算</p></li>
+<li><p>从主机到设备的内存传输</p></li>
+<li><p>从设备到主机的内存传输</p></li>
+<li><p>同一设备内存空间内的数据传输</p></li>
+<li><p>设备之间的数据传输</p></li>
+</ul>
+<p>这种并发性通过异步接口来表达：调度函数调用或内核启动会立即返回。异步调用通常会在所派发操作完成前返回，甚至可能在异步操作真正开始前就返回。应用程序因此可以在原始操作执行期间并行处理其他任务。当需要最初派发操作的最终结果时，应用必须通过某种同步手段确保该操作已经完成。一个典型的并发执行模式是将主机与设备之间的数据传输和计算重叠，从而降低或消除传输开销。</p>
+<figure class="align-center" id="asynchronous-concurrent-execution-with-cuda-streams">
+<a class="reference internal image-reference" href="../_images/cuda_streams.png"><img alt="Asynchronous Concurrent Execution with CUDA streams" src="../_images/cuda_streams.png" style="width: 1000px;" />
+</a>
+<figcaption>
+<p><span class="caption-number">图 17 </span><span class="caption-text">基于 CUDA 流的异步并发执行</span><a class="headerlink" href="asynchronous-execution.html#asynchronous-concurrent-execution-with-cuda-streams" title="跳转到此图片">#</a></p>
+</figcaption>
+</figure>
+<p>通常，异步接口一般提供三种与已派发操作同步的主要方式：</p>
+<ul class="simple">
+<li><p><strong>阻塞方式</strong>：应用调用会阻塞（等待）直到操作完成的函数</p></li>
+<li><p><strong>非阻塞方式</strong>（轮询方式）：应用调用立即返回的函数，并获取操作状态信息</p></li>
+<li><p><strong>回调方式</strong>：当操作完成时执行预先注册的函数。</p></li>
+</ul>
+<p>虽然编程接口是异步的，但硬件能否真正并发执行各类操作还取决于 CUDA 版本和所用硬件的计算能力。相关细节将在本指南后续章节说明（见 <a class="reference internal" href="../05-appendices/compute-capabilities.html#compute-capabilities"><span class="std std-ref">计算能力</span></a>）。</p>
+<p>在 <a class="reference internal" href="intro-to-cuda-cpp.html#intro-synchronizing-the-gpu"><span class="std std-ref">CPU 与 GPU 同步</span></a> 一节中，我们介绍了 CUDA 运行时函数 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code>。这是一个阻塞调用，会等待此前发出的所有工作完成。之所以需要调用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code>，是因为内核启动本身是异步且立即返回的。CUDA 提供了阻塞和非阻塞两类同步 API，并支持主机侧回调函数。</p>
+<p>CUDA 中异步执行的核心 API 组件是 <strong>CUDA 流</strong> 与 <strong>CUDA 事件</strong>。
+在本节其余部分中，我们将说明如何利用这些机制来表达 CUDA 异步执行。</p>
+<p>另一个相关主题是 <strong>CUDA 图（CUDA Graphs）</strong>。它允许预先定义异步操作图，并以很小开销重复执行。我们会在 <a class="reference internal" href="asynchronous-execution.html#async-execution-cuda-graphs"><span class="std std-ref">2.4.9.2 使用流捕获入门 CUDA 图</span></a> 中做入门介绍，更完整的讨论见 <a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs"><span class="std std-ref">4.1 CUDA 图</span></a>。</p>
+</section>
+<section id="cuda-streams">
+<span id="id2"></span><h2><span class="section-number">2.3.2. </span>CUDA 流<a class="headerlink" href="asynchronous-execution.html#cuda-streams" title="跳转到此标题">#</a></h2>
+<p>在最基础层面，CUDA 流是一种抽象，用于让程序员表达一串按序操作。 A stream operates like a work-queue into which programs can add operations, such as memory copies or kernel launches, to be executed in order. Operations at the front of the queue for a given stream are executed and then dequeued allowing the next queued operation to come to the front and to be considered for execution. The order of execution of operations in a stream is sequential and the operations are executed in the order they are enqueued into the stream.</p>
+<p>应用程序可以同时使用多个流。在这种情况下，运行时会根据 GPU 资源状态，从有待执行任务的流中选择任务执行。流可设置优先级，用作影响调度的提示，但不保证严格的执行顺序。</p>
+<p>在某个流中执行的 API 调用与内核启动相对主机线程都是异步的。 Applications can synchronize with a stream by waiting for it to be empty of tasks, or they can also synchronize at the device level.</p>
+<p>CUDA 有一个默认流。未显式指定流的操作和内核启动都会进入默认流。未注明流的示例代码都隐式使用该默认流。默认流具有一些特殊语义，详见子节 <a class="reference internal" href="asynchronous-execution.html#async-execution-blocking-non-blocking-default-stream"><span class="std std-ref">阻塞与非阻塞流及默认流</span></a>。</p>
+<section id="creating-and-destroying-cuda-streams">
+<h3><span class="section-number">2.3.2.1. </span>创建与销毁 CUDA 流<a class="headerlink" href="asynchronous-execution.html#creating-and-destroying-cuda-streams" title="跳转到此标题">#</a></h3>
+<p>可使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamCreate()</span></code> 创建 CUDA 流。该调用会初始化流句柄，供后续函数调用中标识此流。</p>
+<div class="highlight-c notranslate" id="stream-creation-example"><div class="highlight"><pre><span></span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">;</span><span class="w">        </span><span class="c1">// Stream handle</span>
+<span class="n">cudaStreamCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream</span><span class="p">);</span><span class="w">  </span><span class="c1">// Create a new stream</span>
+
+<span class="c1">// stream based operations ...</span>
+
+<span class="n">cudaStreamDestroy</span><span class="p">(</span><span class="n">stream</span><span class="p">);</span><span class="w">  </span><span class="c1">// Destroy the stream</span>
+</pre></div>
+</div>
+<p>如果应用调用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamDestroy()</span></code> 时，设备仍在流 <code class="docutils literal notranslate"><span class="pre">stream</span></code> 中执行任务，则该流会先完成其中所有任务，再被销毁。</p>
+</section>
+<section id="launching-kernels-in-cuda-streams">
+<h3><span class="section-number">2.3.2.2. </span>在 CUDA 流中启动内核<a class="headerlink" href="asynchronous-execution.html#launching-kernels-in-cuda-streams" title="跳转到此标题">#</a></h3>
+<p>通常用于启动内核的三尖括号语法同样可将内核发射到指定流中。做法是在内核启动参数中额外传入流。如下示例中，名为 <code class="docutils literal notranslate"><span class="pre">kernel</span></code> 的内核被发射到句柄为 <code class="docutils literal notranslate"><span class="pre">stream</span></code> 的流中；该句柄类型为 <code class="docutils literal notranslate"><span class="pre">cudaStream_t</span></code>，并假定已事先创建。</p>
+<div class="highlight-c notranslate" id="kernel-launch-stream"><div class="highlight"><pre><span></span><span class="n">kernel</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="p">,</span><span class="w"> </span><span class="n">shared_mem_size</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(...);</span>
+</pre></div>
+</div>
+<p>内核启动是异步的，函数调用会立即返回。若内核成功发射，它将在流 <code class="docutils literal notranslate"><span class="pre">stream</span></code> 中执行；与此同时，应用可以在 CPU 上或 GPU 的其他流中并行执行其他任务。</p>
+</section>
+<section id="launching-memory-transfers-in-cuda-streams">
+<span id="async-execution-memory-transfers"></span><h3><span class="section-number">2.3.2.3. </span>在 CUDA 流中发起内存传输<a class="headerlink" href="asynchronous-execution.html#launching-memory-transfers-in-cuda-streams" title="跳转到此标题">#</a></h3>
+<p>若要把内存传输发起到某个流中，可使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyAsync()</span></code>。它与 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code> 类似，但多了一个参数用于指定传输所使用的流。下面代码将 <code class="docutils literal notranslate"><span class="pre">src</span></code> 指向的主机内存中的 <code class="docutils literal notranslate"><span class="pre">size</span></code> 字节复制到流 <code class="docutils literal notranslate"><span class="pre">stream</span></code> 中 <code class="docutils literal notranslate"><span class="pre">dst</span></code> 指向的设备内存。</p>
+<div class="highlight-c notranslate" id="async-memory-transfer"><div class="highlight"><pre><span></span><span class="c1">// Copy `size` bytes from `src` to `dst` in stream `stream`</span>
+<span class="n">cudaMemcpyAsync</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span><span class="w"> </span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">cudaMemcpyHostToDevice</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>与其他异步函数调用一样，该调用会立即返回；而 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code> 会阻塞直到传输完成。要安全访问传输结果，应用必须通过某种同步手段确认该操作已经结束。</p>
+<p>其他 CUDA 内存传输函数（如 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpy2D()</span></code>）也有对应的异步版本。</p>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p>若要让涉及 CPU 内存的拷贝真正异步执行，主机缓冲区必须是固定页内存（pinned/page-locked）。若主机内存不是固定页，<code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyAsync()</span></code> 虽能正常工作，但会退化为同步行为，无法与其他任务重叠，从而削弱异步传输的性能收益。建议使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMallocHost()</span></code> 分配用于与 GPU 收发数据的缓冲区。</p>
+</div>
+</section>
+<section id="stream-synchronization">
+<span id="async-execution-stream-synchronization"></span><h3><span class="section-number">2.3.2.4. </span>流同步<a class="headerlink" href="asynchronous-execution.html#stream-synchronization" title="跳转到此标题">#</a></h3>
+<p>与流同步最简单的方法，是等待该流中的任务全部清空。这可以通过两种方式完成：<code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code> 或 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamQuery()</span></code>。</p>
+<p><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code> 会阻塞，直到该流中的所有工作完成。</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// Wait for the stream to be empty of tasks</span>
+<span class="n">cudaStreamSynchronize</span><span class="p">(</span><span class="n">stream</span><span class="p">);</span>
+
+<span class="c1">// At this point the stream is done</span>
+<span class="c1">// and we can access the results of stream operations safely</span>
+</pre></div>
+</div>
+<p>如果不希望阻塞，只想快速检查流是否为空，可使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamQuery()</span></code>。</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// Have a peek at the stream</span>
+<span class="c1">// returns cudaSuccess if the stream is empty</span>
+<span class="c1">// returns cudaErrorNotReady if the stream is not empty</span>
+<span class="n">cudaError_t</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaStreamQuery</span><span class="p">(</span><span class="n">stream</span><span class="p">);</span>
+
+<span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="no">cudaSuccess</span><span class="p">:</span>
+<span class="w">        </span><span class="c1">// The stream is empty</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;The stream is empty&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="k">break</span><span class="p">;</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="no">cudaErrorNotReady</span><span class="p">:</span>
+<span class="w">        </span><span class="c1">// The stream is not empty</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;The stream is not empty&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="k">break</span><span class="p">;</span>
+<span class="w">    </span><span class="k">default</span><span class="o">:</span>
+<span class="w">        </span><span class="c1">// An error occurred - we should handle this</span>
+<span class="w">        </span><span class="k">break</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="cuda-events">
+<span id="id3"></span><h2><span class="section-number">2.3.3. </span>CUDA 事件<a class="headerlink" href="asynchronous-execution.html#cuda-events" title="跳转到此标题">#</a></h2>
+<p>CUDA 事件是一种向 CUDA 流中插入标记点的机制。它本质上类似“示踪粒子”，可用于跟踪流中任务进度。设想向一个流中启动两个内核；若没有这类跟踪事件，我们只能判断流是否为空。若某个操作依赖第一个内核输出，那么在确认流为空之前无法安全启动该操作，而此时两个内核往往都已完成。</p>
+<p>使用 CUDA 事件可以做得更好。若在第一个内核之后、第二个内核之前向流中插入一个事件，我们可以等待该事件到达流前端。这样就能在确认第一个内核完成、但第二个内核尚未开始时，安全启动依赖操作。按此方式使用事件，可构建操作与流之间的依赖图，这与后文讨论的 <a class="reference internal" href="asynchronous-execution.html#async-execution-cuda-graphs"><span class="std std-ref">CUDA 图</span></a> 直接对应。</p>
+<p>CUDA 流还会保留时间信息，可用于测量内核启动和内存传输耗时。</p>
+<section id="creating-and-destroying-cuda-events">
+<h3><span class="section-number">2.3.3.1. </span>创建与销毁 CUDA 事件<a class="headerlink" href="asynchronous-execution.html#creating-and-destroying-cuda-events" title="跳转到此标题">#</a></h3>
+<p>可使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaEventCreate()</span></code> 与 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaEventDestroy()</span></code> 创建和销毁 CUDA 事件。</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">cudaEvent_t</span><span class="w"> </span><span class="n">event</span><span class="p">;</span>
+
+<span class="c1">// Create the event</span>
+<span class="n">cudaEventCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">event</span><span class="p">);</span>
+
+<span class="c1">// do some work involving the event</span>
+
+<span class="c1">// Once the work is done and the event is no longer needed</span>
+<span class="c1">// we can destroy the event</span>
+<span class="n">cudaEventDestroy</span><span class="p">(</span><span class="n">event</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>事件不再需要时，应由应用负责销毁。</p>
+</section>
+<section id="inserting-events-into-cuda-streams">
+<h3><span class="section-number">2.3.3.2. </span>向 CUDA 流中插入事件<a class="headerlink" href="asynchronous-execution.html#inserting-events-into-cuda-streams" title="跳转到此标题">#</a></h3>
+<p>可通过 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaEventRecord()</span></code> 将 CUDA 事件插入流中。</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">cudaEvent_t</span><span class="w"> </span><span class="n">event</span><span class="p">;</span>
+<span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">;</span>
+
+<span class="c1">// Create the event</span>
+<span class="n">cudaEventCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">event</span><span class="p">);</span>
+
+<span class="c1">// Insert the event into the stream</span>
+<span class="n">cudaEventRecord</span><span class="p">(</span><span class="n">event</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="timing-operations-in-cuda-streams">
+<h3><span class="section-number">2.3.3.3. </span>对 CUDA 流中的操作计时<a class="headerlink" href="asynchronous-execution.html#timing-operations-in-cuda-streams" title="跳转到此标题">#</a></h3>
+<p>CUDA 事件可用于计时流中的各类操作（包括内核）。当事件到达流前端时会记录时间戳。像下方示例这样在同一流中用两个事件包围一个内核，即可准确测得该内核执行时长。</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">;</span>
+<span class="n">cudaStreamCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream</span><span class="p">);</span>
+
+<span class="n">cudaEvent_t</span><span class="w"> </span><span class="n">start</span><span class="p">;</span>
+<span class="n">cudaEvent_t</span><span class="w"> </span><span class="n">stop</span><span class="p">;</span>
+
+<span class="c1">// create the events</span>
+<span class="n">cudaEventCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">start</span><span class="p">);</span>
+<span class="n">cudaEventCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stop</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">// record the start event</span>
+<span class="n">cudaEventRecord</span><span class="p">(</span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
+
+<span class="c1">// launch the kernel</span>
+<span class="n">kernel</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(...);</span>
+
+<span class="c1">// record the stop event</span>
+<span class="n">cudaEventRecord</span><span class="p">(</span><span class="n">stop</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
+
+<span class="c1">// wait for the stream to complete</span>
+<span class="c1">// both events will have been triggered</span>
+<span class="n">cudaStreamSynchronize</span><span class="p">(</span><span class="n">stream</span><span class="p">);</span>
+
+<span class="c1">// get the timing</span>
+<span class="kt">float</span><span class="w"> </span><span class="n">elapsedTime</span><span class="p">;</span>
+<span class="n">cudaEventElapsedTime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">elapsedTime</span><span class="p">,</span><span class="w"> </span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="n">stop</span><span class="p">);</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Kernel execution time: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">elapsedTime</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; ms&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="c1">// clean up</span>
+<span class="n">cudaEventDestroy</span><span class="p">(</span><span class="n">start</span><span class="p">);</span>
+<span class="n">cudaEventDestroy</span><span class="p">(</span><span class="n">stop</span><span class="p">);</span>
+<span class="n">cudaStreamDestroy</span><span class="p">(</span><span class="n">stream</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="checking-the-status-of-cuda-events">
+<h3><span class="section-number">2.3.3.4. </span>检查 CUDA 事件状态<a class="headerlink" href="asynchronous-execution.html#checking-the-status-of-cuda-events" title="跳转到此标题">#</a></h3>
+<p>与检查流状态类似，事件状态也可用阻塞或非阻塞两种方式检查。</p>
+<p><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaEventSynchronize()</span></code> 会阻塞直到事件完成。下方示例先向流中发射一个内核，再记录事件，再发射第二个内核。我们可以通过 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaEventSynchronize()</span></code> 等待第一个内核后的事件完成，从而在理论上可立即启动依赖任务，且可能早于 <cite>kernel2</cite> 结束。</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">cudaEvent_t</span><span class="w"> </span><span class="n">event</span><span class="p">;</span>
+<span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">;</span>
+
+<span class="c1">// create the stream</span>
+<span class="n">cudaStreamCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream</span><span class="p">);</span>
+
+<span class="c1">// create the event</span>
+<span class="n">cudaEventCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">event</span><span class="p">);</span>
+
+<span class="c1">// launch a kernel into the stream</span>
+<span class="n">kernel</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(...);</span>
+
+<span class="c1">// Record the event</span>
+<span class="n">cudaEventRecord</span><span class="p">(</span><span class="n">event</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
+
+<span class="c1">// launch a kernel into the stream</span>
+<span class="n">kernel2</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(...);</span>
+
+<span class="c1">// Wait for the event to complete</span>
+<span class="c1">// Kernel 1 will be  guaranteed to have completed</span>
+<span class="c1">// and we can launch the dependent task.</span>
+<span class="n">cudaEventSynchronize</span><span class="p">(</span><span class="n">event</span><span class="p">);</span>
+<span class="n">dependentCPUtask</span><span class="p">();</span>
+
+<span class="c1">// Wait for the stream to be empty</span>
+<span class="c1">// Kernel 2 is guaranteed to have completed</span>
+<span class="n">cudaStreamSynchronize</span><span class="p">(</span><span class="n">stream</span><span class="p">);</span>
+
+<span class="c1">// destroy the event</span>
+<span class="n">cudaEventDestroy</span><span class="p">(</span><span class="n">event</span><span class="p">);</span>
+
+<span class="c1">// destroy the stream</span>
+<span class="n">cudaStreamDestroy</span><span class="p">(</span><span class="n">stream</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>可使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaEventQuery()</span></code> 以非阻塞方式检查 CUDA 事件是否完成。下例中我们向一个流发射两个内核。第一个内核 <cite>kernel1</cite> 生成了希望拷回主机的数据，同时 CPU 侧还有其他工作要做。代码中先把 <cite>kernel1</cite>、事件（<cite>event</cite>）和 <cite>kernel2</cite> 依次入队到 <cite>stream1</cite>。随后进入 CPU 工作循环，并偶尔检查事件是否完成（即 <cite>kernel1</cite> 是否结束）。若完成，则在 <cite>stream2</cite> 中发起设备到主机拷贝。这样可以实现 CPU 工作、GPU 内核执行与设备到主机传输之间的重叠。</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">cudaEvent_t</span><span class="w"> </span><span class="n">event</span><span class="p">;</span>
+<span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream1</span><span class="p">;</span>
+<span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream2</span><span class="p">;</span>
+
+<span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LARGE_NUMBER</span><span class="p">;</span>
+<span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">d_data</span><span class="p">;</span>
+
+<span class="c1">// Create some data</span>
+<span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">d_data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
+<span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">h_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+
+<span class="c1">// create the streams</span>
+<span class="n">cudaStreamCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream1</span><span class="p">);</span><span class="w">   </span><span class="c1">// Processing stream</span>
+<span class="n">cudaStreamCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream2</span><span class="p">);</span><span class="w">   </span><span class="c1">// Copying stream</span>
+<span class="kt">bool</span><span class="w"> </span><span class="n">copyStarted</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+
+<span class="c1">//  create the event</span>
+<span class="n">cudaEventCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">event</span><span class="p">);</span>
+
+<span class="c1">// launch kernel1 into the stream</span>
+<span class="n">kernel1</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">stream1</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">d_data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
+<span class="c1">// enqueue an event following kernel1</span>
+<span class="n">cudaEventRecord</span><span class="p">(</span><span class="n">event</span><span class="p">,</span><span class="w"> </span><span class="n">stream1</span><span class="p">);</span>
+
+<span class="c1">// launch kernel2 into the stream</span>
+<span class="n">kernel2</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">stream1</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span>
+
+<span class="c1">// while the kernels are running do some work on the CPU</span>
+<span class="c1">// but check if kernel1 has completed because then we will start</span>
+<span class="c1">// a device to host copy in stream2</span>
+<span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">allCPUWorkDone</span><span class="p">()</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">copyStarted</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">doNextChunkOfCPUWork</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// peek to see if kernel 1 has completed</span>
+<span class="w">    </span><span class="c1">// if so enqueue a non-blocking copy into stream2</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">copyStarted</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">cudaEventQuery</span><span class="p">(</span><span class="n">event</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">cudaSuccess</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">cudaMemcpyAsync</span><span class="p">(</span><span class="n">h_data</span><span class="p">,</span><span class="w"> </span><span class="n">d_data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">cudaMemcpyDeviceToHost</span><span class="p">,</span><span class="w"> </span><span class="n">stream2</span><span class="p">);</span>
+<span class="w">            </span><span class="n">copyStarted</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// wait for both streams to be done</span>
+<span class="n">cudaStreamSynchronize</span><span class="p">(</span><span class="n">stream1</span><span class="p">);</span>
+<span class="n">cudaStreamSynchronize</span><span class="p">(</span><span class="n">stream2</span><span class="p">);</span>
+
+<span class="c1">// destroy the event</span>
+<span class="n">cudaEventDestroy</span><span class="p">(</span><span class="n">event</span><span class="p">);</span>
+
+<span class="c1">// destroy the streams and free the data</span>
+<span class="n">cudaStreamDestroy</span><span class="p">(</span><span class="n">stream1</span><span class="p">);</span>
+<span class="n">cudaStreamDestroy</span><span class="p">(</span><span class="n">stream2</span><span class="p">);</span>
+<span class="n">cudaFree</span><span class="p">(</span><span class="n">d_data</span><span class="p">);</span>
+<span class="n">free</span><span class="p">(</span><span class="n">h_data</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="callback-functions-from-streams">
+<h2><span class="section-number">2.3.4. </span>来自流的回调函数<a class="headerlink" href="asynchronous-execution.html#callback-functions-from-streams" title="跳转到此标题">#</a></h2>
+<p>CUDA 提供了一种机制，可在流内部触发主机侧函数。当前可用的函数有两个：<code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaLaunchHostFunc()</span></code> 和 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaAddCallback()</span></code>。但 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaAddCallback()</span></code> 已计划弃用，因此应用应使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaLaunchHostFunc()</span></code>。</p>
+<p>使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaLaunchHostFunc()</span></code></p>
+<p><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaLaunchHostFunc()</span></code> 的函数签名如下：</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">cudaError_t</span><span class="w"> </span><span class="nf">cudaLaunchHostFunc</span><span class="p">(</span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">func</span><span class="p">)(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>其中：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">stream</span></code>：要将回调函数放入的流。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">func</span></code>：要执行的回调函数。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data</span></code>：传给回调函数的数据指针。</p></li>
+</ul>
+<p>主机函数本身是一个简单的 C 函数，签名如下：</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">hostFunction</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>其中 <code class="docutils literal notranslate"><span class="pre">data</span></code> 参数指向用户定义的数据结构，函数可自行解释该结构。使用这类回调函数时有一些注意事项：尤其是，主机函数内部不得调用任何 CUDA API。</p>
+<p>在统一内存语义下，系统提供如下执行保证：
+- 函数执行期间，该流被视为空闲状态。因此函数可始终使用其入队流所附加的内存。
+- 函数开始执行的效果，等价于同步同一流中紧邻其前的一个事件，因此会同步此前“汇合”的流。
+- 在所有前序主机函数和流回调执行完之前，向任何流加入设备工作都不会使该流变为活跃。
+- 除上述情况外，函数完成本身不会使流变为活跃。若后续没有设备工作，该流将保持空闲；连续主机函数/回调之间若无设备工作，流也保持空闲。</p>
+<section id="using-cudastreamaddcallback">
+<h3><span class="section-number">2.3.4.1. </span>使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamAddCallback()</span></code><a class="headerlink" href="asynchronous-execution.html#using-cudastreamaddcallback" title="跳转到此标题">#</a></h3>
+<div class="admonition note">
+<p class="admonition-title">注意</p>
+<p><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamAddCallback()</span></code> 已计划弃用并移除。此处仅为完整性与兼容存量代码而说明。应用应使用或迁移到 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaLaunchHostFunc()</span></code>。</p>
+</div>
+<p><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamAddCallback()</span></code> 的函数签名如下：</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">cudaError_t</span><span class="w"> </span><span class="nf">cudaStreamAddCallback</span><span class="p">(</span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamCallback_t</span><span class="w"> </span><span class="n">callback</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">userData</span><span class="p">,</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>其中：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">stream</span></code>：要将回调函数放入的流。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">callback</span></code>：要执行的回调函数。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">userData</span></code>：传入回调函数的数据指针。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">flags</span></code>：当前必须设为 0，以保证未来兼容性。</p></li>
+</ul>
+<p>The signature of the  <code class="docutils literal notranslate"><span class="pre">callback</span></code> function is a little different from the case when we used the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaLaunchHostFunc()</span></code> function.
+In this case the callback function is a C function with the signature:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">callbackFunction</span><span class="p">(</span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="n">cudaError_t</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">userData</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>此时该函数会接收：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">stream</span></code>: The stream handle from which the callback function was launched.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">status</span></code>: The status of the stream operation that triggered the callback.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">userData</span></code>: A pointer to the data that was passed to the callback function.</p></li>
+</ul>
+<p>In particular the <code class="docutils literal notranslate"><span class="pre">status</span></code> parameter will contain the current error status of the stream, which may have been set by previous operations.
+Similarly to the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaLaunchHostFunc()</span></code> func case, the stream will not be active and advance to tasks until the host-function has completed, and no CUDA functions may be called from within the callback function.</p>
+</section>
+<section id="asynchronous-error-handling">
+<span id="asynchronous-execution-error-handling"></span><h3><span class="section-number">2.3.4.2. </span>异步错误处理<a class="headerlink" href="asynchronous-execution.html#asynchronous-error-handling" title="跳转到此标题">#</a></h3>
+<p>在 CUDA 流中，错误可能来自流内任一操作（包括内核启动和内存传输）。这类错误在运行时可能要等到流被同步后（例如等待事件或调用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code>）才会反馈给用户。排查流内错误通常有两种方式。</p>
+<ul class="simple">
+<li><p>使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaGetLastError()</span></code>：返回并清除当前上下文中任意流遇到的最后一个错误。若两次调用间无新错误，紧接着第二次调用会返回 <code class="docutils literal notranslate"><span class="pre">cudaSuccess</span></code>。</p></li>
+<li><p>使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaPeekAtLastError()</span></code>：返回当前上下文的最后一个错误，但不会清除它。</p></li>
+</ul>
+<p>两者都以 <code class="docutils literal notranslate"><span class="pre">cudaError_t</span></code> 返回错误值。可通过 <cite>cudaGetErrorName()</cite> 与 <cite>cudaGetErrorString()</cite> 获取可读错误名称和描述。</p>
+<p>下面给出这些函数的使用示例：</p>
+<div class="literal-block-wrapper docutils container" id="id6">
+<div class="code-block-caption"><span class="caption-number">代码清单 1 </span><span class="caption-text">使用 cudaGetLastError() 与 cudaPeekAtLastError() 的示例</span><a class="headerlink" href="asynchronous-execution.html#id6" title="跳转到此代码">#</a></div>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// Some work occurs in streams.</span>
+<span class="n">cudaStreamSynchronize</span><span class="p">(</span><span class="n">stream</span><span class="p">);</span>
+
+<span class="c1">// Look at the last error but do not clear it</span>
+<span class="n">cudaError_t</span><span class="w"> </span><span class="n">err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaPeekAtLastError</span><span class="p">();</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">cudaSuccess</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Error with name: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cudaGetErrorName</span><span class="p">(</span><span class="n">err</span><span class="p">));</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Error description: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cudaGetErrorString</span><span class="p">(</span><span class="n">err</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="c1">// Look at the last error and clear it</span>
+<span class="n">cudaError_t</span><span class="w"> </span><span class="n">err2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaGetLastError</span><span class="p">();</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err2</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">cudaSuccess</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Error with name: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cudaGetErrorName</span><span class="p">(</span><span class="n">err2</span><span class="p">));</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Error description: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cudaGetErrorString</span><span class="p">(</span><span class="n">err2</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err2</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">err</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;As expected, cudaPeekAtLastError() did not clear the error</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// Check again</span>
+<span class="n">cudaError_t</span><span class="w"> </span><span class="n">err3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaGetLastError</span><span class="p">();</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err3</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">cudaSuccess</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;As expected, cudaGetLastError() cleared the error</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">提示</p>
+<p>当错误在同步点暴露出来时（尤其在包含大量操作的流中），通常很难定位具体出错位置。一个实用调试技巧是设置环境变量 <code class="docutils literal notranslate"><span class="pre">CUDA_LAUNCH_BLOCKING=1</span></code> 后再运行程序。该变量会让每次内核启动后都执行同步，有助于定位是哪一次内核或传输导致错误。需要注意，同步代价较高，启用该变量后程序可能明显变慢。</p>
+</div>
+</section>
+</section>
+<section id="cuda-stream-ordering">
+<h2><span class="section-number">2.3.5. </span>CUDA 流的顺序语义<a class="headerlink" href="asynchronous-execution.html#cuda-stream-ordering" title="跳转到此标题">#</a></h2>
+<p>在了解了流、事件与回调函数的基础机制后，我们还需关注流中异步操作的顺序语义。这些语义让应用开发者能够以安全方式推理流内操作顺序。在某些性能优化场景下，这些语义会被适当放宽，例如 <em>程序化依赖内核启动</em> 场景可借助特定属性与启动机制让两个内核重叠执行；又如使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyBatchAsync()</span></code> 批量传输时，运行时可并发执行互不重叠的批拷贝。相关优化将在后文讨论。</p>
+<p>最关键的是，CUDA 流属于“按序流（in-order stream）”。这意味着流中操作的执行顺序与其入队顺序一致，后续操作不能“插队”越过前序操作。内存操作（如拷贝）会由运行时跟踪，并保证在后续操作执行前完成，以确保依赖内核能安全访问正在传输的数据。</p>
+</section>
+<section id="blocking-and-non-blocking-streams-and-the-default-stream">
+<span id="async-execution-blocking-non-blocking-default-stream"></span><h2><span class="section-number">2.3.6. </span>阻塞/非阻塞流与默认流<a class="headerlink" href="asynchronous-execution.html#blocking-and-non-blocking-streams-and-the-default-stream" title="跳转到此标题">#</a></h2>
+<p>在 CUDA 中，流分为阻塞流与非阻塞流两类。这个命名容易误解，因为其语义仅指这些流与默认流之间的同步关系。默认情况下，使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamCreate()</span></code> 创建的是阻塞流。若要创建非阻塞流，需使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamCreateWithFlags()</span></code> 并传入 <code class="docutils literal notranslate"><span class="pre">cudaStreamNonBlocking</span></code> 标志：</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">;</span>
+<span class="n">cudaStreamCreateWithFlags</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamNonBlocking</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>非阻塞流可按常规方式通过 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamDestroy()</span></code> 销毁。</p>
+<section id="legacy-default-stream">
+<span id="async-execution-default-stream"></span><h3><span class="section-number">2.3.6.1. </span>传统默认流<a class="headerlink" href="asynchronous-execution.html#legacy-default-stream" title="跳转到此标题">#</a></h3>
+<p>阻塞流与非阻塞流的关键差异在于它们如何与<strong>默认流</strong>同步。CUDA 提供传统默认流（又称 NULL 流或流 ID 0），当内核启动未指定流或调用阻塞式 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code> 时会使用它。该默认流由所有主机线程共享，且属于阻塞流。当操作被发射到该默认流时，它会与所有其他阻塞流同步，即需等待其他阻塞流完成后才能执行。</p>
+<div class="highlight-c notranslate" id="legacy-default-stream-example"><div class="highlight"><pre><span></span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream1</span><span class="p">,</span><span class="w"> </span><span class="n">stream2</span><span class="p">;</span>
+<span class="n">cudaStreamCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream1</span><span class="p">);</span>
+<span class="n">cudaStreamCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream2</span><span class="p">);</span>
+
+<span class="n">kernel1</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">stream1</span><span class="o">&gt;&gt;&gt;</span><span class="p">(...);</span>
+<span class="n">kernel2</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="o">&gt;&gt;&gt;</span><span class="p">(...);</span>
+<span class="n">kernel3</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">stream2</span><span class="o">&gt;&gt;&gt;</span><span class="p">(...);</span>
+
+<span class="n">cudaDeviceSynchronize</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>上述默认流行为意味着：在前面的代码中，<cite>kernel2</cite> 会等待 <cite>kernel1</cite>，而 <cite>kernel3</cite> 会等待 <cite>kernel2</cite>，即便理论上三者可并发执行。通过创建非阻塞流可避免这种同步。在下方示例中我们创建两个非阻塞流，默认流将不再与它们同步，因此三者原则上可并发执行。也因此不能再假设三者存在固定顺序，需使用显式同步（例如较为“重”的 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code>）来保证内核完成。</p>
+<div class="highlight-c notranslate" id="non-blocking-stream-example"><div class="highlight"><pre><span></span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream1</span><span class="p">,</span><span class="w"> </span><span class="n">stream2</span><span class="p">;</span>
+<span class="n">cudaStreamCreateWithFlags</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream1</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamNonBlocking</span><span class="p">);</span>
+<span class="n">cudaStreamCreateWithFlags</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream2</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamNonBlocking</span><span class="p">);</span>
+
+<span class="n">kernel1</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">stream1</span><span class="o">&gt;&gt;&gt;</span><span class="p">(...);</span>
+<span class="n">kernel2</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="o">&gt;&gt;&gt;</span><span class="p">(...);</span>
+<span class="n">kernel3</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">stream2</span><span class="o">&gt;&gt;&gt;</span><span class="p">(...);</span>
+
+<span class="n">cudaDeviceSynchronize</span><span class="p">();</span>
+</pre></div>
+</div>
+</section>
+<section id="per-thread-default-stream">
+<h3><span class="section-number">2.3.6.2. </span>每线程默认流<a class="headerlink" href="asynchronous-execution.html#per-thread-default-stream" title="跳转到此标题">#</a></h3>
+<p>从 CUDA 7 开始，CUDA 支持“每个主机线程拥有独立默认流”，而不再必须共享传统默认流。要启用该行为，可使用 <cite>nvcc</cite> 选项 <code class="docutils literal notranslate"><span class="pre">--default-stream</span> <span class="pre">per-thread</span></code>，或定义预处理宏 <code class="docutils literal notranslate"><span class="pre">CUDA_API_PER_THREAD_DEFAULT_STREAM</span></code>。启用后，每个主机线程的默认流彼此独立，不再按传统默认流方式与其他流同步。在这种情况下，<a class="reference internal" href="asynchronous-execution.html#legacy-default-stream-example"><span class="std std-ref">传统默认流示例</span></a> 将表现出与 <a class="reference internal" href="asynchronous-execution.html#non-blocking-stream-example"><span class="std std-ref">非阻塞流示例</span></a> 相同的同步特性。</p>
+</section>
+</section>
+<section id="explicit-synchronization">
+<span id="id4"></span><h2><span class="section-number">2.3.7. </span>显式同步<a class="headerlink" href="asynchronous-execution.html#explicit-synchronization" title="跳转到此标题">#</a></h2>
+<p>流之间可以通过多种方式进行显式同步。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code> waits until all preceding commands in all streams of all host threads have completed.</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code>takes a stream as a parameter and waits until all preceding commands in the given stream have completed. It can be used to synchronize the host with a specific stream, allowing other streams to continue executing on the device.</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code>takes a stream and an event as parameters (see <a class="reference internal" href="asynchronous-execution.html#cuda-events"><span class="std std-ref">CUDA Events</span></a> for a description of events)and makes all the commands added to the given stream after the call to <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code>delay their execution until the given event has completed.</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaStreamQuery()</span></code>provides applications with a way to know if all preceding commands in a stream have completed.</p>
+</section>
+<section id="implicit-synchronization">
+<span id="id5"></span><h2><span class="section-number">2.3.8. </span>隐式同步<a class="headerlink" href="asynchronous-execution.html#implicit-synchronization" title="跳转到此标题">#</a></h2>
+<p>Two operations from different streams cannot run concurrently if any CUDA operation on the NULL stream is submitted
+in-between them, unless the streams are non-blocking streams (created with the <code class="docutils literal notranslate"><span class="pre">cudaStreamNonBlocking</span></code> flag).</p>
+<p>为提升内核并发执行潜力，应用应遵循以下原则：</p>
+<ul class="simple">
+<li><p>先发出彼此独立的操作，再发出存在依赖关系的操作；</p></li>
+<li><p>尽可能推迟各类同步操作的发生时机。</p></li>
+</ul>
+</section>
+<section id="miscellaneous-and-advanced-topics">
+<h2><span class="section-number">2.3.9. </span>杂项与高级主题<a class="headerlink" href="asynchronous-execution.html#miscellaneous-and-advanced-topics" title="跳转到此标题">#</a></h2>
+<section id="stream-prioritization">
+<span id="async-execution-stream-priorities"></span><h3><span class="section-number">2.3.9.1. </span>流优先级<a class="headerlink" href="asynchronous-execution.html#stream-prioritization" title="跳转到此标题">#</a></h3>
+<p>As mentioned previously, developers can assign priorities to CUDA streams. Prioritized streams need to be created using the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamCreateWithPriority()</span></code> function. The function takes two parameters: the stream handle and the priority level.
+The general scheme is that lower numbers correspond to higher priorities. The given priority range for a given device and context
+can be queried using the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaDeviceGetStreamPriorityRange()</span></code> function. The default priority of a stream is 0.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">minPriority</span><span class="p">,</span><span class="w"> </span><span class="n">maxPriority</span><span class="p">;</span>
+
+<span class="c1">// Query the priority range for the device</span>
+<span class="n">cudaDeviceGetStreamPriorityRange</span><span class="p">(</span><span class="o">&amp;</span><span class="n">minPriority</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">maxPriority</span><span class="p">);</span>
+
+<span class="c1">// Create two streams with different priorities</span>
+<span class="c1">// cudaStreamDefault indicates the stream should be created with default flags</span>
+<span class="c1">// in other words they will be blocking streams with respect to the legacy default stream</span>
+<span class="c1">// One could also use the option `cudaStreamNonBlocking` here to create a non-blocking streams</span>
+<span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream1</span><span class="p">,</span><span class="w"> </span><span class="n">stream2</span><span class="p">;</span>
+<span class="n">cudaStreamCreateWithPriority</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream1</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamDefault</span><span class="p">,</span><span class="w"> </span><span class="n">minPriority</span><span class="p">);</span><span class="w">  </span><span class="c1">// Lowest priority</span>
+<span class="n">cudaStreamCreateWithPriority</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream2</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamDefault</span><span class="p">,</span><span class="w"> </span><span class="n">maxPriority</span><span class="p">);</span><span class="w">  </span><span class="c1">// Highest priority</span>
+</pre></div>
+</div>
+<p>需要注意，流优先级只是给运行时的提示，通常主要作用于内核发射，对内存传输未必生效。流优先级不会抢占已在执行的工作，也不保证特定执行顺序。</p>
+</section>
+<section id="introduction-to-cuda-graphs-with-stream-capture">
+<span id="async-execution-cuda-graphs"></span><h3><span class="section-number">2.3.9.2. </span>通过流捕获入门 CUDA 图<a class="headerlink" href="asynchronous-execution.html#introduction-to-cuda-graphs-with-stream-capture" title="跳转到此标题">#</a></h3>
+<p>CUDA 流允许程序按顺序指定一系列操作（如内核或内存拷贝）。借助多流与 <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent</span></code> 跨流依赖，应用可描述完整的有向无环图（DAG）操作流。有些应用在运行期间需要反复执行同一序列或 DAG。</p>
+<p>针对这种场景，CUDA 提供了 CUDA 图功能。本节介绍 CUDA 图及其一种构建机制——<em>流捕获</em>。更详细内容见 <a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs"><span class="std std-ref">CUDA 图</span></a>。捕获或创建图可减少主机线程重复调用同一 API 链带来的延迟与 CPU 开销：图定义一次，之后可重复执行多次。</p>
+<p>CUDA 图的一般工作流程如下：</p>
+<ol class="lowerroman simple">
+<li><p>应用先对图进行<em>捕获</em>（通常在首次执行时完成）；也可通过 CUDA Graph API 手工构建图。</p></li>
+<li><p>随后对图进行<em>实例化</em>（一次性步骤）。该步骤会建立执行图所需的运行时结构，以尽可能加快各组件启动。</p></li>
+<li><p>之后按需反复执行已实例化图。由于运行时结构已就绪，图执行的 CPU 开销可显著降低。</p></li>
+</ol>
+<div class="literal-block-wrapper docutils container" id="id7">
+<div class="code-block-caption"><span class="caption-number">代码清单 2 </span><span class="caption-text">使用 CUDA 图对简单线性图执行“捕获-实例化-执行”阶段（摘自 <a class="reference external" href="https://developer.nvidia.com/blog/cuda-graphs/">CUDA 开发者技术博客</a>，A. Gray，2019）</span><a class="headerlink" href="asynchronous-execution.html#id7" title="跳转到此代码">#</a></div>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#define N 500000 </span><span class="c1">// tuned such that kernel takes a few microseconds</span>
+
+<span class="c1">// A very lightweight kernel</span>
+<span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">shortKernel</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out_d</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">in_d</span><span class="p">){</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">idx</span><span class="o">=</span><span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span><span class="o">*</span><span class="n">blockDim</span><span class="p">.</span><span class="n">x</span><span class="o">+</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">idx</span><span class="o">&lt;</span><span class="n">N</span><span class="p">)</span><span class="w"> </span><span class="n">out_d</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">=</span><span class="mf">1.23</span><span class="o">*</span><span class="n">in_d</span><span class="p">[</span><span class="n">idx</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="kt">bool</span><span class="w"> </span><span class="n">graphCreated</span><span class="o">=</span><span class="nb">false</span><span class="p">;</span>
+<span class="n">cudaGraph_t</span><span class="w"> </span><span class="n">graph</span><span class="p">;</span>
+<span class="n">cudaGraphExec_t</span><span class="w"> </span><span class="n">instance</span><span class="p">;</span>
+
+<span class="c1">// The graph will be executed NSTEP times</span>
+<span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">istep</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">istep</span><span class="o">&lt;</span><span class="n">NSTEP</span><span class="p">;</span><span class="w"> </span><span class="n">istep</span><span class="o">++</span><span class="p">){</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">graphCreated</span><span class="p">){</span>
+<span class="w">        </span><span class="c1">// Capture the graph</span>
+<span class="w">        </span><span class="n">cudaStreamBeginCapture</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamCaptureModeGlobal</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// Launch NKERNEL kernels</span>
+<span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">ikrnl</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">ikrnl</span><span class="o">&lt;</span><span class="n">NKERNEL</span><span class="p">;</span><span class="w"> </span><span class="n">ikrnl</span><span class="o">++</span><span class="p">){</span>
+<span class="w">            </span><span class="n">shortKernel</span><span class="o">&lt;&lt;&lt;</span><span class="n">blocks</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">out_d</span><span class="p">,</span><span class="w"> </span><span class="n">in_d</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// End the capture</span>
+<span class="w">        </span><span class="n">cudaStreamEndCapture</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">graph</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// Instantiate the graph</span>
+<span class="w">        </span><span class="n">cudaGraphInstantiate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">instance</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="w">        </span><span class="n">graphCreated</span><span class="o">=</span><span class="nb">true</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Launch the graph</span>
+<span class="w">    </span><span class="n">cudaGraphLaunch</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Synchronize the stream</span>
+<span class="w">    </span><span class="n">cudaStreamSynchronize</span><span class="p">(</span><span class="n">stream</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>关于 CUDA 图的更多细节请参见 <a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs"><span class="std std-ref">CUDA 图</span></a>。</p>
+</section>
+</section>
+<section id="summary-of-asynchronous-execution">
+<h2><span class="section-number">2.3.10. </span>异步执行总结<a class="headerlink" href="asynchronous-execution.html#summary-of-asynchronous-execution" title="跳转到此标题">#</a></h2>
+<p>本节要点如下：</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>异步 API 使我们能够表达任务并发执行与操作重叠；实际并发度取决于可用硬件资源与计算能力。</p></li>
+<li><p>CUDA 异步执行的关键抽象是：流、事件与回调函数。</p></li>
+<li><p>可在事件级、流级与设备级进行同步。</p></li>
+<li><p>默认流属于阻塞流，会与其他阻塞流同步，但不会与非阻塞流同步。</p></li>
+<li><p>可通过编译选项 <code class="docutils literal notranslate"><span class="pre">--default-stream</span> <span class="pre">per-thread</span></code> 或预处理宏 CUDA_API_PER_THREAD_DEFAULT_STREAM 启用每线程默认流，以避免传统默认流行为。</p></li>
+<li><p>流可配置不同优先级，但这只是对运行时的提示，对内存传输不一定生效。</p></li>
+<li><p>CUDA 提供了用于降低或重叠内核启动与内存传输开销的 API，例如 CUDA 图、批量内存传输和程序化依赖内核启动。</p></li>
+</ul>
+</div></blockquote>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="writing-cuda-kernels.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><span class="section-number">2.2. </span>Writing CUDA SIMT Kernels</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="understanding-memory.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><span class="section-number">2.4. </span>Unified and System Memory</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+
+
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 本页内容
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#what-is-asynchronous-concurrent-execution">2.3.1. What is Asynchronous Concurrent Execution?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#cuda-streams">2.3.2. CUDA Streams</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#creating-and-destroying-cuda-streams">2.3.2.1. Creating and Destroying CUDA Streams</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#launching-kernels-in-cuda-streams">2.3.2.2. Launching Kernels in CUDA Streams</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#launching-memory-transfers-in-cuda-streams">2.3.2.3. Launching Memory Transfers in CUDA Streams</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#stream-synchronization">2.3.2.4. Stream Synchronization</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#cuda-events">2.3.3. CUDA Events</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#creating-and-destroying-cuda-events">2.3.3.1. Creating and Destroying CUDA Events</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#inserting-events-into-cuda-streams">2.3.3.2. Inserting Events into CUDA Streams</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#timing-operations-in-cuda-streams">2.3.3.3. Timing Operations in CUDA Streams</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#checking-the-status-of-cuda-events">2.3.3.4. Checking the Status of CUDA Events</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#callback-functions-from-streams">2.3.4. Callback Functions from Streams</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#using-cudastreamaddcallback">2.3.4.1. 使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamAddCallback()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#asynchronous-error-handling">2.3.4.2. Asynchronous Error Handling</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#cuda-stream-ordering">2.3.5. CUDA Stream Ordering</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#blocking-and-non-blocking-streams-and-the-default-stream">2.3.6. 阻塞/非阻塞流与默认流</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#legacy-default-stream">2.3.6.1. 传统默认流</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#per-thread-default-stream">2.3.6.2. 每线程默认流</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#explicit-synchronization">2.3.7. 显式同步</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#implicit-synchronization">2.3.8. 隐式同步</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#miscellaneous-and-advanced-topics">2.3.9. 杂项与高级主题</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#stream-prioritization">2.3.9.1. 流优先级</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#introduction-to-cuda-graphs-with-stream-capture">2.3.9.2. 通过流捕获入门 CUDA 图</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#summary-of-asynchronous-execution">2.3.10. 异步执行总结</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js"></script>
+
+
+<script type="text/javascript">if (typeof _satellite !== "undefined") {_satellite.pageBottom();}</script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+<a class="footer-brand logo" href="https://www.nvidia.com">
+  <img src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
+  <img src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+</a></div>
+      
+        <div class="footer-item">
+
+<div class="footer-links">
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/accessibility/">Accessibility</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+   | 
+  
+  
+  
+  <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
+  
+  
+  
+</div>
+</div>
+      
+        <div class="footer-item">
+
+
+
+
+  <p class="copyright">
+    
+      Copyright © 2007-2026, NVIDIA Corporation &amp; affiliates. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item"><p class="last-updated">
+  Last updated on Mar 04, 2026.
+  <br/>
+</p></div>
+      
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+  </body>
+</html>
