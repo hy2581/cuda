@@ -202,14 +202,14 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. 高级 CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. 高级 CUDA API 与特性</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. 高级内核编程</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. CUDA Driver API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. CUDA 驱动程序 API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. 多 GPU 系统编程</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. CUDA 特性概览</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../part4.html">4. CUDA 特性</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="unified-memory.html">4.1. 统一内存</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cuda-graphs.html">4.2. CUDA Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda-graphs.html">4.2. CUDA 图</a></li>
 <li class="toctree-l3"><a class="reference internal" href="stream-ordered-memory-allocation.html">4.3. 流有序内存分配器</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cooperative-groups.html">4.4. 协作组</a></li>
 <li class="toctree-l3"><a class="reference internal" href="programmatic-dependent-launch.html">4.5. 程序化依赖启动与同步</a></li>
@@ -284,19 +284,20 @@
 <article class="bd-article">
 <section id="error-log-management">
 <span id="id1"></span><h1>4.8. 错误日志管理<a class="headerlink" href="error-log-management.html#error-log-management" title="跳转到此标题">#</a></h1>
-<p><em>错误日志管理</em> 机制允许报告 CUDA API 错误
-以简单的英语格式向开发人员描述问题的原因。</p>
+<p><em>错误日志管理</em> 机制可以用描述问题原因的简明英文格式，
+向开发人员报告 CUDA API 错误。</p>
 <section id="background">
 <h2><span class="section-number">4.8.1. </span>背景<a class="headerlink" href="error-log-management.html#background" title="跳转到此标题">#</a></h2>
-<p>传统上，CUDA API 调用失败的唯一指示是返回非零代码。
-从 CUDA Toolkit 12.9 开始，CUDA 运行时定义了 100 多种不同的返回代码
-错误条件，但其中许多都是通用的，并且无法为开发人员调试原因提供任何帮助。</p>
+<p>传统上，CUDA API 调用失败时，唯一的提示是返回一个非零代码。
+截至 CUDA Toolkit 12.9，CUDA 运行时为错误条件定义了 100 多种不同的返回代码，
+但其中许多返回码都比较笼统，无法帮助开发人员调试具体原因。</p>
 </section>
 <section id="activation">
 <h2><span class="section-number">4.8.2. </span>启用<a class="headerlink" href="error-log-management.html#activation" title="跳转到此标题">#</a></h2>
-<p>设置 <em>CUDA_LOG_FILE</em> 环境变量。可接受的值为 <em>stdout</em>, <em>stderr</em>，或系统上用于写入文件的有效路径。
-日志缓冲区可以通过 API 转储，即使 <em>CUDA_LOG_FILE</em> 程序执行前未设置。
-注意：无错误执行可能不会打印任何日志。</p>
+<p>设置 <em>CUDA_LOG_FILE</em> 环境变量。可接受的值包括 <em>stdout</em>、<em>stderr</em>，
+或系统上可写文件的有效路径。即使程序执行前未设置 <em>CUDA_LOG_FILE</em>，
+也可以通过 API 转储日志缓冲区。
+注意：没有错误的执行过程可能不会打印任何日志。</p>
 </section>
 <section id="output">
 <h2><span class="section-number">4.8.3. </span>输出<a class="headerlink" href="error-log-management.html#output" title="跳转到此标题">#</a></h2>
@@ -304,55 +305,59 @@
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Time</span><span class="p">][</span><span class="n">TID</span><span class="p">][</span><span class="n">Source</span><span class="p">][</span><span class="n">Severity</span><span class="p">][</span><span class="n">API</span><span class="w"> </span><span class="n">Entry</span><span class="w"> </span><span class="n">Point</span><span class="p">]</span><span class="w"> </span><span class="n">Message</span>
 </pre></div>
 </div>
-<p>以下行是开发人员尝试将错误日志管理日志转储到未分配的缓冲区时生成的实际错误消息：</p>
+<p>如果开发人员尝试将错误日志管理日志转储到未分配的缓冲区，会生成如下实际错误消息：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="mi">22</span><span class="o">:</span><span class="mi">21</span><span class="o">:</span><span class="mf">32.099</span><span class="p">][</span><span class="mi">25642</span><span class="p">][</span><span class="n">CUDA</span><span class="p">][</span><span class="n">E</span><span class="p">][</span><span class="n">cuLogsDumpToMemory</span><span class="p">]</span><span class="w"> </span><span class="n">buffer</span><span class="w"> </span><span class="n">cannot</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="nb">NULL</span>
 </pre></div>
 </div>
-<p>在此之前，开发人员所能得到的只是 <em>CUDA_ERROR_INVALID_VALUE</em> 在返回代码中，并且可能是“无效参数”，如果 <em>cuGetErrorString</em> 被称为。</p>
+<p>在此之前，开发人员能获得的通常只是返回码中的 <em>CUDA_ERROR_INVALID_VALUE</em>；
+如果调用 <em>cuGetErrorString</em>，也许还会得到“invalid argument”。</p>
 </section>
 <section id="api-description">
-<h2><span class="section-number">4.8.4. </span>接口说明<a class="headerlink" href="error-log-management.html#api-description" title="跳转到此标题">#</a></h2>
+<h2><span class="section-number">4.8.4. </span>API 说明<a class="headerlink" href="error-log-management.html#api-description" title="跳转到此标题">#</a></h2>
 <p>CUDA 驱动程序提供两类 API，用于与错误日志管理功能进行交互。</p>
-<p>此功能允许开发人员注册回调函数，以便在生成错误日志时使用，其中回调签名为：</p>
+<p>该功能允许开发人员注册回调函数，在生成错误日志时使用；回调签名如下：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="n">callbackFunc</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">CUlogLevel</span><span class="w"> </span><span class="n">logLevel</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">message</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">length</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>回调通过此 API 注册：</p>
+<p>使用以下 API 注册回调：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">CUresult</span><span class="w"> </span><span class="n">cuLogsRegisterCallback</span><span class="p">(</span><span class="n">CUlogsCallback</span><span class="w"> </span><span class="n">callbackFunc</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">userData</span><span class="p">,</span><span class="w"> </span><span class="n">CUlogsCallbackHandle</span><span class="w"> </span><span class="o">*</span><span class="n">callback_out</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Where <em>userData</em> 不加修改地传递给回调函数。 <em>callback_out</em> 应由调用者存储以供使用 <em>cuLogsUnregisterCallback</em>.</p>
+<p>其中，<em>userData</em> 会原样传递给回调函数。调用者应保存 <em>callback_out</em>，
+以便稍后用于 <em>cuLogsUnregisterCallback</em>。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">CUresult</span><span class="w"> </span><span class="n">cuLogsUnregisterCallback</span><span class="p">(</span><span class="n">CUlogsCallbackHandle</span><span class="w"> </span><span class="n">callback</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>另一组 API 函数用于管理日志的输出。一个重要的概念是日志迭代器，它指向缓冲区的当前末尾：</p>
+<p>另一组 API 函数用于管理日志输出。这里的一个重要概念是日志迭代器，它指向缓冲区当前的末尾位置：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">CUresult</span><span class="w"> </span><span class="n">cuLogsCurrent</span><span class="p">(</span><span class="n">CUlogIterator</span><span class="w"> </span><span class="o">*</span><span class="n">iterator_out</span><span class="p">,</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>在不需要转储整个日志缓冲区的情况下，调用软件可以保留迭代器位置。目前，flags 参数必须为 0，并为未来的 CUDA 版本保留其他选项。</p>
-<p>任何时候，都可以使用以下函数将错误日志缓冲区转储到文件或内存中：</p>
+<p>当不希望转储整个日志缓冲区时，调用方软件可以保留迭代器位置。目前，flags 参数必须为 0，其他选项保留给未来的 CUDA 版本使用。</p>
+<p>可以随时使用以下函数将错误日志缓冲区转储到文件或内存中：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">CUresult</span><span class="w"> </span><span class="n">cuLogsDumpToFile</span><span class="p">(</span><span class="n">CUlogIterator</span><span class="w"> </span><span class="o">*</span><span class="n">iterator</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">pathToFile</span><span class="p">,</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">)</span>
 <span class="n">CUresult</span><span class="w"> </span><span class="n">cuLogsDumpToMemory</span><span class="p">(</span><span class="n">CUlogIterator</span><span class="w"> </span><span class="o">*</span><span class="n">iterator</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="o">*</span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>If <em>iterator</em> 为 NULL，将转储整个缓冲区，最多 100 个条目。如果 <em>iterator</em> 不为 NULL，日志将从该条目和值开始转储 <em>iterator</em> 将被更新到日志的当前末尾，就好像 <em>cuLogsCurrent</em> 被召唤了。如果缓冲区中有超过 100 个日志条目，则会在转储开始时添加一条注释来注明这一点。</p>
-<p>flags 参数必须为 0，并为未来的 CUDA 版本保留其他选项。</p>
-<p><em>cuLogsDumpToMemory</em> 函数还有额外的考虑因素：</p>
+<p>如果 <em>iterator</em> 为 NULL，将转储整个缓冲区，最多转储 100 个条目。如果 <em>iterator</em> 不为 NULL，
+日志会从该条目开始转储，并且 <em>iterator</em> 的值会更新为日志当前的末尾位置，就像调用过 <em>cuLogsCurrent</em> 一样。
+如果缓冲区中写入过超过 100 个日志条目，转储开头会添加一条说明，指出发生过回卷。</p>
+<p>flags 参数必须为 0，其他选项保留给未来的 CUDA 版本使用。</p>
+<p><em>cuLogsDumpToMemory</em> 函数还需要注意以下事项：</p>
 <ol class="arabic simple">
-<li><p>缓冲区本身将以空终止，但每个单独的日志条目仅由换行符 (n) 分隔。</p></li>
+<li><p>缓冲区本身会以空字符结尾，但每个单独的日志条目只用换行符 (n) 分隔。</p></li>
 <li><p>缓冲区的最大大小为 25600 字节。</p></li>
-<li><p>如果提供的值 <em>size</em> 不足以存储所有所需的日志，将添加注释作为第一个条目，并且不适合的最旧条目将不会被转储。</p></li>
-<li><p>回来后， <em>size</em> 将包含写入提供的缓冲区的实际字节数。</p></li>
+<li><p>如果提供的 <em>size</em> 值不足以存储所有所需日志，会添加一条说明作为第一个条目，而放不下的最旧条目不会被转储。</p></li>
+<li><p>返回后，<em>size</em> 将包含实际写入所提供缓冲区的字节数。</p></li>
 </ol>
 </section>
 <section id="limitations-and-known-issues">
 <h2><span class="section-number">4.8.5. </span>限制和已知问题<a class="headerlink" href="error-log-management.html#limitations-and-known-issues" title="跳转到此标题">#</a></h2>
 <ol class="arabic simple">
-<li><p>日志缓冲区限制为 100 个条目。达到此限制后，最旧的条目将被替换，并且日志转储将包含一行记录翻转。</p></li>
-<li><p>尚未涵盖所有 CUDA API。这是一个正在进行的项目，旨在为所有 API 提供更好的使用错误报告。</p></li>
-<li><p>除非生成日志，否则不会测试错误日志管理日志位置（如果给定）的有效性。</p></li>
-<li><p>错误日志管理 API 目前只能通过 CUDA 驱动程序使用。等效的 API 将在未来版本中添加到 CUDA 运行时中。</p></li>
-<li><p>日志消息未本地化为任何语言，并且所有提供的日志均为美国英语。</p></li>
+<li><p>日志缓冲区限制为 100 个条目。达到此限制后，最旧的条目会被替换，日志转储中也会包含一行说明，指出发生过回卷。</p></li>
+<li><p>目前还没有覆盖所有 CUDA API。这项工作仍在持续推进，目标是为所有 API 提供更好的用法错误报告。</p></li>
+<li><p>如果给出了错误日志管理日志位置，其有效性只会在生成日志时才进行检查。</p></li>
+<li><p>错误日志管理 API 目前只能通过 CUDA 驱动程序使用。等效 API 将在未来版本中添加到 CUDA 运行时。</p></li>
+<li><p>日志消息不会本地化为任何语言，所有提供的日志均为美国英语。</p></li>
 </ol>
 </section>
 </section>
@@ -372,11 +377,11 @@
   </div>
 <nav aria-labelledby="pst-page-navigation-heading-2" class="bd-toc-nav page-toc">
 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="error-log-management.html#background">4.8. 错误日志管理</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="error-log-management.html#activation">4.8. 错误日志管理</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="error-log-management.html#output">4.8. 错误日志管理</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="error-log-management.html#api-description">4.8. 错误日志管理</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="error-log-management.html#limitations-and-known-issues">4.8. 错误日志管理</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="error-log-management.html#background">4.8.1. 背景</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="error-log-management.html#activation">4.8.2. 启用</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="error-log-management.html#output">4.8.3. 输出</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="error-log-management.html#api-description">4.8.4. API 说明</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="error-log-management.html#limitations-and-known-issues">4.8.5. 限制和已知问题</a></li>
 </ul>
 </nav></div>
 </div></div>
