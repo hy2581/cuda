@@ -56,7 +56,7 @@
 <link href="../genindex.html" rel="index" title="索引"/>
 <link href="../search.html" rel="search" title="搜索"/>
 <link href="cooperative-groups.html" rel="next" title="4.4. 协作组"/>
-<link href="cuda-graphs.html" rel="prev" title="4.2. CUDA Graph"/>
+<link href="cuda-graphs.html" rel="prev" title="4.2. CUDA 图"/>
 <link as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png" rel="preload"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <meta content="en" name="docsearch:language"/>
@@ -209,7 +209,7 @@
 </details></li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../part4.html">4. CUDA 特性</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="unified-memory.html">4.1. 统一内存</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cuda-graphs.html">4.2. CUDA Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda-graphs.html">4.2. CUDA 图</a></li>
 <li class="toctree-l3 current active"><a class="current reference internal" href="stream-ordered-memory-allocation.html#">4.3. 流有序内存分配器</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cooperative-groups.html">4.4. 协作组</a></li>
 <li class="toctree-l3"><a class="reference internal" href="programmatic-dependent-launch.html">4.5. 程序化依赖启动与同步</a></li>
@@ -265,7 +265,7 @@
 </li>
 <li class="breadcrumb-item"><a class="nav-link" href="../index.html">CUDA 编程指南</a></li>
 <li class="breadcrumb-item"><a class="nav-link" href="../part4.html">4. CUDA 特性</a></li>
-<li aria-current="page" class="breadcrumb-item active"><span class="ellipsis"><span class="section-number">4.3. </span>流排序内存分配器</span></li>
+<li aria-current="page" class="breadcrumb-item active"><span class="ellipsis"><span class="section-number">4.3. </span>流有序内存分配器</span></li>
 </ul>
 </nav>
 </div>
@@ -286,121 +286,73 @@
 <span id="id1"></span><h1>4.3. 流有序内存分配器<a class="headerlink" href="stream-ordered-memory-allocation.html#stream-ordered-memory-allocator" title="跳转到此标题">#</a></h1>
 <section id="introduction">
 <span id="stream-ordered-memory-allocator-intro"></span><h2><span class="section-number">4.3.1. </span>引言<a class="headerlink" href="stream-ordered-memory-allocation.html#introduction" title="跳转到此标题">#</a></h2>
-<p>使用管理内存分配 <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code> 导致GPU
-同步所有正在执行的 CUDA 流。流序内存
-分配器使应用程序能够排序内存分配和释放
-与启动到 CUDA 流中的其他工作一起使用，例如内核启动和
-异步副本。这通过利用
-流排序语义以重用内存分配。分配器还
-允许应用程序控制分配器的内存缓存行为。当
-设置适当的释放阈值，缓存行为允许
-分配器以避免在应用程序指示时对操作系统进行昂贵的调用
-它愿意接受更大的内存占用。分配器还支持
-进程之间轻松安全的分配共享。</p>
-<p>流排序内存分配器：</p>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code> 管理内存分配会导致 GPU 在所有正在执行的 CUDA 流之间进行同步。流有序内存分配器允许应用程序把内存分配和释放与启动到 CUDA 流中的其他工作排序在一起，例如内核启动和异步拷贝。这样可以利用流有序语义重用内存分配，从而改善应用程序的内存使用情况。分配器还允许应用程序控制内存缓存行为；设置合适的释放阈值后，如果应用程序表示可以接受更大的内存占用，分配器就可以避免对操作系统发起代价较高的调用。该分配器还支持在进程之间方便而安全地共享分配。</p>
+<p>流有序内存分配器：</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>减少了对自定义内存管理抽象的需求，并使其
-更轻松地创建高性能自定义内存管理
-需要它的应用程序。</p></li>
-<li><p>使多个库能够共享由管理的公共内存池
-司机。这可以减少过多的内存消耗。</p></li>
-<li><p>允许驾驶员根据其对情况的认识来执行优化
-分配器和其他流管理 API。</p></li>
+<li><p>减少对自定义内存管理抽象的需求，并让确实需要这类抽象的应用程序更容易构建高性能的自定义内存管理。</p></li>
+<li><p>允许多个库共享由驱动程序管理的公共内存池，从而减少多余的内存消耗。</p></li>
+<li><p>允许驱动程序基于对分配器和其他流管理 API 的了解来执行优化。</p></li>
 </ul>
 </div></blockquote>
 <div class="admonition note">
 <p class="admonition-title">注</p>
-<p>Nsight Compute 和下一代 CUDA 调试器可以识别分配器
-从 CUDA 11.3 开始。</p>
+<p>从 CUDA 11.3 开始，Nsight Compute 和下一代 CUDA 调试器可以识别该分配器。</p>
 </div>
 </section>
 <section id="memory-management">
 <span id="stream-ordered-api-fundamentals"></span><h2><span class="section-number">4.3.2. </span>内存管理<a class="headerlink" href="stream-ordered-memory-allocation.html#memory-management" title="跳转到此标题">#</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code> 是启用流排序内存管理的 API。
-<code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 返回分配并 <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code> 释放一个
-分配。两个 API 都接受流参数来定义何时分配
-将变得可用并停止可用。
-这些函数允许将内存操作绑定到特定的 CUDA 流，
-使它们能够在不阻塞主机或其他设备的情况下发生
-流。  可以通过避免潜在的问题来提高应用程序性能
-昂贵的同步 <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code>.</p>
-<p>这些 API 可用于进一步的性能优化
-内存池，管理和重用大内存块以提高效率
-分配和解除分配。内存池有助于减少开销并防止
-碎片化，提高内存频繁场景下的性能
-分配操作。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code> 是启用流有序内存管理的 API。<code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 返回一段分配，<code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code> 释放一段分配。这两个 API 都接受流参数，用于定义该分配何时变为可用、何时停止可用。这些函数允许把内存操作绑定到特定 CUDA 流中，使其能够在不阻塞主机或其他流的情况下发生。通过避免 <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code> 可能带来的高成本同步，应用程序性能可以得到提升。</p>
+<p>这些 API 还可以结合内存池进一步优化性能。内存池会管理并重用大块内存，让分配和释放更高效。内存池有助于降低开销并避免碎片化，从而提升频繁执行内存分配操作场景中的性能。</p>
 <section id="allocating-memory">
 <span id="stream-ordered-api-fundamentals-allocation"></span><h3><span class="section-number">4.3.2.1. </span>分配内存<a class="headerlink" href="stream-ordered-memory-allocation.html#allocating-memory" title="跳转到此标题">#</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 函数触发异步内存分配
-GPU，链接到特定的 CUDA 流。 <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 允许内存
-分配发生而不妨碍主机或其他
-流，消除了昂贵的同步的需要。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 函数会在 GPU 上触发异步内存分配，并将该分配关联到特定 CUDA 流。<code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 允许内存分配在不阻塞主机或其他流的情况下发生，从而消除高成本同步的需要。</p>
 <div class="admonition note">
 <p class="admonition-title">注</p>
-<p><code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 确定位置时忽略当前设备/上下文
-分配将驻留。相反， <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 决定了
-基于指定的内存池或提供的流的适当设备。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 在确定分配驻留位置时会忽略当前设备/上下文。它会根据指定的内存池或传入的流来确定合适的设备。</p>
 </div>
-<p>下面的列表说明了一个基本的使用模式：内存是
-分配、使用，然后释放回同一个流中。</p>
+<p>下面的代码展示了一种基本用法：先分配内存，随后使用这段内存，最后在同一个流中释放它。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">ptr</span><span class="p">;</span>
 <span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">512</span><span class="p">;</span>
 <span class="n">cudaMallocAsync</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamPerThread</span><span class="p">);</span>
-<span class="c1">// 使用分配进行工作</span>
+<span class="c1">// 使用这段分配执行工作</span>
 <span class="n">kernel</span><span class="o">&lt;&lt;&lt;</span><span class="p">...,</span><span class="w"> </span><span class="n">cudaStreamPerThread</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
-<span class="c1">// 可以在不同步cpu和GPU的情况下指定异步free</span>
+<span class="c1">// 可以在不同步 CPU 和 GPU 的情况下指定异步释放</span>
 <span class="n">cudaFreeAsync</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamPerThread</span><span class="p">);</span>
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">注</p>
-<p>当从进行分配的流以外的流访问分配时，
-用户必须保证访问发生在分配之后
-操作，否则行为未定义。</p>
+<p>如果从执行分配的流之外的其他流访问该分配，用户必须保证访问发生在分配操作之后，否则行为未定义。</p>
 </div>
 </section>
 <section id="freeing-memory">
 <span id="stream-ordered-api-fundamentals-deallocation"></span><h3><span class="section-number">4.3.2.2. </span>释放内存<a class="headerlink" href="stream-ordered-memory-allocation.html#freeing-memory" title="跳转到此标题">#</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">cudaFreeAsync()</span></code> 以流顺序异步释放设备内存
-时尚，意味着内存释放被分配给特定的 CUDA 流
-并且不会阻塞主机或其他流。</p>
-<p>用户必须保证分配后发生空闲操作
-操作和分配的任何用途。任何分配的使用
-自由操作开始后会导致未定义的行为。</p>
-<p>应使用事件和/或流同步操作来保证任何
-在释放操作之前完成对其他流的分配的访问
-开始，如以下示例所示。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaFreeAsync()</span></code> 会以流有序方式异步释放设备内存。这意味着内存释放被分配到特定 CUDA 流中，并且不会阻塞主机或其他流。</p>
+<p>用户必须保证释放操作发生在分配操作以及该分配的所有使用之后。如果在释放操作开始后继续使用该分配，会导致未定义行为。</p>
+<p>应使用事件和/或流同步操作来保证来自其他流的任何分配访问都在释放操作开始之前完成，如下面的示例所示。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaMallocAsync</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">stream1</span><span class="p">);</span>
 <span class="n">cudaEventRecord</span><span class="p">(</span><span class="n">event1</span><span class="p">,</span><span class="w"> </span><span class="n">stream1</span><span class="p">);</span>
-<span class="c1">// Stream2 必须等待分配准备好才能访问</span>
+<span class="c1">// stream2 必须等待分配准备好后才能访问</span>
 <span class="n">cudaStreamWaitEvent</span><span class="p">(</span><span class="n">stream2</span><span class="p">,</span><span class="w"> </span><span class="n">event1</span><span class="p">);</span>
 <span class="n">kernel</span><span class="o">&lt;&lt;&lt;</span><span class="p">...,</span><span class="w"> </span><span class="n">stream2</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
 <span class="n">cudaEventRecord</span><span class="p">(</span><span class="n">event2</span><span class="p">,</span><span class="w"> </span><span class="n">stream2</span><span class="p">);</span>
-<span class="c1">// Stream3 必须等待 Stream2 完成对分配的访问</span>
-<span class="c1">// 释放分配</span>
+<span class="c1">// stream3 必须等待 stream2 完成对该分配的访问后</span>
+<span class="c1">// 才能释放该分配</span>
 <span class="n">cudaStreamWaitEvent</span><span class="p">(</span><span class="n">stream3</span><span class="p">,</span><span class="w"> </span><span class="n">event2</span><span class="p">);</span>
 <span class="n">cudaFreeAsync</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">stream3</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>内存分配为 <code class="docutils literal notranslate"><span class="pre">cudaMalloc()</span></code> 可以通过 with 释放
-<code class="docutils literal notranslate"><span class="pre">cudaFreeAsync()</span></code>。如上所述，所有对内存的访问都必须是
-在自由操作开始之前完成。</p>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">cudaMalloc()</span></code> 分配的内存可以通过 <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync()</span></code> 释放。和上文一样，对这段内存的所有访问都必须在释放操作开始之前完成。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
 <span class="n">kernel</span><span class="o">&lt;&lt;&lt;</span><span class="p">...,</span><span class="w"> </span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
 <span class="n">cudaFreeAsync</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>同样，分配的内存 <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 可以通过释放
-<code class="docutils literal notranslate"><span class="pre">cudaFree()</span></code>。当通过释放此类分配时 <code class="docutils literal notranslate"><span class="pre">cudaFree()</span></code> 应用程序编程接口，
-驱动程序假定对分配的所有访问均已完成并且
-不执行进一步的同步。用户可以使用 <code class="docutils literal notranslate"><span class="pre">cudaStreamQuery</span></code> /
-<code class="docutils literal notranslate"><span class="pre">cudaStreamSynchronize</span></code> / <code class="docutils literal notranslate"><span class="pre">cudaEventQuery</span></code> / <code class="docutils literal notranslate"><span class="pre">cudaEventSynchronize</span></code> /
-<code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize</span></code> 以保证适当的异步工作
-已完成并且 GPU 不会尝试访问该分配。</p>
+<p>类似地，使用 <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 分配的内存也可以通过 <code class="docutils literal notranslate"><span class="pre">cudaFree()</span></code> 释放。当通过 <code class="docutils literal notranslate"><span class="pre">cudaFree()</span></code> API 释放这类分配时，驱动程序会假定对该分配的所有访问都已经完成，并且不会再执行额外同步。用户可以使用 <code class="docutils literal notranslate"><span class="pre">cudaStreamQuery</span></code> / <code class="docutils literal notranslate"><span class="pre">cudaStreamSynchronize</span></code> / <code class="docutils literal notranslate"><span class="pre">cudaEventQuery</span></code> / <code class="docutils literal notranslate"><span class="pre">cudaEventSynchronize</span></code> / <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize</span></code> 来保证相应异步工作已经完成，并且 GPU 不会尝试访问该分配。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaMallocAsync</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="n">stream</span><span class="p">);</span>
 <span class="n">kernel</span><span class="o">&lt;&lt;&lt;</span><span class="p">...,</span><span class="w"> </span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
-<span class="c1">// 需要同步以避免过早释放内存</span>
+<span class="c1">// 需要同步，以避免过早释放内存</span>
 <span class="n">cudaStreamSynchronize</span><span class="p">(</span><span class="n">stream</span><span class="p">);</span>
 <span class="n">cudaFree</span><span class="p">(</span><span class="n">ptr</span><span class="p">);</span>
 </pre></div>
@@ -409,45 +361,20 @@ GPU，链接到特定的 CUDA 流。 <code class="docutils literal notranslate">
 </section>
 <section id="memory-pools">
 <span id="stream-ordered-memory-pools"></span><h2><span class="section-number">4.3.3. </span>内存池<a class="headerlink" href="stream-ordered-memory-allocation.html#memory-pools" title="跳转到此标题">#</a></h2>
-<p>内存池封装了虚拟地址和物理内存资源，
-根据池属性和特性进行分配和管理。
-内存池的主要方面是内存的类型和位置
-管理。</p>
-<p>所有来电 <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 使用内存池中的资源。如果
-未指定内存池， <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 使用当前的
-提供的流设备的内存池。当前内存池为
-设备可以设置为 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSetMempool</span></code> 并查询
-<code class="docutils literal notranslate"><span class="pre">cudaDeviceGetMempool</span></code>。每个设备都有一个默认的内存池，即
-活跃如果 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSetMempool</span></code> 还没有被调用。</p>
-<p>应用程序编程接口 <code class="docutils literal notranslate"><span class="pre">cudaMallocFromPoolAsync</span></code> 和 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__HIGHLEVEL.html#group__CUDART__HIGHLEVEL_1ga31efcffc48981621feddd98d71a0feb">C++ 重载
-cudaMalloc异步</a>
-允许用户指定用于分配的池而无需设置
-将其作为当前池。 API <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetDefaultMempool</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolCreate</span></code> 返回内存池的句柄。 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAttribute</span></code>
-<code class="docutils literal notranslate"><span class="pre">cudaMemPoolGetAttribute</span></code> 控制内存池的属性。</p>
+<p>内存池封装了虚拟地址和物理内存资源；这些资源会根据池的属性和特性进行分配和管理。内存池最核心的属性，是它所管理内存的类型和位置。</p>
+<p>所有 <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 调用都会使用内存池中的资源。如果没有指定内存池，<code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 会使用传入流所在设备的当前内存池。设备的当前内存池可以通过 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSetMempool</span></code> 设置，并通过 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetMempool</span></code> 查询。每个设备都有一个默认内存池；如果尚未调用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSetMempool</span></code>，该默认池就是活动池。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaMallocFromPoolAsync</span></code> API 和 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__HIGHLEVEL.html#group__CUDART__HIGHLEVEL_1ga31efcffc48981621feddd98d71a0feb">cudaMallocAsync 的 C++ 重载</a> 允许用户为某次分配指定要使用的池，而不必把它设置为当前池。<code class="docutils literal notranslate"><span class="pre">cudaDeviceGetDefaultMempool</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolCreate</span></code> API 会返回内存池句柄。<code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAttribute</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolGetAttribute</span></code> 用于控制内存池的属性。</p>
 <div class="admonition note">
 <p class="admonition-title">注</p>
-<p>设备当前的内存池将是该设备的本地内存池。所以分配
-不指定内存池将始终产生本地分配
-流的设备。</p>
+<p>设备的当前内存池是该设备的本地池。因此，在不指定内存池的情况下进行分配，总是会得到相对于该流所在设备本地的分配。</p>
 </div>
 <section id="default-implicit-pools">
 <span id="stream-ordered-default-implicit"></span><h3><span class="section-number">4.3.3.1. </span>默认/隐式池<a class="headerlink" href="stream-ordered-memory-allocation.html#default-implicit-pools" title="跳转到此标题">#</a></h3>
-<p>可以通过调用来检索设备的默认内存池
-<code class="docutils literal notranslate"><span class="pre">cudaDeviceGetDefaultMempool</span></code>。从默认内存池分配
-设备的分配是位于该设备上的不可迁移设备分配。这些
-分配始终可以从该设备访问。的可达性
-可以修改默认内存池 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAccess</span></code> 和
-查询与 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolGetAccess</span></code>。由于默认池不需要
-由于显式创建，它们有时被称为隐式池。的
-设备默认内存池不支持IPC。</p>
+<p>可以调用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetDefaultMempool</span></code> 获取设备的默认内存池。从某个设备的默认内存池分配出的内存，是位于该设备上的不可迁移设备分配。这些分配始终可以从该设备访问。默认内存池的可访问性可以通过 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAccess</span></code> 修改，并通过 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolGetAccess</span></code> 查询。由于默认池不需要显式创建，它们有时也称为隐式池。设备的默认内存池不支持 IPC。</p>
 </section>
 <section id="explicit-pools">
 <span id="stream-ordered-explicit-pools"></span><h3><span class="section-number">4.3.3.2. </span>显式池<a class="headerlink" href="stream-ordered-memory-allocation.html#explicit-pools" title="跳转到此标题">#</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">cudaMemPoolCreate</span></code> 创建一个显式池。这允许
-应用程序请求超出其分配范围的属性
-由默认/隐式池提供。其中包括 IPC 等属性
-能力、最大池大小、驻留在特定 CPU NUMA 上的分配
-支持的平台上的节点等。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaMemPoolCreate</span></code> 会创建显式池。这允许应用程序为分配请求默认/隐式池之外的属性，包括 IPC 能力、最大池大小、在支持平台上驻留于特定 CPU NUMA 节点的分配等。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 在设备 0 上创建一个类似于隐式池的池</span>
 <span class="kt">int</span><span class="w"> </span><span class="n">device</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="n">cudaMemPoolProps</span><span class="w"> </span><span class="n">poolProps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">};</span>
@@ -458,8 +385,7 @@ cudaMalloc异步</a>
 <span class="n">cudaMemPoolCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">memPool</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">poolProps</span><span class="p">));</span>
 </pre></div>
 </div>
-<p>以下代码片段说明了创建具有 IPC 功能的示例
-有效 CPU NUMA 节点上的内存池。</p>
+<p>下面的代码片段展示了如何在有效的 CPU NUMA 节点上创建支持 IPC 的内存池。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 创建一个驻留在能够进行 IPC 共享（通过文件描述符）的 CPU NUMA 节点上的池。</span>
 <span class="kt">int</span><span class="w"> </span><span class="n">cpu_numa_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="n">cudaMemPoolProps</span><span class="w"> </span><span class="n">poolProps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">};</span>
@@ -474,25 +400,8 @@ cudaMalloc异步</a>
 </section>
 <section id="device-accessibility-for-multi-gpu-support">
 <span id="stream-ordered-deviceaccessibility"></span><h3><span class="section-number">4.3.3.3. </span>多 GPU 支持的设备可访问性<a class="headerlink" href="stream-ordered-memory-allocation.html#device-accessibility-for-multi-gpu-support" title="跳转到此标题">#</a></h3>
-<p>就像通过虚拟内存控制的分配可访问性一样
-管理 API，内存池分配可访问性不遵循
-<code class="docutils literal notranslate"><span class="pre">cudaDeviceEnablePeerAccess</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cuCtxEnablePeerAccess</span></code>。对于内存池，API
-<code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAccess</span></code> 修改哪些设备可以访问分配
-池。默认情况下，只能从分配的设备访问分配
-分配位于。此访问权限无法撤销。要启用来自以下位置的访问：
-其他设备，访问设备必须与内存具有对等能力
-池的设备。这可以通过以下方式验证 <code class="docutils literal notranslate"><span class="pre">cudaDeviceCanAccessPeer</span></code>。如果对等能力
-未选中，设置访问可能会失败 <code class="docutils literal notranslate"><span class="pre">cudaErrorInvalidDevice</span></code>。然而，如果没有
-已从资金池中进行了拨款， <code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAccess</span></code> 打电话可能
-即使设备不具备对等能力，也能成功。在这种情况下，下一步
-从池中分配将失败。</p>
-<p>值得注意的是 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAccess</span></code> 影响所有分配
-内存池，而不仅仅是未来的内存池。同样，报告的可访问性
-<code class="docutils literal notranslate"><span class="pre">cudaMemPoolGetAccess</span></code> 适用于池中的所有分配，而不仅仅是
-未来的。更改池的辅助功能设置
-不建议频繁使用 GPU。也就是说，一旦可以从
-给定 GPU，它应该在该 GPU 的生命周期内保持可访问性
-池。</p>
+<p>与通过虚拟内存管理 API 控制的分配可访问性一样，内存池分配的可访问性并不遵循 <code class="docutils literal notranslate"><span class="pre">cudaDeviceEnablePeerAccess</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cuCtxEnablePeerAccess</span></code>。对于内存池，<code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAccess</span></code> API 会修改哪些设备可以访问池中的分配。默认情况下，分配只能从其所在设备访问；这种访问权限无法撤销。若要允许其他设备访问，访问设备必须与内存池所在设备具备对等访问能力。可以使用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceCanAccessPeer</span></code> 验证这一点。如果未检查对等能力，设置访问权限可能会以 <code class="docutils literal notranslate"><span class="pre">cudaErrorInvalidDevice</span></code> 失败。不过，如果还没有从该池中分配过内存，即使设备不具备对等能力，<code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAccess</span></code> 调用也可能成功；在这种情况下，下一次从该池分配内存会失败。</p>
+<p>值得注意的是，<code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAccess</span></code> 会影响该内存池中的所有分配，而不仅仅是未来的分配。同样，<code class="docutils literal notranslate"><span class="pre">cudaMemPoolGetAccess</span></code> 报告的可访问性也适用于池中的所有分配，而不仅仅是未来的分配。不建议频繁更改某个池相对于给定 GPU 的可访问性设置。也就是说，一旦某个池可以从给定 GPU 访问，它就应在该池的生命周期内保持可从该 GPU 访问。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 显示 cudaMemPoolSetAccess 用法的片段：</span>
 <span class="n">cudaError_t</span><span class="w"> </span><span class="nf">setAccessOnDevice</span><span class="p">(</span><span class="n">cudaMemPool_t</span><span class="w"> </span><span class="n">memPool</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">residentDevice</span><span class="p">,</span>
 <span class="w">              </span><span class="kt">int</span><span class="w"> </span><span class="n">accessingDevice</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -518,30 +427,13 @@ cudaMalloc异步</a>
 </section>
 <section id="enabling-memory-pools-for-ipc">
 <span id="stream-ordered-ipc-memory-pools"></span><h3><span class="section-number">4.3.3.4. </span>为 IPC 启用内存池<a class="headerlink" href="stream-ordered-memory-allocation.html#enabling-memory-pools-for-ipc" title="跳转到此标题">#</a></h3>
-<p>可以启用内存池进行进程间通信 (IPC)
-允许轻松、高效且安全地共享 GPU
-进程之间的内存。 CUDA 的 IPC 内存池提供相同的安全性
-CUDA 的优势 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/#virtual-memory-management">虚拟内存管理 API</a>.</p>
-<p>使用内存池在进程之间共享内存有两个步骤：
-进程首先需要共享对池的访问，然后共享特定的
-从该池中分配。第一步建立并加强安全性。
-第二步协调每个进程使用什么虚拟地址
-以及何时映射需要在导入过程中有效。</p>
+<p>可以为内存池启用进程间通信 (IPC)，以便在进程之间方便、高效且安全地共享 GPU 内存。CUDA 的 IPC 内存池提供的安全性优势与 CUDA 的 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/#virtual-memory-management">虚拟内存管理 API</a> 相同。</p>
+<p>使用内存池在进程之间共享内存分为两步：各进程首先需要共享对池的访问权限，然后再共享该池中的具体分配。第一步用于建立并实施安全策略。第二步用于协调每个进程中使用哪些虚拟地址，以及映射何时需要在导入进程中保持有效。</p>
 <section id="creating-and-sharing-ipc-memory-pools">
-<span id="stream-ordered-creating-and-sharing-ipc-memory-pools"></span><h4><span class="section-number">4.3.3.4.1. </span>创建和共享IPC内存池<a class="headerlink" href="stream-ordered-memory-allocation.html#creating-and-sharing-ipc-memory-pools" title="跳转到此标题">#</a></h4>
-<p>共享对池的访问涉及检索池的操作系统本机句柄
-与  <code class="docutils literal notranslate"><span class="pre">cudaMemPoolExportToShareableHandle()</span></code>，转移
-使用操作系统本机 IPC 机制处理导入过程，然后
-创建一个导入的内存池
-<code class="docutils literal notranslate"><span class="pre">cudaMemPoolImportFromShareableHandle()</span></code> API。对于
-<code class="docutils literal notranslate"><span class="pre">cudaMemPoolExportToShareableHandle</span></code> 要成功，内存池必须是
-使用池属性中指定的请求句柄类型创建
-结构。</p>
-<p>请参考 <a class="reference external" href="https://github.com/NVIDIA/cuda-samples/tree/master/Samples/2_Concepts_and_Techniques/streamOrderedAllocationIPC">samples</a>
-适当的 IPC 机制
-在进程之间传输操作系统本机句柄。其余程序可以
-可以在下面的代码片段中找到。</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 在出口过程中</span>
+<span id="stream-ordered-creating-and-sharing-ipc-memory-pools"></span><h4><span class="section-number">4.3.3.4.1. </span>创建和共享 IPC 内存池<a class="headerlink" href="stream-ordered-memory-allocation.html#creating-and-sharing-ipc-memory-pools" title="跳转到此标题">#</a></h4>
+<p>共享对池的访问权限，需要先用 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolExportToShareableHandle()</span></code> 获取该池的操作系统原生句柄，再使用操作系统原生 IPC 机制把该句柄传给导入进程，然后通过 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolImportFromShareableHandle()</span></code> API 创建导入的内存池。若要 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolExportToShareableHandle</span></code> 成功，创建内存池时必须在池属性结构中指定所请求的句柄类型。</p>
+<p>有关在进程之间传输操作系统原生句柄所需的 IPC 机制，请参考 <a class="reference external" href="https://github.com/NVIDIA/cuda-samples/tree/master/Samples/2_Concepts_and_Techniques/streamOrderedAllocationIPC">示例</a>。其余过程可见下面的代码片段。</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 在导出进程中</span>
 <span class="c1">// 在设备 0 上创建可导出的 IPC 功能池</span>
 <span class="n">cudaMemPoolProps</span><span class="w"> </span><span class="n">poolProps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">};</span>
 <span class="n">poolProps</span><span class="p">.</span><span class="n">allocType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaMemAllocationTypePinned</span><span class="p">;</span>
@@ -564,14 +456,14 @@ CUDA 的优势 <a class="reference external" href="https://docs.nvidia.com/cuda/
 <span class="w">             </span><span class="n">CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR</span><span class="p">,</span>
 <span class="w">             </span><span class="mi">0</span><span class="p">);</span>
 
-<span class="c1">// 必须使用适当的处理将句柄发送到导入进程</span>
-<span class="c1">// 特定于操作系统的 API。</span>
+<span class="c1">// 必须使用合适的操作系统特定 API</span>
+<span class="c1">// 将句柄发送给导入进程。</span>
 </pre></div>
 </div>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 导入过程中</span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 在导入进程中</span>
 <span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">fdHandle</span><span class="p">;</span>
-<span class="c1">// 需要使用以下命令从导出过程中检索句柄</span>
-<span class="c1">// 适当的特定于操作系统的 API。</span>
+<span class="c1">// 需要使用合适的操作系统特定 API</span>
+<span class="c1">// 从导出进程取回该句柄。</span>
 <span class="c1">// 从可共享句柄创建导入池。</span>
 <span class="c1">// 请注意，此处句柄是按值传递的。</span>
 <span class="n">cudaMemPoolImportFromShareableHandle</span><span class="p">(</span><span class="o">&amp;</span><span class="n">importedMemPool</span><span class="p">,</span>
@@ -582,126 +474,92 @@ CUDA 的优势 <a class="reference external" href="https://docs.nvidia.com/cuda/
 </div>
 </section>
 <section id="set-access-in-the-importing-process">
-<span id="stream-ordered-set-access-importing-process"></span><h4><span class="section-number">4.3.3.4.2. </span>在导入过程中设置访问权限<a class="headerlink" href="stream-ordered-memory-allocation.html#set-access-in-the-importing-process" title="跳转到此标题">#</a></h4>
-<p>导入的内存池最初只能从其驻留内存池访问
-设备。导入的内存池不会继承任何由内存池设置的可访问性
-导出过程。导入过程需要启用访问
-<code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAccess</span></code> 从任何它计划访问内存的 GPU。</p>
-<p>如果导入的内存池属于导入不可见的设备
-过程中，用户必须使用 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAccess</span></code> 用于启用访问的 API
-来自将使用分配的 GPU。
-（参见 <a class="reference internal" href="stream-ordered-memory-allocation.html#stream-ordered-deviceaccessibility"><span class="std std-ref">多 GPU 支持的设备可访问性</span></a>)</p>
+<span id="stream-ordered-set-access-importing-process"></span><h4><span class="section-number">4.3.3.4.2. </span>在导入进程中设置访问权限<a class="headerlink" href="stream-ordered-memory-allocation.html#set-access-in-the-importing-process" title="跳转到此标题">#</a></h4>
+<p>导入的内存池最初只能从其驻留设备访问。导入的内存池不会继承导出进程设置的任何可访问性。导入进程如果计划从某个 GPU 访问该内存，就需要使用 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAccess</span></code> 为该 GPU 启用访问权限。</p>
+<p>如果导入的内存池属于导入进程不可见的设备，用户必须使用 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAccess</span></code> API，为将使用这些分配的 GPU 启用访问权限。（参见 <a class="reference internal" href="stream-ordered-memory-allocation.html#stream-ordered-deviceaccessibility"><span class="std std-ref">多 GPU 支持的设备可访问性</span></a>）</p>
 </section>
 <section id="creating-and-sharing-allocations-from-an-exported-pool">
 <span id="stream-ordered-allocations-from-exported-pool"></span><h4><span class="section-number">4.3.3.4.3. </span>从导出的池创建和共享分配<a class="headerlink" href="stream-ordered-memory-allocation.html#creating-and-sharing-allocations-from-an-exported-pool" title="跳转到此标题">#</a></h4>
-<p>一旦池被共享，分配就用 <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync()</span></code>
-导出进程中的池中的内容可以与以下进程共享
-已导入池。由于矿池的安全策略已经建立并且
-在池级别进行验证，操作系统不需要额外的簿记来提供
-特定池分配的安全性。换句话说，不透明的
-<code class="docutils literal notranslate"><span class="pre">cudaMemPoolPtrExportData</span></code> 可能会发送导入池分配所需的信息
-使用任何机制进行导入过程。</p>
-<p>虽然可以在不同步的情况下导出和导入分配
-以任何方式分配流，导入过程必须遵循相同的
-规则作为访问分配时的导出过程。具体来说，访问
-分配必须在分配之后发生
-分配流中的操作执行。下面的两个代码片段显示
-<code class="docutils literal notranslate"><span class="pre">cudaMemPoolExportPointer()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolImportPointer()</span></code> 分享
-带有 IPC 事件的分配用于保证分配不会
-在分配准备好之前在导入过程中访问。</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 在出口过程中准备分配</span>
+<p>共享池之后，在导出进程中使用 <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync()</span></code> 从该池创建的分配，可以与已经导入该池的进程共享。由于池的安全策略已经在池级别建立并验证，操作系统不需要额外记录账目来为特定池分配提供安全性。换言之，导入池分配所需的不透明 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolPtrExportData</span></code> 可以通过任何机制发送给导入进程。</p>
+<p>虽然导出和导入分配时无需以任何方式与分配流同步，但导入进程访问该分配时，必须遵循与导出进程相同的规则。具体来说，对分配的访问必须发生在分配流中的分配操作执行之后。下面两个代码片段展示了如何使用 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolExportPointer()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolImportPointer()</span></code> 共享分配，并配合 IPC 事件保证导入进程不会在分配准备好之前访问它。</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 在导出进程中准备分配</span>
 <span class="n">cudaMemPoolPtrExportData</span><span class="w"> </span><span class="n">exportData</span><span class="p">;</span>
 <span class="n">cudaEvent_t</span><span class="w"> </span><span class="n">readyIpcEvent</span><span class="p">;</span>
 <span class="n">cudaIpcEventHandle_t</span><span class="w"> </span><span class="n">readyIpcEventHandle</span><span class="p">;</span>
 
-<span class="c1">// 用于协调进程之间的 ipc 事件</span>
-<span class="c1">// cudaEventInterprocess 标志使事件成为 ipc 事件</span>
-<span class="c1">// cudaEventDisableTiming 出于性能原因而设置</span>
+<span class="c1">// 用于在进程之间协调的 IPC 事件</span>
+<span class="c1">// cudaEventInterprocess 标志使事件成为 IPC 事件</span>
+<span class="c1">// 出于性能原因设置 cudaEventDisableTiming</span>
 
 <span class="n">cudaEventCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">readyIpcEvent</span><span class="p">,</span><span class="w"> </span><span class="n">cudaEventDisableTiming</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">cudaEventInterprocess</span><span class="p">)</span>
 
 <span class="c1">// 从导出内存池分配</span>
 <span class="n">cudaMallocAsync</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="n">exportMemPool</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
 
-<span class="c1">// 分配准备就绪时共享的事件。</span>
+<span class="c1">// 用于在分配准备就绪时共享的事件。</span>
 <span class="n">cudaEventRecord</span><span class="p">(</span><span class="n">readyIpcEvent</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
 <span class="n">cudaMemPoolExportPointer</span><span class="p">(</span><span class="o">&amp;</span><span class="n">exportData</span><span class="p">,</span><span class="w"> </span><span class="n">ptr</span><span class="p">);</span>
 <span class="n">cudaIpcGetEventHandle</span><span class="p">(</span><span class="o">&amp;</span><span class="n">readyIpcEventHandle</span><span class="p">,</span><span class="w"> </span><span class="n">readyIpcEvent</span><span class="p">);</span>
 
-<span class="c1">// 使用以下命令与导入进程共享 IPC 事件和指针导出数据</span>
-<span class="c1">// 任何机制。这里我们将数据复制到共享内存中</span>
+<span class="c1">// 使用任何机制与导入进程共享 IPC 事件和指针导出数据。</span>
+<span class="c1">// 这里我们把数据复制到共享内存中。</span>
 <span class="n">shmem</span><span class="o">-&gt;</span><span class="n">ptrData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">exportData</span><span class="p">;</span>
 <span class="n">shmem</span><span class="o">-&gt;</span><span class="n">readyIpcEventHandle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">readyIpcEventHandle</span><span class="p">;</span>
-<span class="c1">// 向消费者发出数据准备就绪的信号</span>
+<span class="c1">// 通知使用方数据已准备就绪</span>
 </pre></div>
 </div>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 导入分配</span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 导入一个分配</span>
 <span class="n">cudaMemPoolPtrExportData</span><span class="w"> </span><span class="o">*</span><span class="n">importData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">shmem</span><span class="o">-&gt;</span><span class="n">prtData</span><span class="p">;</span>
 <span class="n">cudaEvent_t</span><span class="w"> </span><span class="n">readyIpcEvent</span><span class="p">;</span>
 <span class="n">cudaIpcEventHandle_t</span><span class="w"> </span><span class="o">*</span><span class="n">readyIpcEventHandle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">shmem</span><span class="o">-&gt;</span><span class="n">readyIpcEventHandle</span><span class="p">;</span>
 
-<span class="c1">// 需要从以下位置检索 ipc 事件句柄和导出数据</span>
-<span class="c1">// 使用任何机制的导出过程。  这里我们使用 shmem 并且只是</span>
-<span class="c1">// 需要同步以确保共享内存已填充。</span>
+<span class="c1">// 需要使用任意机制从导出进程取回 IPC 事件句柄</span>
+<span class="c1">// 和导出数据。这里我们使用 shmem，只需要同步以确保</span>
+<span class="c1">// 共享内存已经填充。</span>
 
 <span class="n">cudaIpcOpenEventHandle</span><span class="p">(</span><span class="o">&amp;</span><span class="n">readyIpcEvent</span><span class="p">,</span><span class="w"> </span><span class="n">readyIpcEventHandle</span><span class="p">);</span>
 
-<span class="c1">// 导入分配。该操作不会在分配准备就绪时阻塞。</span>
+<span class="c1">// 导入分配。该操作不会阻塞等待分配准备就绪。</span>
 <span class="n">cudaMemPoolImportPointer</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">importedMemPool</span><span class="p">,</span><span class="w"> </span><span class="n">importData</span><span class="p">);</span>
 
-<span class="c1">// 等待分配流中先前的流操作完成之前</span>
-<span class="c1">// 在导入过程中使用分配。</span>
+<span class="c1">// 在导入进程中使用该分配之前，等待分配流中</span>
+<span class="c1">// 更早的流操作完成。</span>
 <span class="n">cudaStreamWaitEvent</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="n">readyIpcEvent</span><span class="p">);</span>
 <span class="n">kernel</span><span class="o">&lt;&lt;&lt;</span><span class="p">...,</span><span class="w"> </span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
 </pre></div>
 </div>
-<p>释放分配时，必须在导入时释放分配
-在导出过程中释放之前进行处理。下面的代码
-代码片段演示了如何使用 CUDA IPC 事件来提供所需的
-之间的同步 <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code> 两个进程中的操作。
-从导入过程获取分配显然受到以下限制
-进口流程端自由操作。值得注意的是
-<code class="docutils literal notranslate"><span class="pre">cudaFree</span></code> 可用于释放两个进程中的分配，并且
-可以使用其他流同步 API 来代替 CUDA IPC 事件。</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 释放必须在导入过程中发生在导出过程之前</span>
+<p>释放分配时，导入进程必须先于导出进程释放该分配。下面的代码片段展示了如何使用 CUDA IPC 事件，为两个进程中的 <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code> 操作提供所需同步。导入进程对该分配的访问显然会受到导入进程侧释放操作的限制。值得注意的是，也可以在两个进程中使用 <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code> 释放该分配，并且可以使用其他流同步 API 代替 CUDA IPC 事件。</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 释放必须先在导入进程中发生，然后才能在导出进程中发生</span>
 <span class="n">kernel</span><span class="o">&lt;&lt;&lt;</span><span class="p">...,</span><span class="w"> </span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
 
-<span class="c1">// 导入过程中的最后一次访问</span>
+<span class="c1">// 导入进程中的最后一次访问</span>
 <span class="n">cudaFreeAsync</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
 
-<span class="c1">// 免费后导入过程中不允许访问</span>
+<span class="c1">// 释放后，导入进程中不允许再访问</span>
 <span class="n">cudaIpcEventRecord</span><span class="p">(</span><span class="n">finishedIpcEvent</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
 </pre></div>
 </div>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 出口流程</span>
-<span class="c1">// 导出过程需要将其自由度与流顺序协调</span>
-<span class="c1">// 导入过程是免费的。</span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 导出进程</span>
+<span class="c1">// 导出进程需要把自己的释放操作与导入进程释放操作</span>
+<span class="c1">// 的流顺序协调起来。</span>
 <span class="n">cudaStreamWaitEvent</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="n">finishedIpcEvent</span><span class="p">);</span>
 <span class="n">kernel</span><span class="o">&lt;&lt;&lt;</span><span class="p">...,</span><span class="w"> </span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">ptrInExportingProcess</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
 
-<span class="c1">// 导入过程中的免费并不会停止导出过程</span>
-<span class="c1">// 使用分配。</span>
+<span class="c1">// 导入进程中的释放不会阻止导出进程</span>
+<span class="c1">// 使用该分配。</span>
 <span class="n">cudFreeAsync</span><span class="p">(</span><span class="n">ptrInExportingProcess</span><span class="p">,</span><span class="n">stream</span><span class="p">);</span>
 </pre></div>
 </div>
 </section>
 <section id="ipc-export-pool-limitations">
 <span id="stream-ordered-export-pool-limitations"></span><h4><span class="section-number">4.3.3.4.4. </span>IPC 导出池限制<a class="headerlink" href="stream-ordered-memory-allocation.html#ipc-export-pool-limitations" title="跳转到此标题">#</a></h4>
-<p>IPC池当前不支持将物理块释放回操作系统。
-结果是 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolTrimTo</span></code> API 没有任何作用，并且
-<code class="docutils literal notranslate"><span class="pre">cudaMemPoolAttrReleaseThreshold</span></code> 被有效地忽略。这种行为是
-由驱动程序控制，而不是运行时，并且可能在未来的驱动程序中改变
-更新。</p>
+<p>IPC 池目前不支持把物理块释放回操作系统。因此，<code class="docutils literal notranslate"><span class="pre">cudaMemPoolTrimTo</span></code> API 不会产生效果，<code class="docutils literal notranslate"><span class="pre">cudaMemPoolAttrReleaseThreshold</span></code> 实际上也会被忽略。该行为由驱动程序控制，而不是由运行时控制，并且可能在未来的驱动程序更新中改变。</p>
 </section>
 <section id="ipc-import-pool-limitations">
 <span id="stream-ordered-import-pool-limitations"></span><h4><span class="section-number">4.3.3.4.5. </span>IPC 导入池限制<a class="headerlink" href="stream-ordered-memory-allocation.html#ipc-import-pool-limitations" title="跳转到此标题">#</a></h4>
-<p>不允许从导入池分配；具体来说，导入池
-不能设置为当前并且不能在 <code class="docutils literal notranslate"><span class="pre">cudaMallocFromPoolAsync</span></code>
-API。因此，分配重用策略属性对于这些没有意义。
-水池。</p>
-<p>IPC 导入池与 IPC 导出池一样，当前不支持将物理块释放回操作系统。</p>
-<p>资源使用统计属性查询仅反映分配情况
-导入到进程和关联的物理内存中。</p>
+<p>不允许从导入池中分配；具体来说，导入池不能设置为当前池，也不能用于 <code class="docutils literal notranslate"><span class="pre">cudaMallocFromPoolAsync</span></code> API。因此，分配重用策略属性对这些池没有意义。</p>
+<p>与 IPC 导出池一样，IPC 导入池目前也不支持把物理块释放回操作系统。</p>
+<p>资源使用统计属性查询只反映导入到该进程中的分配及其关联的物理内存。</p>
 </section>
 </section>
 </section>
@@ -709,13 +567,8 @@ API。因此，分配重用策略属性对于这些没有意义。
 <span id="stream-ordered-fine-tuning"></span><h2><span class="section-number">4.3.4. </span>最佳实践和调整<a class="headerlink" href="stream-ordered-memory-allocation.html#best-practices-and-tuning" title="跳转到此标题">#</a></h2>
 <section id="query-for-support">
 <span id="stream-ordered-querying-memory-support"></span><h3><span class="section-number">4.3.4.1. </span>查询支持<a class="headerlink" href="stream-ordered-memory-allocation.html#query-for-support" title="跳转到此标题">#</a></h3>
-<p>应用程序可以确定设备是否支持流排序
-通过调用内存分配器 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetAttribute()</span></code> （见 <a class="reference external" href="https://developer.nvidia.com/blog/cuda-pro-tip-the-fast-way-to-query-device-properties/">开发者博客</a>）
-与设备属性 <code class="docutils literal notranslate"><span class="pre">cudaDevAttrMemoryPoolsSupported</span></code>.</p>
-<p>IPC内存池支持可以通过以下命令查询
-<code class="docutils literal notranslate"><span class="pre">cudaDevAttrMemoryPoolSupportedHandleTypes</span></code> 设备属性。该属性已添加
-在 CUDA 11.3 中，老司机将回归 <code class="docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code> 当这个属性
-被查询。</p>
+<p>应用程序可以调用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetAttribute()</span></code>（参见 <a class="reference external" href="https://developer.nvidia.com/blog/cuda-pro-tip-the-fast-way-to-query-device-properties/">开发者博客</a>）并查询 <code class="docutils literal notranslate"><span class="pre">cudaDevAttrMemoryPoolsSupported</span></code> 设备属性，来判断某个设备是否支持流有序内存分配器。</p>
+<p>可以通过 <code class="docutils literal notranslate"><span class="pre">cudaDevAttrMemoryPoolSupportedHandleTypes</span></code> 设备属性查询 IPC 内存池支持情况。该属性在 CUDA 11.3 中加入；旧版驱动程序在查询该属性时会返回 <code class="docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code>。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">driverVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="kt">int</span><span class="w"> </span><span class="n">deviceSupportsMemoryPools</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="kt">int</span><span class="w"> </span><span class="n">poolSupportedHandleTypes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
@@ -725,7 +578,7 @@ API。因此，分配重用策略属性对于这些没有意义。
 <span class="w">                           </span><span class="n">cudaDevAttrMemoryPoolsSupported</span><span class="p">,</span><span class="w"> </span><span class="n">device</span><span class="p">);</span>
 <span class="p">}</span>
 <span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">deviceSupportsMemoryPools</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="c1">// `device` 支持流排序内存分配器</span>
+<span class="w">    </span><span class="c1">// `device` 支持流有序内存分配器</span>
 <span class="p">}</span>
 
 <span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">driverVersion</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">11030</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -733,42 +586,25 @@ API。因此，分配重用策略属性对于这些没有意义。
 <span class="w">              </span><span class="n">cudaDevAttrMemoryPoolSupportedHandleTypes</span><span class="p">,</span><span class="w"> </span><span class="n">device</span><span class="p">);</span>
 <span class="p">}</span>
 <span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">poolSupportedHandleTypes</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">cudaMemHandleTypePosixFileDescriptor</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">   </span><span class="c1">// 指定设备上的池可以使用基于 posix 文件描述符的 IPC 创建</span>
+<span class="w">   </span><span class="c1">// 指定设备上的池可以使用基于 POSIX 文件描述符的 IPC 创建</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>在查询之前执行驱动程序版本检查可以避免遇到问题
-<code class="docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code> 尚未提供该属性的驱动程序上出现错误
-定义的。一个可以用 <code class="docutils literal notranslate"><span class="pre">cudaGetLastError</span></code> 清除错误而不是
-避免它。</p>
+<p>在查询之前检查驱动程序版本，可以避免在尚未定义该属性的驱动程序上遇到 <code class="docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code> 错误。也可以使用 <code class="docutils literal notranslate"><span class="pre">cudaGetLastError</span></code> 清除该错误，而不是预先避免它。</p>
 </section>
 <section id="physical-page-caching-behavior">
 <span id="stream-ordered-physical-page-caching-behavior"></span><h3><span class="section-number">4.3.4.2. </span>物理页面缓存行为<a class="headerlink" href="stream-ordered-memory-allocation.html#physical-page-caching-behavior" title="跳转到此标题">#</a></h3>
-<p>默认情况下，分配器尝试最小化分配器拥有的物理内存。
-池。为了最大限度地减少分配和释放物理内存的操作系统调用，
-应用程序必须为每个池配置内存占用量。应用程序可以
-使用释放阈值属性执行此操作
-（<code class="docutils literal notranslate"><span class="pre">cudaMemPoolAttrReleaseThreshold</span></code>).</p>
-<p>释放阈值是池应保留的内存量（以字节为单位）
-在尝试将内存释放回操作系统之前。当超过释放
-内存池持有的内存阈值字节，分配器将尝试
-在下次调用流、事件或设备时将内存释放回操作系统
-同步。将释放阈值设置为 UINT64_MAX 将防止
-驱动程序在每次同步后尝试收缩池。</p>
+<p>默认情况下，分配器会尽量减少内存池拥有的物理内存。为了尽量减少分配和释放物理内存时发生的操作系统调用，应用程序必须为每个池配置内存占用量。应用程序可以通过释放阈值属性（<code class="docutils literal notranslate"><span class="pre">cudaMemPoolAttrReleaseThreshold</span></code>）完成这项配置。</p>
+<p>释放阈值表示内存池在尝试把内存释放回操作系统之前应保留的字节数。当内存池持有的内存超过释放阈值时，分配器会在下一次流、事件或设备同步时尝试把内存释放回操作系统。将释放阈值设置为 <code class="docutils literal notranslate"><span class="pre">UINT64_MAX</span></code> 可以阻止驱动程序在每次同步后都尝试收缩内存池。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">Cuuint64_t</span><span class="w"> </span><span class="n">setVal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UINT64_MAX</span><span class="p">;</span>
 <span class="n">cudaMemPoolSetAttribute</span><span class="p">(</span><span class="n">memPool</span><span class="p">,</span><span class="w"> </span><span class="n">cudaMemPoolAttrReleaseThreshold</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">setVal</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>设置的应用程序 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolAttrReleaseThreshold</span></code> 足够高到
-有效禁用内存池收缩可能希望显式收缩
-内存池的内存占用。 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolTrimTo</span></code> 允许应用程序
-这样做。当修剪内存池的占用空间时， <code class="docutils literal notranslate"><span class="pre">minBytesToKeep</span></code>
-参数允许应用程序保留指定数量的内存，
-例如，在后续执行阶段预计需要的金额。</p>
+<p>如果应用程序把 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolAttrReleaseThreshold</span></code> 设置得足够高，从而实际上禁用了内存池收缩，那么它可能需要显式缩减内存池的内存占用。<code class="docutils literal notranslate"><span class="pre">cudaMemPoolTrimTo</span></code> 允许应用程序完成这项操作。在修剪内存池占用量时，<code class="docutils literal notranslate"><span class="pre">minBytesToKeep</span></code> 参数允许应用程序保留指定数量的内存，例如后续执行阶段预计会用到的数量。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">Cuuint64_t</span><span class="w"> </span><span class="n">setVal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UINT64_MAX</span><span class="p">;</span>
 <span class="n">cudaMemPoolSetAttribute</span><span class="p">(</span><span class="n">memPool</span><span class="p">,</span><span class="w"> </span><span class="n">cudaMemPoolAttrReleaseThreshold</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">setVal</span><span class="p">);</span>
 
-<span class="c1">// 应用程序阶段需要来自流排序分配器的大量内存</span>
+<span class="c1">// 应用程序的某个阶段需要从流有序分配器获得大量内存</span>
 <span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="mi">10</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">&lt;</span><span class="mi">10</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="n">cudaMallocAsync</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ptrs</span><span class="p">[</span><span class="n">j</span><span class="p">],</span><span class="n">size</span><span class="p">[</span><span class="n">j</span><span class="p">],</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
@@ -779,26 +615,21 @@ API。因此，分配重用策略属性对于这些没有意义。
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 
-<span class="c1">// 进程不需要为下一阶段提供那么多内存。</span>
-<span class="c1">// 同步，以便修剪操作知道分配没有</span>
-<span class="c1">// 使用时间更长。</span>
+<span class="c1">// 下一阶段中，该进程不再需要这么多内存。</span>
+<span class="c1">// 执行同步，使修剪操作能够知道这些分配</span>
+<span class="c1">// 已经不再使用。</span>
 <span class="n">cudaStreamSynchronize</span><span class="p">(</span><span class="n">stream</span><span class="p">);</span>
 <span class="n">cudaMemPoolTrimTo</span><span class="p">(</span><span class="n">mempool</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 
-<span class="c1">// 其他一些进程/分配机制现在可以使用物理内存</span>
-<span class="c1">// 由修剪操作释放。</span>
+<span class="c1">// 其他进程或分配机制现在可以使用</span>
+<span class="c1">// 修剪操作释放出的物理内存。</span>
 </pre></div>
 </div>
 </section>
 <section id="resource-usage-statistics">
 <span id="stream-ordered-resource-usage-statistics"></span><h3><span class="section-number">4.3.4.3. </span>资源使用统计<a class="headerlink" href="stream-ordered-memory-allocation.html#resource-usage-statistics" title="跳转到此标题">#</a></h3>
-<p>查询 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolAttrReservedMemCurrent</span></code> 池报告的属性
-池当前消耗的总物理 GPU 内存。查询
-<code class="docutils literal notranslate"><span class="pre">cudaMemPoolAttrUsedMemCurrent</span></code> 池的返回所有池的总大小
-从池中分配且不可重用的内存。</p>
-<p><code class="docutils literal notranslate"><span class="pre">cudaMemPoolAttr*MemHigh</span></code> 属性记录相应
-<code class="docutils literal notranslate"><span class="pre">cudaMemPoolAttr*MemCurrent</span></code> 属性自上次重置以来达到的最大高水位值。
-可以使用 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAttribute</span></code> API 将这些值重置为当前值。</p>
+<p>查询内存池的 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolAttrReservedMemCurrent</span></code> 属性，会报告该池当前消耗的 GPU 物理内存总量。查询内存池的 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolAttrUsedMemCurrent</span></code> 属性，会返回已经从池中分配且当前不可重用的内存总大小。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaMemPoolAttr*MemHigh</span></code> 属性会记录对应 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolAttr*MemCurrent</span></code> 属性自上次重置以来达到的最大高水位值。可以使用 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAttribute</span></code> API 将这些值重置为当前值。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 用于批量获取使用情况统计信息的示例辅助函数</span>
 <span class="k">struct</span><span class="w"> </span><span class="nc">usageStatistics</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">cuuint64_t</span><span class="w"> </span><span class="n">reserved</span><span class="p">;</span>
@@ -816,7 +647,7 @@ API。因此，分配重用策略属性对于这些没有意义。
 <span class="p">}</span>
 
 
-<span class="c1">// 重置水印将使它们呈现当前值。</span>
+<span class="c1">// 重置高水位值会让它们采用当前值。</span>
 <span class="kt">void</span><span class="w"> </span><span class="nf">resetStatistics</span><span class="p">(</span><span class="n">cudaMemoryPool_t</span><span class="w"> </span><span class="n">memPool</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">    </span><span class="n">cuuint64_t</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
@@ -828,35 +659,19 @@ API。因此，分配重用策略属性对于这些没有意义。
 </section>
 <section id="memory-reuse-policies">
 <span id="stream-ordered-memory-reuse-policies"></span><h3><span class="section-number">4.3.4.4. </span>内存重用策略<a class="headerlink" href="stream-ordered-memory-allocation.html#memory-reuse-policies" title="跳转到此标题">#</a></h3>
-<p>为了服务分配请求，驱动程序尝试重用内存
-之前通过释放 <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync()</span></code> 在尝试之前
-从操作系统分配更多内存。例如，流中释放的内存可以
-立即在同一流上的后续分配请求中重用。
-当流与 CPU 同步时，所占用的内存
-先前在该流中释放的内容可重新用于分配
-在任何流中。
-重用策略可以应用于默认内存池和显式内存池。</p>
-<p>流排序分配器有一些可控的分配策略。的
-池属性 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolReuseFollowEventDependencies</span></code>,
-<code class="docutils literal notranslate"><span class="pre">cudaMemPoolReuseAllowOpportunistic</span></code>, 和
-<code class="docutils literal notranslate"><span class="pre">cudaMemPoolReuseAllowInternalDependencies</span></code> 控制这些政策，详情如下。
-这些策略可以通过调用来启用或禁用 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAttribute</span></code>。
-升级到较新的 CUDA 驱动程序可能会更改、增强、增强和/或重新排序
-重用策略的枚举。</p>
+<p>为了满足分配请求，驱动程序会先尝试重用先前通过 <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync()</span></code> 释放的内存，然后才会尝试从操作系统分配更多内存。例如，在某个流中释放的内存，可以立即被同一流上的后续分配请求重用。当某个流与 CPU 同步后，先前在该流中释放的内存就可以被任意流中的分配重用。重用策略既适用于默认内存池，也适用于显式内存池。</p>
+<p>流有序分配器提供若干可控的分配策略。内存池属性 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolReuseFollowEventDependencies</span></code>、<code class="docutils literal notranslate"><span class="pre">cudaMemPoolReuseAllowOpportunistic</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolReuseAllowInternalDependencies</span></code> 控制这些策略，详情如下。可以通过调用 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAttribute</span></code> 启用或禁用这些策略。升级到较新的 CUDA 驱动程序可能会改变、增强、扩展和/或重新排序重用策略的枚举。</p>
 <section id="cudamempoolreusefolloweventdependencies">
 <span id="stream-ordered-mempoolreusefollow"></span><h4><span class="section-number">4.3.4.4.1. </span>cudaMemPoolReuseFollowEventDependencies<a class="headerlink" href="stream-ordered-memory-allocation.html#cudamempoolreusefolloweventdependencies" title="跳转到此标题">#</a></h4>
-<p>在分配更多物理 GPU 内存之前，分配器会检查依赖关系
-由 CUDA 事件建立的信息并尝试从释放的内存中分配
-在另一个流中。</p>
+<p>在分配更多 GPU 物理内存之前，分配器会检查由 CUDA 事件建立的依赖信息，并尝试从另一个流中释放的内存进行分配。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaMallocAsync</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">originalStream</span><span class="p">);</span>
 <span class="n">kernel</span><span class="o">&lt;&lt;&lt;</span><span class="p">...,</span><span class="w"> </span><span class="n">originalStream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
 <span class="n">cudaFreeAsync</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">originalStream</span><span class="p">);</span>
 <span class="n">cudaEventRecord</span><span class="p">(</span><span class="n">event</span><span class="p">,</span><span class="n">originalStream</span><span class="p">);</span>
 
-<span class="c1">// 等待捕获另一个流中的空闲事件</span>
-<span class="c1">// 允许分配器重用内存以满足</span>
-<span class="c1">// 另一个流中的新分配请求时</span>
-<span class="c1">// cudaMemPoolReuseFollowEventDependency 已启用。</span>
+<span class="c1">// 等待在另一个流中捕获释放操作的事件，</span>
+<span class="c1">// 会在启用 cudaMemPoolReuseFollowEventDependencies 时，</span>
+<span class="c1">// 允许分配器重用这段内存来满足另一个流中的新分配请求。</span>
 <span class="n">cudaStreamWaitEvent</span><span class="p">(</span><span class="n">otherStream</span><span class="p">,</span><span class="w"> </span><span class="n">event</span><span class="p">);</span>
 <span class="n">cudaMallocAsync</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ptr2</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">otherStream</span><span class="p">);</span>
 </pre></div>
@@ -864,12 +679,7 @@ API。因此，分配重用策略属性对于这些没有意义。
 </section>
 <section id="cudamempoolreuseallowopportunistic">
 <span id="stream-ordered-mempoolreuseallowopportunistic"></span><h4><span class="section-number">4.3.4.4.2. </span>cudaMemPoolReuseAllowOpportunistic<a class="headerlink" href="stream-ordered-memory-allocation.html#cudamempoolreuseallowopportunistic" title="跳转到此标题">#</a></h4>
-<p>当 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolReuseAllowOpportunistic</span></code> 策略已启用，分配器
-检查释放的分配以查看自由操作流顺序语义是否已被
-满足，例如流已经通过了由
-自由操作。当禁用此策略时，分配器仍将重用分配的内存
-当流与 CPU 同步时可用。禁用此策略
-并没有停止 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolReuseFollowEventDependencies</span></code> 从申请。</p>
+<p>启用 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolReuseAllowOpportunistic</span></code> 策略后，分配器会检查已经释放的分配，判断释放操作的流有序语义是否已经满足，例如该流是否已经执行到释放操作所指示的执行点之后。禁用该策略时，当某个流与 CPU 同步后，分配器仍会重用由此变为可用的内存。禁用该策略并不会阻止 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolReuseFollowEventDependencies</span></code> 生效。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaMallocAsync</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">originalStream</span><span class="p">);</span>
 <span class="n">kernel</span><span class="o">&lt;&lt;&lt;</span><span class="p">...,</span><span class="w"> </span><span class="n">originalStream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
 <span class="n">cudaFreeAsync</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">originalStream</span><span class="p">);</span>
@@ -878,99 +688,67 @@ API。因此，分配重用策略属性对于这些没有意义。
 <span class="c1">// 一段时间后，内核完成运行</span>
 <span class="n">wait</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
 
-<span class="c1">// 当启用 cudaMemPoolReuseAllowOpportunistic 时，此分配请求</span>
-<span class="c1">// 可以根据originalStream的进度提前分配来完成。</span>
+<span class="c1">// 启用 cudaMemPoolReuseAllowOpportunistic 时，</span>
+<span class="c1">// 此分配请求可以根据 originalStream 的进度，</span>
+<span class="c1">// 使用之前的分配来满足。</span>
 <span class="n">cudaMallocAsync</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ptr2</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">otherStream</span><span class="p">);</span>
 </pre></div>
 </div>
 </section>
 <section id="cudamempoolreuseallowinternaldependencies">
 <span id="stream-ordered-mempoolreuseallowinternal"></span><h4><span class="section-number">4.3.4.4.3. </span>cudaMemPoolReuseAllowInternalDependencies<a class="headerlink" href="stream-ordered-memory-allocation.html#cudamempoolreuseallowinternaldependencies" title="跳转到此标题">#</a></h4>
-<p>如果无法从操作系统分配和映射更多物理内存，驱动程序将
-查找其可用性取决于另一个流的待处理内存
-进步。如果找到这样的内存，驱动程序将插入所需的内存
-依赖于分配流并重用内存。</p>
+<p>如果无法从操作系统分配并映射更多物理内存，驱动程序会查找可用性取决于另一个流待推进度的内存。如果找到这样的内存，驱动程序会把所需依赖插入执行分配的流中，并重用该内存。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaMallocAsync</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">originalStream</span><span class="p">);</span>
 <span class="n">kernel</span><span class="o">&lt;&lt;&lt;</span><span class="p">...,</span><span class="w"> </span><span class="n">originalStream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
 <span class="n">cudaFreeAsync</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">originalStream</span><span class="p">);</span>
 
-<span class="c1">// 当启用 cudaMemPoolReuseAllowInternalDependencies 时</span>
-<span class="c1">// 并且驱动程序无法分配更多物理内存，驱动程序可能会</span>
-<span class="c1">// 在分配流中有效执行 cudaStreamWaitEvent</span>
-<span class="c1">// 确保‘otherStream’中的未来工作发生在工作之后</span>
-<span class="c1">// 在原始流中将被允许访问原始分配。</span>
+<span class="c1">// 启用 cudaMemPoolReuseAllowInternalDependencies 且</span>
+<span class="c1">// 驱动程序无法分配更多物理内存时，驱动程序可能会</span>
+<span class="c1">// 在执行分配的流中等效地执行 cudaStreamWaitEvent，</span>
+<span class="c1">// 以确保 otherStream 中的未来工作发生在原始流中</span>
+<span class="c1">// 允许访问原始分配的工作之后。</span>
 <span class="n">cudaMallocAsync</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ptr2</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">otherStream</span><span class="p">);</span>
 </pre></div>
 </div>
 </section>
 <section id="disabling-reuse-policies">
 <span id="stream-ordered-disabling-reuse-policies"></span><h4><span class="section-number">4.3.4.4.4. </span>禁用重用策略<a class="headerlink" href="stream-ordered-memory-allocation.html#disabling-reuse-policies" title="跳转到此标题">#</a></h4>
-<p>虽然可控重用策略可以提高内存重用，但用户可能希望
-禁用它们。允许机会性重用（例如
-<code class="docutils literal notranslate"><span class="pre">cudaMemPoolReuseAllowOpportunistic</span></code>) 引入了运行间方差
-基于 CPU 和 GPU 执行交错的分配模式。
-内部依赖插入（例如
-<code class="docutils literal notranslate"><span class="pre">cudaMemPoolReuseAllowInternalDependencies</span></code>) 可以将工作序列化
-当用户愿意时，意外且可能不确定的方式
-在分配失败时显式同步事件或流。</p>
+<p>虽然可控重用策略可以改善内存重用，用户也可能希望禁用它们。允许机会性重用（例如 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolReuseAllowOpportunistic</span></code>）会根据 CPU 和 GPU 执行交错情况，在不同运行之间引入分配模式差异。内部依赖插入（例如 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolReuseAllowInternalDependencies</span></code>）可能以意外且潜在非确定性的方式串行化工作；而用户在分配失败时可能更希望显式同步事件或流。</p>
 </section>
 </section>
 <section id="synchronization-api-actions">
 <span id="stream-ordered-synchronization-api-actions"></span><h3><span class="section-number">4.3.4.5. </span>同步 API 操作<a class="headerlink" href="stream-ordered-memory-allocation.html#synchronization-api-actions" title="跳转到此标题">#</a></h3>
-<p>分配器作为 CUDA 的一部分带来的优化之一
-驱动程序与同步 API 集成。当用户请求时
-CUDA驱动程序同步，驱动程序等待异步工作
-完成。返回之前，驾驶员将确定什么可以释放
-同步保证完成。这些分配是
-无论指定流或禁用分配如何，都可用于分配
-政策。司机还检查 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolAttrReleaseThreshold</span></code> 这里和
-尽可能释放任何多余的物理内存。</p>
+<p>分配器成为 CUDA 驱动程序一部分后带来的优化之一，是它能够与同步 API 集成。当用户请求 CUDA 驱动程序同步时，驱动程序会等待异步工作完成。返回之前，驱动程序会确定该同步保证哪些释放操作已经完成。无论指定的流是什么，也无论哪些分配策略已被禁用，这些分配都会变为可再次分配。驱动程序还会在这里检查 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolAttrReleaseThreshold</span></code>，并尽可能释放多余的物理内存。</p>
 </section>
 </section>
 <section id="addendums">
 <span id="stream-ordered-addendums"></span><h2><span class="section-number">4.3.5. </span>补充说明<a class="headerlink" href="stream-ordered-memory-allocation.html#addendums" title="跳转到此标题">#</a></h2>
 <section id="cudamemcpyasync-current-context-device-sensitivity">
 <span id="stream-ordered-cudamemcpyasync"></span><h3><span class="section-number">4.3.5.1. </span>cudaMemcpyAsync 当前上下文/设备敏感度<a class="headerlink" href="stream-ordered-memory-allocation.html#cudamemcpyasync-current-context-device-sensitivity" title="跳转到此标题">#</a></h3>
-<p>在当前的 CUDA 驱动程序中，任何异步 <code class="docutils literal notranslate"><span class="pre">memcpy</span></code> 涉及内存
-<code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 应该使用指定流的上下文作为
-调用线程的当前上下文。这对于以下情况来说是不必要的：
-<code class="docutils literal notranslate"><span class="pre">cudaMemcpyPeerAsync</span></code>，作为 API 中指定的设备主要上下文
-被引用而不是当前上下文。</p>
+<p>在当前 CUDA 驱动程序中，任何涉及 <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 内存的异步 <code class="docutils literal notranslate"><span class="pre">memcpy</span></code>，都应在调用线程的当前上下文中使用指定流的上下文来执行。对 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyPeerAsync</span></code> 则不需要这样，因为 API 中指定设备的主上下文会被引用，而不是当前上下文。</p>
 </section>
 <section id="cudapointergetattributes-query">
 <span id="stream-ordered-cupointergetattribute"></span><h3><span class="section-number">4.3.5.2. </span>cudaPointerGetAttributes 查询<a class="headerlink" href="stream-ordered-memory-allocation.html#cudapointergetattributes-query" title="跳转到此标题">#</a></h3>
-<p>Invoking <code class="docutils literal notranslate"><span class="pre">cudaPointerGetAttributes</span></code> 调用后的分配
-<code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code> 它会导致未定义的行为。具体来说，它确实
-如果仍然可以从给定流访问分配并不重要：
-行为仍然未定义。</p>
+<p>在某个分配上调用 <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code> 之后，再对该分配调用 <code class="docutils literal notranslate"><span class="pre">cudaPointerGetAttributes</span></code> 会导致未定义行为。具体而言，即使某个给定流仍可访问该分配也不例外；行为仍然未定义。</p>
 </section>
 <section id="cudagraphaddmemsetnode">
 <span id="stream-ordered-cugraphaddmemsetnode"></span><h3><span class="section-number">4.3.5.3. </span>cudaGraphAddMemsetNode<a class="headerlink" href="stream-ordered-memory-allocation.html#cudagraphaddmemsetnode" title="跳转到此标题">#</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">cudaGraphAddMemsetNode</span></code> 不适用于通过流分配的内存
-有序分配器。然而，分配的内存集可以被流捕获。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaGraphAddMemsetNode</span></code> 不适用于通过流有序分配器分配的内存。不过，对这些分配执行的 memset 可以被流捕获。</p>
 </section>
 <section id="pointer-attributes">
 <span id="stream-ordered-pointer-attributes"></span><h3><span class="section-number">4.3.5.4. </span>指针属性<a class="headerlink" href="stream-ordered-memory-allocation.html#pointer-attributes" title="跳转到此标题">#</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">cudaPointerGetAttributes</span></code> 查询适用于流排序分配。
-由于流排序分配与上下文无关，因此查询
-<code class="docutils literal notranslate"><span class="pre">CU_POINTER_ATTRIBUTE_CONTEXT</span></code> 将成功但返回 NULL <code class="docutils literal notranslate"><span class="pre">*data</span></code>。
-属性 <code class="docutils literal notranslate"><span class="pre">CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL</span></code> 可以用来确定
-分配的位置：这在选择上下文时很有用
-用于制作 p2h2p 副本 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyPeerAsync</span></code>。属性
-<code class="docutils literal notranslate"><span class="pre">CU_POINTER_ATTRIBUTE_MEMPOOL_HANDLE</span></code> 已在 CUDA 11.3 中添加，可以
-对于调试和确认分配来自哪个池很有用
-在做IPC之前。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaPointerGetAttributes</span></code> 查询适用于流有序分配。由于流有序分配不与上下文关联，查询 <code class="docutils literal notranslate"><span class="pre">CU_POINTER_ATTRIBUTE_CONTEXT</span></code> 会成功，但会在 <code class="docutils literal notranslate"><span class="pre">*data</span></code> 中返回 <code class="docutils literal notranslate"><span class="pre">NULL</span></code>。<code class="docutils literal notranslate"><span class="pre">CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL</span></code> 属性可用于确定分配所在位置；这在选择用于通过 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyPeerAsync</span></code> 执行 p2h2p 拷贝的上下文时很有用。<code class="docutils literal notranslate"><span class="pre">CU_POINTER_ATTRIBUTE_MEMPOOL_HANDLE</span></code> 属性在 CUDA 11.3 中加入，可用于调试，以及在执行 IPC 之前确认某个分配来自哪个池。</p>
 </section>
 <section id="cpu-virtual-memory">
-<span id="stream-ordered-cpu-virtual-memory"></span><h3><span class="section-number">4.3.5.5. </span>CPU虚拟内存<a class="headerlink" href="stream-ordered-memory-allocation.html#cpu-virtual-memory" title="跳转到此标题">#</a></h3>
-<p>使用 CUDA 流排序内存分配器 API 时，请避免使用“ulimit -v”设置 VRAM 限制，因为不支持此设置。</p>
+<span id="stream-ordered-cpu-virtual-memory"></span><h3><span class="section-number">4.3.5.5. </span>CPU 虚拟内存<a class="headerlink" href="stream-ordered-memory-allocation.html#cpu-virtual-memory" title="跳转到此标题">#</a></h3>
+<p>使用 CUDA 流有序内存分配器 API 时，请避免用 <code class="docutils literal notranslate"><span class="pre">ulimit</span> <span class="pre">-v</span></code> 设置虚拟内存限制，因为不支持这种设置。</p>
 </section>
 </section>
 </section>
 </article>
 <footer class="prev-next-footer d-print-none">
 <div class="prev-next-area">
-<a class="left-prev" href="cuda-graphs.html" title="上一页">4.2. CUDA Graph</a>
+<a class="left-prev" href="cuda-graphs.html" title="上一页">4.2. CUDA 图</a>
 <a class="right-next" href="cooperative-groups.html" title="下一页">4.4. 协作组</a>
 </div>
 </footer>
@@ -983,46 +761,46 @@ CUDA驱动程序同步，驱动程序等待异步工作
   </div>
 <nav aria-labelledby="pst-page-navigation-heading-2" class="bd-toc-nav page-toc">
 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#introduction">4.3. 流有序内存分配器</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#memory-management">4.3. 流有序内存分配器</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#allocating-memory">4.3. 流有序内存分配器</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#freeing-memory">4.3. 流有序内存分配器</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#introduction">4.3.1. 引言</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#memory-management">4.3.2. 内存管理</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#allocating-memory">4.3.2.1. 分配内存</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#freeing-memory">4.3.2.2. 释放内存</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#memory-pools">4.3. 流有序内存分配器</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#default-implicit-pools">4.3. 流有序内存分配器</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#explicit-pools">4.3. 流有序内存分配器</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#device-accessibility-for-multi-gpu-support">4.3. 流有序内存分配器</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#enabling-memory-pools-for-ipc">4.3. 流有序内存分配器</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#creating-and-sharing-ipc-memory-pools">4.3. 流有序内存分配器</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#set-access-in-the-importing-process">4.3. 流有序内存分配器</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#creating-and-sharing-allocations-from-an-exported-pool">4.3. 流有序内存分配器</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#ipc-export-pool-limitations">4.3. 流有序内存分配器</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#ipc-import-pool-limitations">4.3. 流有序内存分配器</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#memory-pools">4.3.3. 内存池</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#default-implicit-pools">4.3.3.1. 默认/隐式池</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#explicit-pools">4.3.3.2. 显式池</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#device-accessibility-for-multi-gpu-support">4.3.3.3. 多 GPU 支持的设备可访问性</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#enabling-memory-pools-for-ipc">4.3.3.4. 为 IPC 启用内存池</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#creating-and-sharing-ipc-memory-pools">4.3.3.4.1. 创建和共享 IPC 内存池</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#set-access-in-the-importing-process">4.3.3.4.2. 在导入进程中设置访问权限</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#creating-and-sharing-allocations-from-an-exported-pool">4.3.3.4.3. 从导出的池创建和共享分配</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#ipc-export-pool-limitations">4.3.3.4.4. IPC 导出池限制</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#ipc-import-pool-limitations">4.3.3.4.5. IPC 导入池限制</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#best-practices-and-tuning">4.3. 流有序内存分配器</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#query-for-support">4.3. 流有序内存分配器</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#physical-page-caching-behavior">4.3. 流有序内存分配器</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#resource-usage-statistics">4.3. 流有序内存分配器</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#memory-reuse-policies">4.3. 流有序内存分配器</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#cudamempoolreusefolloweventdependencies">4.3. 流有序内存分配器</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#cudamempoolreuseallowopportunistic">4.3. 流有序内存分配器</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#cudamempoolreuseallowinternaldependencies">4.3. 流有序内存分配器</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#disabling-reuse-policies">4.3. 流有序内存分配器</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#best-practices-and-tuning">4.3.4. 最佳实践和调整</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#query-for-support">4.3.4.1. 查询支持</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#physical-page-caching-behavior">4.3.4.2. 物理页面缓存行为</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#resource-usage-statistics">4.3.4.3. 资源使用统计</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#memory-reuse-policies">4.3.4.4. 内存重用策略</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#cudamempoolreusefolloweventdependencies">4.3.4.4.1. cudaMemPoolReuseFollowEventDependencies</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#cudamempoolreuseallowopportunistic">4.3.4.4.2. cudaMemPoolReuseAllowOpportunistic</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#cudamempoolreuseallowinternaldependencies">4.3.4.4.3. cudaMemPoolReuseAllowInternalDependencies</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#disabling-reuse-policies">4.3.4.4.4. 禁用重用策略</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#synchronization-api-actions">4.3. 流有序内存分配器</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#synchronization-api-actions">4.3.4.5. 同步 API 操作</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#addendums">4.3. 流有序内存分配器</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#cudamemcpyasync-current-context-device-sensitivity">4.3. 流有序内存分配器</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#cudapointergetattributes-query">4.3. 流有序内存分配器</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#cudagraphaddmemsetnode">4.3. 流有序内存分配器</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#pointer-attributes">4.3. 流有序内存分配器</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#cpu-virtual-memory">4.3. 流有序内存分配器</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#addendums">4.3.5. 补充说明</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#cudamemcpyasync-current-context-device-sensitivity">4.3.5.1. cudaMemcpyAsync 当前上下文/设备敏感度</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#cudapointergetattributes-query">4.3.5.2. cudaPointerGetAttributes 查询</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#cudagraphaddmemsetnode">4.3.5.3. cudaGraphAddMemsetNode</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#pointer-attributes">4.3.5.4. 指针属性</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="stream-ordered-memory-allocation.html#cpu-virtual-memory">4.3.5.5. CPU 虚拟内存</a></li>
 </ul>
 </li>
 </ul>
