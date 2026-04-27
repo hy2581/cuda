@@ -202,14 +202,14 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. 高级 CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. 高级 CUDA API 与特性</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. 高级内核编程</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. CUDA Driver API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. CUDA 驱动程序 API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. 多 GPU 系统编程</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. CUDA 特性概览</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../part4.html">4. CUDA 特性</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="unified-memory.html">4.1. 统一内存</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cuda-graphs.html">4.2. CUDA Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda-graphs.html">4.2. CUDA 图</a></li>
 <li class="toctree-l3"><a class="reference internal" href="stream-ordered-memory-allocation.html">4.3. 流有序内存分配器</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cooperative-groups.html">4.4. 协作组</a></li>
 <li class="toctree-l3"><a class="reference internal" href="programmatic-dependent-launch.html">4.5. 程序化依赖启动与同步</a></li>
@@ -284,34 +284,16 @@
 <article class="bd-article">
 <section id="green-contexts">
 <span id="id1"></span><h1>4.6. 绿色上下文<a class="headerlink" href="green-contexts.html#green-contexts" title="跳转到此标题">#</a></h1>
-<p>绿色上下文 (GC) 是一种轻量级上下文，从创建之日起就与一组特定的 GPU 资源相关联。
-用户可以在创建绿色上下文期间对 GPU 资源、当前流式多处理器 (SM) 和工作队列 (WQ) 进行分区，以便针对绿色上下文的 GPU 工作只能使用其预配置的 SM 和工作队列。
-这样做有利于减少或更好地控制由于使用公共资源而产生的干扰。
-一个应用程序可以有多个绿色上下文。</p>
-<p>使用绿色上下文不需要任何 GPU 代码（内核）更改，只需进行小的主机端更改（例如，绿色上下文创建和为此绿色上下文创建流）。
-绿色上下文功能在各种场景中都很有用。例如，它可以帮助确保某些 SM 始终可供延迟敏感的内核开始执行，假设没有其他 SM
-约束，或者提供一种快速方法来测试使用较少 SM 的效果，而无需任何内核修改。</p>
-<p>绿色上下文支持首先通过 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__GREEN__CONTEXTS.html#group__CUDA__GREEN__CONTEXTS">CUDA驱动程序API</a>。
-从 CUDA 13.1 开始，上下文通过执行上下文 (EC) 抽象在 CUDA 运行时中公开。
-目前，执行上下文可以对应于主上下文（上下文运行时 API 用户始终隐式与之交互）或绿色上下文。
-本节将使用术语 <em>执行上下文</em> 或 <em>绿色背景</em> 当提到绿色上下文时可以互换使用。</p>
-<p>随着绿色上下文的运行时暴露，强烈建议直接使用 CUDA 运行时 API。本节也将仅使用 CUDA 运行时 API。</p>
-<p>本节的其余部分组织如下：
-<a class="reference internal" href="green-contexts.html#green-contexts-motivation"><span class="std std-numref">第 4.6.1 节</span></a> 提供了一个激励人心的例子， <a class="reference internal" href="green-contexts.html#green-contexts-ease-of-use"><span class="std std-numref">第 4.6.2 节</span></a> 突出易用性，以及 <a class="reference internal" href="green-contexts.html#green-contexts-device-resource-and-desc"><span class="std std-numref">第 4.6.3 节</span></a> 提供设备资源和资源描述符结构。
-<a class="reference internal" href="green-contexts.html#green-contexts-creation-example"><span class="std std-numref">第 4.6.4 节</span></a>  解释如何创建绿色上下文， <a class="reference internal" href="green-contexts.html#green-contexts-launching-work"><span class="std std-numref">第 4.6.5 节</span></a> 如何启动针对它的工作，
-和 <a class="reference internal" href="green-contexts.html#green-contexts-apis"><span class="std std-numref">第 4.6.6 节</span></a> 重点介绍了一些额外的绿色上下文 API。最后， <a class="reference internal" href="green-contexts.html#green-contexts-example"><span class="std std-numref">第 4.6.7 节</span></a> 最后举一个例子。</p>
+<p>绿色上下文（GC）是一种轻量级上下文，从创建开始就与一组特定的 GPU 资源关联。用户可以在创建绿色上下文时对 GPU 资源进行分区；目前可分区的资源包括流式多处理器（SM）和工作队列（WQ）。这样一来，面向某个绿色上下文提交的 GPU 工作只能使用预置给该上下文的 SM 和工作队列。这有助于减少，或更好地控制，因使用公共资源而产生的干扰。一个应用程序可以拥有多个绿色上下文。</p>
+<p>使用绿色上下文不需要修改任何 GPU 代码（内核），只需要少量主机端改动，例如创建绿色上下文，并为该绿色上下文创建流。绿色上下文功能适用于多种场景。例如，在没有其他资源约束的前提下，它可以帮助确保始终有一部分 SM 可供延迟敏感内核立即开始执行；也可以在不修改内核的情况下，快速测试使用较少 SM 会带来什么影响。</p>
+<p>绿色上下文支持最初通过 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__GREEN__CONTEXTS.html#group__CUDA__GREEN__CONTEXTS">CUDA 驱动程序 API</a> 提供。从 CUDA 13.1 开始，上下文通过执行上下文（EC）抽象暴露在 CUDA 运行时中。目前，执行上下文可以对应于主上下文（运行时 API 用户一直隐式交互的上下文），也可以对应于绿色上下文。本节在指代绿色上下文时，会交替使用 <em>执行上下文</em> 和 <em>绿色上下文</em> 这两个术语。</p>
+<p>随着绿色上下文暴露到运行时中，强烈建议直接使用 CUDA 运行时 API。本节也只使用 CUDA 运行时 API。</p>
+<p>本节其余部分安排如下：<a class="reference internal" href="green-contexts.html#green-contexts-motivation"><span class="std std-numref">第 4.6.1 节</span></a> 给出一个动机示例，<a class="reference internal" href="green-contexts.html#green-contexts-ease-of-use"><span class="std std-numref">第 4.6.2 节</span></a> 突出易用性，<a class="reference internal" href="green-contexts.html#green-contexts-device-resource-and-desc"><span class="std std-numref">第 4.6.3 节</span></a> 介绍设备资源和资源描述符结构。<a class="reference internal" href="green-contexts.html#green-contexts-creation-example"><span class="std std-numref">第 4.6.4 节</span></a> 解释如何创建绿色上下文，<a class="reference internal" href="green-contexts.html#green-contexts-launching-work"><span class="std std-numref">第 4.6.5 节</span></a> 说明如何启动面向它的工作，<a class="reference internal" href="green-contexts.html#green-contexts-apis"><span class="std std-numref">第 4.6.6 节</span></a> 重点介绍一些额外的绿色上下文 API。最后，<a class="reference internal" href="green-contexts.html#green-contexts-example"><span class="std std-numref">第 4.6.7 节</span></a> 以一个示例收尾。</p>
 <section id="motivation-when-to-use">
-<span id="green-contexts-motivation"></span><h2><span class="section-number">4.6.1. </span>动机/何时使用<a class="headerlink" href="green-contexts.html#motivation-when-to-use" title="跳转到此标题">#</a></h2>
-<p>启动 CUDA 内核时，用户无法直接控制内核将在其上执行的 SM 数量。人们只能间接影响这一点
-通过更改内核的启动几何结构或任何可能影响内核每个 SM 的最大活动线程块数的内容。
-此外，当多个内核在 GPU 上并行执行时（内核在不同的 CUDA 流上运行或作为 CUDA 图的一部分运行），它们可能会
-同样争夺SM资源。</p>
-<p>然而，在某些用例中，用户需要确保始终有 GPU 资源可用于延迟敏感的工作，以便尽快启动并完成。
-绿色上下文提供了一种通过划分 SM 资源来实现这一目标的方法，因此给定的绿色上下文只能使用特定的 SM（在其创建期间配置的 SM）。</p>
-<p><a class="reference internal" href="green-contexts.html#id2"><span class="std std-numref">图42</span></a> 说明了这样一个例子。  假设有一个应用程序，其中两个独立的内核 A 和 B 在两个不同的非阻塞 CUDA 流上运行。
-内核A首先启动并开始执行，占用所有可用的SM资源。当稍后启动对延迟敏感的内核 B 时，没有可用的 SM 资源。
-因此，只有当内核 A 减速时，即内核 A 的线程阻塞完成执行后，内核 B 才能开始执行。
-第一张图说明了关键工作 B 被延迟的情况。 y 轴显示 SM 被占用的百分比，x 轴表示时间。</p>
+<span id="green-contexts-motivation"></span><h2><span class="section-number">4.6.1. </span>动机 / 何时使用<a class="headerlink" href="green-contexts.html#motivation-when-to-use" title="跳转到此标题">#</a></h2>
+<p>启动 CUDA 内核时，用户无法直接控制该内核会在哪些 SM 上执行，也无法直接控制它会使用多少个 SM。用户只能通过改变内核启动几何形状，或改变任何会影响内核每个 SM 最大活动线程块数的因素，来间接影响这一点。此外，当多个内核在 GPU 上并行执行时，例如运行在不同 CUDA 流上，或作为 CUDA 图的一部分运行时，它们也可能争用同一批 SM 资源。</p>
+<p>不过，在某些用例中，用户需要确保总有 GPU 资源可供延迟敏感工作尽快开始并完成。绿色上下文通过划分 SM 资源，为实现这一目标提供了一种方法：某个给定绿色上下文只能使用特定的 SM，也就是创建该上下文时预置给它的 SM。</p>
+<p><a class="reference internal" href="green-contexts.html#id2"><span class="std std-numref">图42</span></a> 展示了这样一个示例。假设某个应用程序中有两个独立内核 A 和 B，它们运行在两个不同的非阻塞 CUDA 流上。内核 A 首先启动并开始执行，占用所有可用 SM 资源。稍后启动延迟敏感的内核 B 时，已经没有可用的 SM 资源。因此，内核 B 只能等到内核 A 开始收尾，也就是内核 A 的线程块陆续执行完成后，才开始执行。第一张图展示了关键工作 B 被延迟的场景。y 轴表示被占用的 SM 百分比，x 轴表示时间。</p>
 <figure class="align-default" id="id2">
 <a class="reference internal image-reference" href="../_images/green_contexts_motivation.png"><img alt="绿色上下文动机" src="../_images/green_contexts_motivation.png" style="width: 1115.4px; height: 429.0px;"/>
 </a>
@@ -319,84 +301,52 @@
 <p><span class="caption-number">图42 </span><span class="caption-text">动机：GC 的静态资源分区使延迟敏感的工作 B 能够更快地开始和完成</span><a class="headerlink" href="green-contexts.html#id2" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
-<p>使用绿色上下文，可以对 GPU 的 SM 进行分区，以便以内核 A 为目标的绿色上下文 A 可以访问 GPU 的一些 SM，而以内核 B 为目标的绿色上下文 B 可以访问其余的 SM。
-在此设置中，内核 A 只能使用为绿色上下文 A 提供的 SM，无论其启动配置如何。因此，当关键内核 B 启动时，可以保证有可用的 SM 供其立即开始执行，而不受任何其他资源限制。作为第二张图 <a class="reference internal" href="green-contexts.html#id2"><span class="std std-numref">图42</span></a> 如图所示，即使内核 A 的持续时间可能增加，延迟敏感的工作 B 将不再因 SM 不可用而被延迟。出于说明目的，该图显示绿色上下文 A 配备了相当于 GPU 80% SM 的 SM 计数。</p>
-<p>这一行为无需对内核 A 和 B 进行任何代码修改即可实现。只需确保它们在属于适当绿色上下文的 CUDA 流上启动即可。每个绿色上下文可以访问的 SM 数量应由用户在绿色上下文创建期间根据具体情况决定。</p>
+<p>使用绿色上下文时，可以对 GPU 的 SM 进行分区，使面向内核 A 的绿色上下文 A 只能访问 GPU 的一部分 SM，而面向内核 B 的绿色上下文 B 可以访问其余 SM。在这种设置下，无论启动配置如何，内核 A 都只能使用预置给绿色上下文 A 的 SM。因此，关键内核 B 启动时，可以保证有可用 SM 供其立即开始执行，除非还存在其他资源约束。如 <a class="reference internal" href="green-contexts.html#id2"><span class="std std-numref">图42</span></a> 中第二张图所示，即使内核 A 的持续时间可能增加，延迟敏感工作 B 也不再会因为没有可用 SM 而被延迟。出于说明目的，该图展示绿色上下文 A 预置了相当于 GPU 80% SM 的 SM 数量。</p>
+<p>实现这种行为无需修改内核 A 和 B 的任何代码。只需要确保它们在属于相应绿色上下文的 CUDA 流上启动即可。每个绿色上下文可以访问多少个 SM，应由用户在创建绿色上下文时根据具体情况决定。</p>
 <p><strong>工作队列</strong>:</p>
-<p>流式多处理器是一种可以为绿色上下文配置的资源类型。  另一种资源类型是工作队列。
-将工作队列视为黑盒资源抽象，它还会影响 GPU 工作执行并发性以及其他因素。
-如果独立的 GPU 工作任务（例如，在不同 CUDA 流上提交的内核）映射到同一工作队列，则可能会在这些任务之间引入错误的依赖关系，
-这可能导致它们的序列化执行。
-用户可以通过以下方式影响 GPU 上工作队列的上限 <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_CONNECTIONS</span></code> 环境变量（参见 <a class="reference internal" href="../05-appendices/environment-variables.html#cuda-environment-variables"><span class="std std-numref">第 5.2 节</span></a>, <a class="reference internal" href="../03-advanced/advanced-host-programming.html#advanced-apis-and-features"><span class="std std-numref">第 3.1 节</span></a>).</p>
-<p>在上一个示例的基础上，假设工作 B 映射到与工作 A 相同的工作队列。
-在这种情况下，即使 SM 资源可用（绿色上下文情况），工作 B 可能仍然需要等待工作 A 完全完成。
-与 SM 类似，用户无法直接控制可能在后台使用的特定工作队列。
-但绿色上下文允许用户根据并发流排序工作负载的预期数量来表达他们期望的最大并发性。
-然后，驱动程序可以使用该值作为提示，尝试阻止来自不同执行上下文的工作使用相同的工作队列，从而防止执行上下文之间出现不必要的干扰。</p>
+<p>流式多处理器是一种可以为绿色上下文预置的资源类型。另一种资源类型是工作队列。可以把工作队列理解为一种黑盒资源抽象；除其他因素外，它也会影响 GPU 工作执行的并发性。如果独立的 GPU 工作任务（例如提交到不同 CUDA 流上的内核）映射到同一个工作队列，这些任务之间就可能引入伪依赖，从而导致它们串行执行。用户可以通过 <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_CONNECTIONS</span></code> 环境变量影响 GPU 上工作队列数量的上限（参见 <a class="reference internal" href="../05-appendices/environment-variables.html#cuda-environment-variables"><span class="std std-numref">第 5.2 节</span></a>、<a class="reference internal" href="../03-advanced/advanced-host-programming.html#advanced-apis-and-features"><span class="std std-numref">第 3.1 节</span></a>）。</p>
+<p>沿用前面的示例，假设工作 B 映射到了与工作 A 相同的工作队列。在这种情况下，即使 SM 资源可用（也就是使用绿色上下文的情况），工作 B 仍然可能需要等待工作 A 完全完成。与 SM 类似，用户无法直接控制底层可能使用哪些具体工作队列。不过，绿色上下文允许用户根据预期并发的流有序工作负载数量，表达自己期望的最大并发度。随后，驱动程序可以把该值作为提示，尝试防止来自不同执行上下文的工作使用同一个工作队列，从而避免执行上下文之间不必要的干扰。</p>
 <div class="admonition attention">
-<p class="admonition-title">Attention</p>
-<p>即使每个绿色上下文配置不同的 SM 资源和工作队列，也无法保证独立 GPU 工作的并发执行。
-最好考虑下面描述的所有技术 <a class="reference internal" href="green-contexts.html#green-contexts"><span class="std std-ref">绿色上下文</span></a> 部分删除可能阻止并发执行的因素（即减少潜在的干扰）。</p>
+<p class="admonition-title">注意</p>
+<p>即使为每个绿色上下文配置了不同的 SM 资源和工作队列，也不保证独立 GPU 工作一定会并发执行。更合适的理解是，<a class="reference internal" href="green-contexts.html#green-contexts"><span class="std std-ref">绿色上下文</span></a> 一节描述的所有技术，都是在移除可能阻止并发执行的因素，也就是减少潜在干扰。</p>
 </div>
 <p><strong>绿色上下文与 MIG 或 MPS</strong></p>
-<p>为了完整起见，本节简要比较绿色上下文与其他两种资源分区机制：
-<a class="reference external" href="https://docs.nvidia.com/datacenter/tesla/mig-user-guide/index.html">MIG（多实例 GPU）</a> 和 <a class="reference external" href="https://docs.nvidia.com/deploy/mps/index.html">MPS（多进程服务）</a>.</p>
-<p>MIG 将 MIG 支持的 GPU 静态分区为多个 MIG 实例（“较小的 GPU”）。
-这种分区必须在应用程序启动之前进行，并且不同的应用程序可以使用不同的 MIG 实例。
-对于应用程序始终未充分利用可用 GPU 资源的用户来说，使用 MIG 可能是有益的；一个问题
-随着 GPU 变得越来越大，这一点更加明显。通过MIG，用户可以在不同的MIG实例上运行这些不同的应用程序，从而提高GPU利用率。
-MIG 对云服务提供商 (CSP) 具有吸引力，不仅因为此类应用程序可以提高 GPU 利用率，还因为
-它可以为运行在不同 MIG 实例上的客户端提供服务质量 (QoS) 和隔离。请参阅上面链接的 MIG 文档了解更多详细信息。</p>
-<p>但使用 MIG 无法解决前面描述的有问题的场景，即关键工作 B 被延迟，因为所有 SM 资源都被来自同一应用程序的其他 GPU 工作占用。
-对于在单个 MIG 实例上运行的应用程序，此问题仍然可能存在。
-为了解决这个问题，可以将绿色上下文与 MIG 结合使用。在这种情况下，可用于分区的 SM 资源将是给定 MIG 实例的资源。</p>
-<p>MPS 主要针对不同的进程（例如 MPI 程序），允许它们同时在 GPU 上运行，而无需时间切片。
-它要求在应用程序启动之前运行 MPS 守护程序。
-默认情况下，MPS 客户端将争夺 GPU 或它们正在运行的 MIG 实例的所有可用 SM 资源。
-在这种多客户端进程设置中，MPS 可以支持 SM 资源的动态分区，使用 <cite>活跃线程百分比</cite> 选项，它对 MPS 客户端进程可以使用的 SM 百分比设置上限。
-与绿色上下文不同，活动线程百分比分区是在进程级别使用 MPS 进行的，并且该百分比通常在应用程序启动之前由环境变量指定。
-MPS 活动线程百分比表示给定的客户端应用程序不能使用超过 <cite>x%</cite> GPU 的 SM 数，设为 N 个 SM。然而，这些 SM 可以 <cite>any</cite> GPU 的 N 个 SM，也会随时间变化。
-另一方面，在其创建期间配置有N个SM的绿色上下文只能使用这些特定的N个SM。</p>
-<p>从 CUDA 13.1 开始，如果在启动 MPS 控制守护进程时显式启用静态分区，MPS 还支持静态分区。对于静态分区，用户必须在启动应用程序时指定 MPS 客户端进程可以使用的静态分区。在这种情况下，具有活动线程百分比的动态共享不再适用。
-静态分区模式下的 MPS 和绿色上下文之间的主要区别在于 MPS 针对不同的进程，而绿色上下文也适用于单个进程。
-此外，与绿色上下文相反，具有静态分区的 MPS 不允许超额订阅 SM 资源。</p>
-<p>借助 MPS，对于通过以下方式创建的 CUDA 上下文，也可以对 SM 资源进行编程分区： <code class="docutils literal notranslate"><span class="pre">cuCtxCreate</span></code> 驱动程序 API，具有执行亲和力。
-这一编程分区允许来自一个或多个进程的不同客户端 CUDA 上下文每次使用最多指定数量的 SM。
-与活动线程百分比分区一样，这些 SM 可以是 <cite>any</cite> GPU 的 SM 可以随时间变化，这与绿色上下文的情况不同。
-即使存在静态 MPS 分区，此选项也是可能的。
-请注意，与 MPS 上下文相比，创建绿色上下文要轻量得多，因为许多底层结构归主上下文所有，因此是共享的。</p>
+<p>为了完整起见，本节简要比较绿色上下文与另外两种资源分区机制：<a class="reference external" href="https://docs.nvidia.com/datacenter/tesla/mig-user-guide/index.html">MIG（多实例 GPU）</a> 和 <a class="reference external" href="https://docs.nvidia.com/deploy/mps/index.html">MPS（多进程服务）</a>。</p>
+<p>MIG 会把支持 MIG 的 GPU 静态划分为多个 MIG 实例（“更小的 GPU”）。这种分区必须在应用程序启动之前完成，并且不同应用程序可以使用不同的 MIG 实例。对于那些总是无法充分利用可用 GPU 资源的应用程序，使用 MIG 可能很有帮助；随着 GPU 规模越来越大，这个问题会更加明显。借助 MIG，用户可以在不同 MIG 实例上运行这些不同应用程序，从而提高 GPU 利用率。MIG 对云服务提供商（CSP）也很有吸引力，不只是因为它能为这类应用程序提高 GPU 利用率，还因为它能在运行于不同 MIG 实例上的客户之间提供服务质量（QoS）和隔离。更多细节请参阅上面链接的 MIG 文档。</p>
+<p>但是，MIG 无法解决前面描述的问题场景：关键工作 B 因同一应用程序中的其他 GPU 工作占用了所有 SM 资源而被延迟。这个问题对运行在单个 MIG 实例上的应用程序仍然可能存在。为解决该问题，可以将绿色上下文与 MIG 搭配使用。在这种情况下，可用于分区的 SM 资源就是给定 MIG 实例的资源。</p>
+<p>MPS 主要面向不同进程（例如 MPI 程序），允许它们在 GPU 上同时运行而无需时间片轮转。它要求应用程序启动之前先运行 MPS 守护进程。默认情况下，MPS 客户端会争用 GPU 或其所在 MIG 实例的所有可用 SM 资源。在这种多客户端进程设置中，MPS 可以通过 <cite>活动线程百分比</cite> 选项支持 SM 资源的动态分区；该选项会给 MPS 客户端进程可使用的 SM 百分比设置上限。不同于绿色上下文，活动线程百分比分区通过 MPS 在进程级别进行，并且该百分比通常在应用程序启动之前由环境变量指定。MPS 活动线程百分比表示给定客户端应用程序不能使用超过某个 <cite>x%</cite> 的 GPU SM；假设这对应 N 个 SM，这些 SM 可以是 GPU 上的 <cite>任意</cite> N 个 SM，而且会随时间变化。另一方面，在创建期间预置了 N 个 SM 的绿色上下文只能使用这特定的 N 个 SM。</p>
+<p>从 CUDA 13.1 开始，如果在启动 MPS 控制守护进程时显式启用静态分区，MPS 也支持静态分区。在静态分区下，用户必须在应用程序启动时指定 MPS 客户端进程可以使用的静态分区；此时，基于活动线程百分比的动态共享不再适用。静态分区模式下的 MPS 与绿色上下文之间的主要区别在于，MPS 面向不同进程，而绿色上下文也适用于单个进程内部。此外，与绿色上下文相反，使用静态分区的 MPS 不允许超额订阅 SM 资源。</p>
+<p>借助 MPS，对于通过带执行亲和性的 <code class="docutils literal notranslate"><span class="pre">cuCtxCreate</span></code> 驱动程序 API 创建的 CUDA 上下文，也可以对 SM 资源进行编程分区。这种编程分区允许来自一个或多个进程的不同客户端 CUDA 上下文各自最多使用指定数量的 SM。与活动线程百分比分区一样，这些 SM 可以是 GPU 上的任意 SM，并且可能随时间变化；这与绿色上下文不同。即使存在静态 MPS 分区，也可以使用这一选项。请注意，与 MPS 上下文相比，创建绿色上下文要轻量得多，因为许多底层结构归主上下文所有，因此会被共享。</p>
 </section>
 <section id="green-contexts-ease-of-use">
-<span id="id3"></span><h2><span class="section-number">4.6.2. </span>绿色上下文：易于使用<a class="headerlink" href="green-contexts.html#green-contexts-ease-of-use" title="跳转到此标题">#</a></h2>
-<p>为了强调使用绿色上下文是多么容易，假设您有以下代码片段，它创建两个 CUDA 流，然后调用一个通过以下方式启动内核的函数： <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;&gt;&gt;&gt;</span></code> 在这些 CUDA 流上。
-如前所述，除了更改内核的启动几何形状之外，我们无法影响这些内核可以使用的 SM 数量。</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">gpu_device_index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="c1">// GPU序号</span>
+<span id="id3"></span><h2><span class="section-number">4.6.2. </span>绿色上下文：易用性<a class="headerlink" href="green-contexts.html#green-contexts-ease-of-use" title="跳转到此标题">#</a></h2>
+<p>为了展示绿色上下文有多容易使用，假设你有下面这段代码：它创建两个 CUDA 流，然后调用一个函数，由该函数通过 <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;&gt;&gt;&gt;</span></code> 在这些 CUDA 流上启动内核。如前所述，除了改变内核的启动几何形状之外，我们无法影响这些内核可以使用多少个 SM。</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">gpu_device_index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="c1">// GPU 序号</span>
 <span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaSetDevice</span><span class="p">(</span><span class="n">gpu_device_index</span><span class="p">));</span>
 
 <span class="n">cudaStream_t</span><span class="w"> </span><span class="n">strm1</span><span class="p">,</span><span class="w"> </span><span class="n">strm2</span><span class="p">;</span>
 <span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaStreamCreateWithFlags</span><span class="p">(</span><span class="o">&amp;</span><span class="n">strm1</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamNonBlocking</span><span class="p">));</span>
 <span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaStreamCreateWithFlags</span><span class="p">(</span><span class="o">&amp;</span><span class="n">strm2</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamNonBlocking</span><span class="p">));</span>
 
-<span class="c1">// 无法控制每个流上运行的 SM 内核数量</span>
-<span class="n">code_that_launches_kernels_on_streams</span><span class="p">(</span><span class="n">strm1</span><span class="p">,</span><span class="w"> </span><span class="n">strm2</span><span class="p">);</span><span class="w"> </span><span class="c1">// 该函数中抽象的内容+内核是代码的绝大多数</span>
+<span class="c1">// 无法控制每个流上运行的内核可以使用多少个 SM</span>
+<span class="n">code_that_launches_kernels_on_streams</span><span class="p">(</span><span class="n">strm1</span><span class="p">,</span><span class="w"> </span><span class="n">strm2</span><span class="p">);</span><span class="w"> </span><span class="c1">// 该函数及其中的内核代表了代码的绝大部分</span>
 
 <span class="c1">// 未显示清理代码</span>
 </pre></div>
 </div>
-<p>从 CUDA 13.1 开始，可以使用绿色上下文控制给定内核可以访问的 SM 数量。
-下面的代码片段显示了做到这一点是多么容易。通过一些额外的行并且没有任何内核修改，
-您可以控制在这些不同的流上启动的内核可以使用的 SM 资源。</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">gpu_device_index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="c1">// GPU序号</span>
+<p>从 CUDA 13.1 开始，可以使用绿色上下文控制给定内核能够访问的 SM 数量。下面的代码片段展示做到这一点有多直接：只需要增加少量代码，而且无需修改任何内核，就可以控制在这些不同流上启动的内核能够使用哪些 SM 资源。</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">gpu_device_index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="c1">// GPU 序号</span>
 <span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaSetDevice</span><span class="p">(</span><span class="n">gpu_device_index</span><span class="p">));</span>
 
 <span class="cm">/* ------------------ 创建绿色上下文所需的代码 -------------------------- */</span>
 
 
-<span class="c1">// 获取所有可用的GPU SM资源</span>
+<span class="c1">// 获取所有可用的 GPU SM 资源</span>
 <span class="n">cudaDevResource</span><span class="w"> </span><span class="n">initial_GPU_SM_resources</span><span class="w"> </span><span class="p">{};</span>
 <span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaDeviceGetDevResource</span><span class="p">(</span><span class="n">gpu_device_index</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">initial_GPU_SM_resources</span><span class="p">,</span><span class="w"> </span><span class="n">cudaDevResourceTypeSm</span><span class="p">));</span>
 
-<span class="c1">// 分割SM资源。此示例创建一组包含 16 个 SM 和一组包含 8 个 SM。假设您的 GPU 具有 &gt;= 24 个 SM</span>
+<span class="c1">// 拆分 SM 资源。此示例创建一组 16 个 SM 和一组 8 个 SM。</span>
+<span class="c1">// 假设你的 GPU 至少有 24 个 SM</span>
 <span class="n">cudaDevSmResource</span><span class="w"> </span><span class="n">result</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="p">{{},</span><span class="w"> </span><span class="p">{}};</span>
 <span class="n">cudaDevSmResourceGroupParams</span><span class="w"> </span><span class="n">group_params</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="p">{</span>
 <span class="w">        </span><span class="p">{.</span><span class="n">smCount</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">coscheduledSmCount</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">preferredCoscheduledSmCount</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">},</span>
@@ -409,7 +359,7 @@ MPS 活动线程百分比表示给定的客户端应用程序不能使用超过 
 <span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaDevResourceGenerateDesc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">resource_desc1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="mi">1</span><span class="p">));</span>
 <span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaDevResourceGenerateDesc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">resource_desc2</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="mi">1</span><span class="p">));</span>
 
-<span class="c1">// 创造绿色环境</span>
+<span class="c1">// 创建绿色上下文</span>
 <span class="n">cudaExecutionContext_t</span><span class="w"> </span><span class="n">my_green_ctx1</span><span class="w"> </span><span class="p">{};</span>
 <span class="n">cudaExecutionContext_t</span><span class="w"> </span><span class="n">my_green_ctx2</span><span class="w"> </span><span class="p">{};</span>
 <span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaGreenCtxCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_green_ctx1</span><span class="p">,</span><span class="w"> </span><span class="n">resource_desc1</span><span class="p">,</span><span class="w"> </span><span class="n">gpu_device_index</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">));</span>
@@ -417,7 +367,7 @@ MPS 活动线程百分比表示给定的客户端应用程序不能使用超过 
 
 <span class="cm">/* ------------------ 修改后的代码 -------------------------- */</span>
 
-<span class="c1">// 您只需要使用不同的 CUDA API 来创建流</span>
+<span class="c1">// 只需要使用不同的 CUDA API 来创建流</span>
 <span class="n">cudaStream_t</span><span class="w"> </span><span class="n">strm1</span><span class="p">,</span><span class="w"> </span><span class="n">strm2</span><span class="p">;</span>
 <span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaExecutionCtxStreamCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">strm1</span><span class="p">,</span><span class="w"> </span><span class="n">my_green_ctx1</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamDefault</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">));</span>
 <span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaExecutionCtxStreamCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">strm2</span><span class="p">,</span><span class="w"> </span><span class="n">my_green_ctx2</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamDefault</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">));</span>
@@ -425,23 +375,20 @@ MPS 活动线程百分比表示给定的客户端应用程序不能使用超过 
 <span class="cm">/* ------------------ 未更改的代码 -------------------------------------- */</span>
 
 <span class="c1">// 无需修改此函数或内核中的任何代码。</span>
-<span class="c1">// 提醒：这个函数+内核中抽象的就是你代码的绝大多数</span>
-<span class="c1">// 现在，在流 strm1 上运行的内核将最多使用 16 个 SM，而在 strm2 上运行的内核将最多使用 8 个 SM。</span>
+<span class="c1">// 提醒：该函数及其中的内核代表了代码的绝大部分</span>
+<span class="c1">// 现在，在流 strm1 上运行的内核最多使用 16 个 SM，</span>
+<span class="c1">// 在 strm2 上运行的内核最多使用 8 个 SM。</span>
 <span class="n">code_that_launches_kernels_on_streams</span><span class="p">(</span><span class="n">strm1</span><span class="p">,</span><span class="w"> </span><span class="n">strm2</span><span class="p">);</span>
 
 <span class="c1">// 未显示清理代码</span>
 </pre></div>
 </div>
-<p>各种执行上下文 API（其中一些已在前面的示例中显示）采用显式 <code class="docutils literal notranslate"><span class="pre">cudaExecutionContext_t</span></code> 句柄，从而忽略调用线程当前的上下文。
-到目前为止，未使用驱动程序 API 的 CUDA 运行时用户默认情况下仅与通过以下方式隐式设置为当前线程的主上下文进行交互： <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code>。
-与之前依赖线程本地状态 (TLS) 的隐式基于上下文的编程相比，这种向显式基于上下文的编程的转变提供了更容易理解的语义，并且可以带来额外的好处。</p>
-<p>以下部分将详细解释前面代码片段中显示的所有步骤。</p>
+<p>各种执行上下文 API（其中一些已经在前面的示例中出现）会接受显式的 <code class="docutils literal notranslate"><span class="pre">cudaExecutionContext_t</span></code> 句柄，因此会忽略调用线程的当前上下文。此前，不使用驱动程序 API 的 CUDA 运行时用户，默认只会与通过 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code> 隐式设为线程当前上下文的主上下文交互。与过去依赖线程本地状态（TLS）的隐式上下文编程相比，转向显式上下文编程可以提供更容易理解的语义，并可能带来额外收益。</p>
+<p>下面几节将详细解释前面代码片段中展示的所有步骤。</p>
 </section>
 <section id="green-contexts-device-resource-and-resource-descriptor">
 <span id="green-contexts-device-resource-and-desc"></span><h2><span class="section-number">4.6.3. </span>绿色上下文：设备资源和资源描述符<a class="headerlink" href="green-contexts.html#green-contexts-device-resource-and-resource-descriptor" title="跳转到此标题">#</a></h2>
-<p>绿色上下文的核心是设备资源（<code class="docutils literal notranslate"><span class="pre">cudaDevResource</span></code>）绑定到特定的 GPU 设备。
-资源可以组合并封装到描述符中（<code class="docutils literal notranslate"><span class="pre">cudaDevResourceDesc_t</span></code>）。
-绿色上下文只能访问封装到用于其创建的描述符中的资源。</p>
+<p>绿色上下文的核心是绑定到特定 GPU 设备的设备资源（<code class="docutils literal notranslate"><span class="pre">cudaDevResource</span></code>）。资源可以组合并封装到描述符（<code class="docutils literal notranslate"><span class="pre">cudaDevResourceDesc_t</span></code>）中。绿色上下文只能访问封装在其创建描述符中的资源。</p>
 <p>目前 <code class="docutils literal notranslate"><span class="pre">cudaDevResource</span></code> 数据结构定义为：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
 <span class="w">     </span><span class="k">enum</span><span class="w"> </span><span class="nc">cudaDevResourceType</span><span class="w"> </span><span class="n">type</span><span class="p">;</span>
@@ -453,90 +400,80 @@ MPS 活动线程百分比表示给定的客户端应用程序不能使用超过 
 <span class="w"> </span><span class="p">};</span>
 </pre></div>
 </div>
-<p>支持的有效资源类型是 <code class="docutils literal notranslate"><span class="pre">cudaDevResourceTypeSm</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaDevResourceTypeWorkqueueConfig</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaDevResourceTypeWorkqueue</span></code>，同时  <code class="docutils literal notranslate"><span class="pre">cudaDevResourceTypeInvalid</span></code> 标识无效的资源类型。</p>
+<p>支持的有效资源类型包括 <code class="docutils literal notranslate"><span class="pre">cudaDevResourceTypeSm</span></code>、<code class="docutils literal notranslate"><span class="pre">cudaDevResourceTypeWorkqueueConfig</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaDevResourceTypeWorkqueue</span></code>；<code class="docutils literal notranslate"><span class="pre">cudaDevResourceTypeInvalid</span></code> 则表示无效资源类型。</p>
 <p>有效的设备资源可以与：</p>
 <ul class="simple">
-<li><p>一组特定的流式多处理器 (SM)（资源类型 <code class="docutils literal notranslate"><span class="pre">cudaDevResourceTypeSm</span></code>),</p></li>
-<li><p>特定的工作队列配置（资源类型 <code class="docutils literal notranslate"><span class="pre">cudaDevResourceTypeWorkqueueConfig</span></code>) or</p></li>
-<li><p>预先存在的工作队列资源（资源类型 <code class="docutils literal notranslate"><span class="pre">cudaDevResourceTypeWorkqueue</span></code>).</p></li>
+<li><p>一组特定的流式多处理器（SM）（资源类型 <code class="docutils literal notranslate"><span class="pre">cudaDevResourceTypeSm</span></code>），</p></li>
+<li><p>特定的工作队列配置（资源类型 <code class="docutils literal notranslate"><span class="pre">cudaDevResourceTypeWorkqueueConfig</span></code>），或</p></li>
+<li><p>预先存在的工作队列资源（资源类型 <code class="docutils literal notranslate"><span class="pre">cudaDevResourceTypeWorkqueue</span></code>）。</p></li>
 </ul>
-<p>可以查询给定的执行上下文或 CUDA 流是否与 <code class="docutils literal notranslate"><span class="pre">cudaDevResource</span></code> 给定类型的资源，
-使用 <code class="docutils literal notranslate"><span class="pre">cudaExecutionCtxGetDevResource</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaStreamGetDevResource</span></code> 分别是API。
-对于执行上下文来说，也可以与不同类型的设备资源（例如 SM 和工作队列）相关联，
-而流只能关联SM类型的资源。</p>
-<p>默认情况下，给定的 GPU 设备具有所有三种设备资源类型：包含 GPU 的所有 SM 的 SM 类型资源、包含所有可用工作队列的工作队列配置资源
-及其相应的工作队列资源。这些资源可以通过 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetDevResource</span></code> API。</p>
+<p>可以分别使用 <code class="docutils literal notranslate"><span class="pre">cudaExecutionCtxGetDevResource</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaStreamGetDevResource</span></code> API，查询给定执行上下文或 CUDA 流是否关联了某种类型的 <code class="docutils literal notranslate"><span class="pre">cudaDevResource</span></code> 资源。执行上下文可以关联不同类型的设备资源，例如 SM 和工作队列；而流只能关联 SM 类型资源。</p>
+<p>默认情况下，给定 GPU 设备拥有全部三种设备资源类型：涵盖该 GPU 所有 SM 的 SM 类型资源、涵盖所有可用工作队列的工作队列配置资源，以及对应的工作队列资源。这些资源可以通过 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetDevResource</span></code> API 检索。</p>
 <p><strong>相关设备资源结构概述</strong></p>
-<p>不同的资源类型结构具有由用户或相关 CUDA API 调用显式设置的字段。
-建议对所有设备资源结构进行零初始化。</p>
+<p>不同资源类型结构中的字段，要么由用户显式设置，要么由相关 CUDA API 调用设置。建议对所有设备资源结构进行零初始化。</p>
 <ul>
-<li><p>SM类型的设备资源（<code class="docutils literal notranslate"><span class="pre">cudaDevSmResource</span></code>) 具有以下相关字段：</p>
+<li><p>SM 类型的设备资源（<code class="docutils literal notranslate"><span class="pre">cudaDevSmResource</span></code>）包含以下相关字段：</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">smCount</span></code>：该资源中可用的 SM 数量</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">minSmPartitionSize</span></code>：分区该资源所需的最小 SM 数量</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">smCoscheduledAlignment</span></code>：资源中保证在同一 GPU 处理集群上共同调度的 SM 数量，这与线程块集群相关。 <code class="docutils literal notranslate"><span class="pre">smCount</span></code> 是该值的倍数，当  <code class="docutils literal notranslate"><span class="pre">flags</span></code> 为零。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">minSmPartitionSize</span></code>：对该资源进行分区所需的最小 SM 数量</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">smCoscheduledAlignment</span></code>：资源中保证会在同一 GPU 处理集群上共同调度的 SM 数量，该字段与线程块集群相关。当 <code class="docutils literal notranslate"><span class="pre">flags</span></code> 为零时，<code class="docutils literal notranslate"><span class="pre">smCount</span></code> 是该值的倍数。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">flags</span></code>：支持的标志为 0（默认）和 <code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceGroupBackfill</span></code> （见 <code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceGroup</span></code> 标志）。</p></li>
 </ul>
-<p>上述字段将通过适当的 split API (<code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplitByCount</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplit</span></code>）用于创建此 SM 类型资源或将由 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetDevResource</span></code> 用于检索给定 GPU 设备的 SM 资源的 API。这些字段不应该由用户直接设置。请参阅下一节了解更多详细信息。</p>
+<p>上述字段会由用于创建该 SM 类型资源的相应拆分 API（<code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplitByCount</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplit</span></code>）设置，或者由用于检索给定 GPU 设备 SM 资源的 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetDevResource</span></code> API 填充。用户不应直接设置这些字段。更多细节请参见下一节。</p>
 </li>
-<li><p>工作队列配置设备资源（<code class="docutils literal notranslate"><span class="pre">cudaDevWorkqueueConfigResource</span></code>) 具有以下相关字段：</p>
+<li><p>工作队列配置设备资源（<code class="docutils literal notranslate"><span class="pre">cudaDevWorkqueueConfigResource</span></code>）包含以下相关字段：</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">int</span> <span class="pre">device</span></code>：工作队列资源可用的设备</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">wqConcurrencyLimit</span></code>：预期避免错误依赖的流排序工作负载的数量</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">enum</span> <span class="pre">cudaDevWorkqueueConfigScope</span> <span class="pre">sharingScope</span></code>：工作队列资源的共享范围。支持的值为： <code class="docutils literal notranslate"><span class="pre">cudaDevWorkqueueConfigScopeDeviceCtx</span></code> （默认）和 <code class="docutils literal notranslate"><span class="pre">cudaDevWorkqueueConfigScopeGreenCtxBalanced</span></code>。使用默认选项，所有工作队列资源在所有上下文中共享，而使用平衡选项时，驱动程序尝试尽可能使用用户指定的跨绿色上下文使用非重叠工作队列资源 <code class="docutils literal notranslate"><span class="pre">wqConcurrencyLimit</span></code> 作为提示。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">wqConcurrencyLimit</span></code>：预期用于避免伪依赖的流有序工作负载数量</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">enum</span> <span class="pre">cudaDevWorkqueueConfigScope</span> <span class="pre">sharingScope</span></code>：工作队列资源的共享范围。支持的值包括 <code class="docutils literal notranslate"><span class="pre">cudaDevWorkqueueConfigScopeDeviceCtx</span></code>（默认）和 <code class="docutils literal notranslate"><span class="pre">cudaDevWorkqueueConfigScopeGreenCtxBalanced</span></code>。使用默认选项时，所有工作队列资源会在所有上下文之间共享；使用均衡选项时，驱动程序会把用户指定的 <code class="docutils literal notranslate"><span class="pre">wqConcurrencyLimit</span></code> 作为提示，尽可能让不同绿色上下文使用不重叠的工作队列资源。</p></li>
 </ul>
-<p>这些字段需要由用户设置。没有类似于 split API 的 CUDA API 生成工作队列配置资源，除了由 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetDevResource</span></code> API。该 API 可以检索给定 GPU 设备的工作队列配置资源。</p>
+<p>这些字段需要由用户设置。除了 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetDevResource</span></code> API 会填充工作队列配置资源之外，没有类似拆分 API 的 CUDA API 会生成工作队列配置资源。该 API 可以检索给定 GPU 设备的工作队列配置资源。</p>
 </li>
-<li><p>最后，一个预先存在的工作队列资源（<code class="docutils literal notranslate"><span class="pre">cudaDevResourceTypeWorkqueue</span></code>) 没有可由用户设置的字段。与其他资源类型一样， <code class="docutils literal notranslate"><span class="pre">cudaDevGetDevResource</span></code> 可以检索给定 GPU 设备预先存在的工作队列资源。</p></li>
+<li><p>最后，预先存在的工作队列资源（<code class="docutils literal notranslate"><span class="pre">cudaDevResourceTypeWorkqueue</span></code>）没有可由用户设置的字段。与其他资源类型一样，<code class="docutils literal notranslate"><span class="pre">cudaDevGetDevResource</span></code> 可以检索给定 GPU 设备上预先存在的工作队列资源。</p></li>
 </ul>
 </section>
 <section id="green-context-creation-example">
 <span id="green-contexts-creation-example"></span><h2><span class="section-number">4.6.4. </span>绿色上下文创建示例<a class="headerlink" href="green-contexts.html#green-context-creation-example" title="跳转到此标题">#</a></h2>
-<p>绿色上下文创建涉及四个主要步骤：</p>
+<p>创建绿色上下文主要涉及四个步骤：</p>
 <ul class="simple">
-<li><p>步骤 1：从一组初始资源开始，例如获取 GPU 的可用资源</p></li>
+<li><p>第 1 步：从一组初始资源开始，例如获取 GPU 的可用资源</p></li>
 <li><p>第 2 步：将 SM 资源划分为一个或多个分区（使用可用的拆分 API 之一）。</p></li>
-<li><p>步骤 3：创建一个资源描述符（如果需要）组合不同的资源</p></li>
-<li><p>步骤 4：从描述符创建绿色上下文，配置其资源</p></li>
+<li><p>第 3 步：创建资源描述符，并在需要时组合不同资源</p></li>
+<li><p>第 4 步：从描述符创建绿色上下文，并预置其资源</p></li>
 </ul>
-<p>创建绿色上下文后，您可以创建属于该绿色上下文的 CUDA 流。
-GPU 工作随后在此类流上启动，例如通过以下方式启动的内核 <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;</span> <span class="pre">&gt;&gt;&gt;</span></code>，只能访问此绿色上下文的配置资源。
-图书馆还可以轻松利用绿色上下文，只要用户将属于绿色上下文的流传递给它们即可。
-参见 <a class="reference internal" href="green-contexts.html#green-contexts-launching-work"><span class="std std-ref">绿色上下文 - 启动工作</span></a> 了解更多详情。</p>
+<p>创建绿色上下文后，可以创建属于该绿色上下文的 CUDA 流。随后在这类流上启动的 GPU 工作（例如通过 <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;</span> <span class="pre">&gt;&gt;&gt;</span></code> 启动的内核）只能访问该绿色上下文预置的资源。只要用户把属于绿色上下文的流传给库，库也可以轻松利用绿色上下文。更多细节请参见 <a class="reference internal" href="green-contexts.html#green-contexts-launching-work"><span class="std std-ref">绿色上下文 - 启动工作</span></a>。</p>
 <section id="step-1-get-available-gpu-resources">
 <span id="green-contexts-creation-example-step1"></span><h3><span class="section-number">4.6.4.1. </span>第 1 步：获取可用 GPU 资源<a class="headerlink" href="green-contexts.html#step-1-get-available-gpu-resources" title="跳转到此标题">#</a></h3>
-<p>创建绿色上下文的第一步是获取可用的设备资源并填充 <code class="docutils literal notranslate"><span class="pre">cudaDevResource</span></code> 结构。
-目前存在三个可能的起点：设备、执行上下文或 CUDA 流。</p>
+<p>创建绿色上下文的第一步是获取可用的设备资源，并填充 <code class="docutils literal notranslate"><span class="pre">cudaDevResource</span></code> 结构。目前有三个可能的起点：设备、执行上下文或 CUDA 流。</p>
 <p>下面列出了相关的 CUDA 运行时 API 函数签名：</p>
 <ul class="simple">
-<li><p>对于一个 <strong>device</strong>:               <code class="docutils literal notranslate"><span class="pre">cudaError_t</span> <span class="pre">cudaDeviceGetDevResource(int</span> <span class="pre">device,</span> <span class="pre">cudaDevResource*</span> <span class="pre">resource,</span> <span class="pre">cudaDevResourceType</span> <span class="pre">type)</span></code></p></li>
-<li><p>对于一个 <strong>执行上下文</strong>:   <code class="docutils literal notranslate"><span class="pre">cudaError_t</span> <span class="pre">cudaExecutionCtxGetDevResource(cudaExecutionContext_t</span> <span class="pre">ctx,</span> <span class="pre">cudaDevResource*</span> <span class="pre">resource,</span> <span class="pre">cudaDevResourceType</span> <span class="pre">type)</span></code></p></li>
-<li><p>对于一个 <strong>stream</strong>:               <code class="docutils literal notranslate"><span class="pre">cudaError_t</span> <span class="pre">cudaStreamGetDevResource(cudaStream_t</span> <span class="pre">hStream,</span> <span class="pre">cudaDevResource*</span> <span class="pre">resource,</span> <span class="pre">cudaDevResourceType</span> <span class="pre">type)</span></code></p></li>
+<li><p>对于 <strong>device</strong>：               <code class="docutils literal notranslate"><span class="pre">cudaError_t</span> <span class="pre">cudaDeviceGetDevResource(int</span> <span class="pre">device,</span> <span class="pre">cudaDevResource*</span> <span class="pre">resource,</span> <span class="pre">cudaDevResourceType</span> <span class="pre">type)</span></code></p></li>
+<li><p>对于 <strong>执行上下文</strong>：   <code class="docutils literal notranslate"><span class="pre">cudaError_t</span> <span class="pre">cudaExecutionCtxGetDevResource(cudaExecutionContext_t</span> <span class="pre">ctx,</span> <span class="pre">cudaDevResource*</span> <span class="pre">resource,</span> <span class="pre">cudaDevResourceType</span> <span class="pre">type)</span></code></p></li>
+<li><p>对于 <strong>stream</strong>：               <code class="docutils literal notranslate"><span class="pre">cudaError_t</span> <span class="pre">cudaStreamGetDevResource(cudaStream_t</span> <span class="pre">hStream,</span> <span class="pre">cudaDevResource*</span> <span class="pre">resource,</span> <span class="pre">cudaDevResourceType</span> <span class="pre">type)</span></code></p></li>
 </ul>
-<p>全部有效 <code class="docutils literal notranslate"><span class="pre">cudaDevResourceType</span></code> 这些 API 中的每一个都允许使用类型，但以下情况除外 <code class="docutils literal notranslate"><span class="pre">cudaStreamGetDevResource</span></code> 只支持SM类型的资源。</p>
-<p>通常，起点是 GPU 设备。下面的代码片段展示了如何获取给定 GPU 设备的可用 SM 资源。
-成功后 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetDevResource</span></code> 呼叫后，用户可以查看该资源中可用的短信数量。</p>
+<p>所有有效的 <code class="docutils literal notranslate"><span class="pre">cudaDevResourceType</span></code> 类型都可以用于这些 API，但 <code class="docutils literal notranslate"><span class="pre">cudaStreamGetDevResource</span></code> 例外，它只支持 SM 类型资源。</p>
+<p>通常，起点会是 GPU 设备。下面的代码片段展示如何获取给定 GPU 设备的可用 SM 资源。<code class="docutils literal notranslate"><span class="pre">cudaDeviceGetDevResource</span></code> 调用成功后，用户可以查看该资源中可用的 SM 数量。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">current_device</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="c1">// 假设设备序号为 0</span>
 <span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaSetDevice</span><span class="p">(</span><span class="n">current_device</span><span class="p">));</span>
 
 <span class="n">cudaDevResource</span><span class="w"> </span><span class="n">initial_SM_resources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
-<span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaDeviceGetDevResource</span><span class="p">(</span><span class="n">current_device</span><span class="w"> </span><span class="cm">/* GPU设备 */</span><span class="p">,</span>
+<span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaDeviceGetDevResource</span><span class="p">(</span><span class="n">current_device</span><span class="w"> </span><span class="cm">/* GPU 设备 */</span><span class="p">,</span>
 <span class="w">                                   </span><span class="o">&amp;</span><span class="n">initial_SM_resources</span><span class="w"> </span><span class="cm">/* 要填充的设备资源 */</span><span class="p">,</span>
 <span class="w">                                   </span><span class="n">cudaDevResourceTypeSm</span><span class="w"> </span><span class="cm">/* 资源类型 */</span><span class="p">));</span>
 
-<span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"Initial SM resources: "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">initial_SM_resources</span><span class="p">.</span><span class="n">sm</span><span class="p">.</span><span class="n">smCount</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">" SMs"</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="w"> </span><span class="c1">// 可用SM数量</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"Initial SM resources: "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">initial_SM_resources</span><span class="p">.</span><span class="n">sm</span><span class="p">.</span><span class="n">smCount</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">" SMs"</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="w"> </span><span class="c1">// 可用 SM 数量</span>
 
-<span class="c1">// 与分区相关的特殊字段（请参阅下面的步骤 3）</span>
+<span class="c1">// 与分区相关的特殊字段（参见下面的步骤 3）</span>
 <span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"Min. SM partition size: "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w">  </span><span class="n">initial_SM_resources</span><span class="p">.</span><span class="n">sm</span><span class="p">.</span><span class="n">minSmPartitionSize</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">" SMs"</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
 <span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"SM co-scheduled alignment: "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w">  </span><span class="n">initial_SM_resources</span><span class="p">.</span><span class="n">sm</span><span class="p">.</span><span class="n">smCoscheduledAlignment</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">" SMs"</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>还可以获得可用的工作队列配置。资源，如下面的代码片段所示。</p>
+<p>还可以获取可用的工作队列配置资源，如下面的代码片段所示。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">current_device</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="c1">// 假设设备序号为 0</span>
 <span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaSetDevice</span><span class="p">(</span><span class="n">current_device</span><span class="p">));</span>
 
 <span class="n">cudaDevResource</span><span class="w"> </span><span class="n">initial_WQ_config_resources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
-<span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaDeviceGetDevResource</span><span class="p">(</span><span class="n">current_device</span><span class="w"> </span><span class="cm">/* GPU设备 */</span><span class="p">,</span>
+<span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaDeviceGetDevResource</span><span class="p">(</span><span class="n">current_device</span><span class="w"> </span><span class="cm">/* GPU 设备 */</span><span class="p">,</span>
 <span class="w">                                   </span><span class="o">&amp;</span><span class="n">initial_WQ_config_resources</span><span class="w"> </span><span class="cm">/* 要填充的设备资源 */</span><span class="p">,</span>
 <span class="w">                                   </span><span class="n">cudaDevResourceTypeWorkqueueConfig</span><span class="w"> </span><span class="cm">/* 资源类型 */</span><span class="p">));</span>
 
@@ -545,90 +482,77 @@ GPU 工作随后在此类流上启动，例如通过以下方式启动的内核 
 <span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"  - WQ sharing scope: "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">initial_WQ_config_resources</span><span class="p">.</span><span class="n">wqConfig</span><span class="p">.</span><span class="n">sharingScope</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>成功后 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetDevResource</span></code> 调用后，用户可以查看 <code class="docutils literal notranslate"><span class="pre">wqConcurrencyLimit</span></code> 对于这个资源。
-当起始点是GPU设备时， <code class="docutils literal notranslate"><span class="pre">wqConcurrencyLimit</span></code> 将匹配的值 <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_CONNECTIONS</span></code> 环境变量或其默认值。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaDeviceGetDevResource</span></code> 调用成功后，用户可以查看该资源的 <code class="docutils literal notranslate"><span class="pre">wqConcurrencyLimit</span></code>。当起点是 GPU 设备时，<code class="docutils literal notranslate"><span class="pre">wqConcurrencyLimit</span></code> 将匹配 <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_CONNECTIONS</span></code> 环境变量的值，或其默认值。</p>
 </section>
 <section id="step-2-partition-sm-resources">
-<span id="green-contexts-creation-example-step2"></span><h3><span class="section-number">4.6.4.2. </span>步骤2：对SM资源进行分区<a class="headerlink" href="green-contexts.html#step-2-partition-sm-resources" title="跳转到此标题">#</a></h3>
-<p>创建绿色上下文的第二步是静态分割可用的 <code class="docutils literal notranslate"><span class="pre">cudaDevResource</span></code> SM 资源划分为一个或多个分区，并有可能
-一些 SM 残留在 <cite>remaining</cite> 分区。这种分区可以使用  <code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplitByCount()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplit()</span></code> API。
-的 <code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplitByCount()</span></code> API只能创建一个或多个 <em>homogeneous</em> 分区，加上一个潜在的 <em>remaining</em> 分区，
-而 <code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplit()</span></code> API还可以创建 <em>heterogeneous</em> 分区，加上潜力 <em>remaining</em> 一。
-后续部分详细描述了这两个 API 的功能。这两个API仅适用于SM类型的设备资源。</p>
+<span id="green-contexts-creation-example-step2"></span><h3><span class="section-number">4.6.4.2. </span>第 2 步：对 SM 资源进行分区<a class="headerlink" href="green-contexts.html#step-2-partition-sm-resources" title="跳转到此标题">#</a></h3>
+<p>创建绿色上下文的第二步，是把可用的 <code class="docutils literal notranslate"><span class="pre">cudaDevResource</span></code> SM 资源静态拆分为一个或多个分区，并且可能留下一部分 SM 形成 <cite>remaining</cite> 分区。可以使用 <code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplitByCount()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplit()</span></code> API 完成这种分区。<code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplitByCount()</span></code> API 只能创建一个或多个 <em>同构</em> 分区，以及一个可选的 <em>remaining</em> 分区；而 <code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplit()</span></code> API 还可以创建 <em>异构</em> 分区，以及可选的 <em>remaining</em> 分区。后续小节会详细描述这两个 API 的功能。两者仅适用于 SM 类型设备资源。</p>
 <p><strong>cudaDevSmResourceSplitByCount API</strong></p>
 <p><code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplitByCount</span></code> 运行时 API 签名为：</p>
 <p><code class="docutils literal notranslate"><span class="pre">cudaError_t</span> <span class="pre">cudaDevSmResourceSplitByCount(cudaDevResource*</span> <span class="pre">result,</span> <span class="pre">unsigned</span> <span class="pre">int*</span> <span class="pre">nbGroups,</span> <span class="pre">const</span> <span class="pre">cudaDevResource*</span> <span class="pre">input,</span>
 <span class="pre">cudaDevResource*</span> <span class="pre">remaining,</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">useFlags,</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">minCount)</span></code></p>
-<p>As <a class="reference internal" href="green-contexts.html#resource-split-by-count"><span class="std std-numref">图43</span></a> 突出显示，用户请求拆分  <code class="docutils literal notranslate"><span class="pre">input</span></code> SM型设备资源分为 <code class="docutils literal notranslate"><span class="pre">*nbGroups</span></code> 同质群体 <code class="docutils literal notranslate"><span class="pre">minCount</span></code> 每个短信。
-然而，最终结果将包含一个可能更新的 <code class="docutils literal notranslate"><span class="pre">*nbGroups</span></code> 同质组的数量 <code class="docutils literal notranslate"><span class="pre">N</span></code> 每个短信。
-可能更新的 <code class="docutils literal notranslate"><span class="pre">*nbGroups</span></code> 将小于或等于最初请求的组号，而 <code class="docutils literal notranslate"><span class="pre">N</span></code> 将等于或大于 <code class="docutils literal notranslate"><span class="pre">minCount</span></code>。
-这些调整可能是由于某些特定于架构的粒度和对齐要求而发生的。</p>
+<p>如 <a class="reference internal" href="green-contexts.html#resource-split-by-count"><span class="std std-numref">图43</span></a> 所示，用户请求把 <code class="docutils literal notranslate"><span class="pre">input</span></code> SM 类型设备资源拆分为 <code class="docutils literal notranslate"><span class="pre">*nbGroups</span></code> 个同构组，每组至少包含 <code class="docutils literal notranslate"><span class="pre">minCount</span></code> 个 SM。不过，最终结果可能包含更新后的 <code class="docutils literal notranslate"><span class="pre">*nbGroups</span></code> 个同构组，每组有 <code class="docutils literal notranslate"><span class="pre">N</span></code> 个 SM。更新后的 <code class="docutils literal notranslate"><span class="pre">*nbGroups</span></code> 小于或等于最初请求的组数，而 <code class="docutils literal notranslate"><span class="pre">N</span></code> 等于或大于 <code class="docutils literal notranslate"><span class="pre">minCount</span></code>。这些调整可能由特定架构的粒度和对齐要求造成。</p>
 <figure class="align-default" id="resource-split-by-count">
-<a class="reference internal image-reference" href="../_images/green_contexts_resource_split_by_count.png"><img alt="使用 cudaDevSmResourceSplitByCount API 分割 SM 资源" src="../_images/green_contexts_resource_split_by_count.png" style="width: 659.34px; height: 281.82px;"/>
+<a class="reference internal image-reference" href="../_images/green_contexts_resource_split_by_count.png"><img alt="使用 cudaDevSmResourceSplitByCount API 拆分 SM 资源" src="../_images/green_contexts_resource_split_by_count.png" style="width: 659.34px; height: 281.82px;"/>
 </a>
 <figcaption>
-<p><span class="caption-number">图43 </span><span class="caption-text">使用 cudaDevSmResourceSplitByCount API 分割 SM 资源</span><a class="headerlink" href="green-contexts.html#resource-split-by-count" title="跳转到此标题">#</a></p>
+<p><span class="caption-number">图43 </span><span class="caption-text">使用 cudaDevSmResourceSplitByCount API 拆分 SM 资源</span><a class="headerlink" href="green-contexts.html#resource-split-by-count" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
-<p><a class="reference internal" href="../05-appendices/compute-capabilities.html#compute-capabilities-table-device-and-streaming-multiprocessor-sm-information-per-compute-capability"><span class="std std-numref">表30</span></a> 列出最小 SM 分区大小和 SM 共同调度
-对齐所有当前支持的计算功能，默认情况下 <code class="docutils literal notranslate"><span class="pre">useFlags=0</span></code> 案例。
-人们还可以通过以下方式检索这些值 <code class="docutils literal notranslate"><span class="pre">minSmPartitionSize</span></code> 或 <code class="docutils literal notranslate"><span class="pre">smCoscheduledAlignment</span></code> 的领域 <code class="docutils literal notranslate"><span class="pre">cudaDevSmResource</span></code>，如图所示 <a class="reference internal" href="green-contexts.html#green-contexts-creation-example-step1"><span class="std std-ref">第 1 步：获取可用 GPU 资源</span></a>。
-其中一些要求可以通过不同的方式降低 <code class="docutils literal notranslate"><span class="pre">useFlags</span></code> 值。 <a class="reference internal" href="green-contexts.html#split-functionality"><span class="std std-numref">表14</span></a> 提供了一些相关示例，突出显示
-请求内容与最终结果之间的差异以及解释。该表重点关注计算能力（CC 9.0），
-其中每个分区的 SM 最小数量为 8，并且 SM 计数必须是 8 的倍数，如果 <code class="docutils literal notranslate"><span class="pre">useFlags</span></code> 为零。</p>
+<p><a class="reference internal" href="../05-appendices/compute-capabilities.html#compute-capabilities-table-device-and-streaming-multiprocessor-sm-information-per-compute-capability"><span class="std std-numref">表30</span></a> 列出了当前支持的所有计算能力在默认 <code class="docutils literal notranslate"><span class="pre">useFlags=0</span></code> 情况下的最小 SM 分区大小和 SM 共同调度对齐。也可以通过 <code class="docutils literal notranslate"><span class="pre">cudaDevSmResource</span></code> 的 <code class="docutils literal notranslate"><span class="pre">minSmPartitionSize</span></code> 和 <code class="docutils literal notranslate"><span class="pre">smCoscheduledAlignment</span></code> 字段检索这些值，如 <a class="reference internal" href="green-contexts.html#green-contexts-creation-example-step1"><span class="std std-ref">第 1 步：获取可用 GPU 资源</span></a> 所示。某些要求可以通过不同的 <code class="docutils literal notranslate"><span class="pre">useFlags</span></code> 值降低。<a class="reference internal" href="green-contexts.html#split-functionality"><span class="std std-numref">表14</span></a> 给出了一些相关示例，展示请求值与最终结果之间的差异，并附带说明。该表聚焦计算能力（CC 9.0）；在此平台上，如果 <code class="docutils literal notranslate"><span class="pre">useFlags</span></code> 为零，每个分区的最小 SM 数量为 8，且 SM 数量必须是 8 的倍数。</p>
 <div class="pst-scrollable-table-container"><table class="table-compact table table-center" id="split-functionality">
-<caption><span class="caption-number">表14 </span><span class="caption-text">分割功能</span><a class="headerlink" href="green-contexts.html#split-functionality" title="跳转到此标题">#</a></caption>
+<caption><span class="caption-number">表14 </span><span class="caption-text">拆分功能</span><a class="headerlink" href="green-contexts.html#split-functionality" title="跳转到此标题">#</a></caption>
 <thead>
-<tr class="row-odd"><th class="head"><p>Requested</p></th>
+<tr class="row-odd"><th class="head"><p>请求值</p></th>
 <th class="head"></th>
 <th class="head"></th>
-<th class="head"><p>实际值（对于具有 132 个 SM 的 GH200）</p></th>
+<th class="head"><p>实际值（GH200，132 个 SM）</p></th>
 <th class="head"></th>
 <th class="head"></th>
 </tr>
 <tr class="row-even"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">*nbGroups</span></code></p></th>
 <th class="head"><p>minCount</p></th>
 <th class="head"><p>useFlags</p></th>
-<th class="head"><p><code class="docutils literal notranslate"><span class="pre">*nbGroups</span> <span class="pre">with</span> <span class="pre">N</span> <span class="pre">SMs</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">*nbGroups</span> <span class="pre">组，每组</span> <span class="pre">N</span> <span class="pre">个</span> <span class="pre">SM</span></code></p></th>
 <th class="head"><p>剩余 SM</p></th>
-<th class="head"><p>Reason</p></th>
+<th class="head"><p>原因</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-odd"><td><p>2</p></td>
 <td><p>72</p></td>
 <td><p>0</p></td>
-<td><p>1组72个SM</p></td>
+<td><p>1 组，每组 72 个 SM</p></td>
 <td><p>60</p></td>
 <td><p>不能超过 132 个 SM</p></td>
 </tr>
 <tr class="row-even"><td><p>6</p></td>
 <td><p>11</p></td>
 <td><p>0</p></td>
-<td><p>6组，每组16个SM</p></td>
+<td><p>6 组，每组 16 个 SM</p></td>
 <td><p>36</p></td>
-<td><p>8的倍数要求</p></td>
+<td><p>8 的倍数要求</p></td>
 </tr>
 <tr class="row-odd"><td><p>6</p></td>
 <td><p>11</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">CU_DEV_SM_RESOURCE_SPLIT_IGNORE_SM_COSCHEDULING</span></code></p></td>
-<td><p>6组，每组12个SM</p></td>
+<td><p>6 组，每组 12 个 SM</p></td>
 <td><p>60</p></td>
-<td><p>降低至 2 要求的倍数。</p></td>
+<td><p>要求降低为 2 的倍数。</p></td>
 </tr>
 <tr class="row-even"><td><p>2</p></td>
 <td><p>1</p></td>
 <td><p>0</p></td>
-<td><p>2组，每组8个SM</p></td>
+<td><p>2 组，每组 8 个 SM</p></td>
 <td><p>116</p></td>
-<td><p>分钟。 8 个 SM 要求</p></td>
+<td><p>最小 8 个 SM 要求</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>这是一个代码片段，请求将可用的 SM 资源拆分为 <cite>五组</cite>、<cite>8 个 SM</cite> each:</p>
+<p>下面的代码片段请求把可用 SM 资源拆分为 <cite>五组</cite>，每组 <cite>8 个 SM</cite>：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaDevResource</span><span class="w"> </span><span class="n">avail_resources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
-<span class="c1">// 已填充avail_resources的代码未显示</span>
+<span class="c1">// 已填充 avail_resources 的代码未显示</span>
 
 <span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">min_SM_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span>
 <span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">actual_split_groups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w"> </span><span class="c1">// 可能会更新</span>
@@ -640,7 +564,7 @@ GPU 工作随后在此类流上启动，例如通过以下方式启动的内核 
 <span class="w">                                         </span><span class="o">&amp;</span><span class="n">actual_split_groups</span><span class="p">,</span>
 <span class="w">                                         </span><span class="o">&amp;</span><span class="n">avail_resources</span><span class="p">,</span>
 <span class="w">                                         </span><span class="o">&amp;</span><span class="n">remaining_partition</span><span class="p">,</span>
-<span class="w">                                         </span><span class="mi">0</span><span class="w"> </span><span class="cm">/* 使用标志 */</span><span class="p">,</span>
+<span class="w">                                         </span><span class="mi">0</span><span class="w"> </span><span class="cm">/* useFlags */</span><span class="p">,</span>
 <span class="w">                                         </span><span class="n">min_SM_count</span><span class="p">));</span>
 
 <span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"Split "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">avail_resources</span><span class="p">.</span><span class="n">sm</span><span class="p">.</span><span class="n">smCount</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">" SMs into "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">actual_split_groups</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">" groups "</span><span class="w"> </span>\
@@ -650,51 +574,35 @@ GPU 工作随后在此类流上启动，例如通过以下方式启动的内核 
 </div>
 <p>请注意：</p>
 <ul class="simple">
-<li><p>一个可以使用 <code class="docutils literal notranslate"><span class="pre">result=nullptr</span></code> 查询将创建的组的数量</p></li>
-<li><p>可以设置 <code class="docutils literal notranslate"><span class="pre">remaining=nullptr</span></code>，如果不关心剩余分区的 SM</p></li>
-<li><p>the <cite>remaining</cite> （剩余）分区不具有与同质组相同的功能或性能保证 <cite>result</cite>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">useFlags</span></code> 在默认情况下预计为 0，但值 <code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplitIgnoreSmCoscheduling</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplitMaxPotentialClusterSize</span></code> 也支持</p></li>
-<li><p>任何由此产生的 <code class="docutils literal notranslate"><span class="pre">cudaDevResource</span></code> 如果不首先创建资源描述符和绿色上下文（即下面的步骤 3 和 4），则无法重新分区</p></li>
+<li><p>可以使用 <code class="docutils literal notranslate"><span class="pre">result=nullptr</span></code> 查询将创建的组数。</p></li>
+<li><p>如果不关心 <cite>remaining</cite> 分区中的 SM，可以设置 <code class="docutils literal notranslate"><span class="pre">remaining=nullptr</span></code>。</p></li>
+<li><p><cite>remaining</cite>（剩余）分区不具备 <cite>result</cite> 中同构组相同的功能或性能保证。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">useFlags</span></code> 默认应为 0，但也支持 <code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplitIgnoreSmCoscheduling</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplitMaxPotentialClusterSize</span></code>。</p></li>
+<li><p>任何生成的 <code class="docutils literal notranslate"><span class="pre">cudaDevResource</span></code> 都无法再次分区，除非先基于它创建资源描述符和绿色上下文（即下面的步骤 3 和步骤 4）。</p></li>
 </ul>
-<p>请参考 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__EXECUTION__CONTEXT.html#group__CUDART__EXECUTION__CONTEXT_1g10ef763a79ff53245bec99b96a7abb73">cudaDevSmResourceSplitByCount</a>  运行时 API 参考以获取更多详细信息。</p>
+<p>更多细节请参见 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__EXECUTION__CONTEXT.html#group__CUDART__EXECUTION__CONTEXT_1g10ef763a79ff53245bec99b96a7abb73">cudaDevSmResourceSplitByCount</a> 运行时 API 参考。</p>
 <p><strong>cudaDevSmResourceSplit API</strong></p>
-<p>如前所述，单个 <code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplitByCount</span></code> API调用只能创建同构分区，即具有相同数量SM的分区加上剩余的分区。
-这可能会限制异构工作负载，其中在不同绿色上下文上运行的工作具有不同的 SM 计数要求。
-要使用按计数拆分 API 实现异构分区，通常需要通过重复步骤 1-4（多次）来对现有资源进行重新分区。或者，在某些情况下，作为步骤 2 的一部分，可以创建同质分区，每个分区的 SM 计数等于所有异构分区的 GCD（最大公约数），然后作为步骤 3 的一部分将所需数量的它们合并在一起。
-不过，不建议使用最后一种方法，因为如果预先请求更大的大小，CUDA 驱动程序可能能够创建更好的分区。</p>
-<p><code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplit</span></code> API 旨在通过允许用户在单次调用中创建不重叠的异构分区来解决这些限制。
-的 <code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplit</span></code> 运行时 API 签名为：</p>
+<p>如前所述，单次 <code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplitByCount</span></code> API 调用只能创建同构分区，也就是 SM 数量相同的分区，以及剩余分区。对于异构工作负载，这可能有所限制，因为运行在不同绿色上下文上的工作可能需要不同数量的 SM。要使用按数量拆分 API 实现异构分区，通常需要通过重复步骤 1-4（可能多次）来重新分区已有资源。或者，在某些情况下，也可以在第 2 步中创建若干同构分区，每个分区的 SM 数量等于所有异构分区的最大公约数（GCD），然后在第 3 步中把所需数量的分区合并起来。不过，不建议使用最后这种方法，因为如果一开始就请求更大的大小，CUDA 驱动程序可能能够创建更好的分区。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplit</span></code> API 旨在解决这些限制，允许用户在一次调用中创建互不重叠的异构分区。<code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplit</span></code> 运行时 API 签名为：</p>
 <p><code class="docutils literal notranslate"><span class="pre">cudaError_t</span> <span class="pre">cudaDevSmResourceSplit(cudaDevResource*</span> <span class="pre">result,</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">nbGroups,</span> <span class="pre">const</span> <span class="pre">cudaDevResource*</span> <span class="pre">input,</span>
 <span class="pre">cudaDevResource*</span> <span class="pre">remainder,</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">flags,</span> <span class="pre">cudaDevSmResourceGroupParams*</span> <span class="pre">groupParams)</span></code></p>
-<p>该 API 将尝试对 <code class="docutils literal notranslate"><span class="pre">input</span></code> SM型资源成 <code class="docutils literal notranslate"><span class="pre">nbGroups</span></code> 放置在的有效设备资源（组） <code class="docutils literal notranslate"><span class="pre">result</span></code> 数组基于为每个指定的要求 <code class="docutils literal notranslate"><span class="pre">groupParams</span></code> 数组。还可以创建可选的剩余分区。
-成功分割后，如图 <a class="reference internal" href="green-contexts.html#resource-split"><span class="std std-numref">图44</span></a>, 中的每个资源 <code class="docutils literal notranslate"><span class="pre">result</span></code> 可以有不同数量的 SM，但 SM 不能为零。</p>
+<p>该 API 会尝试根据 <code class="docutils literal notranslate"><span class="pre">groupParams</span></code> 数组中为每个组指定的要求，把 <code class="docutils literal notranslate"><span class="pre">input</span></code> SM 类型资源划分为 <code class="docutils literal notranslate"><span class="pre">nbGroups</span></code> 个有效设备资源（组），并放入 <code class="docutils literal notranslate"><span class="pre">result</span></code> 数组。它也可以创建一个可选的剩余分区。成功拆分时，如 <a class="reference internal" href="green-contexts.html#resource-split"><span class="std std-numref">图44</span></a> 所示，<code class="docutils literal notranslate"><span class="pre">result</span></code> 中每个资源可以拥有不同数量的 SM，但绝不会是零个 SM。</p>
 <figure class="align-default" id="resource-split">
-<a class="reference internal image-reference" href="../_images/green_contexts_resource_split.png"><img alt="使用 cudaDevSmResourceSplit API 进行 SM 资源分割" src="../_images/green_contexts_resource_split.png" style="width: 650.76px; height: 279.18px;"/>
+<a class="reference internal image-reference" href="../_images/green_contexts_resource_split.png"><img alt="使用 cudaDevSmResourceSplit API 拆分 SM 资源" src="../_images/green_contexts_resource_split.png" style="width: 650.76px; height: 279.18px;"/>
 </a>
 <figcaption>
-<p><span class="caption-number">图44 </span><span class="caption-text">使用 cudaDevSmResourceSplit API 分割 SM 资源</span><a class="headerlink" href="green-contexts.html#resource-split" title="跳转到此标题">#</a></p>
+<p><span class="caption-number">图44 </span><span class="caption-text">使用 cudaDevSmResourceSplit API 拆分 SM 资源</span><a class="headerlink" href="green-contexts.html#resource-split" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
-<p>当请求异构分裂时，需要指定SM数量（<code class="docutils literal notranslate"><span class="pre">smCount</span></code> 相关领域 <code class="docutils literal notranslate"><span class="pre">groupParams</span></code> 条目）中的每个资源 <code class="docutils literal notranslate"><span class="pre">result</span></code>。此 SM 计数应始终是 2 的倍数。
-对于上图中的场景， <code class="docutils literal notranslate"><span class="pre">groupParams[0].smCount</span></code> 会是 <code class="docutils literal notranslate"><span class="pre">X</span></code>, <code class="docutils literal notranslate"><span class="pre">groupParams[1].smCount</span></code> <code class="docutils literal notranslate"><span class="pre">Y</span></code>等
-但是，如果应用程序使用，仅指定 SM 计数是不够的 <a class="reference internal" href="../01-introduction/programming-model.html#programming-model-thread-block-clusters"><span class="std std-ref">线程块簇</span></a>。
-由于集群的所有线程块都保证被共同调度，因此用户还需要指定给定资源组应支持的最大支持集群大小（如果有）。这可以通过 <code class="docutils literal notranslate"><span class="pre">coscheduledSmCount</span></code> 相关领域 <code class="docutils literal notranslate"><span class="pre">groupParams</span></code> 条目。
-对于计算能力为 10.0 及以上 (CC 10.0+) 的 GPU，集群还可以有一个首选维度，该维度是其默认集群维度的倍数。
-在受支持的系统上启动单个内核期间，尽可能使用较大的首选集群维度（如果有的话），并使用较小的默认集群维度
-否则。用户可以通过以下方式表达此首选簇维度提示 <code class="docutils literal notranslate"><span class="pre">preferredCoscheduledSmCount</span></code> 相关领域 <code class="docutils literal notranslate"><span class="pre">groupParams</span></code> 条目。
-最后，在某些情况下，用户可能希望放宽 SM 数量要求，并在给定组中引入更多可用的 SM；用户可以通过设置来表达此回填选项 <code class="docutils literal notranslate"><span class="pre">flags</span></code> 相关领域 <code class="docutils literal notranslate"><span class="pre">groupParams</span></code> 进入其非默认标志值。</p>
-<p>为了提供更大的灵活性， <code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplit</span></code> API还有一个 <strong>discovery</strong> 模式，当提前不知道一组或多组的准确 SM 计数时使用。
-例如，用户可能希望创建具有尽可能多的 SM 的设备资源，同时满足一些协同调度要求（例如，允许大小为 4 的集群）。
-要执行此发现模式，用户可以设置 <code class="docutils literal notranslate"><span class="pre">smCount</span></code> 相关领域 <code class="docutils literal notranslate"><span class="pre">groupParams</span></code> 条目（或条目）为零。
-成功后 <code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplit</span></code> 呼叫, 的 <code class="docutils literal notranslate"><span class="pre">smCount</span></code> 的领域 <code class="docutils literal notranslate"><span class="pre">groupParams</span></code> 将填充有效的非零值；我们将此称为 <strong>actual</strong> <code class="docutils literal notranslate"><span class="pre">smCount</span></code> 值。
-如果 <code class="docutils literal notranslate"><span class="pre">result</span></code> 不为空（因此这不是一次预演），那么相关组 <code class="docutils literal notranslate"><span class="pre">result</span></code> 也会有它的 <code class="docutils literal notranslate"><span class="pre">smCount</span></code> 设置为相同的值。
-订单 <code class="docutils literal notranslate"><span class="pre">nbGroups</span></code> <code class="docutils literal notranslate"><span class="pre">groupParams</span></code> 条目是指定的事项，因为它们是从左（索引 0）到右（索引 nbGroups-1）进行评估的。</p>
-<p><a class="reference internal" href="green-contexts.html#green-contexts-split-api-table"><span class="std std-numref">表15</span></a> 提供了支持论点的高级视图 <code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplit</span></code> API。</p>
+<p>请求异构拆分时，需要为 <code class="docutils literal notranslate"><span class="pre">result</span></code> 中的每个资源指定 SM 数量，也就是相关 <code class="docutils literal notranslate"><span class="pre">groupParams</span></code> 条目的 <code class="docutils literal notranslate"><span class="pre">smCount</span></code> 字段。该 SM 数量始终应为 2 的倍数。对于上图中的场景，<code class="docutils literal notranslate"><span class="pre">groupParams[0].smCount</span></code> 为 <code class="docutils literal notranslate"><span class="pre">X</span></code>，<code class="docutils literal notranslate"><span class="pre">groupParams[1].smCount</span></code> 为 <code class="docutils literal notranslate"><span class="pre">Y</span></code>，依此类推。</p>
+<p>不过，如果应用使用 <a class="reference internal" href="../01-introduction/programming-model.html#programming-model-thread-block-clusters"><span class="std std-ref">线程块集群</span></a>，仅指定 SM 数量还不够。由于一个集群中的所有线程块保证会共同调度，因此用户还需要指定给定资源组应支持的最大集群大小（如果有）。这可以通过相关 <code class="docutils literal notranslate"><span class="pre">groupParams</span></code> 条目的 <code class="docutils literal notranslate"><span class="pre">coscheduledSmCount</span></code> 字段指定。对于计算能力 10.0 及以上（CC 10.0+）的 GPU，集群还可以有一个首选维度，它是默认集群维度的倍数。在受支持系统上的单次内核启动期间，如果可能，会尽量使用这个较大的首选集群维度；否则使用较小的默认集群维度。用户可以通过相关 <code class="docutils literal notranslate"><span class="pre">groupParams</span></code> 条目的 <code class="docutils literal notranslate"><span class="pre">preferredCoscheduledSmCount</span></code> 字段表达这个首选集群维度提示。最后，在某些情况下，用户可能希望放宽 SM 数量要求，并把更多可用 SM 填入给定组；可以把相关 <code class="docutils literal notranslate"><span class="pre">groupParams</span></code> 条目的 <code class="docutils literal notranslate"><span class="pre">flags</span></code> 字段设置为非默认标志值来表达这种回填选项。</p>
+<p>为提供更大灵活性，<code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplit</span></code> API 还有 <strong>discovery</strong> 模式，用于事先不知道一个或多个组的准确 SM 数量时。例如，用户可能希望创建一个拥有尽可能多 SM、同时满足某些共同调度要求（如允许大小为 4 的集群）的设备资源。要使用 discovery 模式，可以把相关 <code class="docutils literal notranslate"><span class="pre">groupParams</span></code> 条目（或多个条目）的 <code class="docutils literal notranslate"><span class="pre">smCount</span></code> 字段设为 0。<code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplit</span></code> 调用成功后，<code class="docutils literal notranslate"><span class="pre">groupParams</span></code> 的 <code class="docutils literal notranslate"><span class="pre">smCount</span></code> 字段会填入有效的非零值；我们把它称为 <strong>actual</strong> <code class="docutils literal notranslate"><span class="pre">smCount</span></code> 值。如果 <code class="docutils literal notranslate"><span class="pre">result</span></code> 不为空（因此这不是 dry run），那么 <code class="docutils literal notranslate"><span class="pre">result</span></code> 中相关组的 <code class="docutils literal notranslate"><span class="pre">smCount</span></code> 也会设为同样的值。指定 <code class="docutils literal notranslate"><span class="pre">nbGroups</span></code> 个 <code class="docutils literal notranslate"><span class="pre">groupParams</span></code> 条目的顺序很重要，因为它们会从左到右（索引 0 到 nbGroups-1）依次评估。</p>
+<p><a class="reference internal" href="green-contexts.html#green-contexts-split-api-table"><span class="std std-numref">表15</span></a> 概览了 <code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplit</span></code> API 支持的参数。</p>
 <div class="pst-scrollable-table-container"><table class="small table table-center" id="green-contexts-split-api-table">
 <caption><span class="caption-number">表15 </span><span class="caption-text">cudaDevSmResourceSplit 拆分 API 概述</span><a class="headerlink" href="green-contexts.html#green-contexts-split-api-table" title="跳转到此标题">#</a></caption>
 <thead>
 <tr class="row-odd"><th class="head" colspan="5"></th>
-<th class="head" colspan="4"><p>组参数数组；显示条目 i 和 i [0, nbGroups)</p></th>
+<th class="head" colspan="4"><p>groupParams 数组；显示条目 i，其中 i ∈ [0, nbGroups)</p></th>
 </tr>
 <tr class="row-even"><th class="head"><p>result</p></th>
 <th class="head"><p>nbGroups</p></th>
@@ -708,66 +616,41 @@ GPU 工作随后在此类流上启动，例如通过以下方式启动的内核 
 </tr>
 </thead>
 <tbody>
-<tr class="row-odd"><td><p>空指针对于
-探索性的
-试运行；
-不为空
-否则 ptr</p></td>
-<td><p>数量
-的
-团体</p></td>
-<td><p>资源
-分裂
-进入
-nb组
-团体</p></td>
-<td><p>空指针如果
-你不
-想要一个
-余数
-组</p></td>
+<tr class="row-odd"><td><p>用于探索性 dry run 时为 nullptr；否则为非空指针</p></td>
+<td><p>组数量</p></td>
+<td><p>要拆分为 nbGroups 个组的资源</p></td>
+<td><p>如果不需要剩余组，则为 nullptr</p></td>
 <td><p>0</p></td>
-<td><p>0 为
-发现模式
-或
-其他有效
-sm计数</p></td>
-<td><p>0（默认）
-或有效
-协同调度SM
-计数</p></td>
-<td><p>0（默认）
-或有效的首选
-协调调度的 SM 计数（提示）</p></td>
-<td><p>0（默认）
-或
-cudaDevSmResourceGroupBackfill</p></td>
+<td><p>发现模式为 0；否则为有效 smCount</p></td>
+<td><p>0（默认）或有效的共同调度 SM 数量</p></td>
+<td><p>0（默认）或有效的首选共同调度 SM 数量（提示）</p></td>
+<td><p>0（默认）或 cudaDevSmResourceGroupBackfill</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <p>注意：</p>
 <ol class="arabic simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplit</span></code> API的返回值取决于 <code class="docutils literal notranslate"><span class="pre">result</span></code>:</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplit</span></code> API 的返回值取决于 <code class="docutils literal notranslate"><span class="pre">result</span></code>：</p></li>
 </ol>
 <blockquote>
 <div><ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">result</span> <span class="pre">!=</span> <span class="pre">nullptr</span></code>：API将返回 <code class="docutils literal notranslate"><span class="pre">cudaSuccess</span></code> 仅当拆分成功且 <code class="docutils literal notranslate"><span class="pre">nbGroups</span></code> valid <code class="docutils literal notranslate"><span class="pre">cudaDevResource</span></code> 创建了满足指定要求的组；否则，将返回错误。由于不同类型的错误可能会返回相同的错误代码（例如， <code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION</span></code>），建议使用 <code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code> 环境变量以在开发过程中获取更多信息错误描述。</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">result</span> <span class="pre">==</span> <span class="pre">nullptr</span></code>：API 可能会返回 <code class="docutils literal notranslate"><span class="pre">cudaSuccess</span></code> 即使由此产生的 <code class="docutils literal notranslate"><span class="pre">smCount</span></code> 组的 为零，这种情况会返回非 nullptr 的错误 <code class="docutils literal notranslate"><span class="pre">result</span></code>。将此模式视为您可以在探索支持的内容时使用的空运行测试，尤其是在 <cite>discovery</cite> mode.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">result</span> <span class="pre">!=</span> <span class="pre">nullptr</span></code>：只有拆分成功，并且创建了 <code class="docutils literal notranslate"><span class="pre">nbGroups</span></code> 个满足指定要求的有效 <code class="docutils literal notranslate"><span class="pre">cudaDevResource</span></code> 组时，API 才会返回 <code class="docutils literal notranslate"><span class="pre">cudaSuccess</span></code>；否则返回错误。由于不同类型的错误可能返回相同错误码（例如 <code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_INVALID_RESOURCE_CONFIGURATION</span></code>），建议在开发过程中使用 <code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code> 环境变量获取信息更充分的错误描述。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">result</span> <span class="pre">==</span> <span class="pre">nullptr</span></code>：即使某个组最终得到的 <code class="docutils literal notranslate"><span class="pre">smCount</span></code> 为零，API 也可能返回 <code class="docutils literal notranslate"><span class="pre">cudaSuccess</span></code>；同样的情况在非 nullptr 的 <code class="docutils literal notranslate"><span class="pre">result</span></code> 下会返回错误。可以把这种模式看作探索受支持配置时使用的 dry run 测试，尤其适合 <cite>discovery</cite> 模式。</p></li>
 </ul>
 </div></blockquote>
 <ol class="arabic simple" start="2">
-<li><p>成功调用 result != nullptr 时，结果 <code class="docutils literal notranslate"><span class="pre">result[i]</span></code> 带有 i 的设备资源 <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">nbGroups)</span></code> 将是类型 <code class="docutils literal notranslate"><span class="pre">cudaDevResourceTypeSm</span></code> 并有一个 <code class="docutils literal notranslate"><span class="pre">result[i].sm.smCount</span></code> 这将是用户指定的非零 <code class="docutils literal notranslate"><span class="pre">groupParams[i].smCount</span></code> 值或发现的值。在这两种情况下， <code class="docutils literal notranslate"><span class="pre">result[i].sm.smCount</span></code> 将满足以下所有约束：</p></li>
+<li><p>当 <code class="docutils literal notranslate"><span class="pre">result</span> <span class="pre">!=</span> <span class="pre">nullptr</span></code> 且调用成功时，对于 i ∈ <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">nbGroups)</span></code>，得到的 <code class="docutils literal notranslate"><span class="pre">result[i]</span></code> 设备资源将属于 <code class="docutils literal notranslate"><span class="pre">cudaDevResourceTypeSm</span></code> 类型，并带有一个 <code class="docutils literal notranslate"><span class="pre">result[i].sm.smCount</span></code>。该值要么是用户指定的非零 <code class="docutils literal notranslate"><span class="pre">groupParams[i].smCount</span></code>，要么是发现得到的值。两种情况下，<code class="docutils literal notranslate"><span class="pre">result[i].sm.smCount</span></code> 都会满足以下全部约束：</p></li>
 </ol>
 <blockquote>
 <div><ul class="simple">
-<li><p>成为一个 <code class="docutils literal notranslate"><span class="pre">multiple</span> <span class="pre">of</span> <span class="pre">2</span></code></p></li>
-<li><p>处于 <code class="docutils literal notranslate"><span class="pre">[2,</span> <span class="pre">input.sm.smCount]</span></code> 范围和</p></li>
+<li><p>是 <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">的倍数</span></code>；</p></li>
+<li><p>位于 <code class="docutils literal notranslate"><span class="pre">[2,</span> <span class="pre">input.sm.smCount]</span></code> 范围内；并且</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">(flags</span> <span class="pre">==</span> <span class="pre">0)</span> <span class="pre">?</span> <span class="pre">(multiple</span> <span class="pre">of</span> <span class="pre">actual</span> <span class="pre">group_params[i].coscheduledSmCount)</span> <span class="pre">:</span> <span class="pre">(&gt;=</span> <span class="pre">groups_params[i].coscheduledSmCount)</span></code></p></li>
 </ul>
 </div></blockquote>
 <ol class="arabic simple" start="3">
-<li><p>为任何一个指定零 <code class="docutils literal notranslate"><span class="pre">coscheduledSmCount</span></code> 或 <code class="docutils literal notranslate"><span class="pre">preferredCoscheduledSmCount</span></code> fields 指示应使用这些字段的默认值；这些可能因 GPU 而异。这些默认值都等于 <code class="docutils literal notranslate"><span class="pre">smCoscheduledAlignment</span></code> 通过以下方式检索的 SM 资源 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetDevResource</span></code> 给定设备的 API（而不是任何 SM 资源）。要查看这些默认值，可以在相关中检查它们的更新值 <code class="docutils literal notranslate"><span class="pre">groupParams</span></code> 成功后进入 <code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplit</span></code> 与他们通话最初设置为 0；见下文。</p></li>
+<li><p>把 <code class="docutils literal notranslate"><span class="pre">coscheduledSmCount</span></code> 或 <code class="docutils literal notranslate"><span class="pre">preferredCoscheduledSmCount</span></code> 字段指定为零，表示应使用这些字段的默认值；这些默认值可能因 GPU 而异。它们都等于通过 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetDevResource</span></code> API 为给定设备（而不是任意 SM 资源）检索到的 SM 资源的 <code class="docutils literal notranslate"><span class="pre">smCoscheduledAlignment</span></code>。要查看这些默认值，可以先把相关 <code class="docutils literal notranslate"><span class="pre">groupParams</span></code> 条目设为 0，然后在 <code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceSplit</span></code> 调用成功后检查其更新值；见下例。</p></li>
 </ol>
 <blockquote>
 <div><div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">gpu_device_index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
@@ -777,23 +660,20 @@ cudaDevSmResourceGroupBackfill</p></td>
 
 <span class="kt">int</span><span class="w"> </span><span class="n">default_split_flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="n">cudaDevSmResourceGroupParams</span><span class="w"> </span><span class="n">group_params_tmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{.</span><span class="n">smCount</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">coscheduledSmCount</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">preferredCoscheduledSmCount</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">};</span>
-<span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaDevSmResourceSplit</span><span class="p">(</span><span class="k">nullptr</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">initial_GPU_SM_resources</span><span class="p">,</span><span class="w"> </span><span class="k">nullptr</span><span class="w"> </span><span class="cm">/* 余数 */</span><span class="p">,</span><span class="w"> </span><span class="n">default_split_flags</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">group_params_tmp</span><span class="p">));</span>
+<span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaDevSmResourceSplit</span><span class="p">(</span><span class="k">nullptr</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">initial_GPU_SM_resources</span><span class="p">,</span><span class="w"> </span><span class="k">nullptr</span><span class="w"> </span><span class="cm">/* remainder */</span><span class="p">,</span><span class="w"> </span><span class="n">default_split_flags</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">group_params_tmp</span><span class="p">));</span>
 <span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"coscheduledSmcount default value: "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">group_params</span><span class="p">.</span><span class="n">coscheduledSmCount</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
 <span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"preferredCoscheduledSmcount default value: "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">group_params</span><span class="p">.</span><span class="n">preferredCoscheduledSmCount</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
 </pre></div>
 </div>
 </div></blockquote>
 <ol class="arabic simple" start="4">
-<li><p>剩余组（如果存在）对其 SM 数量或协同调度要求没有任何限制。这将由用户来探索。</p></li>
+<li><p>剩余组（如果存在）不会对其 SM 数量或共同调度要求作任何限制。具体可支持什么，需要由用户自行探索。</p></li>
 </ol>
-<p>在提供各种更详细的信息之前 <code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceGroupParams</span></code> 领域， <a class="reference internal" href="green-contexts.html#green-contexts-split-api-use-cases-examples"><span class="std std-numref">表16</span></a> 显示了对于某些示例用例来说这些值可能是什么。
-假设一个 <code class="docutils literal notranslate"><span class="pre">initial_GPU_SM_resources</span></code> 如前面的代码片段所示，设备资源已被填充，并且是将要拆分的资源。
-表中的每一行都有相同的起点。
-为简单起见，该表仅显示 <code class="docutils literal notranslate"><span class="pre">nbGroups</span></code> 值和 <code class="docutils literal notranslate"><span class="pre">groupParams</span></code> 每个用例的字段可以在如下代码片段中使用。</p>
+<p>在进一步说明 <code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceGroupParams</span></code> 的各个字段之前，<a class="reference internal" href="green-contexts.html#green-contexts-split-api-use-cases-examples"><span class="std std-numref">表16</span></a> 展示了若干示例用例中这些值可能如何设置。假设已按前面的代码片段填充了一个 <code class="docutils literal notranslate"><span class="pre">initial_GPU_SM_resources</span></code> 设备资源，并且该资源就是将要拆分的资源。表中每一行都从同一个起点开始。为简单起见，该表只列出每个用例可在下面代码片段中使用的 <code class="docutils literal notranslate"><span class="pre">nbGroups</span></code> 值和 <code class="docutils literal notranslate"><span class="pre">groupParams</span></code> 字段。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">nbGroups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="c1">// 根据需要更新</span>
 <span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">default_split_flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="n">cudaDevResource</span><span class="w"> </span><span class="n">remainder</span><span class="w"> </span><span class="p">{};</span><span class="w"> </span><span class="c1">// 根据需要更新</span>
-<span class="n">cudaDevResource</span><span class="w"> </span><span class="n">result_use_case</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{{},</span><span class="w"> </span><span class="p">{}};</span><span class="w"> </span><span class="c1">// 根据计划的小组数量进行更新。如果您还计划使用工作队列资源，请增加大小</span>
+<span class="n">cudaDevResource</span><span class="w"> </span><span class="n">result_use_case</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{{},</span><span class="w"> </span><span class="p">{}};</span><span class="w"> </span><span class="c1">// 根据计划的组数更新。如果还计划使用工作队列资源，请增大数组</span>
 <span class="n">cudaDevSmResourceGroupParams</span><span class="w"> </span><span class="n">group_params_use_case</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{{.</span><span class="n">smCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">X</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">coscheduledSmCount</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">preferredCoscheduledSmCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">},</span>
 <span class="w">                                                         </span><span class="p">{.</span><span class="n">smCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Y</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">coscheduledSmCount</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">preferredCoscheduledSmCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">}}</span>
 <span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaDevSmResourceSplit</span><span class="p">(</span><span class="o">&amp;</span><span class="n">result_use_case</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">nbGroups</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">initial_GPU_SM_resources</span><span class="p">,</span><span class="w"> </span><span class="n">remainder</span><span class="p">,</span><span class="w"> </span><span class="n">default_split_flags</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">group_params_use_case</span><span class="p">[</span><span class="mi">0</span><span class="p">]));</span>
@@ -806,11 +686,11 @@ cudaDevSmResourceGroupBackfill</p></td>
 <th class="head"></th>
 <th class="head"></th>
 <th class="head"></th>
-<th class="head" colspan="4"><p>groupParams[i] 字段（i 按升序显示；请参阅最后一列）</p></th>
+<th class="head" colspan="4"><p>groupParams[i] 字段（i 按升序显示；参见最后一列）</p></th>
 <th class="head"><p>i</p></th>
 </tr>
 <tr class="row-even"><th class="head"><p>#</p></th>
-<th class="head"><p>目标/用例</p></th>
+<th class="head"><p>目标 / 用例</p></th>
 <th class="head"><p>nbGroups</p></th>
 <th class="head"><p>remainder</p></th>
 <th class="head"><p>smCount</p></th>
@@ -822,9 +702,7 @@ cudaDevSmResourceGroupBackfill</p></td>
 </thead>
 <tbody>
 <tr class="row-odd"><td><p>1</p></td>
-<td><p>具有 16 个 SM 的资源。不关心
-对于剩余的 SM。可以使用
-集群。</p></td>
+<td><p>一个包含 16 个 SM 的资源。不关心剩余 SM。可以使用集群。</p></td>
 <td><p>1</p></td>
 <td><p>nullptr</p></td>
 <td><p>16</p></td>
@@ -836,17 +714,12 @@ cudaDevSmResourceGroupBackfill</p></td>
 <tr class="row-even"><td colspan="9"></td>
 </tr>
 <tr class="row-odd"><td><p>2a</p></td>
-<td rowspan="5"><p>一项资源包含 16 个 SM 和 1 个
-与其他一切。不会使用
-集群。</p>
-<p>（注：显示两个选项：
-在选项（2a）中，第二个资源是
-其余的；在选项(2b)中，
-它是 result_use_case[1]。）</p>
+<td rowspan="5"><p>一个资源包含 16 个 SM，另一个包含其余所有 SM。不使用集群。</p>
+<p>（注：这里展示两个选项：在选项 2a 中，第二个资源是 remainder；在选项 2b 中，它是 result_use_case[1]。）</p>
 </td>
 <td><p>1
 (2a)</p></td>
-<td><p>不为空指针</p></td>
+<td><p>非 nullptr</p></td>
 <td><p>16</p></td>
 <td><p>2</p></td>
 <td><p>2</p></td>
@@ -877,9 +750,7 @@ cudaDevSmResourceGroupBackfill</p></td>
 <tr class="row-even"><td colspan="9"></td>
 </tr>
 <tr class="row-odd"><td rowspan="3"><p>3</p></td>
-<td rowspan="3"><p>具有 28 和 32 个 SM 的两种资源
-分别。将使用集群
-尺寸为 4。</p></td>
+<td rowspan="3"><p>两个资源，分别包含 28 个和 32 个 SM。将使用大小为 4 的集群。</p></td>
 <td rowspan="3"><p>2</p></td>
 <td rowspan="3"><p>nullptr</p></td>
 <td><p>28</p></td>
@@ -899,11 +770,9 @@ cudaDevSmResourceGroupBackfill</p></td>
 <tr class="row-even"><td colspan="9"></td>
 </tr>
 <tr class="row-odd"><td><p>4</p></td>
-<td><p>一项资源包含尽可能多的 SM
-可能，可以运行集群
-大小为 8，余数为 1。</p></td>
+<td><p>一个资源包含尽可能多的 SM，能够运行大小为 8 的集群；另有一个 remainder。</p></td>
 <td><p>1</p></td>
-<td><p>不为空指针</p></td>
+<td><p>非 nullptr</p></td>
 <td><p>0</p></td>
 <td><p>8</p></td>
 <td><p>8</p></td>
@@ -913,13 +782,8 @@ cudaDevSmResourceGroupBackfill</p></td>
 <tr class="row-even"><td colspan="9"></td>
 </tr>
 <tr class="row-odd"><td rowspan="3"><p>5</p></td>
-<td rowspan="3"><p>一项资源包含尽可能多的 SM
-可能，可以运行集群
-尺寸为 4，其中一个带有 8 个 SM。</p>
-<p>（注意：顺序很重要！更改
-groupParams 中条目的顺序
-阵列可能意味着没有剩余短信
-对于8-SM组）</p>
+<td rowspan="3"><p>一个资源包含尽可能多的 SM，能够运行大小为 4 的集群；另一个资源包含 8 个 SM。</p>
+<p>（注意：顺序很重要！更改 groupParams 数组中条目的顺序，可能导致没有剩余 SM 可用于 8-SM 组。）</p>
 </td>
 <td rowspan="3"><p>2</p></td>
 <td rowspan="3"><p>nullptr</p></td>
@@ -940,52 +804,51 @@ groupParams 中条目的顺序
 </tbody>
 </table>
 </div>
-<p><strong>有关各种 cudaDevSmResourceGroupParams 结构字段的详细信息</strong></p>
+<p><strong>各种 cudaDevSmResourceGroupParams 结构字段的详细信息</strong></p>
 <p><code class="docutils literal notranslate"><span class="pre">smCount</span></code>:</p>
 <ul class="simple">
 <li><p>控制结果中相应组的 SM 数量。</p></li>
-<li><p><strong>Values</strong>：0（发现模式）或有效的非零值（非发现模式）</p>
+<li><p><strong>取值</strong>：0（discovery 模式）或有效的非零值（非 discovery 模式）</p>
 <ul>
-<li><p>有效非零 <code class="docutils literal notranslate"><span class="pre">smCount</span></code> 价值要求： <code class="docutils literal notranslate"><span class="pre">(multiple</span> <span class="pre">of</span> <span class="pre">2)</span> <span class="pre">and</span> <span class="pre">in</span> <span class="pre">[2,</span> <span class="pre">input-&gt;sm.smCount]</span> <span class="pre">and</span> <span class="pre">((flags</span> <span class="pre">==</span> <span class="pre">0)</span> <span class="pre">?</span> <span class="pre">multiple</span> <span class="pre">of</span> <span class="pre">actual</span> <span class="pre">coscheduledSmCount</span> <span class="pre">:</span> <span class="pre">greater</span> <span class="pre">than</span> <span class="pre">or</span> <span class="pre">equal</span> <span class="pre">to</span> <span class="pre">coscheduledSmCount)</span></code></p></li>
+<li><p>有效非零 <code class="docutils literal notranslate"><span class="pre">smCount</span></code> 值要求：<code class="docutils literal notranslate"><span class="pre">(multiple</span> <span class="pre">of</span> <span class="pre">2)</span> <span class="pre">and</span> <span class="pre">in</span> <span class="pre">[2,</span> <span class="pre">input-&gt;sm.smCount]</span> <span class="pre">and</span> <span class="pre">((flags</span> <span class="pre">==</span> <span class="pre">0)</span> <span class="pre">?</span> <span class="pre">multiple</span> <span class="pre">of</span> <span class="pre">actual</span> <span class="pre">coscheduledSmCount</span> <span class="pre">:</span> <span class="pre">greater</span> <span class="pre">than</span> <span class="pre">or</span> <span class="pre">equal</span> <span class="pre">to</span> <span class="pre">coscheduledSmCount)</span></code></p></li>
 </ul>
 </li>
-<li><p><strong>使用案例</strong>：使用发现模式探索当 SM 数量未知/固定时可能发生的情况；使用非发现模式请求特定数量的SM。</p></li>
-<li><p>注意：在发现模式下，实际 SM 计数在成功使用非 nullptr 结果进行 split 调用后，将满足有效的非零值要求</p></li>
+<li><p><strong>用例</strong>：当 SM 数量未知或未固定时，使用 discovery 模式探索可能结果；当需要特定 SM 数量时，使用非 discovery 模式发出请求。</p></li>
+<li><p>注意：在 discovery 模式下，使用非 nullptr 的 <code class="docutils literal notranslate"><span class="pre">result</span></code> 成功调用 split 后，实际 SM 数量将满足有效非零值要求。</p></li>
 </ul>
 <p><code class="docutils literal notranslate"><span class="pre">coscheduledSmCount</span></code>:</p>
 <ul class="simple">
-<li><p>控制分组在一起（“共同调度”）的 SM 数量，以支持在计算能力 9.0+ 上启动不同的集群。因此，它会影响生成的组中 SM 的数量以及它们可以支持的集群大小。</p></li>
-<li><p><strong>Values</strong>：0（当前架构的默认值）或有效的非零值</p>
+<li><p>控制为了支持在计算能力 9.0+ 上启动不同集群而被分在一起（“共同调度”）的 SM 数量。因此，它会影响结果组中的 SM 数量，以及这些组可支持的集群大小。</p></li>
+<li><p><strong>取值</strong>：0（当前架构的默认值）或有效的非零值</p>
 <ul>
-<li><p>有效的非零值要求： <code class="docutils literal notranslate"><span class="pre">(multiple</span> <span class="pre">of</span> <span class="pre">2)</span></code> 达到最大限制</p></li>
+<li><p>有效非零值要求：<code class="docutils literal notranslate"><span class="pre">(multiple</span> <span class="pre">of</span> <span class="pre">2)</span></code>，并且不超过最大限制</p></li>
 </ul>
 </li>
-<li><p><strong>使用案例</strong>：对集群使用默认值或手动选择的值，请记住最大值。给定架构上的可移植集群大小。如果您的代码不使用集群，则可以使用支持的最小值 2 或默认值。</p></li>
-<li><p>注：当使用默认值时，以实际情况为准 <code class="docutils literal notranslate"><span class="pre">coscheduledSmCount</span></code>成功拆分调用后，也将满足有效的非零值要求。如果 flags 不为零，则生成的 smCount 将 &gt;= coscheduledSmCount。将 coscheduledSmCount 视为向有效结果组提供一些有保证的底层“结构”（即，在最坏的情况下，该组可以运行至少一个 coscheduledSmCount 大小的集群）。此类结构担保不适用于其余组；在那里，用户可以探索可以启动的集群大小。</p></li>
+<li><p><strong>用例</strong>：如果使用集群，可以采用默认值，也可以手动选择一个值，同时记住给定架构上的最大可移植集群大小。如果代码不使用集群，可以使用支持的最小值 2 或默认值。</p></li>
+<li><p>注意：使用默认值时，成功拆分调用后的实际 <code class="docutils literal notranslate"><span class="pre">coscheduledSmCount</span></code> 也会满足有效非零值要求。如果 <code class="docutils literal notranslate"><span class="pre">flags</span></code> 不为零，则生成的 <code class="docutils literal notranslate"><span class="pre">smCount</span></code> 将大于或等于 <code class="docutils literal notranslate"><span class="pre">coscheduledSmCount</span></code>。可以把 <code class="docutils literal notranslate"><span class="pre">coscheduledSmCount</span></code> 看作给有效结果组提供某种有保证的底层“结构”：在最坏情况下，该组至少可以运行一个大小为 <code class="docutils literal notranslate"><span class="pre">coscheduledSmCount</span></code> 的集群。这样的结构保证不适用于剩余组；对于剩余组，用户需要自行探索可以启动的集群大小。</p></li>
 </ul>
 <p><code class="docutils literal notranslate"><span class="pre">preferredCoscheduledSmCount</span></code>:</p>
 <ul class="simple">
-<li><p>提示驱动程序尝试合并实际的组 <code class="docutils literal notranslate"><span class="pre">coscheduledSmCount</span></code> SM 分成更大的组 <code class="docutils literal notranslate"><span class="pre">preferredCoscheduledSmCount</span></code> 如果可能的话。这样做可以允许代码利用具有计算能力 (CC) 10.0 及以上的设备上可用的首选集群维度功能。参见 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/unioncudaLaunchAttributeValue.html#unioncudaLaunchAttributeValue_1bf53f6cb9ba3e18833d99c51a2568df5">cudaLaunchAttributeValue::preferredClusterDim</a>.</p></li>
-<li><p><strong>Values</strong>：0（当前架构的默认值）或有效的非零值</p>
+<li><p>提示驱动程序在可能时，尝试把实际的 <code class="docutils literal notranslate"><span class="pre">coscheduledSmCount</span></code> 个 SM 组合成更大的 <code class="docutils literal notranslate"><span class="pre">preferredCoscheduledSmCount</span></code> 组。这样可以让代码利用计算能力（CC）10.0 及以上设备提供的首选集群维度功能。参见 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/unioncudaLaunchAttributeValue.html#unioncudaLaunchAttributeValue_1bf53f6cb9ba3e18833d99c51a2568df5">cudaLaunchAttributeValue::preferredClusterDim</a>。</p></li>
+<li><p><strong>取值</strong>：0（当前架构的默认值）或有效的非零值</p>
 <ul>
-<li><p>有效的非零值要求： <code class="docutils literal notranslate"><span class="pre">(multiple</span> <span class="pre">of</span> <span class="pre">actual</span> <span class="pre">coscheduledSmCount)</span></code></p></li>
+<li><p>有效非零值要求：<code class="docutils literal notranslate"><span class="pre">(multiple</span> <span class="pre">of</span> <span class="pre">actual</span> <span class="pre">coscheduledSmCount)</span></code></p></li>
 </ul>
 </li>
-<li><p><strong>使用案例</strong>：如果您使用首选集群并且位于计算能力 10.0 (Blackwell) 或更高版本的设备上，请使用手动选择的大于 2 的值。如果您不使用集群，请选择与以下相同的值 <code class="docutils literal notranslate"><span class="pre">coscheduledSmCount</span></code>：选择支持的最小值 2 或两者都使用 0</p></li>
-<li><p>注：当使用默认值时，以实际情况为准 <code class="docutils literal notranslate"><span class="pre">preferredCoscheduledSmCount</span></code>成功拆分调用后，也将满足有效的非零值要求。</p></li>
+<li><p><strong>用例</strong>：如果使用首选集群，并且运行在计算能力 10.0（Blackwell）或更高版本的设备上，可以手动选择一个大于 2 的值。如果不使用集群，请选择与 <code class="docutils literal notranslate"><span class="pre">coscheduledSmCount</span></code> 相同的值：选择支持的最小值 2，或者两个字段都使用 0。</p></li>
+<li><p>注意：使用默认值时，成功拆分调用后的实际 <code class="docutils literal notranslate"><span class="pre">preferredCoscheduledSmCount</span></code> 也会满足有效非零值要求。</p></li>
 </ul>
 <p><code class="docutils literal notranslate"><span class="pre">flags</span></code>:</p>
 <ul class="simple">
-<li><p>控制组的最终 SM 计数是否是实际协同调度的 SM 计数的倍数（默认），或者 SM 是否可以回填到该组中（回填）。在回填情况下，得到的 SM 计数（<code class="docutils literal notranslate"><span class="pre">result[i].sm.smCount</span></code>）将大于或等于指定的 <code class="docutils literal notranslate"><span class="pre">groupParams[i].smCount</span></code>.</p></li>
-<li><p><strong>Values</strong>：0（默认）或 <code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceGroupBackfill</span></code></p></li>
-<li><p><strong>使用案例</strong>：使用零（默认），因此生成的组具有支持 coScheduledSmCount 大小的多个集群的保证灵活性。如果您希望在组中获得尽可能多的 SM，并且其中一些 SM（回填的 SM）不提供任何协同调度保证，请使用回填选项。</p></li>
-<li><p>注意：使用 backfill 标志创建的组仍然可以支持集群（例如，保证支持至少一个 coscheduledSmCount 大小）。</p></li>
+<li><p>控制组的最终 SM 数量是实际共同调度 SM 数量的倍数（默认），还是允许把额外 SM 回填到该组中（backfill）。在 backfill 情况下，得到的 SM 数量（<code class="docutils literal notranslate"><span class="pre">result[i].sm.smCount</span></code>）将大于或等于指定的 <code class="docutils literal notranslate"><span class="pre">groupParams[i].smCount</span></code>。</p></li>
+<li><p><strong>取值</strong>：0（默认）或 <code class="docutils literal notranslate"><span class="pre">cudaDevSmResourceGroupBackfill</span></code></p></li>
+<li><p><strong>用例</strong>：使用 0（默认）时，生成的组会保证具备支持多个 <code class="docutils literal notranslate"><span class="pre">coScheduledSmCount</span></code> 大小集群的灵活性。如果希望一个组获得尽可能多的 SM，并且接受其中部分 SM（回填的 SM）不提供任何共同调度保证，可以使用 backfill 选项。</p></li>
+<li><p>注意：使用 backfill 标志创建的组仍然可以支持集群，例如保证至少支持一个 <code class="docutils literal notranslate"><span class="pre">coscheduledSmCount</span></code> 大小的集群。</p></li>
 </ul>
 </section>
 <section id="step-2-continued-add-workqueue-resources">
-<h3><span class="section-number">4.6.4.3. </span>步骤 2（续）：添加工作队列资源<a class="headerlink" href="green-contexts.html#step-2-continued-add-workqueue-resources" title="跳转到此标题">#</a></h3>
-<p>如果您还想指定工作队列资源，则需要显式完成。
-以下示例演示如何为特定设备创建具有平衡共享范围和并发限制为 4 的工作队列配置资源。</p>
+<h3><span class="section-number">4.6.4.3. </span>第 2 步（续）：添加工作队列资源<a class="headerlink" href="green-contexts.html#step-2-continued-add-workqueue-resources" title="跳转到此标题">#</a></h3>
+<p>如果还想指定工作队列资源，需要显式完成。下面的示例展示如何为特定设备创建工作队列配置资源，并设置平衡共享范围以及并发限制 4。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaDevResource</span><span class="w"> </span><span class="n">split_result</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{{},</span><span class="w"> </span><span class="p">{}};</span>
 <span class="c1">// 未显示填充 split_result[0] 的代码；使用 nbGroups=1 的拆分 API</span>
 
@@ -996,76 +859,57 @@ groupParams 中条目的顺序
 <span class="n">split_result</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">wqConfig</span><span class="p">.</span><span class="n">wqConcurrencyLimit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>四个工作队列并发限制向驱动程序提示用户期望最多四个并发流排序工作负载。
-如果可能的话，驱动程序将尝试尊重此提示来分配工作队列。</p>
+<p>工作队列并发限制为 4，会向驱动程序提示用户预期最多有四个并发的流有序工作负载。如果可能，驱动程序会在分配工作队列时尝试遵循这一提示。</p>
 </section>
 <section id="step-3-create-a-resource-descriptor">
 <span id="green-contexts-creation-example-step3"></span><h3><span class="section-number">4.6.4.4. </span>第 3 步：创建资源描述符<a class="headerlink" href="green-contexts.html#step-3-create-a-resource-descriptor" title="跳转到此标题">#</a></h3>
-<p>资源分割后，下一步是使用以下内容生成资源描述符： <code class="docutils literal notranslate"><span class="pre">cudaDevResourceGenerateDesc</span></code> 应用程序编程接口，
-预期可用于绿色上下文的所有资源。</p>
+<p>资源拆分完成后，下一步是使用 <code class="docutils literal notranslate"><span class="pre">cudaDevResourceGenerateDesc</span></code> API，为预计可供绿色上下文使用的所有资源生成资源描述符。</p>
 <p>相关的 CUDA 运行时 API 函数签名为：</p>
 <p><code class="docutils literal notranslate"><span class="pre">cudaError_t</span> <span class="pre">cudaDevResourceGenerateDesc(cudaDevResourceDesc_t</span> <span class="pre">*phDesc,</span> <span class="pre">cudaDevResource</span> <span class="pre">*resources,</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">nbResources)</span></code></p>
-<p>可以组合多个 <code class="docutils literal notranslate"><span class="pre">cudaDevResource</span></code> 资源。例如，下面的代码片段展示了如何生成封装三组资源的资源描述符。
-您只需要确保这些资源都在连续分配 <code class="docutils literal notranslate"><span class="pre">resources</span></code> array.</p>
+<p>可以组合多个 <code class="docutils literal notranslate"><span class="pre">cudaDevResource</span></code> 资源。例如，下面的代码片段展示如何生成一个封装三组资源的资源描述符。只需要确保这些资源在 <code class="docutils literal notranslate"><span class="pre">resources</span></code> 数组中连续分配。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaDevResource</span><span class="w"> </span><span class="n">actual_split_result</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
-<span class="c1">// 未显示填充actual_split_result的代码</span>
+<span class="c1">// 未显示填充 actual_split_result 的代码</span>
 
-<span class="c1">// 生成资源描述。封装3个资源：actual_split_result[2]到[4]</span>
+<span class="c1">// 生成资源描述符，封装 3 个资源：actual_split_result[2] 到 [4]</span>
 <span class="n">cudaDevResourceDesc_t</span><span class="w"> </span><span class="n">resource_desc</span><span class="p">;</span>
 <span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaDevResourceGenerateDesc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">resource_desc</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">actual_split_result</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="mi">3</span><span class="p">));</span>
 </pre></div>
 </div>
 <p>还支持组合不同类型的资源。例如，可以生成具有 SM 和工作队列资源的描述符。</p>
-<p>对于一个 <code class="docutils literal notranslate"><span class="pre">cudaDevResourceGenerateDesc</span></code> 调用成功：</p>
+<p>要让 <code class="docutils literal notranslate"><span class="pre">cudaDevResourceGenerateDesc</span></code> 调用成功：</p>
 <ul class="simple">
-<li><p>All <code class="docutils literal notranslate"><span class="pre">nbResources</span></code> 资源应该属于同一个GPU设备。</p></li>
-<li><p>如果组合多个 SM 类型资源，则它们应由同一个拆分 API 调用生成，并具有相同的属性 <code class="docutils literal notranslate"><span class="pre">coscheduledSmCount</span></code> 值（如果不是余数的一部分）</p></li>
+<li><p>所有 <code class="docutils literal notranslate"><span class="pre">nbResources</span></code> 个资源都应属于同一个 GPU 设备。</p></li>
+<li><p>如果组合多个 SM 类型资源，则它们应由同一次拆分 API 调用生成，并具有相同的 <code class="docutils literal notranslate"><span class="pre">coscheduledSmCount</span></code> 值（如果它们不是 remainder 的一部分）。</p></li>
 <li><p>只能存在单个工作队列配置或工作队列类型资源。</p></li>
 </ul>
 </section>
 <section id="step-4-create-a-green-context">
-<span id="green-contexts-creation-example-step4"></span><h3><span class="section-number">4.6.4.5. </span>第四步：创造绿色上下文<a class="headerlink" href="green-contexts.html#step-4-create-a-green-context" title="跳转到此标题">#</a></h3>
-<p>最后一步是使用资源描述符创建绿色上下文 <code class="docutils literal notranslate"><span class="pre">cudaGreenCtxCreate</span></code> API。
-该绿色上下文只能访问其创建期间指定的资源描述符中封装的资源（例如，SM、工作队列）。
-这些资源将在此步骤中配置。</p>
+<span id="green-contexts-creation-example-step4"></span><h3><span class="section-number">4.6.4.5. </span>第 4 步：创建绿色上下文<a class="headerlink" href="green-contexts.html#step-4-create-a-green-context" title="跳转到此标题">#</a></h3>
+<p>最后一步是使用 <code class="docutils literal notranslate"><span class="pre">cudaGreenCtxCreate</span></code> API，从资源描述符创建绿色上下文。该绿色上下文只能访问创建期间指定的资源描述符中封装的资源（例如 SM、工作队列）。这些资源将在此步骤中完成预置。</p>
 <p>相关的 CUDA 运行时 API 函数签名为：</p>
 <p><code class="docutils literal notranslate"><span class="pre">cudaError_t</span> <span class="pre">cudaGreenCtxCreate(cudaExecutionContext_t</span> <span class="pre">*phCtx,</span> <span class="pre">cudaDevResourceDesc_t</span> <span class="pre">desc,</span> <span class="pre">int</span> <span class="pre">device,</span> <span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">flags)</span></code></p>
-<p><code class="docutils literal notranslate"><span class="pre">flags</span></code> 参数应设置为 0。
-还建议在创建绿色上下文之前显式初始化设备的主上下文
-通过任一 <code class="docutils literal notranslate"><span class="pre">cudaInitDevice</span></code> API 或 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice</span></code> API，它还将主上下文设置为调用线程的当前上下文。
-这样做可以确保在绿色上下文创建期间不会产生额外的主上下文初始化开销。</p>
-<p>请参阅下面的代码片段。</p>
+<p><code class="docutils literal notranslate"><span class="pre">flags</span></code> 参数应设置为 0。还建议在创建绿色上下文之前，通过 <code class="docutils literal notranslate"><span class="pre">cudaInitDevice</span></code> API 或 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice</span></code> API 显式初始化设备的主上下文；其中 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice</span></code> 还会把主上下文设为调用线程的当前上下文。这样可以确保创建绿色上下文时不会产生额外的主上下文初始化开销。</p>
+<p>请参见下面的代码片段。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">current_device</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="c1">// 假设单 GPU</span>
 <span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaSetDevice</span><span class="p">(</span><span class="n">current_device</span><span class="p">));</span><span class="w"> </span><span class="c1">// 或者 cudaInitDevice</span>
 
 <span class="n">cudaDevResourceDesc_t</span><span class="w"> </span><span class="n">resource_desc</span><span class="w"> </span><span class="p">{};</span>
-<span class="c1">// 生成resource_desc的代码未显示</span>
+<span class="c1">// 未显示生成 resource_desc 的代码</span>
 
-<span class="c1">// 使用 current_device ID 在 GPU 上创建 green_ctx，并可以访问 resource_desc 中的资源</span>
+<span class="c1">// 在 ID 为 current_device 的 GPU 上创建 green_ctx，并允许其访问 resource_desc 中的资源</span>
 <span class="n">cudaExecutionContext_t</span><span class="w"> </span><span class="n">green_ctx</span><span class="w"> </span><span class="p">{};</span>
 <span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaGreenCtxCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">green_ctx</span><span class="p">,</span><span class="w"> </span><span class="n">resource_desc</span><span class="p">,</span><span class="w"> </span><span class="n">current_device</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">));</span>
 </pre></div>
 </div>
-<p>成功创建绿色上下文后，用户可以通过调用来验证其资源 <code class="docutils literal notranslate"><span class="pre">cudaExecutionCtxGetDevResource</span></code> 在那
-每种资源类型的执行上下文。</p>
-<p><strong>创造多重绿色上下文</strong></p>
-<p>一个应用程序可以有多个绿色上下文，在这种情况下，应重复上述某些步骤。
-对于大多数用例，这些绿色上下文将各自具有一组单独的、不重叠的已配置 SM。
-例如，对于五个同质的情况 <code class="docutils literal notranslate"><span class="pre">cudaDevResource</span></code> 组（<code class="docutils literal notranslate"><span class="pre">actual_split_result</span></code> 数组），一个绿色上下文的描述符可以封装
-actual_split_result[2]到[4]资源，而另一个绿色上下文的描述符可以封装actual_split_result[0]到[1]。
-在这种情况下，将仅为应用程序的两个绿色上下文之一提供特定的 SM。</p>
-<p>但SM超额认购也是可能的，并且可以在某些情况下使用。
-例如，让第二个绿色上下文的描述符将actual_split_result[0]封装到[2]是可以接受的。
-在这种情况下，actual_split_resource[2]的所有SM <code class="docutils literal notranslate"><span class="pre">cudaDevResource</span></code> 将被超额认购，即为绿色上下文提供，
-而资源actual_split_resource[0]到[1]和actual_split_resource[3]到[4]只能由两个绿色上下文之一使用。
-SM 超额认购应根据具体情况明智地使用。</p>
+<p>成功创建绿色上下文后，用户可以针对每种资源类型，在该执行上下文上调用 <code class="docutils literal notranslate"><span class="pre">cudaExecutionCtxGetDevResource</span></code> 来验证其资源。</p>
+<p><strong>创建多个绿色上下文</strong></p>
+<p>一个应用程序可以拥有多个绿色上下文；在这种情况下，应重复上述部分步骤。对于大多数用例，这些绿色上下文各自会拥有一组独立且不重叠的预置 SM。例如，对于五个同构 <code class="docutils literal notranslate"><span class="pre">cudaDevResource</span></code> 组（<code class="docutils literal notranslate"><span class="pre">actual_split_result</span></code> 数组）的情况，一个绿色上下文的描述符可以封装 <code class="docutils literal notranslate"><span class="pre">actual_split_result[2]</span></code> 到 <code class="docutils literal notranslate"><span class="pre">[4]</span></code> 的资源，而另一个绿色上下文的描述符可以封装 <code class="docutils literal notranslate"><span class="pre">actual_split_result[0]</span></code> 到 <code class="docutils literal notranslate"><span class="pre">[1]</span></code>。在这种情况下，某个特定 SM 只会被预置给应用程序两个绿色上下文中的一个。</p>
+<p>不过，SM 超额订阅也是可能的，并且在某些情况下可以使用。例如，让第二个绿色上下文的描述符封装 <code class="docutils literal notranslate"><span class="pre">actual_split_result[0]</span></code> 到 <code class="docutils literal notranslate"><span class="pre">[2]</span></code> 也是可以接受的。在这种情况下，<code class="docutils literal notranslate"><span class="pre">actual_split_resource[2]</span></code> 这个 <code class="docutils literal notranslate"><span class="pre">cudaDevResource</span></code> 中的所有 SM 都会被超额订阅，也就是同时预置给两个绿色上下文；而 <code class="docutils literal notranslate"><span class="pre">actual_split_resource[0]</span></code> 到 <code class="docutils literal notranslate"><span class="pre">[1]</span></code> 以及 <code class="docutils literal notranslate"><span class="pre">actual_split_resource[3]</span></code> 到 <code class="docutils literal notranslate"><span class="pre">[4]</span></code> 的资源只会被两个绿色上下文之一使用。是否超额订阅 SM，应按具体情况谨慎判断。</p>
 </section>
 </section>
 <section id="green-contexts-launching-work">
 <span id="id4"></span><h2><span class="section-number">4.6.5. </span>绿色上下文 - 启动工作<a class="headerlink" href="green-contexts.html#green-contexts-launching-work" title="跳转到此标题">#</a></h2>
-<p>要启动针对使用前面的步骤创建的绿色上下文的内核，您首先需要使用以下命令为该绿色上下文创建一个流： <code class="docutils literal notranslate"><span class="pre">cudaExecutionCtxStreamCreate</span></code> API。
-使用以下命令在该流上启动内核 <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;</span> <span class="pre">&gt;&gt;&gt;</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernel</span></code> API，将确保内核只能通过其执行上下文使用该流可用的资源（SM、工作队列）。
-例如：</p>
+<p>要启动面向前面步骤所创建绿色上下文的内核，首先需要使用 <code class="docutils literal notranslate"><span class="pre">cudaExecutionCtxStreamCreate</span></code> API 为该绿色上下文创建一个流。随后使用 <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;</span> <span class="pre">&gt;&gt;&gt;</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernel</span></code> API 在该流上启动内核，就能确保该内核只能使用该流通过其执行上下文可访问的资源（SM、工作队列）。例如：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 为之前创建的 green_ctx 绿色上下文创建 green_ctx_stream CUDA 流</span>
 <span class="n">cudaStream_t</span><span class="w"> </span><span class="n">green_ctx_stream</span><span class="p">;</span>
 <span class="kt">int</span><span class="w"> </span><span class="n">priority</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
@@ -1079,32 +923,18 @@ SM 超额认购应根据具体情况明智地使用。</p>
 <span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaGetLastError</span><span class="p">());</span>
 </pre></div>
 </div>
-<p>传递给上面的流创建 API 的默认流创建标志相当于 <code class="docutils literal notranslate"><span class="pre">cudaStreamNonBlocking</span></code> given <code class="docutils literal notranslate"><span class="pre">green_ctx</span></code> 是一个绿色的背景。</p>
-<p><strong>CUDA 图表</strong></p>
-<p>对于作为 CUDA 图的一部分启动的内核（请参阅 <a class="reference internal" href="cuda-graphs.html#cuda-graphs"><span class="std std-ref">CUDA 图形</span></a>），还有一些微妙之处。
-与内核不同，启动 CUDA 图的 CUDA 流确实 <strong>not</strong> 确定使用的 SM 资源，因为该流仅用于依赖性跟踪。</p>
-<p>内核节点（和其他适用的节点类型）将在其上执行的执行上下文是在节点创建期间设置的。
-如果使用流捕获创建 CUDA 图，则捕获中涉及的流的执行上下文将确定相关图节点的执行上下文。
-如果使用图形 API 创建图形，则用户应显式设置每个相关节点的执行上下文。
-例如，要添加内核节点，用户应该使用多态  <code class="docutils literal notranslate"><span class="pre">cudaGraphAddNode</span></code> API 与 <code class="docutils literal notranslate"><span class="pre">cudaGraphNodeTypeKernel</span></code> 类型并明确指定 <code class="docutils literal notranslate"><span class="pre">.ctx</span></code> 的领域
-<code class="docutils literal notranslate"><span class="pre">cudaKernelNodeParamsV2</span></code> 结构下 <code class="docutils literal notranslate"><span class="pre">.kernel</span></code>。的 <code class="docutils literal notranslate"><span class="pre">cudaGraphAddKernelNode</span></code> 不允许用户指定执行上下文，因此应该避免。
-请注意，图中的不同图节点可能属于不同的执行上下文。</p>
-<p>出于验证目的，可以在节点跟踪模式下使用 Nsight Systems（<code class="docutils literal notranslate"><span class="pre">--cuda-graph-trace</span> <span class="pre">node</span></code>）以观察特定图形节点将在其上执行的绿色上下文。
-请注意，在默认情况下 <em>graph</em> 跟踪模式下，整个图将显示在启动它的流的绿色上下文下，但是，如前所述，这不提供有关各个图节点的执行上下文的任何信息。</p>
-<p>要以编程方式进行验证，可以使用 CUDA 驱动程序 API <code class="docutils literal notranslate"><span class="pre">cuGraphKernelNodeGetParams(graph_node,</span> <span class="pre">&amp;node_params)</span></code> 并比较  <code class="docutils literal notranslate"><span class="pre">node_params.ctx</span></code> 上下文句柄字段，其中包含该图节点的预期上下文句柄。可以使用驱动程序 API <code class="docutils literal notranslate"><span class="pre">CUgraphNode</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code> 可以互换使用，但用户需要包括相关的 <code class="docutils literal notranslate"><span class="pre">cuda.h</span></code> 标头
-并直接与驱动程序链接（<code class="docutils literal notranslate"><span class="pre">-lcuda</span></code>).</p>
+<p>如果 <code class="docutils literal notranslate"><span class="pre">green_ctx</span></code> 是绿色上下文，那么传给上面流创建 API 的默认流创建标志等价于 <code class="docutils literal notranslate"><span class="pre">cudaStreamNonBlocking</span></code>。</p>
+<p><strong>CUDA 图</strong></p>
+<p>对于作为 CUDA 图的一部分启动的内核（参见 <a class="reference internal" href="cuda-graphs.html#cuda-graphs"><span class="std std-ref">CUDA 图</span></a>），还需要注意一些细节。与普通内核启动不同，启动 CUDA 图的 CUDA 流<strong>不会</strong>决定要使用的 SM 资源，因为该流只用于依赖关系跟踪。</p>
+<p>内核节点（以及其他适用的节点类型）执行所在的执行上下文，会在节点创建期间设置。如果使用流捕获创建 CUDA 图，则参与捕获的流的执行上下文会决定相关图节点的执行上下文。如果使用图 API 创建图，则用户应显式设置每个相关节点的执行上下文。例如，要添加内核节点，用户应使用带 <code class="docutils literal notranslate"><span class="pre">cudaGraphNodeTypeKernel</span></code> 类型的多态 <code class="docutils literal notranslate"><span class="pre">cudaGraphAddNode</span></code> API，并显式指定 <code class="docutils literal notranslate"><span class="pre">cudaKernelNodeParamsV2</span></code> 结构中 <code class="docutils literal notranslate"><span class="pre">.kernel</span></code> 下的 <code class="docutils literal notranslate"><span class="pre">.ctx</span></code> 字段。<code class="docutils literal notranslate"><span class="pre">cudaGraphAddKernelNode</span></code> 不允许用户指定执行上下文，因此应避免使用。请注意，同一个图中的不同图节点可能属于不同执行上下文。</p>
+<p>出于验证目的，可以在节点跟踪模式下使用 Nsight Systems（<code class="docutils literal notranslate"><span class="pre">--cuda-graph-trace</span> <span class="pre">node</span></code>），观察特定图节点将在哪个绿色上下文上执行。请注意，在默认的 <em>graph</em> 跟踪模式下，整个图会显示在启动它的流所属绿色上下文下；但如前所述，这并不会提供各个图节点执行上下文的信息。</p>
+<p>如果要以编程方式验证，可以使用 CUDA 驱动程序 API <code class="docutils literal notranslate"><span class="pre">cuGraphKernelNodeGetParams(graph_node,</span> <span class="pre">&amp;node_params)</span></code>，并将 <code class="docutils literal notranslate"><span class="pre">node_params.ctx</span></code> 上下文句柄字段与该图节点预期的上下文句柄进行比较。驱动程序 API 的 <code class="docutils literal notranslate"><span class="pre">CUgraphNode</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaGraphNode_t</span></code> 可以互换使用，但用户需要包含相关的 <code class="docutils literal notranslate"><span class="pre">cuda.h</span></code> 头文件，并直接链接驱动程序库（<code class="docutils literal notranslate"><span class="pre">-lcuda</span></code>）。</p>
 <p><strong>线程块簇</strong></p>
-<p>具有线程块簇的内核（参见 <a class="reference internal" href="../01-introduction/programming-model.html#programming-model-thread-block-clusters"><span class="std std-numref">第 1.2.2.1.1 节</span></a>）也可以像任何其他内核一样在绿色上下文流上启动，从而使用该绿色上下文的配置资源。
-<a class="reference internal" href="green-contexts.html#green-contexts-creation-example-step2"><span class="std std-numref">第 4.6.4.2 节</span></a> 展示了如何指定设备资源拆分时需要协同调度的 SM 数量，以方便集群。
-但与任何使用集群的内核一样，用户应该利用相关的占用 API 来确定内核的最大潜在集群大小（通过 <code class="docutils literal notranslate"><span class="pre">cudaOccupancyMaxPotentialClusterSize</span></code>）
-并且，如果需要，活动集群的最大数量（<code class="docutils literal notranslate"><span class="pre">cudaOccupancyMaxActiveClusters</span></code>）。
-如果用户指定绿色上下文流作为 <code class="docutils literal notranslate"><span class="pre">stream</span></code> 相关领域 <code class="docutils literal notranslate"><span class="pre">cudaLaunchConfig</span></code>，那么
-这些占用 API 将考虑为该绿色上下文配置的 SM 资源。
-此用例尤其适用于可能获得用户传递给它们的绿色上下文 CUDA 流的库，以及从剩余设备资源创建绿色上下文的情况。</p>
-<p>下面的代码片段显示了如何使用这些 API。</p>
+<p>带有线程块集群的内核（参见 <a class="reference internal" href="../01-introduction/programming-model.html#programming-model-thread-block-clusters"><span class="std std-numref">第 1.2.2.1.1 节</span></a>）也可以像其他内核一样在绿色上下文流上启动，从而使用该绿色上下文预置的资源。<a class="reference internal" href="green-contexts.html#green-contexts-creation-example-step2"><span class="std std-numref">第 4.6.4.2 节</span></a> 展示了在拆分设备资源时如何指定需要共同调度的 SM 数量，以便支持集群。不过，与任何使用集群的内核一样，用户仍应使用相关占用率 API 来确定内核的最大潜在集群大小（通过 <code class="docutils literal notranslate"><span class="pre">cudaOccupancyMaxPotentialClusterSize</span></code>），以及在需要时确定最大活动集群数量（<code class="docutils literal notranslate"><span class="pre">cudaOccupancyMaxActiveClusters</span></code>）。如果用户在相关 <code class="docutils literal notranslate"><span class="pre">cudaLaunchConfig</span></code> 的 <code class="docutils literal notranslate"><span class="pre">stream</span></code> 字段中指定绿色上下文流，这些占用率 API 会把预置给该绿色上下文的 SM 资源纳入考虑。这个用例尤其适用于可能接收用户传入绿色上下文 CUDA 流的库，也适用于从剩余设备资源创建绿色上下文的情况。</p>
+<p>下面的代码片段展示如何使用这些 API。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 假设 cudaStream_t gc_stream 已经创建并且存在 __global__ void cluster_kernel。</span>
 
-<span class="c1">// 如果可能的话，取消注释以支持不可移植的簇大小</span>
+<span class="c1">// 如果可能，取消注释以支持不可移植的集群大小</span>
 <span class="c1">// CUDA_CHECK(cudaFuncSetAttribute(cluster_kernel, cudaFuncAttributeNonPortableClusterSizeAllowed, 1))</span>
 
 <span class="n">cudaLaunchConfig_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
@@ -1120,15 +950,15 @@ SM 超额认购应根据具体情况明智地使用。</p>
 <span class="n">config</span><span class="p">.</span><span class="n">attrs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">attribute</span><span class="p">;</span>
 <span class="n">config</span><span class="p">.</span><span class="n">numAttrs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 
-<span class="n">config</span><span class="p">.</span><span class="n">stream</span><span class="o">=</span><span class="n">gc_stream</span><span class="p">;</span><span class="w"> </span><span class="c1">// 需要传递将用于该内核的 CUDA 流</span>
+<span class="n">config</span><span class="p">.</span><span class="n">stream</span><span class="o">=</span><span class="n">gc_stream</span><span class="p">;</span><span class="w"> </span><span class="c1">// 需要传入该内核将使用的 CUDA 流</span>
 
 <span class="kt">int</span><span class="w"> </span><span class="n">max_potential_cluster_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<span class="c1">// 下一个调用将忽略启动配置中的集群暗淡</span>
+<span class="c1">// 下一次调用会忽略启动配置中的 cluster dims</span>
 <span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaOccupancyMaxPotentialClusterSize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">max_potential_cluster_size</span><span class="p">,</span><span class="w"> </span><span class="n">cluster_kernel</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">config</span><span class="p">));</span>
 <span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"max potential cluster size is "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">max_potential_cluster_size</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">" for CUDA stream gc_stream"</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
 
-<span class="c1">// 可以选择使用 max_potial_cluster_size 更新启动配置的 clusterDim。</span>
-<span class="c1">// 这样做将导致对相同内核和启动配置的 cudaLaunchKernelEx 调用成功。</span>
+<span class="c1">// 可以选择使用 max_potential_cluster_size 更新启动配置的 clusterDim。</span>
+<span class="c1">// 这样可让相同内核和启动配置的 cudaLaunchKernelEx 调用成功。</span>
 
 <span class="kt">int</span><span class="w"> </span><span class="n">num_clusters</span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaOccupancyMaxActiveClusters</span><span class="p">(</span><span class="o">&amp;</span><span class="n">num_clusters</span><span class="p">,</span><span class="w"> </span><span class="n">cluster_kernel</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">config</span><span class="p">));</span>
@@ -1136,84 +966,50 @@ SM 超额认购应根据具体情况明智地使用。</p>
 </pre></div>
 </div>
 <p><strong>验证绿色上下文的使用</strong></p>
-<p>除了由于绿色上下文配置而影响内核执行时间的经验观察之外，
-用户可以利用 <a class="reference external" href="https://developer.nvidia.com/nsight-systems">夜视系统</a> 和 <a class="reference external" href="https://developer.nvidia.com/nsight-compute">Nsight计算</a> CUDA 开发人员工具可在某种程度上验证绿色上下文的正确使用。</p>
-<p>例如，在属于不同绿色上下文的 CUDA 流上启动的内核将出现在不同的环境下 <cite>绿色背景</cite> CUDA 硬件时间轴部分下的行 <cite>夜视系统</cite> report.
-<cite>Nsight计算</cite> 提供了一个 <cite>绿色上下文资源</cite> 其会话页面中的概述以及更新 <cite># 短信</cite> 根据 <cite>发射统计</cite> 的 <cite>Details</cite> 部分。
-前者提供所配置资源的可视位掩码。如果应用程序使用不同的绿色上下文，这特别有用，因为用户可以确认预期的重叠
-GC（如果 SM 超额认购，则没有重叠或预期非零重叠）。</p>
-<p><a class="reference internal" href="green-contexts.html#green-contexts-ncu-mask"><span class="std std-numref">图45</span></a> 描述了这些资源的示例，其中两个绿色上下文分别配备了 112 个和 16 个 SM，并且它们之间没有 SM 重叠。
-提供的视图可以帮助用户验证每个绿色上下文所配置的 SM 资源计数。它还有助于确认没有 SM 被超额认购，因为
-在两个绿色上下文中，没有框被标记为绿色（为该 GC 配置）。</p>
+<p>除了通过经验观察绿色上下文预置对内核执行时间的影响之外，用户还可以借助 <a class="reference external" href="https://developer.nvidia.com/nsight-systems">Nsight Systems</a> 和 <a class="reference external" href="https://developer.nvidia.com/nsight-compute">Nsight Compute</a> CUDA 开发者工具，在一定程度上验证绿色上下文是否使用正确。</p>
+<p>例如，在属于不同绿色上下文的 CUDA 流上启动的内核，会出现在 <cite>Nsight Systems</cite> 报告的 CUDA HW 时间线部分中不同的 <cite>Green Context</cite> 行下。<cite>Nsight Compute</cite> 会在 Session 页面提供 <cite>Green Context Resources</cite> 概览，并在 <cite>Details</cite> 部分的 <cite>Launch Statistics</cite> 下更新 <cite># SMs</cite>。前者提供预置资源的可视化位掩码。如果应用程序使用不同绿色上下文，这一点特别有用，因为用户可以确认 GC 之间是否存在预期的重叠：没有重叠，或在 SM 被超额订阅时出现预期的非零重叠。</p>
+<p><a class="reference internal" href="green-contexts.html#green-contexts-ncu-mask"><span class="std std-numref">图45</span></a> 展示了一个资源示例：两个绿色上下文分别预置了 112 个和 16 个 SM，并且二者之间没有 SM 重叠。该视图可以帮助用户验证每个绿色上下文预置的 SM 资源数量。它还有助于确认没有 SM 被超额订阅，因为两个绿色上下文中没有任何方框同时被标为绿色（即预置给该 GC）。</p>
 <figure class="align-default" id="green-contexts-ncu-mask">
 <a class="reference internal image-reference" href="../_images/green_contexts_ncu_mask.png"><img alt="Nsight Compute 中的绿色上下文资源" src="../_images/green_contexts_ncu_mask.png" style="width: 1110.1200000000001px; height: 89.76px;"/>
 </a>
 <figcaption>
-<p><span class="caption-number">图45 </span><span class="caption-text">Nsight Compute 的绿色上下文资源部分</span><a class="headerlink" href="green-contexts.html#green-contexts-ncu-mask" title="跳转到此标题">#</a></p>
+<p><span class="caption-number">图45 </span><span class="caption-text">Nsight Compute 中的绿色上下文资源部分</span><a class="headerlink" href="green-contexts.html#green-contexts-ncu-mask" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
-<p><cite>发射统计</cite> 部分还明确列出了为此绿色上下文配置的 SM 数量，因此可由该内核使用。
-请注意，这些是给定内核在其执行期间可以访问的 SM，而不是内核运行的实际 SM 数量。这同样适用于前面显示的资源概述。
-内核使用的 SM 的实际数量可能取决于多种因素，包括内核本身（启动几何结构等）、GPU 上同时运行的其他工作等。</p>
+<p><cite>Launch Statistics</cite> 部分还会明确列出为该绿色上下文预置、因而可供该内核使用的 SM 数量。请注意，这些是给定内核在执行期间可以访问的 SM，而不是该内核实际运行其上的 SM 数量。前面显示的资源概览也同样如此。内核实际使用的 SM 数量可能取决于多种因素，包括内核本身（启动几何形状等）、GPU 上同时运行的其他工作等。</p>
 </section>
 <section id="additional-execution-contexts-apis">
 <span id="green-contexts-apis"></span><h2><span class="section-number">4.6.6. </span>附加执行上下文 API<a class="headerlink" href="green-contexts.html#additional-execution-contexts-apis" title="跳转到此标题">#</a></h2>
-<p>本节涉及一些额外的绿色上下文 API。完整列表请参考相关的 CUDA 运行时 API
-<a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__EXECUTION__CONTEXT.html">章节</a>。</p>
-<p>对于使用 CUDA 事件进行同步，可以利用
-<code class="docutils literal notranslate"><span class="pre">cudaError_t</span> <span class="pre">cudaExecutionCtxRecordEvent(cudaExecutionContext_t</span> <span class="pre">ctx,</span> <span class="pre">cudaEvent_t</span> <span class="pre">event)</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaError_t</span> <span class="pre">cudaExecutionCtxWaitEvent(cudaExecutionCtxWaitEvent(cudaExecutionContext_t</span> <span class="pre">ctx,</span> <span class="pre">cudaEvent_t</span> <span class="pre">event)</span></code> APIs.
-<code class="docutils literal notranslate"><span class="pre">cudaExecutionCtxRecordEvent</span></code> 记录一个 CUDA 事件，捕获调用时指定执行上下文的所有工作/活动，同时
-<code class="docutils literal notranslate"><span class="pre">cudaExecutionCtxWaitEvent</span></code> 使提交到执行上下文的所有未来工作等待在指定事件中捕获的工作。</p>
-<p>Using <code class="docutils literal notranslate"><span class="pre">cudaExecutionCtxRecordEvent</span></code> 比 <code class="docutils literal notranslate"><span class="pre">cudaEventRecord</span></code> 如果执行上下文有多个 CUDA 流。
-要在没有此执行上下文 API 的情况下实现等效行为，需要通过以下方式记录单独的 CUDA 事件 <code class="docutils literal notranslate"><span class="pre">cudaEventRecord</span></code> 在每个执行上下文流上
-然后让相关工作分别等待所有这些事件。
-同样， <code class="docutils literal notranslate"><span class="pre">cudaExecutionCtxWaitEvent</span></code> 比 <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent</span></code>，如果需要所有执行上下文流等待事件完成。另一种选择是
-一个单独的 <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent</span></code> 对于此执行上下文中的每个流。</p>
-<p>对于 CPU 端的阻塞同步，可以使用 <code class="docutils literal notranslate"><span class="pre">cudaError_t</span> <span class="pre">cudaExecutionCtxSynchronize(cudaExecutionContext_t</span> <span class="pre">ctx)</span></code>。
-此调用将阻塞，直到指定的执行上下文完成其所有工作。
-如果指定的执行上下文不是通过创建的 <code class="docutils literal notranslate"><span class="pre">cudaGreenCtxCreate</span></code>，而是通过以下方式获得的 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetExecutionCtx</span></code>，因此是设备的主要上下文，调用该函数将
-还同步在同一设备上创建的所有绿色上下文。</p>
-<p>要检索与给定执行上下文关联的设备，可以使用 <code class="docutils literal notranslate"><span class="pre">cudaExecutionCtxGetDevice</span></code>。
-要检索给定执行上下文的唯一标识符，可以使用 <code class="docutils literal notranslate"><span class="pre">cudaExecutionCtxGetId</span></code>.</p>
-<p>最后，可以通过以下方式销毁显式创建的执行上下文 <code class="docutils literal notranslate"><span class="pre">cudaError_t</span> <span class="pre">cudaExecutionCtxDestroy(cudaExecutionContext_t</span> <span class="pre">ctx)</span></code> API。</p>
+<p>本节介绍一些额外的绿色上下文 API。完整列表请参见相关的 CUDA 运行时 API <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__EXECUTION__CONTEXT.html">章节</a>。</p>
+<p>如果使用 CUDA 事件进行同步，可以使用 <code class="docutils literal notranslate"><span class="pre">cudaError_t</span> <span class="pre">cudaExecutionCtxRecordEvent(cudaExecutionContext_t</span> <span class="pre">ctx,</span> <span class="pre">cudaEvent_t</span> <span class="pre">event)</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaError_t</span> <span class="pre">cudaExecutionCtxWaitEvent(cudaExecutionCtxWaitEvent(cudaExecutionContext_t</span> <span class="pre">ctx,</span> <span class="pre">cudaEvent_t</span> <span class="pre">event)</span></code> API。<code class="docutils literal notranslate"><span class="pre">cudaExecutionCtxRecordEvent</span></code> 会记录一个 CUDA 事件，捕获调用时指定执行上下文中的所有工作或活动；而 <code class="docutils literal notranslate"><span class="pre">cudaExecutionCtxWaitEvent</span></code> 会让之后提交到该执行上下文的所有工作等待指定事件中捕获的工作。</p>
+<p>如果执行上下文有多个 CUDA 流，使用 <code class="docutils literal notranslate"><span class="pre">cudaExecutionCtxRecordEvent</span></code> 比使用 <code class="docutils literal notranslate"><span class="pre">cudaEventRecord</span></code> 更方便。若没有这个执行上下文 API，要实现等价行为，就需要在每个执行上下文流上通过 <code class="docutils literal notranslate"><span class="pre">cudaEventRecord</span></code> 分别记录 CUDA 事件，然后让相关工作分别等待所有这些事件。同样，如果需要执行上下文中的所有流都等待某个事件完成，<code class="docutils literal notranslate"><span class="pre">cudaExecutionCtxWaitEvent</span></code> 也比 <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent</span></code> 更方便。替代做法是对该执行上下文中的每个流分别调用一次 <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent</span></code>。</p>
+<p>对于 CPU 端的阻塞同步，可以使用 <code class="docutils literal notranslate"><span class="pre">cudaError_t</span> <span class="pre">cudaExecutionCtxSynchronize(cudaExecutionContext_t</span> <span class="pre">ctx)</span></code>。该调用会阻塞，直到指定执行上下文完成其所有工作。如果指定的执行上下文不是通过 <code class="docutils literal notranslate"><span class="pre">cudaGreenCtxCreate</span></code> 创建，而是通过 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetExecutionCtx</span></code> 获取，也就是设备的主上下文，那么调用该函数还会同步同一设备上已经创建的所有绿色上下文。</p>
+<p>要检索给定执行上下文关联的设备，可以使用 <code class="docutils literal notranslate"><span class="pre">cudaExecutionCtxGetDevice</span></code>。要检索给定执行上下文的唯一标识符，可以使用 <code class="docutils literal notranslate"><span class="pre">cudaExecutionCtxGetId</span></code>。</p>
+<p>最后，可以通过 <code class="docutils literal notranslate"><span class="pre">cudaError_t</span> <span class="pre">cudaExecutionCtxDestroy(cudaExecutionContext_t</span> <span class="pre">ctx)</span></code> API 销毁显式创建的执行上下文。</p>
 </section>
 <section id="green-contexts-example">
 <span id="id5"></span><h2><span class="section-number">4.6.7. </span>绿色上下文示例<a class="headerlink" href="green-contexts.html#green-contexts-example" title="跳转到此标题">#</a></h2>
-<p>本节说明绿色上下文如何使关键工作能够更快地开始和完成。
-类似于中使用的场景 <a class="reference internal" href="green-contexts.html#green-contexts-motivation"><span class="std std-numref">第 4.6.1 节</span></a>，该应用程序有两个内核，将在两个不同的非阻塞 CUDA 流上运行。
-从CPU方面来看，时间线如下。
-一个长时间运行的内核（<cite>delay_kernel_us</cite>），在全 GPU 上进行多波处理，首先在 CUDA 流上启动 <cite>strm1</cite>。然后经过短暂的等待时间（小于内核持续时间），
-一个更短但关键的内核（<cite>critical_kernel</cite>）已上线 <cite>strm2</cite>。
-测量两个内核的 GPU 持续时间和从 CPU 启动到完成的时间。</p>
-<p>作为长时间运行内核的代理，使用延迟内核，其中每个线程块运行固定的微秒数，并且线程块的数量超过 GPU 的可用 SM。</p>
-<p>最初，不使用绿色上下文，但关键内核在 CUDA 流上启动，其优先级高于长时间运行的内核。
-由于其高优先级流，关键内核可以在长时间运行的内核的某些线程块完成后立即开始执行。然而，它仍然需要
-等待一些可能长时间运行的线程块完成，这将延迟其执行开始。</p>
-<p><a class="reference internal" href="green-contexts.html#green-contexts-nsys-example-no-gcs-with-prio"><span class="std std-numref">图46</span></a> Nsight Systems 报告中展示了这一场景。
-长时间运行的内核在流 13 上启动，而短但关键的内核在流 14 上启动，流 14 具有更高的流优先级。
-如图中突出显示的那样，关键内核在开始执行之前会等待 0.9 毫秒（在本例中）。如果两个流具有相同的优先级，则关键内核将执行得更晚。</p>
+<p>本节说明绿色上下文如何让关键工作更早开始并更早完成。与 <a class="reference internal" href="green-contexts.html#green-contexts-motivation"><span class="std std-numref">第 4.6.1 节</span></a> 中的场景类似，该应用程序有两个内核，它们会在两个不同的非阻塞 CUDA 流上运行。从 CPU 侧看，时间线如下：一个长时间运行的内核（<cite>delay_kernel_us</cite>）首先在 CUDA 流 <cite>strm1</cite> 上启动，它会在完整 GPU 上经历多轮执行；随后经过短暂等待（小于该内核持续时间）后，一个更短但关键的内核（<cite>critical_kernel</cite>）在 <cite>strm2</cite> 上启动。这里会测量两个内核的 GPU 持续时间，以及从 CPU 发起启动到完成所经历的时间。</p>
+<p>示例使用一个延迟内核作为长时间运行内核的替身：其中每个线程块运行固定的微秒数，并且线程块数量超过 GPU 的可用 SM 数量。</p>
+<p>一开始不使用绿色上下文，但关键内核会在优先级高于长时间运行内核的 CUDA 流上启动。由于使用高优先级流，关键内核可以在长时间运行内核的部分线程块完成后立即开始执行。不过，它仍然需要等待一些可能运行较久的线程块完成，因此其执行开始时间仍会被延迟。</p>
+<p><a class="reference internal" href="green-contexts.html#green-contexts-nsys-example-no-gcs-with-prio"><span class="std std-numref">图46</span></a> 在 Nsight Systems 报告中展示了这一场景。长时间运行的内核在流 13 上启动，而短但关键的内核在流 14 上启动，后者具有更高的流优先级。如图中突出显示，在这个示例中，关键内核要等待 0.9 毫秒才能开始执行。如果两个流优先级相同，关键内核会更晚执行。</p>
 <figure class="align-default" id="green-contexts-nsys-example-no-gcs-with-prio">
-<a class="reference internal image-reference" href="../_images/green_contexts_nsys_example_no_GCs_with_prio.png"><img alt="没有绿色背景的 Nsight Systems 时间表" src="../_images/green_contexts_nsys_example_no_GCs_with_prio.png" style="width: 1020.36px; height: 460.68px;"/>
+<a class="reference internal image-reference" href="../_images/green_contexts_nsys_example_no_GCs_with_prio.png"><img alt="没有绿色上下文的 Nsight Systems 时间线" src="../_images/green_contexts_nsys_example_no_GCs_with_prio.png" style="width: 1020.36px; height: 460.68px;"/>
 </a>
 <figcaption>
-<p><span class="caption-number">图46 </span><span class="caption-text">没有绿色背景的 Nsight Systems 时间表</span><a class="headerlink" href="green-contexts.html#green-contexts-nsys-example-no-gcs-with-prio" title="跳转到此标题">#</a></p>
+<p><span class="caption-number">图46 </span><span class="caption-text">没有绿色上下文的 Nsight Systems 时间线</span><a class="headerlink" href="green-contexts.html#green-contexts-nsys-example-no-gcs-with-prio" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
-<p>为了利用绿色上下文功能，创建了两个绿色上下文，每个绿色上下文都配备了一组不同的不重叠的 SM。
-出于说明目的，在本例中为具有 132 个 SM 的 H100 选择了精确的 SM 分割，即 16 个 SM 用于关键内核（绿色上下文 3），112 个 SM 用于长时间运行的内核（绿色上下文 2）。
-作为 <a class="reference internal" href="green-contexts.html#green-contexts-nsys-example-w-gcs"><span class="std std-numref">图47</span></a> 表明，关键内核现在几乎可以立即启动，因为只有 Green Context 3 可以使用 SM。</p>
-<p>与单独运行时的持续时间相比，短内核的持续时间可能会增加，因为现在它可以使用的 SM 数量受到限制。
-对于长时间运行的内核来说也是如此，它不能再使用 GPU 的所有 SM，而是受到其绿色上下文所配置资源的限制。
-然而，关键的结果是关键的内核工作现在可以比以前更快地开始和完成。
-这排除了任何其他限制，因为如前所述，无法保证并行执行。</p>
+<p>为了利用绿色上下文功能，示例创建了两个绿色上下文，每个绿色上下文都预置了一组不同且不重叠的 SM。出于说明目的，本例在具有 132 个 SM 的 H100 上选择了一个具体的 SM 拆分：关键内核使用 16 个 SM（绿色上下文 3），长时间运行内核使用 112 个 SM（绿色上下文 2）。如 <a class="reference internal" href="green-contexts.html#green-contexts-nsys-example-w-gcs"><span class="std std-numref">图47</span></a> 所示，关键内核现在几乎可以立即开始，因为有一组 SM 只有绿色上下文 3 可以使用。</p>
+<p>与单独运行时相比，短内核的持续时间可能会增加，因为它现在可使用的 SM 数量受到限制。长时间运行内核也是如此，因为它不能再使用 GPU 的所有 SM，而是受其绿色上下文预置资源限制。不过，关键结果是，关键内核工作现在可以比以前明显更早开始并完成。这里仍以不受其他限制为前提；如前所述，并行执行并不保证一定发生。</p>
 <figure class="align-default" id="green-contexts-nsys-example-w-gcs">
-<a class="reference internal image-reference" href="../_images/green_contexts_nsys_example_w_GCs.png"><img alt="具有绿色背景的 Nsight Systems 时间表" src="../_images/green_contexts_nsys_example_w_GCs.png" style="width: 1036.2px; height: 390.72px;"/>
+<a class="reference internal image-reference" href="../_images/green_contexts_nsys_example_w_GCs.png"><img alt="具有绿色上下文的 Nsight Systems 时间线" src="../_images/green_contexts_nsys_example_w_GCs.png" style="width: 1036.2px; height: 390.72px;"/>
 </a>
 <figcaption>
-<p><span class="caption-number">图47 </span><span class="caption-text">具有绿色背景的 Nsight Systems 时间表</span><a class="headerlink" href="green-contexts.html#green-contexts-nsys-example-w-gcs" title="跳转到此标题">#</a></p>
+<p><span class="caption-number">图47 </span><span class="caption-text">具有绿色上下文的 Nsight Systems 时间线</span><a class="headerlink" href="green-contexts.html#green-contexts-nsys-example-w-gcs" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
-<p>在所有情况下，确切的 SM 分割应在实验后根据具体情况决定。</p>
+<p>在所有情况下，具体的 SM 拆分都应在实验后按用例决定。</p>
 </section>
 </section>
 </article>
@@ -1232,20 +1028,20 @@ GC（如果 SM 超额认购，则没有重叠或预期非零重叠）。</p>
   </div>
 <nav aria-labelledby="pst-page-navigation-heading-2" class="bd-toc-nav page-toc">
 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="green-contexts.html#motivation-when-to-use">4.6. 绿色上下文</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="green-contexts.html#green-contexts-ease-of-use">4.6. 绿色上下文</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="green-contexts.html#green-contexts-device-resource-and-resource-descriptor">4.6. 绿色上下文</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="green-contexts.html#green-context-creation-example">4.6. 绿色上下文</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="green-contexts.html#step-1-get-available-gpu-resources">4.6. 绿色上下文</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="green-contexts.html#step-2-partition-sm-resources">4.6. 绿色上下文</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="green-contexts.html#step-2-continued-add-workqueue-resources">4.6. 绿色上下文</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="green-contexts.html#step-3-create-a-resource-descriptor">4.6. 绿色上下文</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="green-contexts.html#step-4-create-a-green-context">4.6. 绿色上下文</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="green-contexts.html#motivation-when-to-use">4.6.1. 动机 / 何时使用</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="green-contexts.html#green-contexts-ease-of-use">4.6.2. 绿色上下文：易用性</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="green-contexts.html#green-contexts-device-resource-and-resource-descriptor">4.6.3. 绿色上下文：设备资源和资源描述符</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="green-contexts.html#green-context-creation-example">4.6.4. 绿色上下文创建示例</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="green-contexts.html#step-1-get-available-gpu-resources">4.6.4.1. 第 1 步：获取可用 GPU 资源</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="green-contexts.html#step-2-partition-sm-resources">4.6.4.2. 第 2 步：对 SM 资源进行分区</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="green-contexts.html#step-2-continued-add-workqueue-resources">4.6.4.3. 第 2 步（续）：添加工作队列资源</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="green-contexts.html#step-3-create-a-resource-descriptor">4.6.4.4. 第 3 步：创建资源描述符</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="green-contexts.html#step-4-create-a-green-context">4.6.4.5. 第 4 步：创建绿色上下文</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="green-contexts.html#green-contexts-launching-work">4.6. 绿色上下文</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="green-contexts.html#additional-execution-contexts-apis">4.6. 绿色上下文</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="green-contexts.html#green-contexts-example">4.6. 绿色上下文</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="green-contexts.html#green-contexts-launching-work">4.6.5. 绿色上下文 - 启动工作</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="green-contexts.html#additional-execution-contexts-apis">4.6.6. 附加执行上下文 API</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="green-contexts.html#green-contexts-example">4.6.7. 绿色上下文示例</a></li>
 </ul>
 </nav></div>
 </div></div>
