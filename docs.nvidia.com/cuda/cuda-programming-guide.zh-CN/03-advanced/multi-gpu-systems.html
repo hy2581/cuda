@@ -284,74 +284,33 @@
 <article class="bd-article">
 <section id="programming-systems-with-multiple-gpus">
 <span id="multi-gpu-introduction"></span><h1>3.4. 多 GPU 系统编程<a class="headerlink" href="multi-gpu-systems.html#programming-systems-with-multiple-gpus" title="跳转到此标题">#</a></h1>
-<p>多 GPU 编程允许应用程序解决问题规模
-并实现超越单个 GPU 所能达到的性能水平
-通过利用更大的聚合算术性能，
-多 GPU 系统提供的内存容量和内存带宽。</p>
-<p>CUDA 通过主机 API 实现多 GPU 编程，
-驱动程序基础架构和支持 GPU 硬件技术：</p>
+<p>多 GPU 编程让应用程序能够处理更大规模的问题，并利用多 GPU 系统提供的更高聚合算术性能、更大内存容量和更高内存带宽，达到单个 GPU 难以实现的性能水平。</p>
+<p>CUDA 通过主机 API、驱动程序基础设施以及配套的 GPU 硬件技术来支持多 GPU 编程：</p>
 <ul class="simple">
-<li><p>宿主线程 CUDA 上下文管理</p></li>
-<li><p>系统中所有处理器的统一内存寻址</p></li>
+<li><p>主机线程中的 CUDA 上下文管理</p></li>
+<li><p>面向系统中所有处理器的统一内存寻址</p></li>
 <li><p>GPU 之间的点对点批量内存传输</p></li>
 <li><p>细粒度的点对点 GPU 加载/存储内存访问</p></li>
-<li><p>更高级别的抽象和支持系统软件，例如 CUDA 进程间通信、使用并行缩减 <a class="reference external" href="https://developer.nvidia.com/nccl">NCCL</a>，以及使用 NVLink 和/或 GPU-Direct RDMA 与 API 进行通信，例如 <a class="reference external" href="https://developer.nvidia.com/nvshmem">NVSHMEM</a> 和MPI</p></li>
+<li><p>更高层抽象和配套系统软件，例如 CUDA 进程间通信、使用 <a class="reference external" href="https://developer.nvidia.com/nccl">NCCL</a> 执行并行归约，以及借助 NVLink 和/或 GPU-Direct RDMA 通过 <a class="reference external" href="https://developer.nvidia.com/nvshmem">NVSHMEM</a>、MPI 等 API 进行通信</p></li>
 </ul>
-<p>在最基本的层面上，多 GPU 编程需要应用程序
-同时管理多个活动的 CUDA 上下文，
-将数据分配给 GPU，
-在 GPU 上启动内核来完成其工作，
-并传达或收集结果，以便采取行动
-通过应用程序。
-如何完成此操作的细节因最有效的方法而异
-应用程序算法的映射、可用的并行性、
-和现有的代码结构到合适的多 GPU 编程方法。
-一些最常见的多 GPU 编程方法包括：</p>
+<p>从最基本的层面看，多 GPU 编程要求应用程序同时管理多个活动 CUDA 上下文，将数据分发到各个 GPU，在 GPU 上启动内核完成计算，并通信或收集结果，以便应用程序继续处理。具体如何组织这些工作，取决于怎样把应用程序算法、可用并行性以及现有代码结构最有效地映射到合适的多 GPU 编程方式。常见的多 GPU 编程方式包括：</p>
 <ul class="simple">
-<li><p>单个主机线程驱动多个 GPU</p></li>
-<li><p>多个主机线程，每个线程驱动自己的 GPU</p></li>
-<li><p>多个单线程主机进程，每个进程驱动自己的 GPU</p></li>
-<li><p>包含多个线程的多个主机进程，每个线程驱动自己的 GPU</p></li>
-<li><p>多节点 NVLink 连接集群，GPU 由跨集群节点的多个操作系统实例中运行的线程和进程驱动</p></li>
+<li><p>由单个主机线程驱动多个 GPU</p></li>
+<li><p>由多个主机线程分别驱动各自的 GPU</p></li>
+<li><p>由多个单线程主机进程分别驱动各自的 GPU</p></li>
+<li><p>由多个包含多线程的主机进程驱动 GPU，其中每个线程负责自己的 GPU</p></li>
+<li><p>多节点 NVLink 互连集群，其中 GPU 由分布在集群节点多个操作系统实例中的线程和进程驱动</p></li>
 </ul>
-<p>GPU之间可以相互通信
-通过设备内存之间的内存传输和对等访问，
-涵盖上面列出的每种多设备工作分配方法。
-支持高性能、低延迟的GPU通信
-通过查询并启用对等 GPU 内存访问，
-并利用 NVLink 实现高带宽传输和
-设备之间更细粒度的加载/存储操作。</p>
-<p>CUDA统一虚拟寻址允许多个GPU之间的通信
-在同一主机进程中，只需最少的额外步骤即可查询和启用
-使用高性能点对点内存访问和传输，
-例如，通过 NVLink。</p>
-<p>由不同主机进程管理的多个 GPU 之间的通信
-通过使用进程间通信 (IPC) 来支持，并且
-虚拟内存管理 (VMM) API。
-高级 IPC 概念和节点内 CUDA IPC API 简介
-中讨论了 <a class="reference internal" href="../04-special-topics/inter-process-communication.html#interprocess-communication"><span class="std std-ref">进程间通信</span></a> 部分。
-高级虚拟内存管理 (VMM) API 支持节点内和
-多节点IPC，Linux和Windows均可使用
-操作系统，并允许按分配粒度控制
-通过 IPC 共享内存缓冲区，如中所述
-<a class="reference internal" href="../04-special-topics/virtual-memory-management.html#virtual-memory-management"><span class="std std-ref">虚拟内存管理</span></a>.</p>
-<p>CUDA本身提供了实现集体操作所需的API
-在一组 GPU 内，可能包括主机，但它不
-本身提供高级多 GPU 集体 API。
-多 GPU 集合由更高抽象的 CUDA 通信提供
-图书馆如
-<a class="reference external" href="https://developer.nvidia.com/nccl">NCCL</a>、<a class="reference external" href="https://developer.nvidia.com/nvshmem">NVSHMEM</a>.</p>
+<p>GPU 可以通过设备内存之间的内存传输和对等访问相互通信，这适用于上面列出的各种多设备工作分配方式。通过查询并启用点对点 GPU 内存访问，并利用 NVLink 实现高带宽传输以及设备之间更细粒度的加载/存储操作，应用程序可以获得高性能、低延迟的 GPU 通信。</p>
+<p>CUDA 统一虚拟寻址允许同一主机进程内的多个 GPU 进行通信；应用程序只需少量额外步骤，即可查询并启用高性能点对点内存访问和传输，例如通过 NVLink 进行通信。</p>
+<p>如果多个 GPU 由不同的主机进程管理，则可以通过进程间通信 (IPC) 和虚拟内存管理 (VMM) API 支持它们之间的通信。高级 IPC 概念以及节点内 CUDA IPC API 的介绍见 <a class="reference internal" href="../04-special-topics/inter-process-communication.html#interprocess-communication"><span class="std std-ref">进程间通信</span></a> 一节。高级虚拟内存管理 (VMM) API 支持节点内和多节点 IPC，可在 Linux 和 Windows 操作系统上使用，并允许按分配粒度控制是否通过 IPC 共享内存缓冲区，详见 <a class="reference internal" href="../04-special-topics/virtual-memory-management.html#virtual-memory-management"><span class="std std-ref">虚拟内存管理</span></a>。</p>
+<p>CUDA 本身提供了在一组 GPU（可能还包括主机）内部实现集合操作所需的 API，但并不直接提供高级多 GPU 集合通信 API。多 GPU 集合通信由更高层抽象的 CUDA 通信库提供，例如 <a class="reference external" href="https://developer.nvidia.com/nccl">NCCL</a> 和 <a class="reference external" href="https://developer.nvidia.com/nvshmem">NVSHMEM</a>。</p>
 <section id="multi-device-context-and-execution-management">
 <span id="multi-gpu-context-execution"></span><h2><span class="section-number">3.4.1. </span>多设备上下文和执行管理<a class="headerlink" href="multi-gpu-systems.html#multi-device-context-and-execution-management" title="跳转到此标题">#</a></h2>
-<p>应用程序使用多个 GPU 所需的首要步骤
-是枚举可用的 GPU 设备，
-根据设备的实际情况，在可用设备中进行适当选择
-硬件属性、CPU 关联性以及与对等点的连接性，
-并为应用程序将使用的每个设备创建 CUDA 上下文。</p>
+<p>应用程序使用多个 GPU 时，首先需要枚举可用的 GPU 设备，根据硬件属性、CPU 亲和性以及与对等设备的连接情况，从可用设备中作出合适选择，并为应用程序将使用的每个设备创建 CUDA 上下文。</p>
 <section id="device-enumeration">
 <span id="multi-gpu-device-enumeration"></span><h3><span class="section-number">3.4.1.1. </span>设备枚举<a class="headerlink" href="multi-gpu-systems.html#device-enumeration" title="跳转到此标题">#</a></h3>
-<p>以下代码示例展示了如何查询启用 CUDA 的设备的数量，
-枚举每个设备并查询它们的属性。</p>
+<p>以下代码示例展示了如何查询支持 CUDA 的设备数量、枚举每个设备，并查询这些设备的属性。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">deviceCount</span><span class="p">;</span>
 <span class="n">cudaGetDeviceCount</span><span class="p">(</span><span class="o">&amp;</span><span class="n">deviceCount</span><span class="p">);</span>
 <span class="kt">int</span><span class="w"> </span><span class="n">device</span><span class="p">;</span>
@@ -366,65 +325,63 @@
 </section>
 <section id="device-selection">
 <span id="id1"></span><h3><span class="section-number">3.4.1.2. </span>设备选择<a class="headerlink" href="multi-gpu-systems.html#device-selection" title="跳转到此标题">#</a></h3>
-<p>主机线程可以通过调用随时设置当前正在操作的设备 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code>。
+<p>主机线程可以随时调用 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code> 来设置当前操作的设备。
 设备内存分配和内核启动是在当前设备上进行的；流和事件是与当前设置的设备关联创建的。
-直到接到电话 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code> 由主机线程创建，当前设备默认为设备0。</p>
-<p>以下代码示例说明了设置当前设备如何影响后续内存分配和内核执行操作。</p>
+在主机线程调用 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code> 之前，当前设备默认是设备 0。</p>
+<p>以下代码示例说明了设置当前设备会如何影响后续内存分配和内核执行操作。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1024</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">);</span>
 <span class="n">cudaSetDevice</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w">            </span><span class="c1">// 将设备 0 设置为当前设备</span>
 <span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">p0</span><span class="p">;</span>
-<span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p0</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span><span class="w">       </span><span class="c1">// 在设备0上分配内存</span>
+<span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p0</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span><span class="w">       </span><span class="c1">// 在设备 0 上分配内存</span>
 <span class="n">MyKernel</span><span class="o">&lt;&lt;&lt;</span><span class="mi">1000</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">p0</span><span class="p">);</span><span class="w"> </span><span class="c1">// 在设备 0 上启动内核</span>
 
 <span class="n">cudaSetDevice</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w">            </span><span class="c1">// 将设备 1 设置为当前设备</span>
 <span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">p1</span><span class="p">;</span>
-<span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span><span class="w">       </span><span class="c1">// 在设备1上分配内存</span>
+<span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span><span class="w">       </span><span class="c1">// 在设备 1 上分配内存</span>
 <span class="n">MyKernel</span><span class="o">&lt;&lt;&lt;</span><span class="mi">1000</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">p1</span><span class="p">);</span><span class="w"> </span><span class="c1">// 在设备 1 上启动内核</span>
 </pre></div>
 </div>
 </section>
 <section id="multi-device-stream-event-and-memory-copy-behavior">
-<span id="multi-gpu-stream-and-event-behavior"></span><h3><span class="section-number">3.4.1.3. </span>多设备流、事件和内存复制行为<a class="headerlink" href="multi-gpu-systems.html#multi-device-stream-event-and-memory-copy-behavior" title="跳转到此标题">#</a></h3>
-<p>如果将内核发布到与当前设备不关联的流，则内核启动将会失败，如以下代码示例所示。</p>
+<span id="multi-gpu-stream-and-event-behavior"></span><h3><span class="section-number">3.4.1.3. </span>多设备流、事件和内存拷贝行为<a class="headerlink" href="multi-gpu-systems.html#multi-device-stream-event-and-memory-copy-behavior" title="跳转到此标题">#</a></h3>
+<p>如果把内核启动提交到一个并非关联当前设备的流，启动将会失败，如以下代码示例所示。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaSetDevice</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w">               </span><span class="c1">// 将设备 0 设置为当前设备</span>
 <span class="n">cudaStream_t</span><span class="w"> </span><span class="n">s0</span><span class="p">;</span>
-<span class="n">cudaStreamCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">s0</span><span class="p">);</span><span class="w">          </span><span class="c1">// 在设备0上创建流s0</span>
+<span class="n">cudaStreamCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">s0</span><span class="p">);</span><span class="w">          </span><span class="c1">// 在设备 0 上创建流 s0</span>
 <span class="n">MyKernel</span><span class="o">&lt;&lt;&lt;</span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">s0</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span><span class="w"> </span><span class="c1">// 在 s0 中的设备 0 上启动内核</span>
 
 <span class="n">cudaSetDevice</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w">               </span><span class="c1">// 将设备 1 设置为当前设备</span>
 <span class="n">cudaStream_t</span><span class="w"> </span><span class="n">s1</span><span class="p">;</span>
-<span class="n">cudaStreamCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">s1</span><span class="p">);</span><span class="w">          </span><span class="c1">// 在设备1上创建流s1</span>
+<span class="n">cudaStreamCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">s1</span><span class="p">);</span><span class="w">          </span><span class="c1">// 在设备 1 上创建流 s1</span>
 <span class="n">MyKernel</span><span class="o">&lt;&lt;&lt;</span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">s1</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span><span class="w"> </span><span class="c1">// 在 s1 中的设备 1 上启动内核</span>
 
 <span class="c1">// 此内核启动将失败，因为流 s0 未与设备 1 关联：</span>
 <span class="n">MyKernel</span><span class="o">&lt;&lt;&lt;</span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">s0</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span><span class="w"> </span><span class="c1">// 在 s0 中的设备 1 上启动内核</span>
 </pre></div>
 </div>
-<p>即使内存复制被发送到与当前设备不关联的流，它也会成功。</p>
-<p><code class="docutils literal notranslate"><span class="pre">cudaEventRecord()</span></code> 如果输入事件和输入流关联到不同的设备，则会失败。</p>
-<p><code class="docutils literal notranslate"><span class="pre">cudaEventElapsedTime()</span></code> 如果两个输入事件关联到不同的设备，则会失败。</p>
-<p><code class="docutils literal notranslate"><span class="pre">cudaEventSynchronize()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaEventQuery()</span></code> 即使输入事件关联到与当前设备不同的设备，也会成功。</p>
-<p><code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code> 即使输入流和输入事件关联到不同的设备也会成功。 <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code> 因此可用于使多个设备相互同步。</p>
-<p>每个设备都有自己的 <a class="reference internal" href="../02-basics/asynchronous-execution.html#async-execution-blocking-non-blocking-default-stream"><span class="std std-ref">默认流</span></a>，因此向设备的默认流发出的命令可能会乱序执行，或者相对于向任何其他设备的默认流发出的命令同时执行。</p>
+<p>即使内存拷贝被提交到一个并非关联当前设备的流，它也会成功。</p>
+<p>如果输入事件和输入流关联到不同设备，<code class="docutils literal notranslate"><span class="pre">cudaEventRecord()</span></code> 会失败。</p>
+<p>如果两个输入事件关联到不同设备，<code class="docutils literal notranslate"><span class="pre">cudaEventElapsedTime()</span></code> 会失败。</p>
+<p>即使输入事件关联到的设备不同于当前设备，<code class="docutils literal notranslate"><span class="pre">cudaEventSynchronize()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaEventQuery()</span></code> 也会成功。</p>
+<p>即使输入流和输入事件关联到不同设备，<code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code> 也会成功。因此，<code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code> 可用于在多个设备之间进行同步。</p>
+<p>每个设备都有自己的 <a class="reference internal" href="../02-basics/asynchronous-execution.html#async-execution-blocking-non-blocking-default-stream"><span class="std std-ref">默认流</span></a>，因此提交到某个设备默认流的命令，相对于提交到其他任意设备默认流的命令，可能乱序执行，也可能并发执行。</p>
 </section>
 </section>
 <section id="multi-device-peer-to-peer-transfers-and-memory-access">
 <span id="multi-gpu-peer-memory-access"></span><h2><span class="section-number">3.4.2. </span>多设备点对点传输和内存访问<a class="headerlink" href="multi-gpu-systems.html#multi-device-peer-to-peer-transfers-and-memory-access" title="跳转到此标题">#</a></h2>
 <section id="peer-to-peer-memory-transfers">
 <span id="multi-gpu-peer-to-peer-transfers"></span><h3><span class="section-number">3.4.2.1. </span>点对点内存传输<a class="headerlink" href="multi-gpu-systems.html#peer-to-peer-memory-transfers" title="跳转到此标题">#</a></h3>
-<p>CUDA 可以在设备之间执行内存传输，并将利用
-专用复制引擎和 NVLink 硬件以最大限度地提高性能
-当可以进行点对点内存访问时。</p>
-<p><code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code> 可与复制类型一起使用 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyDeviceToDevice</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyDefault</span></code>.</p>
-<p>否则，必须使用以下方式执行复制 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyPeer()</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaMemcpyPeerAsync()</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaMemcpy3DPeer()</span></code>, or <code class="docutils literal notranslate"><span class="pre">cudaMemcpy3DPeerAsync()</span></code> 如以下代码示例所示。</p>
+<p>CUDA 可以在设备之间执行内存传输；当能够使用点对点内存访问时，它会利用专用拷贝引擎和 NVLink 硬件来最大化性能。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code> 可与 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyDeviceToDevice</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyDefault</span></code> 拷贝类型配合使用。</p>
+<p>否则，必须使用 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyPeer()</span></code>、<code class="docutils literal notranslate"><span class="pre">cudaMemcpyPeerAsync()</span></code>、<code class="docutils literal notranslate"><span class="pre">cudaMemcpy3DPeer()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy3DPeerAsync()</span></code> 执行拷贝，如以下代码示例所示。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaSetDevice</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w">                   </span><span class="c1">// 将设备 0 设置为当前设备</span>
 <span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">p0</span><span class="p">;</span>
 <span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1024</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">);</span>
-<span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p0</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span><span class="w">              </span><span class="c1">// 在设备0上分配内存</span>
+<span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p0</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span><span class="w">              </span><span class="c1">// 在设备 0 上分配内存</span>
 
 <span class="n">cudaSetDevice</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w">                   </span><span class="c1">// 将设备 1 设置为当前设备</span>
 <span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">p1</span><span class="p">;</span>
-<span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span><span class="w">              </span><span class="c1">// 在设备1上分配内存</span>
+<span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span><span class="w">              </span><span class="c1">// 在设备 1 上分配内存</span>
 
 <span class="n">cudaSetDevice</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w">                   </span><span class="c1">// 将设备 0 设置为当前设备</span>
 <span class="n">MyKernel</span><span class="o">&lt;&lt;&lt;</span><span class="mi">1000</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">p0</span><span class="p">);</span><span class="w">        </span><span class="c1">// 在设备 0 上启动内核</span>
@@ -434,24 +391,23 @@
 <span class="n">MyKernel</span><span class="o">&lt;&lt;&lt;</span><span class="mi">1000</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">p1</span><span class="p">);</span><span class="w">        </span><span class="c1">// 在设备 1 上启动内核</span>
 </pre></div>
 </div>
-<p>副本（隐式 <em>NULL</em> 两个不同设备的内存之间的流）：</p>
+<p>两个不同设备内存之间的拷贝（在隐式 <em>NULL</em> 流中）：</p>
 <ul class="simple">
-<li><p>直到之前向任一设备发出的所有命令都已完成并且</p></li>
-<li><p>在执行任何命令之前运行完成（请参阅 <a class="reference internal" href="../02-basics/asynchronous-execution.html#asynchronous-execution"><span class="std std-ref">异步执行</span></a>）发出后，可以开始复制到任一设备。</p></li>
+<li><p>要等到此前提交到任一设备的所有命令都完成后才会开始；并且</p></li>
+<li><p>会在拷贝之后提交到任一设备的任何命令（见 <a class="reference internal" href="../02-basics/asynchronous-execution.html#asynchronous-execution"><span class="std std-ref">异步执行</span></a>）开始之前运行完成。</p></li>
 </ul>
-<p>与流的正常行为一致，两个设备内存之间的异步副本可能与另一个流中的副本或内核重叠。</p>
-<p>如果在两个设备之间启用了对等访问，例如，如中所述 <a class="reference internal" href="multi-gpu-systems.html#multi-gpu-peer-to-peer-memory-access"><span class="std std-ref">点对点内存访问</span></a>，这两个设备之间的点对点内存复制不再需要通过主机进行，因此速度更快。</p>
+<p>与流的正常行为一致，两个设备内存之间的异步拷贝可以与另一个流中的拷贝或内核重叠。</p>
+<p>如果在两个设备之间启用了点对点访问，例如 <a class="reference internal" href="multi-gpu-systems.html#multi-gpu-peer-to-peer-memory-access"><span class="std std-ref">点对点内存访问</span></a> 中所述，那么这两个设备之间的点对点内存拷贝不再需要经由主机中转，因此速度更快。</p>
 </section>
 <section id="peer-to-peer-memory-access">
 <span id="multi-gpu-peer-to-peer-memory-access"></span><h3><span class="section-number">3.4.2.2. </span>点对点内存访问<a class="headerlink" href="multi-gpu-systems.html#peer-to-peer-memory-access" title="跳转到此标题">#</a></h3>
-<p>根据系统属性，特别是 PCIe 和/或 NVLink 拓扑，设备能够寻址彼此的内存（即，在一个设备上执行的内核可以取消引用指向另一设备内存的指针）。
-两个设备之间支持点对点内存访问，如果 <code class="docutils literal notranslate"><span class="pre">cudaDeviceCanAccessPeer()</span></code> 对于指定设备返回 true。</p>
-<p>必须通过调用在两个设备之间启用对等内存访问 <code class="docutils literal notranslate"><span class="pre">cudaDeviceEnablePeerAccess()</span></code> 如以下代码示例所示。在未启用 NVSwitch 的系统上，每个设备最多可支持系统范围内的八个对等连接。</p>
-<p>两个设备都使用统一的虚拟地址空间（请参阅 <a class="reference internal" href="../02-basics/understanding-memory.html#memory-unified-virtual-address-space"><span class="std std-ref">统一虚拟地址空间</span></a>），因此可以使用相同的指针来寻址两个设备的内存，如下面的代码示例所示。</p>
+<p>取决于系统属性，尤其是 PCIe 和/或 NVLink 拓扑，设备可以寻址彼此的内存（也就是说，在一个设备上执行的内核可以解引用指向另一个设备内存的指针）。如果 <code class="docutils literal notranslate"><span class="pre">cudaDeviceCanAccessPeer()</span></code> 对指定设备返回 true，则这两个设备之间支持点对点内存访问。</p>
+<p>必须调用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceEnablePeerAccess()</span></code> 才能在两个设备之间启用点对点内存访问，如以下代码示例所示。在未启用 NVSwitch 的系统上，每个设备在系统范围内最多支持八个对等连接。</p>
+<p>两个设备使用统一虚拟地址空间（见 <a class="reference internal" href="../02-basics/understanding-memory.html#memory-unified-virtual-address-space"><span class="std std-ref">统一虚拟地址空间</span></a>），因此可用同一个指针寻址来自两个设备的内存，如下面的代码示例所示。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaSetDevice</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w">                   </span><span class="c1">// 将设备 0 设置为当前设备</span>
 <span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">p0</span><span class="p">;</span>
 <span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1024</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">);</span>
-<span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p0</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span><span class="w">              </span><span class="c1">// 在设备0上分配内存</span>
+<span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p0</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span><span class="w">              </span><span class="c1">// 在设备 0 上分配内存</span>
 <span class="n">MyKernel</span><span class="o">&lt;&lt;&lt;</span><span class="mi">1000</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">p0</span><span class="p">);</span><span class="w">        </span><span class="c1">// 在设备 0 上启动内核</span>
 
 <span class="n">cudaSetDevice</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w">                   </span><span class="c1">// 将设备 1 设置为当前设备</span>
@@ -465,49 +421,42 @@
 </div>
 <div class="admonition note">
 <p class="admonition-title">注</p>
-<p>使用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceEnablePeerAccess()</span></code> 启用对等内存访问可在对等设备上的所有先前和后续 GPU 内存分配上进行全局操作。
-通过以下方式启用对设备的对等访问 <code class="docutils literal notranslate"><span class="pre">cudaDeviceEnablePeerAccess()</span></code> 由于需要使当前设备和也具有访问权限的任何其他对等方立即访问分配，因此会增加该对等方上的设备内存分配操作的运行时成本，从而增加随对等设备数量扩展的乘法开销。</p>
-<p>为所有设备内存分配启用对等内存访问的更具可扩展性的替代方案是利用 CUDA 虚拟内存管理 API 在分配时仅根据需要显式分配对等可访问内存区域。
-通过在内存分配期间显式请求对等可访问性，内存分配的运行时成本不会因对等无法访问的分配而受到损害，并且对等可访问数据结构的范围被正确确定，以改进软件调试和可靠性（请参阅参考文献：：<cite>virtual-memory-management</cite>).</p>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceEnablePeerAccess()</span></code> 启用对等内存访问，会全局作用于对等设备上此前以及此后所有 GPU 内存分配。
+通过 <code class="docutils literal notranslate"><span class="pre">cudaDeviceEnablePeerAccess()</span></code> 为某个设备启用对等访问后，该对等设备上的设备内存分配操作会增加运行时成本，因为这些分配必须立即对当前设备以及其他同样拥有访问权限的对等设备可见。这会带来随对等设备数量扩展的乘法开销。</p>
+<p>比为所有设备内存分配启用对等内存访问更具可扩展性的做法，是使用 CUDA 虚拟内存管理 API，在分配时只按需显式分配可由对等设备访问的内存区域。
+通过在内存分配期间显式请求对等可访问性，不会让不可由对等设备访问的分配承担额外运行时成本，同时可正确限定对等可访问数据结构的作用范围，从而改进软件调试和可靠性（见 <a class="reference internal" href="../04-special-topics/virtual-memory-management.html#virtual-memory-management"><span class="std std-ref">虚拟内存管理</span></a>）。</p>
 </div>
 </section>
 <section id="peer-to-peer-memory-consistency">
 <span id="multi-gpu-peer-to-peer-memory-consistency-synchronization"></span><h3><span class="section-number">3.4.2.3. </span>点对点内存一致性<a class="headerlink" href="multi-gpu-systems.html#peer-to-peer-memory-consistency" title="跳转到此标题">#</a></h3>
-<p>必须使用同步操作来强制排序和
-通过网格中并发执行线程来保证内存访问的正确性
-分布在多个设备上。
-跨设备同步的线程在 <code class="docutils literal notranslate"><span class="pre">thread_scope_system</span></code>
-<a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_model.html#thread-scopes">同步范围</a>。
-同样，内存操作也属于
-的 <code class="docutils literal notranslate"><span class="pre">thread_scope_system</span></code> <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/#memory-synchronization-domains">内存同步域</a>.</p>
-<p>CUDA 参考::<cite>atomic-functions</cite> 可以执行读-修改-写操作
-当只有一个 GPU 时，在对等设备内存中的对象上
-访问该对象。
-CUDA 内存模型中描述了对等原子性的要求和限制 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_model.html#atomicity">原子性要求</a> discussion.</p>
+<p>必须使用同步操作来强制规定内存访问的顺序，并保证分布在多个设备上的网格中并发执行线程的内存访问正确性。
+跨设备同步的线程在 <code class="docutils literal notranslate"><span class="pre">thread_scope_system</span></code> <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_model.html#thread-scopes">同步作用域</a> 下运行。
+类似地，内存操作也落在 <code class="docutils literal notranslate"><span class="pre">thread_scope_system</span></code> <a class="reference internal" href="../04-special-topics/memory-sync-domains.html#memory-synchronization-domains"><span class="std std-ref">内存同步域</span></a> 内。</p>
+<p>当只有单个 GPU 访问某个对象时，<a class="reference internal" href="../05-appendices/cpp-language-extensions.html#atomic-functions"><span class="std std-ref">CUDA 原子函数</span></a> 可以对位于对等设备内存中的该对象执行读取-修改-写入操作。
+对等原子性的要求和限制在 CUDA 内存模型的 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_model.html#atomicity">原子性要求</a> 讨论中说明。</p>
 </section>
 <section id="multi-device-managed-memory">
 <span id="multi-gpu-managed-memory"></span><h3><span class="section-number">3.4.2.4. </span>多设备管理内存<a class="headerlink" href="multi-gpu-systems.html#multi-device-managed-memory" title="跳转到此标题">#</a></h3>
-<p>托管内存可用于具有点对点支持的多 GPU 系统。
-并发多设备托管内存访问的详细要求
-用于 GPU 独占访问托管内存的 API 描述于 <a class="reference internal" href="../04-special-topics/unified-memory.html#um-legacy-multi-gpu"><span class="std std-ref">多 GPU</span></a>.</p>
+<p>托管内存可用于支持点对点访问的多 GPU 系统。
+并发多设备托管内存访问的详细要求，以及用于让 GPU 独占访问托管内存的 API，见 <a class="reference internal" href="../04-special-topics/unified-memory.html#um-legacy-multi-gpu"><span class="std std-ref">多 GPU</span></a>。</p>
 </section>
 <section id="host-iommu-hardware-pci-access-control-services-and-vms">
-<span id="multi-gpu-host-iommu-acs-vm"></span><h3><span class="section-number">3.4.2.5. </span>主机 IOMMU 硬件、PCI 访问控制服务和 VM<a class="headerlink" href="multi-gpu-systems.html#host-iommu-hardware-pci-access-control-services-and-vms" title="跳转到此标题">#</a></h3>
-<p>特别是在 Linux 上，CUDA 和显示驱动程序不支持启用 IOMMU 的裸机 PCIe 对等内存传输。
-但是，CUDA 和显示驱动程序确实通过虚拟机直通支持 IOMMU。
-在裸机系统上运行 Linux 时，必须禁用 IOMMU，以防止静默设备内存损坏。
-相反，应启用 IOMMU 并将 VFIO 驱动程序用于虚拟机的 PCIe 直通。</p>
-<p>在 Windows 上，上述 IOMMU 限制不存在。</p>
-<p>另请参阅 <a class="reference external" href="https://download.nvidia.com/XFree86/Linux-x86_64/510.85.02/README/dma_issues.html">在 64 位平台上分配 DMA 缓冲区</a>.</p>
-<p>此外，还可以在支持 IOMMU 的系统上启用 PCI 访问控制服务 (ACS)。
-PCI ACS 功能通过 CPU 根复合体重定向所有 PCI 点对点流量，这可能会由于总体平分带宽的减少而导致显着的性能损失。</p>
+<span id="multi-gpu-host-iommu-acs-vm"></span><h3><span class="section-number">3.4.2.5. </span>主机 IOMMU 硬件、PCI 访问控制服务和虚拟机<a class="headerlink" href="multi-gpu-systems.html#host-iommu-hardware-pci-access-control-services-and-vms" title="跳转到此标题">#</a></h3>
+<p>特别是在 Linux 上，CUDA 和显示驱动程序不支持在启用 IOMMU 的裸机环境中执行 PCIe 点对点内存传输。
+不过，CUDA 和显示驱动程序支持通过虚拟机直通使用 IOMMU。
+在裸机系统上运行 Linux 时，必须禁用 IOMMU，以防静默设备内存损坏。
+相反，对于虚拟机的 PCIe 直通，应启用 IOMMU 并使用 VFIO 驱动程序。</p>
+<p>在 Windows 上不存在上述 IOMMU 限制。</p>
+<p>另请参阅 <a class="reference external" href="https://download.nvidia.com/XFree86/Linux-x86_64/510.85.02/README/dma_issues.html">在 64 位平台上分配 DMA 缓冲区</a>。</p>
+<p>此外，在支持 IOMMU 的系统上可以启用 PCI 访问控制服务 (ACS)。
+PCI ACS 特性会通过 CPU 根复合体重定向所有 PCI 点对点流量；由于整体对分带宽降低，这可能造成显著的性能损失。</p>
 </section>
 </section>
 </section>
 </article>
 <footer class="prev-next-footer d-print-none">
 <div class="prev-next-area">
-<a class="left-prev" href="driver-api.html" title="上一页">3.3. CUDA Driver API</a>
+<a class="left-prev" href="driver-api.html" title="上一页">3.3. CUDA 驱动程序 API</a>
 <a class="right-next" href="feature-survey.html" title="下一页">3.5. CUDA 特性概览</a>
 </div>
 </footer>
@@ -520,18 +469,18 @@ PCI ACS 功能通过 CPU 根复合体重定向所有 PCI 点对点流量，这�
   </div>
 <nav aria-labelledby="pst-page-navigation-heading-2" class="bd-toc-nav page-toc">
 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#multi-device-context-and-execution-management">3.4. 多 GPU 系统编程</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#device-enumeration">3.4. 多 GPU 系统编程</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#device-selection">3.4. 多 GPU 系统编程</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#multi-device-stream-event-and-memory-copy-behavior">3.4. 多 GPU 系统编程</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#multi-device-context-and-execution-management">3.4.1. 多设备上下文和执行管理</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#device-enumeration">3.4.1.1. 设备枚举</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#device-selection">3.4.1.2. 设备选择</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#multi-device-stream-event-and-memory-copy-behavior">3.4.1.3. 多设备流、事件和内存拷贝行为</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#multi-device-peer-to-peer-transfers-and-memory-access">3.4. 多 GPU 系统编程</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#peer-to-peer-memory-transfers">3.4. 多 GPU 系统编程</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#peer-to-peer-memory-access">3.4. 多 GPU 系统编程</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#peer-to-peer-memory-consistency">3.4. 多 GPU 系统编程</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#multi-device-managed-memory">3.4. 多 GPU 系统编程</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#host-iommu-hardware-pci-access-control-services-and-vms">3.4. 多 GPU 系统编程</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#multi-device-peer-to-peer-transfers-and-memory-access">3.4.2. 多设备点对点传输和内存访问</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#peer-to-peer-memory-transfers">3.4.2.1. 点对点内存传输</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#peer-to-peer-memory-access">3.4.2.2. 点对点内存访问</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#peer-to-peer-memory-consistency">3.4.2.3. 点对点内存一致性</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#multi-device-managed-memory">3.4.2.4. 多设备管理内存</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="multi-gpu-systems.html#host-iommu-hardware-pci-access-control-services-and-vms">3.4.2.5. 主机 IOMMU 硬件、PCI 访问控制服务和虚拟机</a></li>
 </ul>
 </li>
 </ul>
