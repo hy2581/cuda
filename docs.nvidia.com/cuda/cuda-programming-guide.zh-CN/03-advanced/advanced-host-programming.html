@@ -284,24 +284,20 @@
 <article class="bd-article">
 <section id="advanced-cuda-apis-and-features">
 <span id="advanced-apis-and-features"></span><h1>3.1. 高级 CUDA API 与特性<a class="headerlink" href="advanced-host-programming.html#advanced-cuda-apis-and-features" title="跳转到此标题">#</a></h1>
-<p>本节将介绍更高级的 CUDA API 和功能的使用。这些主题涵盖的技术或功能通常不需要 CUDA 内核修改，但仍然可以从主机端影响应用程序级行为，包括 GPU 工作执行和性能以及 CPU 端性能。</p>
+<p>本节介绍更高级的 CUDA API 与特性的用法。这些主题通常不需要修改 CUDA 内核，但仍可从主机端影响应用级行为，包括 GPU 工作的执行方式与性能，以及 CPU 端性能。</p>
 <section id="cudalaunchkernelex">
 <span id="advanced-host-cudalaunchkernelex"></span><h2><span class="section-number">3.1.1. </span>cudaLaunchKernelEx<a class="headerlink" href="advanced-host-programming.html#cudalaunchkernelex" title="跳转到此标题">#</a></h2>
-<p>当 <a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html#intro-cpp-launching-kernels-triple-chevron"><span class="std std-ref">三重 V 形符号</span></a> 在第一个版本中引入了 <a class="reference internal" href="../05-appendices/cpp-language-extensions.html#execution-configuration"><span class="std std-ref">内核配置</span></a> 内核只有四个可编程参数：
-- 线程块尺寸
-- 网格尺寸
-- 动态共享内存（可选，如果未指定则为 0）
-- 流（如果未指定则使用默认流）</p>
-<p>某些 CUDA 功能可以受益于内核启动时提供的附加属性和提示。这 <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code> 使程序能够通过以下方式设置上述执行配置参数 <code class="docutils literal notranslate"><span class="pre">cudaLaunchConfig_t</span></code> 结构。  此外， <code class="docutils literal notranslate"><span class="pre">cudaLaunchConfig_t</span></code> 结构允许程序传入零个或多个 <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributes</span></code> 控制或建议内核启动的其他参数。例如， <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributePreferredSharedMemoryCarveout</span></code> 本章稍后讨论（参见 <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernel-l1-shared-config"><span class="std std-ref">配置 L1/共享内存平衡</span></a>) 指定使用 <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code>。的 <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeClusterDimension</span></code> 本章稍后讨论的属性用于指定内核启动所需的簇大小。</p>
-<p>支持的属性及其含义的完整列表在 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html#group__CUDART__TYPES_1gfc5ed48085f05863b1aeebb14934b056">CUDA 运行时 API 参考文档</a>.</p>
+<p>早期 CUDA 引入 <a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html#intro-cpp-launching-kernels-triple-chevron"><span class="std std-ref">三尖括号语法</span></a> 时，一个内核的 <a class="reference internal" href="../05-appendices/cpp-language-extensions.html#execution-configuration"><span class="std std-ref">执行配置</span></a> 只有四个可编程参数：线程块维度、网格维度、动态共享内存大小（可选，未指定时为 0）以及流（未指定时使用默认流）。</p>
+<p>某些 CUDA 特性可受益于内核启动时附带的额外属性和提示。<code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code> 允许程序通过 <code class="docutils literal notranslate"><span class="pre">cudaLaunchConfig_t</span></code> 结构设置上述执行配置参数。此外，<code class="docutils literal notranslate"><span class="pre">cudaLaunchConfig_t</span></code> 结构还允许程序传入零个或多个 <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributes</span></code>，用于控制或建议内核启动的其他参数。例如，本章后面讨论的 <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributePreferredSharedMemoryCarveout</span></code>（见 <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernel-l1-shared-config"><span class="std std-ref">配置 L1/共享内存平衡</span></a>）就是通过 <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code> 指定的。稍后还会讨论 <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeClusterDimension</span></code> 属性，它用于指定内核启动所需的簇大小。</p>
+<p>受支持属性及其含义的完整列表见 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html#group__CUDART__TYPES_1gfc5ed48085f05863b1aeebb14934b056">CUDA Runtime API 参考文档</a>。</p>
 </section>
 <section id="launching-clusters">
-<h2><span class="section-number">3.1.2. </span>启动集群：<a class="headerlink" href="advanced-host-programming.html#launching-clusters" title="跳转到此标题">#</a></h2>
-<p><a class="reference internal" href="../01-introduction/programming-model.html#programming-model-thread-block-clusters"><span class="std std-ref">线程块簇</span></a>前面几节介绍的线程块组织是计算能力 9.0 及更高版本中可用的可选级别，它使应用程序能够保证集群的线程块在单个 GPC 上同时执行。这使得比单个 SM 中的线程组更大的线程组能够交换数据并相互同步。</p>
-<p>Section <a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html#intro-cpp-launching-cluster-triple-chevron"><span class="std std-numref">第2.1.10.1节</span></a> 展示了如何使用三重 V 形符号来指定和启动使用集群的内核。在本节中， <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code> 注释用于指定必须用于启动内核的集群的尺寸。当使用三重 V 形符号时，簇的大小是隐式确定的。</p>
+<h2><span class="section-number">3.1.2. </span>启动簇<a class="headerlink" href="advanced-host-programming.html#launching-clusters" title="跳转到此标题">#</a></h2>
+<p>前面几节介绍过 <a class="reference internal" href="../01-introduction/programming-model.html#programming-model-thread-block-clusters"><span class="std std-ref">线程块簇</span></a>。它是计算能力 9.0 及更高版本中可用的可选线程块组织层级，可让应用保证同一簇内的线程块在单个 GPC 上同时执行。这样，规模大于单个 SM 所能容纳的线程组也能交换数据并相互同步。</p>
+<p><a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html#intro-cpp-launching-cluster-triple-chevron"><span class="std std-numref">第 2.1.10.1 节</span></a> 展示了如何使用三尖括号语法指定并启动使用簇的内核。在该示例中，<code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code> 注解用于指定启动内核时必须使用的簇维度。使用三尖括号语法时，簇大小是隐式确定的。</p>
 <section id="launching-with-clusters-using-cudalaunchkernelex">
-<span id="advanced-host-clusters-cudalaunchkernelex"></span><h3><span class="section-number">3.1.2.1. </span>使用 cudaLaunchKernelEx 启动集群<a class="headerlink" href="advanced-host-programming.html#launching-with-clusters-using-cudalaunchkernelex" title="跳转到此标题">#</a></h3>
-<p>Unlike <a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html#intro-cpp-launching-cluster-triple-chevron"><span class="std std-ref">使用具有三重 V 形符号的集群启动内核</span></a>，线程块簇的大小可以在每次启动的基础上进行配置。下面的代码示例展示了如何使用以下命令启动集群内核 <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code>.</p>
+<span id="advanced-host-clusters-cudalaunchkernelex"></span><h3><span class="section-number">3.1.2.1. </span>使用 cudaLaunchKernelEx 启动簇<a class="headerlink" href="advanced-host-programming.html#launching-with-clusters-using-cudalaunchkernelex" title="跳转到此标题">#</a></h3>
+<p>与 <a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html#intro-cpp-launching-cluster-triple-chevron"><span class="std std-ref">使用三尖括号语法启动簇内核</span></a> 不同，线程块簇的大小可以按每次启动分别配置。下面的代码示例展示了如何使用 <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code> 启动簇内核。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 内核定义</span>
 <span class="c1">// 内核没有附加编译时属性</span>
 <span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">cluster_kernel</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">output</span><span class="p">)</span>
@@ -315,11 +311,10 @@
 <span class="w">    </span><span class="n">dim3</span><span class="w"> </span><span class="nf">threadsPerBlock</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">);</span>
 <span class="w">    </span><span class="n">dim3</span><span class="w"> </span><span class="nf">numBlocks</span><span class="p">(</span><span class="n">N</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">threadsPerBlock</span><span class="p">.</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">threadsPerBlock</span><span class="p">.</span><span class="n">y</span><span class="p">);</span>
 
-<span class="w">    </span><span class="c1">// 具有运行时集群大小的内核调用</span>
+<span class="w">    </span><span class="c1">// 使用运行时簇大小的内核调用</span>
 <span class="w">    </span><span class="p">{</span>
 <span class="w">        </span><span class="n">cudaLaunchConfig_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
-<span class="w">        </span><span class="c1">// 网格维度不受集群启动影响，仍然枚举</span>
-<span class="w">        </span><span class="c1">// 使用块数。</span>
+<span class="w">        </span><span class="c1">// 网格维度不受簇启动影响，仍按线程块数量枚举。</span>
 <span class="w">        </span><span class="c1">// 网格尺寸应该是簇大小的倍数。</span>
 <span class="w">        </span><span class="n">config</span><span class="p">.</span><span class="n">gridDim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">numBlocks</span><span class="p">;</span>
 <span class="w">        </span><span class="n">config</span><span class="p">.</span><span class="n">blockDim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">threadsPerBlock</span><span class="p">;</span>
@@ -337,60 +332,49 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>有两个 <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttribute</span></code> 与线程块簇相关的类型：  <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeClusterDimension</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributePreferredClusterDimension</span></code>.</p>
-<p>属性 ID <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeClusterDimension</span></code> 指定执行集群所需的维度。该属性的值， <code class="docutils literal notranslate"><span class="pre">clusterDim</span></code>, 是一个 3 维值。网格的相应维度（x、y 和 z）必须能被指定簇维度的相应维度整除。设置此项类似于使用  <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code> 编译时内核定义上的属性，如下所示 <a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html#intro-cpp-launching-cluster-triple-chevron"><span class="std std-ref">使用三重 V 形符号的集群启动</span></a>，但可以在运行时针对同一内核的不同启动进行更改。</p>
-<p>在计算能力为 10.0 及更高的 GPU 上，另一个属性 id <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributePreferredClusterDimension</span></code> 允许应用程序额外指定集群的首选维度。首选维度必须是由指定的最小簇维度的整数倍 <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code> 内核上的属性或 <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeClusterDimension</span></code> 归因于 <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code>。也就是说，除了首选簇尺寸之外，还必须指定最小簇尺寸。网格的相应维度（x、y 和 z）必须能被指定的首选簇维度的相应维度整除。</p>
-<p>所有线程块将在至少具有最小簇尺寸的簇中执行。在可能的情况下，将使用首选维度的集群，但并非所有集群都保证以首选维度执行。所有线程块都将在具有最小或首选集群维度的集群中执行。使用首选簇维度的内核必须编写为在最小或首选簇维度中正确运行。</p>
+<p>与线程块簇相关的 <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttribute</span></code> 类型有两个：<code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeClusterDimension</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributePreferredClusterDimension</span></code>。</p>
+<p>属性 ID <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeClusterDimension</span></code> 指定执行簇所需的维度。该属性的值 <code class="docutils literal notranslate"><span class="pre">clusterDim</span></code> 是一个三维值。网格在 x、y、z 各维上的大小，必须能被指定簇维度的对应维度整除。设置该属性类似于在编译时对内核定义使用 <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code> 属性（见 <a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html#intro-cpp-launching-cluster-triple-chevron"><span class="std std-ref">使用三尖括号语法启动簇</span></a>），但它可以在运行时针对同一内核的不同启动进行调整。</p>
+<p>在计算能力 10.0 及更高的 GPU 上，另一个属性 ID <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributePreferredClusterDimension</span></code> 允许应用程序额外指定簇的首选维度。首选维度必须是最小簇维度的整数倍；最小簇维度可由内核上的 <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code> 属性指定，也可由传给 <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code> 的 <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeClusterDimension</span></code> 属性指定。换言之，除了首选簇维度外，还必须指定最小簇维度。网格在 x、y、z 各维上的大小，也必须能被指定首选簇维度的对应维度整除。</p>
+<p>所有线程块都会在至少具备最小簇维度的簇中执行。在条件允许时会使用首选维度的簇，但并不保证所有簇都按首选维度执行。所有线程块都会在最小簇维度或首选簇维度的簇中执行。使用首选簇维度的内核，必须写成在最小或首选簇维度下都能正确运行。</p>
 </section>
 <section id="blocks-as-clusters">
 <span id="advanced-host-block-as-cluster"></span><h3><span class="section-number">3.1.2.2. </span>块作为簇<a class="headerlink" href="advanced-host-programming.html#blocks-as-clusters" title="跳转到此标题">#</a></h3>
-<p>当内核定义为  <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code> 注解中，网格中的簇数是隐式的，可以通过将网格的大小除以指定的簇大小来计算。</p>
+<p>当内核使用 <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code> 注解定义时，网格中的簇数是隐式的，可由网格大小除以指定簇大小得到。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">__cluster_dims__</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">))</span><span class="w"> </span><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">foo</span><span class="p">();</span>
 
-<span class="c1">// 8x8x8 集群，每个集群有 2x2x2 线程块。</span>
+<span class="c1">// 8x8x8 个簇，每个簇包含 2x2x2 个线程块。</span>
 <span class="n">foo</span><span class="o">&lt;&lt;&lt;</span><span class="n">dim3</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">),</span><span class="w"> </span><span class="n">dim3</span><span class="p">(</span><span class="mi">1024</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span>
 </pre></div>
 </div>
-<p>在上面的示例中，内核作为 16x16x16 线程块的网格启动，这意味着使用 8x8x8 集群的网格。</p>
-<p>内核也可以使用  <code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> 注释，它指定定义内核时所需的块大小和簇大小。使用此注释时，三重 V 形启动将成为集群而不是线程块的网格维度，如下所示。</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 每个块有多少个线程以及每个集群有多少个块的实现细节</span>
-<span class="c1">// 作为内核的一个属性来处理。</span>
+<p>在上面的示例中，内核以 16x16x16 个线程块组成的网格启动，这意味着实际使用的是 8x8x8 个簇组成的网格。</p>
+<p>内核也可以使用 <code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> 注解，在定义内核时同时指定所需线程块大小和簇大小。使用该注解时，三尖括号启动中的网格维度表示簇数量，而不是线程块数量，如下所示。</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 每个线程块有多少线程、每个簇有多少线程块，</span>
+<span class="c1">// 都作为内核属性处理。</span>
 <span class="n">__block_size__</span><span class="p">((</span><span class="mi">1024</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">))</span><span class="w"> </span><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">foo</span><span class="p">();</span>
 
 <span class="c1">// 8x8x8 簇。</span>
 <span class="n">foo</span><span class="o">&lt;&lt;&lt;</span><span class="n">dim3</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> 需要两个字段，每个字段都是 3 个元素的元组。第一个元组表示块维度和第二个簇大小。第二个元组假设为 <code class="docutils literal notranslate"><span class="pre">(1,1,1)</span></code> 如果没有通过。要指定流，必须通过 <code class="docutils literal notranslate"><span class="pre">1</span></code> 或 <code class="docutils literal notranslate"><span class="pre">0</span></code> 作为第二个和第三个参数 <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;&gt;&gt;&gt;</span></code> 最后是流。传递其他值将导致未定义的行为。</p>
-<p>请注意，第二个元组是非法的 <code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> 或 <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code> 同时指定。使用也是违法的 <code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> 与一个空的 <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code>。当第二个元组 <code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> 被指定，这意味着“块作为簇”被启用，并且编译器将识别其中的第一个参数 <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;&gt;&gt;&gt;</span></code> 作为簇的数量而不是线程块的数量。</p>
+<p><code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> 需要两个字段，每个字段都是包含 3 个元素的元组。第一个元组表示线程块维度，第二个元组表示簇大小；如果未传入第二个元组，则假定为 <code class="docutils literal notranslate"><span class="pre">(1,1,1)</span></code>。若要指定流，必须在 <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;&gt;&gt;&gt;</span></code> 中把第二、第三个参数分别传为 <code class="docutils literal notranslate"><span class="pre">1</span></code> 和 <code class="docutils literal notranslate"><span class="pre">0</span></code>，最后再传入流。传递其他值会导致未定义行为。</p>
+<p>需要注意，不能同时指定 <code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> 的第二个元组和 <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code>。将 <code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> 与空的 <code class="docutils literal notranslate"><span class="pre">__cluster_dims__</span></code> 一起使用也是非法的。当指定了 <code class="docutils literal notranslate"><span class="pre">__block_size__</span></code> 的第二个元组时，就表示启用了“块作为簇”，编译器会把 <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;&gt;&gt;&gt;</span></code> 中的第一个参数识别为簇数量，而不是线程块数量。</p>
 </section>
 </section>
 <section id="more-on-streams-and-events">
-<span id="advanced-host-streams-and-events"></span><h2><span class="section-number">3.1.3. </span>有关直播和活动的更多信息<a class="headerlink" href="advanced-host-programming.html#more-on-streams-and-events" title="跳转到此标题">#</a></h2>
-<p><a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-streams"><span class="std std-ref">CUDA 流</span></a> 介绍了 CUDA 流的基础知识。默认情况下，在给定 CUDA 流上提交的操作是序列化的：只有前一个操作完成后才能开始执行。唯一的例外是最近添加的 <a class="reference internal" href="../04-special-topics/programmatic-dependent-launch.html#programmatic-dependent-launch-and-synchronization"><span class="std std-ref">程序化依赖启动和同步</span></a> 功能。拥有多个 CUDA 流是实现并发执行的一种方法；另一种方法是使用 <a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs"><span class="std std-ref">CUDA 图形</span></a>。这两种方法也可以结合起来。</p>
-<p>在不同 CUDA 流上提交的工作 <cite>may</cite> 在特定情况下并发执行，例如，如果没有事件依赖、如果没有隐式同步、如果有足够的资源等。</p>
-<p>如果在不同 CUDA 流之间提交对 NULL 流的任何 CUDA 操作，则来自不同 CUDA 流的独立操作不能同时运行，除非这些流是非阻塞 CUDA 流。这些是使用以下命令创建的流 <code class="docutils literal notranslate"><span class="pre">cudaStreamCreateWithFlags()</span></code> 运行时 API 与 <code class="docutils literal notranslate"><span class="pre">cudaStreamNonBlocking</span></code> 标志。为了提高 GPU 并发工作执行的潜力，建议用户创建非阻塞 CUDA 流。</p>
-<p>还建议用户选择足以解决其问题的最不通用的同步选项。
-例如，如果要求 CPU 等待（阻止）特定 CUDA 流上的所有工作完成，
-使用 <code class="docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code> 对于该流最好是 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code>，因为后者将不必要地等待设备的所有 CUDA 流上的 GPU 工作完成。
-如果要求CPU等待而不阻塞，那么使用 <code class="docutils literal notranslate"><span class="pre">cudaStreamQuery()</span></code> 并在轮询循环中检查其返回值可能更可取。</p>
-<p>使用CUDA事件也可以实现类似的同步效果（<a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-events"><span class="std std-ref">CUDA 活动</span></a>），例如，通过在该流上记录事件并调用
-<code class="docutils literal notranslate"><span class="pre">cudaEventSynchronize()</span></code> 以阻塞方式等待在该事件中捕获的工作完成。
-同样，这比使用更可取且更集中 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code>。
-呼唤 <code class="docutils literal notranslate"><span class="pre">cudaEventQuery()</span></code> 并检查其返回值（例如，在轮询循环中）将是一种非阻塞替代方案。</p>
-<p>如果此操作发生在应用程序的关键路径中，则显式同步方法的选择尤其重要。
-<a class="reference internal" href="advanced-host-programming.html#table-streams-event-sync-summary"><span class="std std-numref">表4</span></a> 提供各种同步选项的高级摘要
-与主人。</p>
+<span id="advanced-host-streams-and-events"></span><h2><span class="section-number">3.1.3. </span>关于流和事件的更多内容<a class="headerlink" href="advanced-host-programming.html#more-on-streams-and-events" title="跳转到此标题">#</a></h2>
+<p><a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-streams"><span class="std std-ref">CUDA 流</span></a> 已介绍 CUDA 流的基础知识。默认情况下，提交到同一个 CUDA 流的操作会串行执行：前一个操作完成后，下一个操作才能开始。唯一例外是较新的 <a class="reference internal" href="../04-special-topics/programmatic-dependent-launch.html#programmatic-dependent-launch-and-synchronization"><span class="std std-ref">程序化依赖启动和同步</span></a> 特性。使用多个 CUDA 流是实现并发执行的一种方法；另一种方法是使用 <a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs"><span class="std std-ref">CUDA 图</span></a>。两种方法也可以结合使用。</p>
+<p>提交到不同 CUDA 流的工作在特定条件下<em>可能</em>并发执行，例如没有事件依赖、没有隐式同步且资源足够时。</p>
+<p>如果在来自不同 CUDA 流的独立操作之间，向 NULL 流提交了任何 CUDA 操作，那么这些独立操作不能并发运行，除非相关流是非阻塞 CUDA 流。非阻塞流可通过 <code class="docutils literal notranslate"><span class="pre">cudaStreamCreateWithFlags()</span></code> Runtime API 搭配 <code class="docutils literal notranslate"><span class="pre">cudaStreamNonBlocking</span></code> 标志创建。为了提高 GPU 工作并发执行的可能性，建议用户创建非阻塞 CUDA 流。</p>
+<p>还建议用户选择足以解决问题的最窄同步选项。例如，如果需要 CPU 等待（阻塞）某个特定 CUDA 流上的所有工作完成，那么对该流使用 <code class="docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code> 通常优于 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code>，因为后者会不必要地等待该设备所有 CUDA 流上的 GPU 工作完成。如果需要 CPU 等待但不阻塞，则可以使用 <code class="docutils literal notranslate"><span class="pre">cudaStreamQuery()</span></code> 并在轮询循环中检查其返回值。</p>
+<p>使用 CUDA 事件也可以实现类似的同步效果（见 <a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-events"><span class="std std-ref">CUDA 事件</span></a>）。例如，可以在某个流上记录事件，然后调用 <code class="docutils literal notranslate"><span class="pre">cudaEventSynchronize()</span></code>，以阻塞方式等待该事件捕获的工作完成。同样，这比使用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code> 更集中、更合适。调用 <code class="docutils literal notranslate"><span class="pre">cudaEventQuery()</span></code> 并检查其返回值（例如在轮询循环中）则是一种非阻塞替代方案。</p>
+<p>如果同步操作位于应用程序关键路径上，显式同步方法的选择尤其重要。<a class="reference internal" href="advanced-host-programming.html#table-streams-event-sync-summary"><span class="std std-numref">表 4</span></a> 从较高层次总结了与主机同步的各种选项。</p>
 <div class="pst-scrollable-table-container"><table class="small table table-center" id="table-streams-event-sync-summary">
-<caption><span class="caption-number">表4 </span><span class="caption-text">与主机的显式同步选项摘要</span><a class="headerlink" href="advanced-host-programming.html#table-streams-event-sync-summary" title="跳转到此标题">#</a></caption>
+<caption><span class="caption-number">表 4 </span><span class="caption-text">与主机显式同步的选项概览</span><a class="headerlink" href="advanced-host-programming.html#table-streams-event-sync-summary" title="跳转到此标题">#</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"></th>
-<th class="head"><p>等具体的
-流</p></th>
-<th class="head"><p>等具体的
-事件</p></th>
-<th class="head"><p>等待一切
-在设备上</p></th>
+<th class="head"><p>等待特定流</p></th>
+<th class="head"><p>等待特定事件</p></th>
+<th class="head"><p>等待设备上的全部工作</p></th>
 </tr>
 </thead>
 <tbody>
@@ -401,7 +385,7 @@
 <td><p>cudaEventQuery()</p></td>
 <td><p>N/A</p></td>
 </tr>
-<tr class="row-odd"><td><p>Blocking</p></td>
+<tr class="row-odd"><td><p>阻塞</p></td>
 <td><p>cudaStreamSynchronize()</p></td>
 <td><p>cudaEventSynchronize()</p></td>
 <td><p>cudaDeviceSynchronize()</p></td>
@@ -409,17 +393,11 @@
 </tbody>
 </table>
 </div>
-<p>对于同步，即表达 CUDA 流之间的依赖关系，建议使用非定时 CUDA 事件，如中所述 <a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-events"><span class="std std-ref">CUDA 活动</span></a>。
-用户可以调用 <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code> 强制未来在特定流上提交的操作等待先前记录的事件（例如，在另一个流上）的完成。
-请注意，对于等待或查询事件的任何 CUDA API，用户有责任确保 cudaEventRecord API 已被调用，
-作为未记录的事件将始终返回成功。</p>
-<p>默认情况下，CUDA 事件携带计时信息，因为它们可用于 <code class="docutils literal notranslate"><span class="pre">cudaEventElapsedTime()</span></code> API 调用。
-然而，仅用于表达跨流的依赖关系的 CUDA 事件不需要计时信息。
-对于这种情况，建议创建禁用计时信息的事件以提高性能。这可以使用 <code class="docutils literal notranslate"><span class="pre">cudaEventCreateWithFlags()</span></code> 应用程序编程接口
-与 <code class="docutils literal notranslate"><span class="pre">cudaEventDisableTiming</span></code> 标志。</p>
+<p>对于用于表达 CUDA 流之间依赖关系的同步，建议使用非计时 CUDA 事件，如 <a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-events"><span class="std std-ref">CUDA 事件</span></a> 中所述。用户可以调用 <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code>，强制之后提交到某个流的操作等待先前记录的事件完成，例如等待另一个流上的事件。需要注意，对于任何等待或查询事件的 CUDA API，用户都必须确保已经调用过 <code class="docutils literal notranslate"><span class="pre">cudaEventRecord()</span></code>；未记录的事件始终会返回成功。</p>
+<p>默认情况下，CUDA 事件会携带计时信息，因为它们可用于 <code class="docutils literal notranslate"><span class="pre">cudaEventElapsedTime()</span></code> API 调用。但如果事件只用于表达跨流依赖，就不需要计时信息。此时建议创建禁用计时的事件以提升性能，可通过 <code class="docutils literal notranslate"><span class="pre">cudaEventCreateWithFlags()</span></code> API 搭配 <code class="docutils literal notranslate"><span class="pre">cudaEventDisableTiming</span></code> 标志实现。</p>
 <section id="stream-priorities">
 <h3><span class="section-number">3.1.3.1. </span>流优先级<a class="headerlink" href="advanced-host-programming.html#stream-priorities" title="跳转到此标题">#</a></h3>
-<p>流的相对优先级可以在创建时指定 <code class="docutils literal notranslate"><span class="pre">cudaStreamCreateWithPriority()</span></code>。允许的优先级范围，按[最高优先级，最低优先级]排序，可以使用以下命令获得 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetStreamPriorityRange()</span></code> 功能。在运行时，GPU 调度程序利用流优先级来确定任务执行顺序，但这些优先级仅作为提示而不是保证。选择要启动的工作时，高优先级流中的待处理任务优先于低优先级流中的待处理任务。高优先级任务不会抢占已经运行的低优先级任务。 GPU 在任务执行期间不会重新评估工作队列，并且增加流的优先级不会中断正在进行的工作。流优先级会影响任务执行，而无需强制执行严格的排序，因此用户可以利用流优先级来影响任务执行，而无需依赖严格的排序保证。</p>
+<p>流的相对优先级可以在创建时通过 <code class="docutils literal notranslate"><span class="pre">cudaStreamCreateWithPriority()</span></code> 指定。允许的优先级范围按 [最高优先级，最低优先级] 排列，可通过 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetStreamPriorityRange()</span></code> 查询。运行时，GPU 调度器会利用流优先级决定任务执行顺序，但优先级只是提示而非保证。选择要启动的工作时，高优先级流中的待处理任务会优先于低优先级流中的待处理任务；但高优先级任务不会抢占已经运行的低优先级任务。GPU 在任务执行期间不会重新评估工作队列，提高某个流的优先级也不会中断正在执行的工作。流优先级会影响任务执行，但不强制严格排序，因此用户可以用它影响调度，而不应依赖它提供严格顺序保证。</p>
 <p>以下代码示例获取当前设备允许的优先级范围，并创建两个具有最高和最低可用优先级的非阻塞 CUDA 流。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 获取该设备的流优先级范围</span>
 <span class="kt">int</span><span class="w"> </span><span class="n">leastPriority</span><span class="p">,</span><span class="w"> </span><span class="n">greatestPriority</span><span class="p">;</span>
@@ -434,11 +412,13 @@
 </section>
 <section id="explicit-synchronization">
 <span id="advanced-host-explicit-synchronization"></span><h3><span class="section-number">3.1.3.2. </span>显式同步<a class="headerlink" href="advanced-host-programming.html#explicit-synchronization" title="跳转到此标题">#</a></h3>
-<p>如前所述，流可以通过多种方式与其他流同步。下面提供了不同粒度级别的常用方法：
-- <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code> 等待直到所有主机线程的所有流中的所有先前命令都完成。
-- <code class="docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code>将流作为参数并等待，直到给定流中的所有先前命令都完成。它可用于将主机与特定流同步，从而允许其他流继续在设备上执行。
-- <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code>接受一个流和一个事件作为参数（参见 <a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-events"><span class="std std-ref">CUDA 活动</span></a> 事件的描述）并使所有命令在调用后添加到给定流 <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code>延迟执行直到给定事件完成。
-- <code class="docutils literal notranslate"><span class="pre">cudaStreamQuery()</span></code>为应用程序提供了一种方法来了解流中所有前面的命令是否已完成。</p>
+<p>如前所述，流可以通过多种方式与其他流同步。不同粒度下的常用方法包括：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code>：等待所有主机线程的所有流中此前提交的命令全部完成。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code>：接收一个流作为参数，并等待该流中此前提交的命令全部完成。它可用于让主机与特定流同步，同时允许其他流继续在设备上执行。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code>：接收一个流和一个事件作为参数（事件说明见 <a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-events"><span class="std std-ref">CUDA 事件</span></a>），并让调用之后添加到该流的所有命令延迟执行，直到给定事件完成。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaStreamQuery()</span></code>：让应用程序查询流中此前的命令是否都已完成。</p></li>
+</ul>
 </section>
 <section id="implicit-synchronization">
 <span id="advanced-host-implicit-synchronization"></span><h3><span class="section-number">3.1.3.3. </span>隐式同步<a class="headerlink" href="advanced-host-programming.html#implicit-synchronization" title="跳转到此标题">#</a></h3>
@@ -462,23 +442,23 @@
 </section>
 <section id="programmatic-dependent-kernel-launch">
 <h2><span class="section-number">3.1.4. </span>程序化依赖内核启动<a class="headerlink" href="advanced-host-programming.html#programmatic-dependent-kernel-launch" title="跳转到此标题">#</a></h2>
-<p>正如我们之前讨论的，CUDA Streams 的语义是内核按顺序执行。这样，如果我们有两个连续的内核，其中第二个内核依赖于第一个内核的结果，那么程序员可以放心地知道，当第二个内核开始执行时，相关数据将可用。然而，可能的情况是，第一个内核可以将后续内核所依赖的数据写入全局内存，并且它仍然有更多的工作要做。同样，依赖的第二内核在需要来自第一内核的数据之前可能有一些独立的工作。在这种情况下，两个内核的执行可能会部分重叠（假设硬件资源可用）。重叠也可能会重叠第二个内核的启动开销。除了硬件资源的可用性之外，能够实现的重叠程度还取决于内核的具体结构，例如</p>
+<p>如前所述，CUDA 流的语义要求内核按顺序执行。这样，如果有两个连续内核，且第二个内核依赖第一个内核的结果，程序员就可以确信：当第二个内核开始执行时，它所依赖的数据已经可用。不过，有些情况下，第一个内核已经把后续内核依赖的数据写入全局内存，但自己仍有其他工作要做；同样，依赖它的第二个内核在真正需要这些数据之前，也可能有一段独立工作可先执行。在这种情况下，只要硬件资源可用，两个内核的执行就可能部分重叠；这种重叠还可以覆盖第二个内核的启动开销。除硬件资源外，能重叠到什么程度还取决于内核本身的结构，例如：</p>
 <ul class="simple">
-<li><p>第一个内核在执行过程中何时完成第二个内核所依赖的工作？</p></li>
-<li><p>第二个内核在执行过程中何时开始处理来自第一个内核的数据？</p></li>
+<li><p>第一个内核在执行到何处时完成第二个内核所依赖的工作？</p></li>
+<li><p>第二个内核在执行到何处时开始处理来自第一个内核的数据？</p></li>
 </ul>
-<p>由于这在很大程度上取决于所讨论的特定内核，因此很难完全自动化，因此 CUDA 提供了一种机制来允许应用程序开发人员指定两个内核之间的同步点。这是通过称为“编程相关内核启动”的技术来完成的。情况如下图所示。</p>
+<p>由于这些信息高度依赖具体内核，完全自动化很困难，因此 CUDA 提供了一种机制，允许应用开发者显式指定两个内核之间的同步点。这项技术称为“程序化依赖内核启动”（Programmatic Dependent Kernel Launch，PDL）。下图展示了这种情况。</p>
 <figure class="align-center" id="figure-programmatic-dependent-launch">
 <a class="reference internal image-reference" href="../_images/pdl.png"><img alt="程序化依赖内核启动" src="../_images/pdl.png" style="width: 50%;"/>
 </a>
 </figure>
-<p>PDL 具有三个主要组成部分。</p>
+<p>PDL 包含三个主要组成部分。</p>
 <ol class="lowerroman simple">
-<li><p>第一个内核（所谓的 <em>主内核</em>）需要调用一个特殊的函数来表明它已经完成了后续依赖内核（也称为 <em>二级内核</em>）将需要。这是通过调用函数来完成的  <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaTriggerProgrammaticLaunchCompletion()</span></code>.</p></li>
-<li><p>反过来，依赖的辅助内核需要指示它已经完成了独立于主内核的工作部分，并且它现在正在等待主内核完成它所依赖的工作。这是通过函数完成的 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaGridDependencySynchronize()</span></code>.</p></li>
-<li><p>第二个内核需要使用特殊属性启动 <cite>cudaLaunchAttributeProgrammaticStreamSerialization</cite> 以其 <cite>programmaticStreamSerializationAllowed</cite> 字段设置为“1”。</p></li>
+<li><p>第一个内核（即 <em>主内核</em>）需要调用一个特殊函数，表明它已经完成后续依赖内核（也称 <em>辅助内核</em>）所需的全部工作。这通过调用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaTriggerProgrammaticLaunchCompletion()</span></code> 完成。</p></li>
+<li><p>相应地，依赖主内核的辅助内核需要表明：它已经执行到不再有独立于主内核的工作可做，接下来要等待主内核完成它依赖的那部分工作。这通过 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaGridDependencySynchronize()</span></code> 完成。</p></li>
+<li><p>第二个内核需要使用特殊属性 <cite>cudaLaunchAttributeProgrammaticStreamSerialization</cite> 启动，并将其 <cite>programmaticStreamSerializationAllowed</cite> 字段设置为 1。</p></li>
 </ol>
-<p>以下代码片段显示了如何完成此操作的示例。</p>
+<p>下面的代码片段展示了如何完成这一过程。</p>
 <div class="literal-block-wrapper docutils container" id="pdl-example">
 <div class="code-block-caption"><span class="caption-number">清单 3 </span><span class="caption-text">具有两个内核的程序化依赖内核启动示例</span><a class="headerlink" href="advanced-host-programming.html#pdl-example" title="跳转到此标题">#</a></div>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">primary_kernel</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
@@ -487,7 +467,7 @@
 <span class="w">    </span><span class="c1">// 触发二级内核</span>
 <span class="w">    </span><span class="n">cudaTriggerProgrammaticLaunchCompletion</span><span class="p">();</span>
 
-<span class="w">    </span><span class="c1">// 可以与辅助内核重合的工作</span>
+<span class="w">    </span><span class="c1">// 可以与辅助内核重叠执行的工作</span>
 <span class="p">}</span>
 
 <span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">secondary_kernel</span><span class="p">()</span>
@@ -533,12 +513,12 @@
 </section>
 <section id="batched-memory-transfers">
 <h2><span class="section-number">3.1.5. </span>批量内存传输<a class="headerlink" href="advanced-host-programming.html#batched-memory-transfers" title="跳转到此标题">#</a></h2>
-<p>CUDA 开发中的常见模式是使用批处理技术。通过批处理，我们粗略地表示我们将多个（通常较小的）任务组合在一起形成一个（通常较大的）操作。批次中的成分不一定全部相同，尽管它们通常是相同的。这个想法的一个例子是 cuBLAS 提供的批量矩阵乘法运算。</p>
-<p>一般来说，与 CUDA 图形和 PDL 一样，批处理的目的是减少与单独分派各个批处理任务相关的开销。就内存传输而言，启动内存传输可能会产生一些 CPU 和驱动程序开销。此外，常规 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyAsync()</span></code> 当前形式的功能不一定能为驾驶员提供足够的信息来优化传输，例如有关源和目的地的提示。在 Tegra 平台上，可以选择使用 SM 或复制引擎 (CE) 来执行传输。当前的选择是由驱动程序中的启发式指定的。这可能很重要，因为使用 SM 可能会导致更快的传输，但它会限制一些可用的计算能力。另一方面，使用 CE 可能会导致传输速度变慢，但总体应用程序性能更高，因为它使 SM 可以自由地执行其他工作。</p>
-<p>这些考虑激发了设计的动机 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyBatchAsync()</span></code> 函数（及其相关函数 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyBatch3DAsync()</span></code>）。  这些函数允许优化批量内存传输。除了源和目标指针列表之外，该 API 还使用内存复制属性来指定排序期望，并提示源和目标位置，以及是否愿意将传输与计算重叠（目前仅在具有 CE 的 Tegra 平台上支持这一功能）。</p>
-<p>让我们首先考虑从固定主机内存到固定设备内存的简单批量数据传输的最简单情况</p>
+<p>CUDA 开发中常见的一种模式是批处理。所谓批处理，大致是把多个通常较小的任务组合成一个通常较大的操作。批次中的组成项不一定完全相同，虽然实践中它们往往相同。cuBLAS 提供的批量矩阵乘法就是这种思路的一个例子。</p>
+<p>一般来说，与 CUDA 图和 PDL 类似，批处理的目标是减少逐个派发批内任务所产生的开销。对于内存传输，启动一次传输可能会带来 CPU 与驱动开销。此外，常规 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyAsync()</span></code> 当前形式未必能向驱动提供足够信息来优化传输，例如源位置和目标位置提示。在 Tegra 平台上，传输可以选择由 SM 或复制引擎（CE）执行；当前选择由驱动中的启发式规则决定。这一点可能很重要：使用 SM 可能让传输更快，但会占用部分可用计算能力；使用 CE 可能让传输变慢，但能释放 SM 执行其他工作，从而带来更高的整体应用性能。</p>
+<p>这些考虑促成了 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyBatchAsync()</span></code> 及相关函数 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyBatch3DAsync()</span></code> 的设计。这些函数允许优化批量内存传输。除了源指针列表和目标指针列表外，该 API 还使用内存复制属性来指定排序期望，并给出源位置、目标位置以及是否愿意让传输与计算重叠等提示；其中与计算重叠的提示目前仅在配备 CE 的 Tegra 平台上受支持。</p>
+<p>先考虑最简单的情况：从页锁定主机内存到设备内存的一批简单数据传输。</p>
 <div class="literal-block-wrapper docutils container" id="id1">
-<div class="code-block-caption"><span class="caption-number">清单 4 </span><span class="caption-text">从固定主机内存到固定设备内存的同质批量内存传输示例</span><a class="headerlink" href="advanced-host-programming.html#id1" title="跳转到此标题">#</a></div>
+<div class="code-block-caption"><span class="caption-number">清单 4 </span><span class="caption-text">从页锁定主机内存到固定设备内存的同构批量内存传输示例</span><a class="headerlink" href="advanced-host-programming.html#id1" title="跳转到此标题">#</a></div>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">void</span><span class="w"> </span><span class="o">*&gt;</span><span class="w"> </span><span class="n">srcs</span><span class="p">(</span><span class="n">batch_size</span><span class="p">);</span>
 <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">void</span><span class="w"> </span><span class="o">*&gt;</span><span class="w"> </span><span class="n">dsts</span><span class="p">(</span><span class="n">batch_size</span><span class="p">);</span>
 <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">void</span><span class="w"> </span><span class="o">*&gt;</span><span class="w"> </span><span class="n">sizes</span><span class="p">(</span><span class="n">batch_size</span><span class="p">);</span>
@@ -555,22 +535,21 @@
 <span class="n">cudaMemcpyAttributes</span><span class="w"> </span><span class="n">attrs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
 <span class="n">attrs</span><span class="p">.</span><span class="n">srcAccessOrder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaMemcpySrcAccessOrderStream</span><span class="p">;</span>
 
-<span class="c1">// 批次中的所有副本都具有相同的副本属性。</span>
+<span class="c1">// 批次中的所有复制都使用相同的复制属性。</span>
 <span class="kt">size_t</span><span class="w"> </span><span class="n">attrsIdxs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">  </span><span class="c1">// 属性索引</span>
 
 <span class="c1">// 启动批量内存传输</span>
 <span class="n">cudaMemcpyBatchAsync</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dsts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="o">&amp;</span><span class="n">srcs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="o">&amp;</span><span class="n">sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">batch_size</span><span class="p">,</span>
-<span class="w">    </span><span class="o">&amp;</span><span class="n">attrs</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">attrsIdxs</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="cm">/* 属性数 */</span><span class="p">,</span><span class="w"> </span><span class="k">nullptr</span><span class="w"> </span><span class="cm">/* 失败IDx */</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
+<span class="w">    </span><span class="o">&amp;</span><span class="n">attrs</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">attrsIdxs</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="cm">/* 属性数量 */</span><span class="p">,</span><span class="w"> </span><span class="k">nullptr</span><span class="w"> </span><span class="cm">/* 失败索引 */</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
-<p>前几个参数 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyBatchAsync()</span></code> 函数看起来立即有意义。它们由包含源指针和目标指针以及传输大小的数组组成。每个数组必须有“batch_size”元素。新的信息来自属性。该函数需要一个指向属性数组的指针以及相应的属性索引数组。原则上，也可以传递一个数组 <code class="docutils literal notranslate"><span class="pre">size_t</span></code> 在这个数组中，可以记录失败传输的索引，但是传递一个失败的索引是安全的 <code class="docutils literal notranslate"><span class="pre">nullptr</span></code> 在这种情况下，故障指数将不会被记录。</p>
-<p>转向属性，在这种情况下，传输是同构的。所以我们只使用一个属性，该属性将应用于
-所有转账。这是由 <cite>attrIndex</cite> 参数。原则上这可以是一个数组。元素 <em>i</em> 该数组包含第一个传输的索引 <em>i</em>应用属性数组的第 -th 元素。  在这种情况下， <cite>attrIndex</cite> 被视为单个元素数组，值“0”表示 <code class="docutils literal notranslate"><span class="pre">attribute[0]</span></code> 将适用于索引为 0 及以上的所有传输，换句话说，所有传输。</p>
-<p>最后，我们注意到我们已经设置了 <code class="docutils literal notranslate"><span class="pre">srcAccessOrder</span></code> 归因于 <code class="docutils literal notranslate"><span class="pre">cudaMemcpySrcAccessOrderStream</span></code>。这意味着将按常规流顺序访问源数据。换句话说，memcpy 将阻塞，直到处理来自任何这些源指针和目标指针的数据的先前内核完成。</p>
+<p><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemcpyBatchAsync()</span></code> 的前几个参数较容易理解：它们分别是源指针数组、目标指针数组以及传输大小数组。每个数组都必须包含 <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> 个元素。新的信息来自属性。该函数需要一个指向属性数组的指针，以及对应的属性索引数组。原则上，也可以传入一个 <code class="docutils literal notranslate"><span class="pre">size_t</span></code> 数组来记录失败传输的索引；如果不需要记录失败索引，传入 <code class="docutils literal notranslate"><span class="pre">nullptr</span></code> 是安全的，此时不会记录失败索引。</p>
+<p>再看属性。本例中的传输是同构的，因此只使用一个属性，并让它适用于所有传输。这由 <cite>attrIndex</cite> 参数控制。原则上，该参数可以是一个数组；数组元素 <em>i</em> 表示从哪个传输索引开始使用属性数组中的第 <em>i</em> 个元素。本例中，<cite>attrIndex</cite> 被视为只有一个元素且值为 0 的数组，表示 <code class="docutils literal notranslate"><span class="pre">attribute[0]</span></code> 会应用于索引 0 及之后的所有传输，也就是全部传输。</p>
+<p>最后，示例将 <code class="docutils literal notranslate"><span class="pre">srcAccessOrder</span></code> 属性设置为 <code class="docutils literal notranslate"><span class="pre">cudaMemcpySrcAccessOrderStream</span></code>。这表示源数据将按常规流顺序访问。换言之，memcpy 会阻塞，直到此前处理这些源指针或目标指针数据的内核完成。</p>
 <p>在下一个示例中，我们将考虑异构批量传输的更复杂的情况。</p>
 <div class="literal-block-wrapper docutils container" id="id2">
-<div class="code-block-caption"><span class="caption-number">清单 5 </span><span class="caption-text">使用一些临时主机内存到固定设备内存的异构批量内存传输示例</span><a class="headerlink" href="advanced-host-programming.html#id2" title="跳转到此标题">#</a></div>
+<div class="code-block-caption"><span class="caption-number">清单 5 </span><span class="caption-text">包含部分临时主机内存到固定设备内存传输的异构批量内存传输示例</span><a class="headerlink" href="advanced-host-programming.html#id2" title="跳转到此标题">#</a></div>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">void</span><span class="w"> </span><span class="o">*&gt;</span><span class="w"> </span><span class="n">srcs</span><span class="p">(</span><span class="n">batch_size</span><span class="p">);</span>
 <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">void</span><span class="w"> </span><span class="o">*&gt;</span><span class="w"> </span><span class="n">dsts</span><span class="p">(</span><span class="n">batch_size</span><span class="p">);</span>
 <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">void</span><span class="w"> </span><span class="o">*&gt;</span><span class="w"> </span><span class="n">sizes</span><span class="p">(</span><span class="n">batch_size</span><span class="p">);</span>
@@ -599,15 +578,14 @@
 
 <span class="c1">// 启动批量内存传输</span>
 <span class="n">cudaMemcpyBatchAsync</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dsts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="o">&amp;</span><span class="n">srcs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="o">&amp;</span><span class="n">sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">batch_size</span><span class="p">,</span>
-<span class="w">    </span><span class="o">&amp;</span><span class="n">attrs</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">attrsIdxs</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="cm">/* 属性数 */</span><span class="p">,</span><span class="w"> </span><span class="n">nullptr</span><span class="w"> </span><span class="cm">/* 失败IDx */</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
+<span class="w">    </span><span class="o">&amp;</span><span class="n">attrs</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">attrsIdxs</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="cm">/* 属性数量 */</span><span class="p">,</span><span class="w"> </span><span class="n">nullptr</span><span class="w"> </span><span class="cm">/* 失败索引 */</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
-<p>这里我们有两种传输方式： <code class="docutils literal notranslate"><span class="pre">batch_size-10</span></code> 从固定主机内存传输到固定设备内存，
-10 次从主机阵列到固定设备内存的传输。此外， <cite>buffer</cite> 数组不仅存在于主机上，而且只存在于当前作用域中——它的地址就是所谓的 <em>临时指针</em>。 API 调用完成后（异步），该指针可能无效。要使用此类临时指针执行复制， <cite>srcAccessOrder</cite> 属性中必须设置为  <cite>cudaMemcpySrcAccessOrderDuringApiCall</cite>.</p>
-<p>我们现在有两个属性，第一个属性适用于索引从 0 开始且小于 <code class="docutils literal notranslate"><span class="pre">batch_size-10</span></code>。第二个适用于所有索引起始于 <code class="docutils literal notranslate"><span class="pre">batch_size-10</span></code> 并且小于 <code class="docutils literal notranslate"><span class="pre">batch_size</span></code>.</p>
-<p>如果不是分配 <cite>buffer</cite> 堆栈中的数组，我们使用以下方法从堆中分配了它 <cite>malloc</cite> 数据将不再是短暂的。它在指针被显式释放之前一直有效。在这种情况下，如何暂存副本的最佳选择将取决于系统是否具有硬件管理的内存或通过地址转换对主机内存进行一致的 GPU 访问，在这种情况下，最好使用流排序，或者是否没有，在这种情况下，立即暂存传输最有意义。在这种情况下，应该使用该值 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyAccessOrderAny</span></code> 为 <code class="docutils literal notranslate"><span class="pre">srcAccessOrder</span></code> 的属性。</p>
-<p><code class="docutils literal notranslate"><span class="pre">cudaMemcpyBatchAsync</span></code> 函数还允许程序员提供有关源位置和目标位置的提示。这是通过设置来完成的 <code class="docutils literal notranslate"><span class="pre">srcLocation</span></code> 或 <code class="docutils literal notranslate"><span class="pre">dstLocation</span></code> 的领域 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyAttributes</span></code> 结构。的 <code class="docutils literal notranslate"><span class="pre">srcLocation``and</span> <span class="pre">``dstLocation</span></code> 字段都是类型 <code class="docutils literal notranslate"><span class="pre">cudaMemLocation</span></code> 这是一个包含位置类型和位置 ID 的结构。这是一样的 <code class="docutils literal notranslate"><span class="pre">cudaMemLocation</span></code> 使用时可用于向运行时提供预取提示的结构 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemPrefetchAsync()</span></code>。我们在下面的代码示例中说明了如何设置从设备传输到主机的特定 NUMA 节点的提示：</p>
+<p>这里有两类传输：前 <code class="docutils literal notranslate"><span class="pre">batch_size-10</span></code> 次是从页锁定主机内存到固定设备内存的传输，后 10 次是从主机数组到固定设备内存的传输。此外，<cite>buffer</cite> 数组不仅位于主机端，而且只在当前作用域内存在；它的地址就是所谓的<em>临时指针</em>。异步 API 调用返回后，该指针可能已经失效。要使用这类临时指针执行复制，必须将 <cite>srcAccessOrder</cite> 属性设置为 <cite>cudaMemcpySrcAccessOrderDuringApiCall</cite>。</p>
+<p>现在有两个属性。第一个属性适用于从 0 开始且小于 <code class="docutils literal notranslate"><span class="pre">batch_size-10</span></code> 的索引；第二个属性适用于从 <code class="docutils literal notranslate"><span class="pre">batch_size-10</span></code> 开始且小于 <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> 的所有索引。</p>
+<p>如果 <cite>buffer</cite> 不是栈上数组，而是通过 <cite>malloc</cite> 从堆上分配，那么数据就不再是临时的；在显式释放指针之前，它一直有效。在这种情况下，如何暂存复制的最佳选择取决于系统特性：如果系统具有硬件管理内存，或通过地址转换对主机内存提供一致的 GPU 访问，那么最好使用流排序；否则，立即暂存传输通常最合理。此时应将 <code class="docutils literal notranslate"><span class="pre">srcAccessOrder</span></code> 属性设为 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyAccessOrderAny</span></code>。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaMemcpyBatchAsync</span></code> 函数还允许程序员提供源位置和目标位置提示。这通过设置 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyAttributes</span></code> 结构中的 <code class="docutils literal notranslate"><span class="pre">srcLocation</span></code> 或 <code class="docutils literal notranslate"><span class="pre">dstLocation</span></code> 字段完成。<code class="docutils literal notranslate"><span class="pre">srcLocation</span></code> 和 <code class="docutils literal notranslate"><span class="pre">dstLocation</span></code> 字段类型都是 <code class="docutils literal notranslate"><span class="pre">cudaMemLocation</span></code>，该结构包含位置类型和位置 ID。这与使用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaMemPrefetchAsync()</span></code> 向运行时提供预取提示时使用的 <code class="docutils literal notranslate"><span class="pre">cudaMemLocation</span></code> 结构相同。下面的代码示例展示了如何为从设备传输到主机端特定 NUMA 节点设置提示：</p>
 <div class="literal-block-wrapper docutils container" id="id3">
 <div class="code-block-caption"><span class="caption-number">清单 6 </span><span class="caption-text">设置源和目标位置提示的示例</span><a class="headerlink" href="advanced-host-programming.html#id3" title="跳转到此标题">#</a></div>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// 分配源缓冲区和目标缓冲区</span>
@@ -642,47 +620,33 @@
 <span class="n">attrs</span><span class="p">.</span><span class="n">srcLocHint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">srcLoc</span><span class="p">;</span>
 <span class="n">attrs</span><span class="p">.</span><span class="n">dstlocHint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dstLoc</span><span class="p">;</span>
 
-<span class="c1">// 批次中的所有副本都具有相同的副本属性。</span>
+<span class="c1">// 批次中的所有复制都使用相同的复制属性。</span>
 <span class="kt">size_t</span><span class="w"> </span><span class="n">attrsIdxs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 
 <span class="c1">// 启动批量内存传输</span>
 <span class="n">cudaMemcpyBatchAsync</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dsts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="o">&amp;</span><span class="n">srcs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="o">&amp;</span><span class="n">sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">batch_size</span><span class="p">,</span>
-<span class="w">    </span><span class="o">&amp;</span><span class="n">attrs</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">attrsIdxs</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="cm">/* 属性数 */</span><span class="p">,</span><span class="w"> </span><span class="n">nullptr</span><span class="w"> </span><span class="cm">/* 失败IDx */</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
+<span class="w">    </span><span class="o">&amp;</span><span class="n">attrs</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">attrsIdxs</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="cm">/* 属性数量 */</span><span class="p">,</span><span class="w"> </span><span class="n">nullptr</span><span class="w"> </span><span class="cm">/* 失败索引 */</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
-<p>最后要介绍的是用于暗示我们是否要使用 SM 还是 CE 进行传输的标志。
-该字段是  <code class="docutils literal notranslate"><span class="pre">cudaMemcpyAttributesflags::flags</span></code> 可能的值为：</p>
+<p>最后一个要介绍的是用于提示传输应使用 SM 还是 CE 的标志。该字段是 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyAttributes::flags</span></code>，可能的取值包括：</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">cudaMemcpyFlagDefault</span></code> – 默认行为</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cudaMemcpyFlagPreferOverlapWithCompute</span></code> – 这暗示系统应该更喜欢使用 CE 来进行与计算重叠的传输。该标志在非 Tegra 平台上会被忽略</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaMemcpyFlagDefault</span></code>：默认行为。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaMemcpyFlagPreferOverlapWithCompute</span></code>：提示系统优先使用 CE 执行可与计算重叠的传输。该标志在非 Tegra 平台上会被忽略。</p></li>
 </ul>
-<p>综上所述，关于“cudaMemcpyBatchAsync”的要点如下：</p>
+<p>综上，关于 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyBatchAsync</span></code> 的要点如下：</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">cudaMemcpyBatchAsync</span></code> 函数（及其 3D 变体）允许程序员指定一批内存传输，从而允许分摊传输设置开销。</p></li>
-<li><p>除了源和目标指针以及传输大小之外，该函数还可以采用一个或多个内存复制属性，这些属性提供有关正在传输的内存类型和源指针的相应流排序行为的信息、有关源和目标位置的提示，以及是否更愿意将传输与计算重叠（如果可能）或是否使用 SM 进行传输的提示。</p></li>
-<li><p>鉴于上述信息，运行时可以尝试最大程度地优化传输。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaMemcpyBatchAsync</span></code> 函数及其 3D 变体允许程序员指定一批内存传输，从而摊薄传输设置开销。</p></li>
+<li><p>除源指针、目标指针和传输大小外，该函数还可接收一个或多个内存复制属性。这些属性可提供正在传输的内存类型、源指针对应的流排序行为、源位置与目标位置提示，以及在可能时是否更倾向让传输与计算重叠，或是否使用 SM 执行传输等信息。</p></li>
+<li><p>基于上述信息，运行时可以尝试尽可能优化传输。</p></li>
 </ul>
 </section>
 <section id="environment-variables">
 <h2><span class="section-number">3.1.6. </span>环境变量<a class="headerlink" href="advanced-host-programming.html#environment-variables" title="跳转到此标题">#</a></h2>
-<p>CUDA提供了各种环境变量（参见 <a class="reference internal" href="../05-appendices/environment-variables.html#cuda-environment-variables"><span class="std std-numref">第 5.2 节</span></a>），这会影响执行和性能。
-如果没有显式设置它们，CUDA 会为它们使用合理的默认值，但是
-根据具体情况可能需要进行特殊处理，例如出于调试目的或提高性能。</p>
-<p>例如，增加 <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_CONNECTIONS</span></code> 环境变量可能是必要的，以减少以下可能性
-由于错误的依赖关系，来自不同 CUDA 流的独立工作被序列化。当以下情况时可能会引入这种错误的依赖关系：
-使用相同的底层资源。
-建议从使用默认值开始，并且仅在出现性能问题（例如，独立的意外序列化）时探索此环境变量的影响
-跨 CUDA 流工作不能归因于其他因素（例如缺乏可用的 SM 资源）。
-值得注意的是，对于 MPS，该环境变量具有不同的（较低的）默认值。</p>
-<p>同样，设置 <code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_LOADING</span></code> 环境变量为 <code class="docutils literal notranslate"><span class="pre">EAGER</span></code> 可能更可取
-对于延迟敏感的应用程序，为了转移所有开销
-由于模块加载到应用程序初始化阶段并超出其关键阶段。当前默认模式是延迟模块加载。
-在这种默认模式下，可以实现与急切模块加载类似的效果
-通过在应用程序的初始化阶段添加各种内核的“预热”调用，以强制模块加载更快发生。</p>
-<p>请参考 <a class="reference internal" href="../05-appendices/environment-variables.html#cuda-environment-variables"><span class="std std-ref">CUDA 环境变量</span></a> 有关各种 CUDA 环境变量的更多详细信息。
-建议您将环境变量设置为新值 <em>before</em> 您启动应用程序；尝试在您的应用程序中设置它们
-可能没有效果。</p>
+<p>CUDA 提供了多种环境变量（见 <a class="reference internal" href="../05-appendices/environment-variables.html#cuda-environment-variables"><span class="std std-numref">第 5.2 节</span></a>），这些变量会影响执行行为和性能。若未显式设置，CUDA 会使用合理默认值；但在调试或性能调优等场景下，可能需要根据具体情况进行专门设置。</p>
+<p>例如，可能需要增大 <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_CONNECTIONS</span></code> 环境变量，以降低不同 CUDA 流中的独立工作因伪依赖而被串行化的可能性。当多个流使用相同底层资源时，可能引入这类伪依赖。建议从默认值开始；只有在出现性能问题（例如跨 CUDA 流的独立工作发生意外串行化），且该问题无法归因于其他因素（如可用 SM 资源不足）时，再探索该环境变量的影响。需要注意的是，对于 MPS，该环境变量有不同且更低的默认值。</p>
+<p>类似地，对于延迟敏感型应用，将 <code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_LOADING</span></code> 环境变量设为 <code class="docutils literal notranslate"><span class="pre">EAGER</span></code> 可能更合适，这样可把模块加载开销转移到应用初始化阶段，避免出现在关键路径上。当前默认模式是延迟模块加载。在默认模式下，也可以通过在应用初始化阶段对各个内核执行“预热”调用，强制模块更早加载，从而获得类似 eager 模块加载的效果。</p>
+<p>关于各种 CUDA 环境变量的更多细节，请参见 <a class="reference internal" href="../05-appendices/environment-variables.html#cuda-environment-variables"><span class="std std-ref">CUDA 环境变量</span></a>。建议在启动应用程序<em>之前</em>设置环境变量的新值；尝试在应用程序内部设置它们可能不会生效。</p>
 </section>
 </section>
 </article>
@@ -701,21 +665,21 @@
   </div>
 <nav aria-labelledby="pst-page-navigation-heading-2" class="bd-toc-nav page-toc">
 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#cudalaunchkernelex">3.1. 高级 CUDA API 与特性</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#launching-clusters">3.1. 高级 CUDA API 与特性</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#launching-with-clusters-using-cudalaunchkernelex">3.1. 高级 CUDA API 与特性</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#blocks-as-clusters">3.1. 高级 CUDA API 与特性</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#cudalaunchkernelex">3.1.1. cudaLaunchKernelEx</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#launching-clusters">3.1.2. 启动簇</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#launching-with-clusters-using-cudalaunchkernelex">3.1.2.1. 使用 cudaLaunchKernelEx 启动簇</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#blocks-as-clusters">3.1.2.2. 块作为簇</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#more-on-streams-and-events">3.1. 高级 CUDA API 与特性</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#stream-priorities">3.1. 高级 CUDA API 与特性</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#explicit-synchronization">3.1. 高级 CUDA API 与特性</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#implicit-synchronization">3.1. 高级 CUDA API 与特性</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#more-on-streams-and-events">3.1.3. 关于流和事件的更多内容</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#stream-priorities">3.1.3.1. 流优先级</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#explicit-synchronization">3.1.3.2. 显式同步</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#implicit-synchronization">3.1.3.3. 隐式同步</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#programmatic-dependent-kernel-launch">3.1. 高级 CUDA API 与特性</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#batched-memory-transfers">3.1. 高级 CUDA API 与特性</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#environment-variables">3.1. 高级 CUDA API 与特性</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#programmatic-dependent-kernel-launch">3.1.4. 程序化依赖内核启动</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#batched-memory-transfers">3.1.5. 批量内存传输</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-host-programming.html#environment-variables">3.1.6. 环境变量</a></li>
 </ul>
 </nav></div>
 </div></div>
