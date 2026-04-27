@@ -285,89 +285,89 @@
 <article class="bd-article">
 <section id="advanced-kernel-programming">
 <span id="advanced-kernels-2"></span><h1>3.2. 高级内核编程<a class="headerlink" href="advanced-kernel-programming.html#advanced-kernel-programming" title="跳转到此标题">#</a></h1>
-<p>本章将首先深入探讨 NVIDIA GPU 的硬件模型，然后介绍 CUDA 内核代码中旨在提高内核性能的一些更高级的功能。本章将介绍一些与线程作用域、异步执行以及相关同步原语相关的概念。这些概念性讨论为内核代码中可用的一些高级性能特性提供了必要的基础。</p>
-<p>本编程指南下一部分中专门介绍这些功能的章节中包含对其中一些功能的详细描述。</p>
+<p>本章首先更深入地介绍 NVIDIA GPU 的硬件模型，然后介绍 CUDA 内核代码中用于提升内核性能的一些高级特性。本章还会说明与线程作用域、异步执行以及相关同步原语有关的概念。这些概念性内容为内核代码中可用的若干高级性能特性奠定必要基础。</p>
+<p>本编程指南下一部分中有专门章节，对其中一些特性做更完整的说明。</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-advanced-sync-primitives"><span class="std std-ref">高级同步原语</span></a> 本章中介绍的内容完全涵盖在 <a class="reference internal" href="../04-special-topics/async-barriers.html#asynchronous-barriers"><span class="std std-numref">第 4.9 节</span></a> 和 <a class="reference internal" href="../04-special-topics/pipelines.html#pipelines"><span class="std std-numref">第 4.10 节</span></a>.</p></li>
-<li><p><a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-async-copies"><span class="std std-ref">异步数据复制</span></a>，包括张量内存加速器（TMA），在本章中进行了介绍，并在 <a class="reference internal" href="../04-special-topics/async-copies.html#async-copies"><span class="std std-numref">第 4.11 节</span></a>.</p></li>
+<li><p>本章介绍的 <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-advanced-sync-primitives"><span class="std std-ref">高级同步原语</span></a>，会在 <a class="reference internal" href="../04-special-topics/async-barriers.html#asynchronous-barriers"><span class="std std-numref">第 4.9 节</span></a> 和 <a class="reference internal" href="../04-special-topics/pipelines.html#pipelines"><span class="std std-numref">第 4.10 节</span></a> 中完整介绍。</p></li>
+<li><p>本章介绍的 <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-async-copies"><span class="std std-ref">异步数据拷贝</span></a>（包括张量内存加速器 TMA），会在 <a class="reference internal" href="../04-special-topics/async-copies.html#async-copies"><span class="std std-numref">第 4.11 节</span></a> 中完整介绍。</p></li>
 </ul>
 <section id="using-ptx">
 <span id="advanced-kernels-ptx"></span><h2><span class="section-number">3.2.1. </span>使用 PTX<a class="headerlink" href="advanced-kernel-programming.html#using-ptx" title="跳转到此标题">#</a></h2>
-<p><em>并行线程执行</em> (PTX)，CUDA 用于抽象硬件 ISA 的虚拟机指令集架构 (ISA)，在 <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-ptx"><span class="std std-numref">第1.3.3节</span></a>。直接在 PTX 中编写代码是一种非常先进的优化技术，对于大多数开发人员来说并不是必需的，应将其视为最后的工具。然而，在某些情况下，通过直接写入 PTX 实现的细粒度控制可以提高特定应用程序的性能。这些情况通常发生在应用程序中对性能非常敏感的部分，其中性能改进的每一分之一都会带来显着的好处。所有可用的 PTX 指令都在 <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html">PTX ISA 文档</a>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">cuda::ptx</span></code> <strong>namespace</strong></p>
-<p>直接在代码中使用 PTX 的一种方法是使用 <code class="docutils literal notranslate"><span class="pre">cuda::ptx</span></code> 命名空间来自 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/">libcu++</a>。此命名空间提供直接映射到 PTX 指令的 C++ 函数，从而简化了它们在 C++ 应用程序中的使用。欲了解更多信息，请参阅 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/ptx_api.html">cuda::ptx 命名空间</a> documentation.</p>
+<p><em>并行线程执行</em>（Parallel Thread Execution，PTX）是 CUDA 用来抽象硬件 ISA 的虚拟机指令集架构（ISA），已在 <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-ptx"><span class="std std-numref">第 1.3.3 节</span></a> 中介绍。直接编写 PTX 代码是一种非常高级的优化技术，大多数开发者并不需要，应当将其视为最后手段。不过，在某些场景下，直接编写 PTX 带来的细粒度控制可以提高特定应用的性能。这些场景通常位于应用中对性能极其敏感的部分，哪怕不到百分之一的性能提升也有明显价值。所有可用的 PTX 指令都列在 <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html">PTX ISA 文档</a> 中。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cuda::ptx</span></code> <strong>命名空间</strong></p>
+<p>在代码中直接使用 PTX 的一种方法，是使用 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/">libcu++</a> 提供的 <code class="docutils literal notranslate"><span class="pre">cuda::ptx</span></code> 命名空间。该命名空间提供了直接映射到 PTX 指令的 C++ 函数，使其更容易在 C++ 应用中使用。更多信息请参阅 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/ptx_api.html">cuda::ptx 命名空间</a> 文档。</p>
 <p><strong>内联 PTX</strong></p>
-<p>在代码中包含 PTX 的另一种方法是使用内联 PTX。该方法在相应的 <a class="reference external" href="https://docs.nvidia.com/cuda/inline-ptx-assembly/index.html">documentation</a>。这与在 CPU 上编写汇编代码非常相似。</p>
+<p>另一种在代码中包含 PTX 的方法是使用内联 PTX。相应的 <a class="reference external" href="https://docs.nvidia.com/cuda/inline-ptx-assembly/index.html">文档</a> 对这种方法做了详细说明。它与在 CPU 上编写汇编代码非常相似。</p>
 </section>
 <section id="hardware-implementation">
 <span id="advanced-kernels-hardware-implementation"></span><h2><span class="section-number">3.2.2. </span>硬件实现<a class="headerlink" href="advanced-kernel-programming.html#hardware-implementation" title="跳转到此标题">#</a></h2>
-<p>流式多处理器或 SM（参见 <a class="reference internal" href="../01-introduction/programming-model.html#programming-model-hardware-model"><span class="std std-ref">GPU硬件模型</span></a>）旨在同时执行数百个线程。为了管理如此大量的线程，它采用了一种独特的并行计算模型，称为 <em>单指令、多线程</em>, or <em>SIMT</em>，即描述于 <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-hardware-implementation-simt-architecture"><span class="std std-ref">SIMT执行模型</span></a>。这些指令是流水线式的，利用单个线程内的指令级并行性，以及通过同步硬件多线程实现广泛的线程级并行性，详细信息请参见 <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-hardware-implementation-hardware-multithreading"><span class="std std-ref">硬件多线程</span></a>。与 CPU 内核不同，SM 按顺序发出指令，并且不执行分支预测或推测执行。</p>
-<p>Sections <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-hardware-implementation-simt-architecture"><span class="std std-ref">SIMT执行模型</span></a> 和 <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-hardware-implementation-hardware-multithreading"><span class="std std-ref">硬件多线程</span></a> 描述所有设备共有的 SM 架构特征。部分 <a class="reference internal" href="../05-appendices/compute-capabilities.html#compute-capabilities"><span class="std std-ref">计算能力</span></a> 提供不同计算能力的设备的具体信息。</p>
+<p>流式多处理器（Streaming Multiprocessor，SM；参见 <a class="reference internal" href="../01-introduction/programming-model.html#programming-model-hardware-model"><span class="std std-ref">GPU 硬件模型</span></a>）设计用于并发执行数百个线程。为了管理如此多的线程，SM 使用一种独特的并行计算模型，称为 <em>单指令、多线程</em>（Single-Instruction, Multiple-Thread，<em>SIMT</em>），该模型会在 <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-hardware-implementation-simt-architecture"><span class="std std-ref">SIMT 执行模型</span></a> 中说明。指令以流水线方式执行，既利用单个线程内的指令级并行性，也通过同步硬件多线程利用大量线程级并行性，详见 <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-hardware-implementation-hardware-multithreading"><span class="std std-ref">硬件多线程</span></a>。与 CPU 核心不同，SM 按顺序发射指令，不执行分支预测或推测执行。</p>
+<p><a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-hardware-implementation-simt-architecture"><span class="std std-ref">SIMT 执行模型</span></a> 和 <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-hardware-implementation-hardware-multithreading"><span class="std std-ref">硬件多线程</span></a> 两节描述所有设备共有的 SM 架构特性。<a class="reference internal" href="../05-appendices/compute-capabilities.html#compute-capabilities"><span class="std std-ref">计算能力</span></a> 一节提供不同计算能力设备的具体信息。</p>
 <p>NVIDIA GPU 架构使用小端表示法。</p>
 <section id="simt-execution-model">
-<span id="advanced-kernels-hardware-implementation-simt-architecture"></span><h3><span class="section-number">3.2.2.1. </span>SIMT执行模型<a class="headerlink" href="advanced-kernel-programming.html#simt-execution-model" title="跳转到此标题">#</a></h3>
-<p>每个 SM 以 32 个并行线程为一组创建、管理、调度和执行线程，称为 <em>warps</em>。构成warp 的各个线程在同一程序地址处一起启动，但它们具有自己的指令地址计数器和寄存器状态，因此可以自由地独立分支和执行。术语 <em>warp</em> 起源于编织，这是第一个并行线程技术。一个 <em>half-warp</em> 是warp 的前半部分或后半部分。一个 <em>quarter-warp</em> 是warp 的第一、第二、第三或第四四分之一。</p>
-<p>Warp 一次执行一条公共指令，因此当 Warp 的所有 32 个线程都同意其执行路径时，即可实现最高效率。如果 warp 的线程通过依赖于数据的条件分支发生分歧，则 warp 会执行所采用的每个分支路径，从而禁用不在该路径上的线程。分支发散仅发生在warp 内；不同的 warp 独立执行，无论它们执行的是公共还是不相交的代码路径。</p>
-<p>SIMT 架构类似于 SIMD（单指令、多数据）向量组织，因为单指令控制多个处理元素。一个关键的区别是 SIMD 向量组织向软件公开 SIMD 宽度，而 SIMT 指令指定单个线程的执行和分支行为。与 SIMD 向量机相比，SIMT 使程序员能够为独立的标量线程编写线程级并行代码，以及为协调线程编写数据并行代码。为了正确性，程序员基本上可以忽略 SIMT 行为；然而，通过注意代码很少需要线程束中的线程发散，可以实现显着的性能改进。实际上，这类似于缓存行的作用：在设计正确性时可以安全地忽略缓存行大小，但在设计峰值性能时必须在代码结构中考虑缓存行大小。另一方面，矢量架构需要软件将负载合并为矢量并手动管理差异。</p>
+<span id="advanced-kernels-hardware-implementation-simt-architecture"></span><h3><span class="section-number">3.2.2.1. </span>SIMT 执行模型<a class="headerlink" href="advanced-kernel-programming.html#simt-execution-model" title="跳转到此标题">#</a></h3>
+<p>每个 SM 都以 32 个并行线程为一组来创建、管理、调度和执行线程，这样的一组线程称为 <em>warp</em>。组成同一 warp 的各个线程会从相同的程序地址一起开始执行，但每个线程都有自己的指令地址计数器和寄存器状态，因此可以自由地独立分支和执行。术语 <em>warp</em> 源自织造，也是最早的并行线程技术名称。<em>half-warp</em> 指 warp 的前半部分或后半部分；<em>quarter-warp</em> 指 warp 的第一、第二、第三或第四个四分之一部分。</p>
+<p>一个 warp 每次执行一条共同指令，因此当 warp 中全部 32 个线程采用相同执行路径时，效率最高。如果一个 warp 中的线程因数据相关的条件分支而发生发散，warp 会依次执行被采用的各个分支路径，并禁用不在当前路径上的线程。分支发散只发生在 warp 内部；不同 warp 会独立执行，无论它们执行的是相同代码路径还是不同代码路径。</p>
+<p>SIMT 架构与 SIMD（单指令、多数据）向量组织相似，因为单条指令会控制多个处理元素。关键区别在于，SIMD 向量组织会将 SIMD 宽度暴露给软件，而 SIMT 指令描述的是单个线程的执行和分支行为。与 SIMD 向量机相比，SIMT 允许程序员为独立的标量线程编写线程级并行代码，也能为协同工作的线程编写数据并行代码。为了保证正确性，程序员基本上可以忽略 SIMT 行为；但如果在代码结构上尽量避免同一 warp 内线程发散，就能获得显著的性能提升。实践中，这与缓存行的作用类似：为了正确性设计程序时可以安全地忽略缓存行大小，但为了峰值性能设计程序时就必须在代码结构中考虑它。另一方面，向量架构要求软件将加载合并成向量，并手动管理发散。</p>
 <section id="independent-thread-scheduling">
 <span id="advanced-kernels-independent-thread-scheduling"></span><h4><span class="section-number">3.2.2.1.1. </span>独立线程调度<a class="headerlink" href="advanced-kernel-programming.html#independent-thread-scheduling" title="跳转到此标题">#</a></h4>
-<p>在计算能力低于 7.0 的 GPU 上，warp 使用在 warp 中的所有 32 个线程之间共享的单个程序计数器以及指定 warp 的活动线程的活动掩码。因此，来自不同区域或不同执行状态的同一warp 的线程无法相互发送信号或交换数据，并且需要细粒度共享由锁或互斥锁保护的数据的算法可能会导致死锁，具体取决于竞争线程来自哪个warp。</p>
-<p>在计算能力7.0及更高版本的GPU中，  <em>独立线程调度</em> 允许线程之间完全并发，无论warp如何。通过独立线程调度，GPU 可以维护每个线程的执行状态，包括程序计数器和调用堆栈，并且可以按线程粒度生成执行，以便更好地利用执行资源或允许一个线程等待另一个线程生成数据。调度优化器确定如何将来自同一 warp 的活动线程分组到 SIMT 单元中。这保留了之前 NVIDIA GPU 中 SIMT 执行的高吞吐量，但具有更大的灵活性：线程现在可以在子warp粒度上发散和重新收敛。</p>
-<p>独立线程调度可以破坏依赖于以前 GPU 架构的隐式warp 同步行为的代码。 <em>Warp-synchronous</em> 代码假设同一 warp 中的线程在每条指令上都以锁步方式执行，但线程在子 warp 粒度上发散和重新收敛的能力使这种假设无效。这可能会导致参与执行代码的线程集与预期不同。应重新审查为 CC 7.0 之前的 GPU 开发的任何warp 同步代码（例如无同步的内部warp 归约），以确保兼容性。开发人员应该使用显式同步此类代码 <code class="docutils literal notranslate"><span class="pre">__syncwarp()</span></code> 确保所有 GPU 代的正确行为。</p>
+<p>在计算能力低于 7.0 的 GPU 上，一个 warp 使用由其中全部 32 个线程共享的单个程序计数器，并配有一个活动掩码来标识该 warp 中的活动线程。因此，同一 warp 中处于发散区域或不同执行状态的线程无法相互发信号或交换数据；需要通过锁或互斥量保护细粒度共享数据的算法，可能会因竞争线程所属的 warp 不同而导致死锁。</p>
+<p>在计算能力 7.0 及更高版本的 GPU 中，<em>独立线程调度</em> 允许线程之间实现完全并发，不受 warp 边界限制。采用独立线程调度时，GPU 会为每个线程维护执行状态，包括程序计数器和调用栈，并能以线程为粒度让出执行，以便更充分地利用执行资源，或让一个线程等待另一个线程产生数据。调度优化器会决定如何把同一 warp 中的活动线程重新组合成 SIMT 单元。这样既保留了早期 NVIDIA GPU 中 SIMT 执行的高吞吐量，又提供了更大的灵活性：线程现在可以在小于 warp 的粒度上发散并重新汇合。</p>
+<p>独立线程调度可能破坏依赖旧 GPU 架构隐式 warp 同步行为的代码。<em>warp 同步</em> 代码假设同一 warp 中的线程在每条指令处都锁步执行，但线程可以在子 warp 粒度上发散并重新汇合后，这种假设不再成立。这可能导致实际参与执行的线程集合与预期不同。任何为 CC 7.0 之前 GPU 编写的 warp 同步代码（例如不显式同步的 warp 内归约）都应重新检查以确保兼容性。开发者应使用 <code class="docutils literal notranslate"><span class="pre">__syncwarp()</span></code> 显式同步这类代码，以保证其在所有 GPU 世代上行为正确。</p>
 <div class="admonition note" id="simt-architecture-notes">
 <p class="admonition-title">注</p>
-<p>参与当前指令的 warp 线程称为 <em>active</em> 线程，而不在当前指令上的线程是 <em>inactive</em> （已禁用）。线程可能由于多种原因而处于不活动状态，包括比其warp 中的其他线程更早退出、采用了与warp当前执行的分支路径不同的分支路径，或者是线程数不是warp大小的倍数的块的最后一个线程。</p>
-<p>如果由 warp 执行的非原子指令从该 warp 的多个线程写入全局或共享内存中的同一位置，则该位置发生的序列化写入次数可能会有所不同，具体取决于设备的计算能力。但是，对于所有计算功能，哪个线程执行最终写入是未定义的。</p>
-<p>如果一个 <a class="reference internal" href="../05-appendices/cpp-language-extensions.html#atomic-functions"><span class="std std-ref">atomic</span></a> 由 warp 执行的指令会为该 warp 的多个线程读取、修改和写入全局内存中的同一位置，对该位置的每次读/修改/写入都会发生，并且它们都是序列化的，但它们发生的顺序是未定义的。</p>
+<p>参与当前指令的 warp 线程称为 <em>活动</em> 线程，而不参与当前指令的线程称为 <em>非活动</em>（被禁用）线程。线程可能因多种原因处于非活动状态，例如比同一 warp 中的其他线程更早退出、采用了不同于当前 warp 正在执行路径的分支路径，或者它们位于线程数不是 warp 大小整数倍的线程块末尾。</p>
+<p>如果一个 warp 执行的非原子指令让该 warp 中多个线程写入全局内存或共享内存中的同一位置，那么写入该位置时发生的序列化写入次数可能因设备计算能力而异。不过，对所有计算能力而言，最终由哪个线程完成写入都是未定义的。</p>
+<p>如果一个 warp 执行的 <a class="reference internal" href="../05-appendices/cpp-language-extensions.html#atomic-functions"><span class="std std-ref">原子</span></a> 指令让该 warp 中多个线程对全局内存中的同一位置执行读取、修改和写入，那么针对该位置的每一次读/改/写都会发生，并且都会被序列化，但它们发生的顺序未定义。</p>
 </div>
 </section>
 </section>
 <section id="hardware-multithreading">
 <span id="advanced-kernels-hardware-implementation-hardware-multithreading"></span><h3><span class="section-number">3.2.2.2. </span>硬件多线程<a class="headerlink" href="advanced-kernel-programming.html#hardware-multithreading" title="跳转到此标题">#</a></h3>
-<p>当 SM 被给予一个或多个线程块来执行时，它会将它们划分为 warp，并且每个 warp 都由一个线程调度执行 <em>warp调度程序</em>。块被划分为warp 的方式始终是相同的；每个 warp 包含连续的、递增的线程 ID，第一个 warp 包含线程 0。 <a class="reference internal" href="../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-thread-hierarchy-review"><span class="std std-ref">线程层次结构</span></a> 描述线程 ID 如何与块中的线程索引相关。</p>
-<p>块中的warp总数定义如下：</p>
+<p>当 SM 接收到一个或多个待执行线程块时，它会把这些线程块划分为 warp，并由 <em>warp 调度器</em> 调度每个 warp 执行。线程块划分为 warp 的方式始终相同：每个 warp 包含线程 ID 连续递增的一组线程，第一个 warp 包含线程 0。<a class="reference internal" href="../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-thread-hierarchy-review"><span class="std std-ref">线程层次结构</span></a> 说明了线程 ID 与线程块内线程索引之间的关系。</p>
+<p>线程块中的 warp 总数定义如下：</p>
 <p><span class="math notranslate nohighlight">\(\text{ceil}\left(\frac{T}{W_{size}}, 1 \right)\)</span></p>
 <ul class="simple">
 <li><p><em>T</em> 是每个块的线程数，</p></li>
-<li><p><em>Wsize</em> 是warp大小，等于 32，</p></li>
-<li><p>ceil(x, y) 等于 x 四舍五入到最接近的 y 倍数。</p></li>
+<li><p><em>Wsize</em> 是 warp 大小，等于 32，</p></li>
+<li><p>ceil(x, y) 表示将 x 向上舍入到最接近的 y 的倍数。</p></li>
 </ul>
 <figure class="align-center" id="hardware-multithreading-warps-in-a-block">
 <a class="reference internal image-reference" href="../_images/warps-in-a-block.png"><img alt="一个线程块被划分为 32 个线程的 warp。" src="../_images/warps-in-a-block.png" style="width: 500px;"/>
 </a>
 <figcaption>
-<p><span class="caption-number">图19 </span><span class="caption-text">一个线程块被划分为 32 个线程的 warp。</span><a class="headerlink" href="advanced-kernel-programming.html#hardware-multithreading-warps-in-a-block" title="跳转到此标题">#</a></p>
+<p><span class="caption-number">图 19 </span><span class="caption-text">一个线程块被划分为 32 个线程的 warp。</span><a class="headerlink" href="advanced-kernel-programming.html#hardware-multithreading-warps-in-a-block" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
-<p>SM 处理的每个 warp 的执行上下文（程序计数器、寄存器等）在整个 warp 的生命周期内都在片上维护。因此，warp之间的切换不会产生任何成本。在每个指令发出周期，warp 调度程序都会选择一个 warp，其中的线程准备好执行其下一条指令（<a class="reference internal" href="advanced-kernel-programming.html#simt-architecture-notes"><span class="std std-ref">活动线程</span></a> warp）并向这些线程发出指令。</p>
-<p>每个 SM 都有一组 32 位寄存器，它们在 warp 之间划分，以及一个 <a class="reference internal" href="../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-shared-memory"><span class="std std-ref">共享内存</span></a> 它在线程块之间划分。对于给定内核，可以驻留在 SM 上并同时处理的块和 warp 的数量取决于内核使用的寄存器和共享内存的数量，以及 SM 上可用的寄存器和共享内存的数量。每个 SM 的驻留块和 warp 也有最大数量。这些限制以及 SM 上可用的寄存器和共享内存的数量取决于设备的计算能力，并在 <a class="reference internal" href="../05-appendices/compute-capabilities.html#compute-capabilities"><span class="std std-ref">计算能力</span></a>。如果每个 SM 没有足够的可用资源来处理至少一个块，则内核将无法启动。为块分配的寄存器和共享内存的总数可以通过以下几种方式确定： <a class="reference internal" href="../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-kernel-launch-and-occupancy"><span class="std std-ref">Occupancy</span></a> 一节。</p>
+<p>SM 处理的每个 warp 的执行上下文（程序计数器、寄存器等）都会在该 warp 的整个生命周期内保留在片上。因此，在 warp 之间切换没有开销。在每个指令发射周期，warp 调度器会选择一个已有线程准备好执行下一条指令的 warp（即该 warp 的 <a class="reference internal" href="advanced-kernel-programming.html#simt-architecture-notes"><span class="std std-ref">活动线程</span></a>），并向这些线程发射该指令。</p>
+<p>每个 SM 都有一组 32 位寄存器，会在各个 warp 之间分配；还有一块 <a class="reference internal" href="../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-shared-memory"><span class="std std-ref">共享内存</span></a>，会在线程块之间分配。对于给定内核，能够驻留在 SM 上并被并发处理的线程块数和 warp 数，取决于该内核使用的寄存器和共享内存数量，以及 SM 上可用的寄存器和共享内存数量。每个 SM 还存在驻留线程块数和驻留 warp 数的上限。这些限制以及 SM 上可用的寄存器和共享内存容量，都取决于设备的计算能力，具体见 <a class="reference internal" href="../05-appendices/compute-capabilities.html#compute-capabilities"><span class="std std-ref">计算能力</span></a>。如果每个 SM 的可用资源不足以处理至少一个线程块，内核启动会失败。分配给一个线程块的寄存器和共享内存总量，可通过 <a class="reference internal" href="../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-kernel-launch-and-occupancy"><span class="std std-ref">占用率</span></a> 一节记录的几种方式确定。</p>
 </section>
 <section id="asynchronous-execution-features">
 <span id="advanced-kernels-hardware-implementation-asynchronous-execution-features"></span><h3><span class="section-number">3.2.2.3. </span>异步执行特性<a class="headerlink" href="advanced-kernel-programming.html#asynchronous-execution-features" title="跳转到此标题">#</a></h3>
-<p>最近几代 NVIDIA GPU 已包含异步执行功能，以允许 GPU 内的数据移动、计算和同步有更多重叠。这些功能使得从 GPU 代码调用的某些操作能够与同一线程块中的其他 GPU 代码异步执行。这种异步执行不应与中讨论的异步 CUDA API 相混淆。 <a class="reference internal" href="../02-basics/asynchronous-execution.html#asynchronous-execution"><span class="std std-numref">第2.3节</span></a>，这使得 GPU 内核启动或内存操作能够彼此异步操作或与 CPU 异步操作。</p>
-<p>计算能力 8.0（NVIDIA Ampere GPU 架构）引入了从全局到共享内存的硬件加速异步数据复制和异步屏障（请参阅 <a class="reference external" href="https://images.nvidia.com/aem-dam/en-zz/Solutions/data-center/nvidia-ampere-architecture-whitepaper.pdf">NVIDIA A100 张量核心 GPU 架构</a> ).</p>
-<p>计算能力 9.0（NVIDIA Hopper GPU 架构）扩展了异步执行功能 <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-async-copies"><span class="std std-ref">张量内存加速器 (TMA)</span></a> 单元，它可以将大数据块和多维张量从全局内存传输到共享内存，反之亦然，异步事务屏障和异步矩阵乘法累加运算（请参阅 <a class="reference external" href="https://developer.nvidia.com/blog/nvidia-hopper-architecture-in-depth/">深入了解 Hopper 架构</a> 博客文章了解详细信息。）。</p>
-<p>CUDA 提供了 API，线程可以从设备代码调用这些 API 来使用这些功能。异步编程模型定义了与 CUDA 线程相关的异步操作的行为。</p>
-<p>异步操作是由 CUDA 线程发起的操作，但像另一个线程一样异步执行，我们将其称为 <em>异步线程</em>。在格式良好的程序中，一个或多个 CUDA 线程与异步操作同步。启动异步操作的 CUDA 线程不需要位于同步线程中。异步线程始终与启动操作的 CUDA 线程关联。</p>
-<p>异步操作使用同步对象来表示其完成，该对象可以是屏障或管道。这些同步对象在中详细解释 <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-advanced-sync-primitives"><span class="std std-ref">高级同步原语</span></a>，它们在执行异步内存操作中的作用在 <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-async-copies"><span class="std std-ref">异步数据复制</span></a>.</p>
+<p>近几代 NVIDIA GPU 已引入异步执行特性，使 GPU 内部的数据移动、计算和同步能够更多地重叠。这些特性允许从 GPU 代码调用的某些操作，相对于同一线程块中的其他 GPU 代码异步执行。这里的异步执行不应与 <a class="reference internal" href="../02-basics/asynchronous-execution.html#asynchronous-execution"><span class="std std-numref">第 2.3 节</span></a> 中讨论的异步 CUDA API 混淆；后者让 GPU 内核启动或内存操作能够彼此异步，或相对于 CPU 异步。</p>
+<p>计算能力 8.0（NVIDIA Ampere GPU 架构）引入了从全局内存到共享内存的硬件加速异步数据拷贝，以及异步屏障（参见 <a class="reference external" href="https://images.nvidia.com/aem-dam/en-zz/Solutions/data-center/nvidia-ampere-architecture-whitepaper.pdf">NVIDIA A100 Tensor Core GPU 架构</a>）。</p>
+<p>计算能力 9.0（NVIDIA Hopper GPU 架构）通过 <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-async-copies"><span class="std std-ref">张量内存加速器（TMA）</span></a> 单元扩展了异步执行特性。TMA 可以在全局内存和共享内存之间双向传输大块数据和多维张量；Hopper 还引入了异步事务屏障以及异步矩阵乘加运算（详情见 <a class="reference external" href="https://developer.nvidia.com/blog/nvidia-hopper-architecture-in-depth/">Hopper 架构深度解析</a> 博客文章）。</p>
+<p>CUDA 提供了可由设备代码中的线程调用的 API 来使用这些特性。异步编程模型定义了异步操作相对于 CUDA 线程的行为。</p>
+<p>异步操作由 CUDA 线程发起，但会像由另一个线程执行一样异步运行；这里将这个执行实体称为 <em>异步线程</em>。在格式良好的程序中，一个或多个 CUDA 线程会与异步操作同步。发起异步操作的 CUDA 线程不一定是执行同步的线程之一。异步线程始终与发起该操作的 CUDA 线程相关联。</p>
+<p>异步操作使用同步对象来表示自身完成；该同步对象可以是屏障，也可以是流水线。这些同步对象会在 <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-advanced-sync-primitives"><span class="std std-ref">高级同步原语</span></a> 中详细说明，它们在异步内存操作中的作用则会在 <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-async-copies"><span class="std std-ref">异步数据拷贝</span></a> 中演示。</p>
 <section id="async-thread-and-async-proxy">
 <span id="advanced-kernels-hardware-implementation-asynchronous-execution-features-async-thread-proxy"></span><h4><span class="section-number">3.2.2.3.1. </span>异步线程和异步代理<a class="headerlink" href="advanced-kernel-programming.html#async-thread-and-async-proxy" title="跳转到此标题">#</a></h4>
-<p>异步操作访问内存的方式可能与常规操作不同。为了区分这些不同的内存访问方法，CUDA 引入了 <em>异步线程</em>, a <em>通用代理</em>，和一个 <em>异步代理</em>。正常操作（加载和存储）通过通用代理。一些异步指令，例如 <a class="reference internal" href="../04-special-topics/async-copies.html#async-copies-ldgsts"><span class="std std-ref">LDGSTS</span></a> 和 <a class="reference internal" href="../04-special-topics/async-copies.html#async-copies-stas"><span class="std std-ref">STAS/REDAS</span></a>，使用在通用代理中操作的异步线程进行建模。其他异步指令，例如使用 TMA 的批量异步复制和一些张量核心操作（tcgen05.*、wgmma.mma_async.*），是使用异步代理中操作的异步线程进行建模的。</p>
-<p><strong>在通用代理中运行的异步线程</strong>。当发起异步操作时，它会与异步线程关联，该异步线程与发起操作的 CUDA 线程不同。 <em>Preceding</em> 保证在异步操作之前对通用代理（正常）加载和存储到同一地址进行排序。然而， <em>subsequent</em> 正常加载和存储到同一地址不能保证维持其顺序，可能会导致竞争条件，直到异步线程完成。</p>
-<p><strong>在异步代理中运行的异步线程</strong>。当发起异步操作时，它会与异步线程关联，该异步线程与发起操作的 CUDA 线程不同。 <em>之前和之后</em> 正常加载和存储到同一地址不能保证保持其顺序。需要代理栅栏来跨不同代理同步它们，以确保正确的内存排序。部分 <a class="reference internal" href="../04-special-topics/async-copies.html#async-copies-tma"><span class="std std-ref">使用张量内存加速器（TMA）</span></a> 演示使用代理栅栏来确保使用 TMA 执行异步复制时的正确性。</p>
-<p>有关这些概念的更多详细信息，请参阅 <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html?highlight=proxy#proxies">PTX ISA</a> documentation.</p>
+<p>异步操作访问内存的方式可能不同于常规操作。为了区分这些不同的内存访问方式，CUDA 引入了 <em>异步线程</em>、<em>通用代理</em> 和 <em>异步代理</em> 等概念。普通操作（加载和存储）会经过通用代理。一些异步指令，例如 <a class="reference internal" href="../04-special-topics/async-copies.html#async-copies-ldgsts"><span class="std std-ref">LDGSTS</span></a> 和 <a class="reference internal" href="../04-special-topics/async-copies.html#async-copies-stas"><span class="std std-ref">STAS/REDAS</span></a>，会被建模为在通用代理中运行的异步线程。其他异步指令，例如使用 TMA 的批量异步拷贝以及一些张量核心操作（tcgen05.*、wgmma.mma_async.*），会被建模为在异步代理中运行的异步线程。</p>
+<p><strong>在通用代理中运行的异步线程</strong>。发起异步操作时，该操作会与一个异步线程关联；这个异步线程不同于发起操作的 CUDA 线程。对同一地址而言，异步操作之前的通用代理（普通）加载和存储保证排在该异步操作之前。不过，在异步线程完成之前，同一地址上的后续普通加载和存储并不保证保持相应顺序，因此可能产生竞争条件。</p>
+<p><strong>在异步代理中运行的异步线程</strong>。发起异步操作时，该操作会与一个异步线程关联；这个异步线程不同于发起操作的 CUDA 线程。对同一地址而言，异步操作之前和之后的普通加载和存储都不保证保持相应顺序。需要使用代理栅栏在不同代理之间进行同步，才能确保正确的内存排序。<a class="reference internal" href="../04-special-topics/async-copies.html#async-copies-tma"><span class="std std-ref">使用张量内存加速器（TMA）</span></a> 一节演示了在使用 TMA 执行异步拷贝时，如何通过代理栅栏保证正确性。</p>
+<p>有关这些概念的更多细节，请参阅 <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html?highlight=proxy#proxies">PTX ISA</a> 文档。</p>
 </section>
 </section>
 </section>
 <section id="thread-scopes">
-<span id="advanced-kernels-thread-scopes"></span><h2><span class="section-number">3.2.3. </span>线程范围<a class="headerlink" href="advanced-kernel-programming.html#thread-scopes" title="跳转到此标题">#</a></h2>
-<p>CUDA 线程形成一个 <a class="reference internal" href="../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-thread-hierarchy-review"><span class="std std-ref">线程层次结构</span></a>，并且使用此层次结构对于编写正确且高性能的 CUDA 内核至关重要。在此层次结构中，内存操作的可见性和同步范围可能会有所不同。为了解决这种不均匀性，CUDA 编程模型引入了概念 <em>线程范围</em>。线程作用域定义了哪些线程可以观察线程的加载和存储，并指定哪些线程可以使用原子操作和屏障等同步原语相互同步。每个作用域在内存层次结构中都有一个关联的一致性点。</p>
-<p>线程范围暴露在 <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html?highlight=thread%2520scopes#scope">CUDA PTX</a> 并且也可以作为扩展使用 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_model.html#thread-scopes">libcu++</a> 图书馆。下表定义了可用的线程范围：</p>
+<span id="advanced-kernels-thread-scopes"></span><h2><span class="section-number">3.2.3. </span>线程作用域<a class="headerlink" href="advanced-kernel-programming.html#thread-scopes" title="跳转到此标题">#</a></h2>
+<p>CUDA 线程构成一个 <a class="reference internal" href="../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-thread-hierarchy-review"><span class="std std-ref">线程层次结构</span></a>，合理使用这一层次结构对于编写正确且高性能的 CUDA 内核至关重要。在该层次结构中，内存操作的可见性和同步作用域可能不同。为表达这种非均匀性，CUDA 编程模型引入了 <em>线程作用域</em> 概念。线程作用域定义哪些线程可以观察某个线程的加载和存储，并指定哪些线程可以通过原子操作、屏障等同步原语彼此同步。每个作用域在内存层次结构中都有一个关联的一致性点。</p>
+<p>线程作用域会在 <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html?highlight=thread%2520scopes#scope">CUDA PTX</a> 中暴露，也可作为 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_model.html#thread-scopes">libcu++</a> 库扩展使用。下表定义了可用的线程作用域：</p>
 <div class="pst-scrollable-table-container"><table class="table-no-stripes table">
 <thead>
-<tr class="row-odd"><th class="head"><p>CUDA C++ 线程范围</p></th>
-<th class="head"><p>CUDA PTX 线程范围</p></th>
-<th class="head"><p>warp</p></th>
+<tr class="row-odd"><th class="head"><p>CUDA C++ 线程作用域</p></th>
+<th class="head"><p>CUDA PTX 线程作用域</p></th>
+<th class="head"><p>说明</p></th>
 <th class="head"><p>内存层次结构中的一致性点</p></th>
 </tr>
 </thead>
@@ -400,25 +400,25 @@
 </tbody>
 </table>
 </div>
-<p>Sections <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-advanced-sync-primitives"><span class="std std-ref">高级同步原语</span></a> 和 <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-async-copies"><span class="std std-ref">异步数据复制</span></a> 演示线程作用域的使用。</p>
+<p><a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-advanced-sync-primitives"><span class="std std-ref">高级同步原语</span></a> 和 <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-async-copies"><span class="std std-ref">异步数据拷贝</span></a> 两节会演示线程作用域的用法。</p>
 </section>
 <section id="advanced-synchronization-primitives">
 <span id="advanced-kernels-advanced-sync-primitives"></span><h2><span class="section-number">3.2.4. </span>高级同步原语<a class="headerlink" href="advanced-kernel-programming.html#advanced-synchronization-primitives" title="跳转到此标题">#</a></h2>
 <p>本节介绍三个同步原语系列：</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-advanced-sync-primitives-atomics"><span class="std std-ref">范围原子</span></a>，它将 C++ 内存排序与 CUDA 线程范围配对，以在块、集群、设备或系统范围内跨线程安全地进行通信（请参阅 <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-thread-scopes"><span class="std std-ref">线程范围</span></a>).</p></li>
+<li><p><a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-advanced-sync-primitives-atomics"><span class="std std-ref">作用域原子</span></a>，它将 C++ 内存排序与 CUDA 线程作用域配合使用，以便在块、簇、设备或系统作用域内跨线程安全通信（参见 <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-thread-scopes"><span class="std std-ref">线程作用域</span></a>）。</p></li>
 <li><p><a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-advanced-sync-primitives-barriers"><span class="std std-ref">异步屏障</span></a>，它将同步分为到达和等待阶段，并且可用于跟踪异步操作的进度。</p></li>
-<li><p><a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-advanced-sync-primitives-pipelines"><span class="std std-ref">流水线</span></a>，它分阶段工作并协调多缓冲区生产者-消费者模式，通常用于与以下内容重叠计算 <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-async-copies"><span class="std std-ref">异步数据复制</span></a>.</p></li>
+<li><p><a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-advanced-sync-primitives-pipelines"><span class="std std-ref">流水线</span></a>，它对工作进行分阶段处理，并协调多缓冲区生产者-消费者模式，常用于将计算与 <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-async-copies"><span class="std std-ref">异步数据拷贝</span></a> 重叠。</p></li>
 </ul>
 <section id="scoped-atomics">
-<span id="advanced-kernels-advanced-sync-primitives-atomics"></span><h3><span class="section-number">3.2.4.1. </span>范围原子<a class="headerlink" href="advanced-kernel-programming.html#scoped-atomics" title="跳转到此标题">#</a></h3>
-<p><a class="reference internal" href="../05-appendices/cpp-language-extensions.html#atomic-functions"><span class="std std-numref">第 5.4.5 节</span></a> 概述了 CUDA 中可用的原子函数。在本节中，我们将重点关注 <em>scoped</em> 支持的原子 <a class="reference external" href="https://en.cppreference.com/w/cpp/atomic/memory_order.html">C++ 标准原子内存</a> 语义，可通过 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/synchronization_primitives.html">libcu++</a> 库或通过编译器内置函数。作用域原子提供了在 CUDA 线程层次结构的适当级别上进行高效同步的工具，从而实现复杂并行算法的正确性和性能。</p>
+<span id="advanced-kernels-advanced-sync-primitives-atomics"></span><h3><span class="section-number">3.2.4.1. </span>作用域原子<a class="headerlink" href="advanced-kernel-programming.html#scoped-atomics" title="跳转到此标题">#</a></h3>
+<p><a class="reference internal" href="../05-appendices/cpp-language-extensions.html#atomic-functions"><span class="std std-numref">第 5.4.5 节</span></a> 概述了 CUDA 中可用的原子函数。本节重点介绍支持 <a class="reference external" href="https://en.cppreference.com/w/cpp/atomic/memory_order.html">C++ 标准原子内存</a> 语义的 <em>作用域</em> 原子；它们可通过 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/synchronization_primitives.html">libcu++</a> 库或编译器内置函数使用。作用域原子提供了在 CUDA 线程层次结构适当层级进行高效同步的工具，使复杂并行算法能够兼顾正确性和性能。</p>
 <section id="thread-scope-and-memory-ordering">
 <h4><span class="section-number">3.2.4.1.1. </span>线程作用域和内存排序<a class="headerlink" href="advanced-kernel-programming.html#thread-scope-and-memory-ordering" title="跳转到此标题">#</a></h4>
-<p>范围原子结合了两个关键概念：</p>
+<p>作用域原子结合了两个关键概念：</p>
 <ul class="simple">
-<li><p><strong>线程范围</strong>：定义哪些线程可以观察原子操作的效果（参见 <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-thread-scopes"><span class="std std-ref">线程范围</span></a>).</p></li>
-<li><p><strong>内存排序</strong>：定义相对于其他内存操作的排序约束（参见 <a class="reference external" href="https://en.cppreference.com/w/cpp/atomic/memory_order.html">C++ 标准原子内存语义</a>).</p></li>
+<li><p><strong>线程作用域</strong>：定义哪些线程可以观察原子操作的效果（参见 <a class="reference internal" href="advanced-kernel-programming.html#advanced-kernels-thread-scopes"><span class="std std-ref">线程作用域</span></a>）。</p></li>
+<li><p><strong>内存排序</strong>：定义相对于其他内存操作的排序约束（参见 <a class="reference external" href="https://en.cppreference.com/w/cpp/atomic/memory_order.html">C++ 标准原子内存语义</a>）。</p></li>
 </ul>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio"/>
@@ -470,15 +470,15 @@ CUDA C++ <code class="docutils literal notranslate"><span class="pre">cuda::atom
 </div>
 </div>
 </div>
-<p>这个例子实现了一个 <em>块范围原子计数器</em> 这演示了作用域原子的基本概念：</p>
+<p>这个示例实现了一个 <em>块作用域原子计数器</em>，演示了作用域原子的基本概念：</p>
 <ul class="simple">
-<li><p><strong>共享变量</strong>：单个计数器在块中的所有线程之间共享，使用 <code class="docutils literal notranslate"><span class="pre">__shared__</span></code> memory.</p></li>
-<li><p><strong>原子类型声明</strong>: <code class="docutils literal notranslate"><span class="pre">cuda::atomic&lt;int,</span> <span class="pre">cuda::thread_scope_block&gt;</span></code> 创建具有块级可见性的原子整数。</p></li>
+<li><p><strong>共享变量</strong>：使用 <code class="docutils literal notranslate"><span class="pre">__shared__</span></code> 内存在块中的所有线程之间共享单个计数器。</p></li>
+<li><p><strong>原子类型声明</strong>：<code class="docutils literal notranslate"><span class="pre">cuda::atomic&lt;int,</span> <span class="pre">cuda::thread_scope_block&gt;</span></code> 创建一个具有块级可见性的原子整数。</p></li>
 <li><p><strong>单次初始化</strong>：只有线程 0 初始化计数器以防止设置过程中出现竞争情况。</p></li>
 <li><p><strong>块同步</strong>: <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 确保所有线程在继续之前都能看到初始化的计数器。</p></li>
-<li><p><strong>原子增量</strong>：每个线程自动递增计数器并接收先前的值。</p></li>
+<li><p><strong>原子递增</strong>：每个线程以原子方式递增计数器，并取得递增前的值。</p></li>
 </ul>
-<p><code class="docutils literal notranslate"><span class="pre">cuda::memory_order_relaxed</span></code> 这里选择 是因为我们只需要原子性（不可分割的读-修改-写），而无需不同内存位置之间的排序约束。由于这是一个简单的计数操作，因此增量的顺序对于正确性并不重要。</p>
+<p>这里选择 <code class="docutils literal notranslate"><span class="pre">cuda::memory_order_relaxed</span></code>，是因为我们只需要原子性（不可分割的读-改-写），而不需要不同内存位置之间的排序约束。由于这是简单计数操作，递增发生的顺序并不影响正确性。</p>
 <p>对于生产者-消费者模式，获取-释放语义确保正确的排序：</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio"/>
@@ -491,14 +491,14 @@ CUDA C++ <code class="docutils literal notranslate"><span class="pre">cuda::atom
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="c1">// 生产者：写入数据然后发出就绪信号</span>
 <span class="w">        </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="p">;</span>
-<span class="w">        </span><span class="n">ready</span><span class="p">.</span><span class="n">store</span><span class="p">(</span><span class="nb">true</span><span class="p">,</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">memory_order_release</span><span class="p">);</span><span class="w">  </span><span class="c1">// Release保证数据写入可见</span>
+<span class="w">        </span><span class="n">ready</span><span class="p">.</span><span class="n">store</span><span class="p">(</span><span class="nb">true</span><span class="p">,</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">memory_order_release</span><span class="p">);</span><span class="w">  </span><span class="c1">// release 确保数据写入可见</span>
 <span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="c1">// 消费者：等待就绪信号然后读取数据</span>
-<span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">ready</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">cuda</span><span class="o">::</span><span class="n">memory_order_acquire</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w">  </span><span class="c1">// 获取确保数据读取可看到写入</span>
+<span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">ready</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">cuda</span><span class="o">::</span><span class="n">memory_order_acquire</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w">  </span><span class="c1">// acquire 确保读取能看到数据写入</span>
 <span class="w">            </span><span class="c1">// 旋转等待</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span><span class="p">;</span>
-<span class="w">        </span><span class="c1">// 过程值...</span>
+<span class="w">        </span><span class="c1">// 处理 value...</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -516,16 +516,16 @@ CUDA C++ <code class="docutils literal notranslate"><span class="pre">cuda::atom
 <span class="w">        </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="p">;</span>
 <span class="w">        </span><span class="n">__nv_atomic_store_n</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ready</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">,</span>
 <span class="w">                            </span><span class="n">__NV_ATOMIC_RELEASE</span><span class="p">,</span>
-<span class="w">                            </span><span class="n">__NV_THREAD_SCOPE_BLOCK</span><span class="p">);</span><span class="w">  </span><span class="c1">// Release保证数据写入可见</span>
+<span class="w">                            </span><span class="n">__NV_THREAD_SCOPE_BLOCK</span><span class="p">);</span><span class="w">  </span><span class="c1">// release 确保数据写入可见</span>
 <span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="c1">// 消费者：等待就绪信号然后读取数据</span>
 <span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">__nv_atomic_load_n</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ready</span><span class="p">,</span>
 <span class="w">                                   </span><span class="n">__NV_ATOMIC_ACQUIRE</span><span class="p">,</span>
-<span class="w">                                   </span><span class="n">__NV_THREAD_SCOPE_BLOCK</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w">  </span><span class="c1">// 获取确保数据读取可看到写入</span>
+<span class="w">                                   </span><span class="n">__NV_THREAD_SCOPE_BLOCK</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w">  </span><span class="c1">// acquire 确保读取能看到数据写入</span>
 <span class="w">            </span><span class="c1">// 旋转等待</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span><span class="p">;</span>
-<span class="w">        </span><span class="c1">// 过程值...</span>
+<span class="w">        </span><span class="c1">// 处理 value...</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -536,63 +536,63 @@ CUDA C++ <code class="docutils literal notranslate"><span class="pre">cuda::atom
 <section id="performance-considerations">
 <h4><span class="section-number">3.2.4.1.2. </span>性能考虑因素<a class="headerlink" href="advanced-kernel-programming.html#performance-considerations" title="跳转到此标题">#</a></h4>
 <ul class="simple">
-<li><p><em>使用尽可能窄的范围</em>：块范围的原子比系统范围的原子快得多。</p></li>
-<li><p><em>更喜欢较弱的订单</em>：仅在需要正确性时才使用更强的排序。</p></li>
+<li><p><em>使用尽可能窄的作用域</em>：块作用域原子比系统作用域原子快得多。</p></li>
+<li><p><em>优先使用较弱的内存顺序</em>：只有在正确性需要时才使用更强的排序。</p></li>
 <li><p><em>考虑内存位置</em>：共享内存原子比全局内存原子更快。</p></li>
 </ul>
 </section>
 </section>
 <section id="asynchronous-barriers">
 <span id="advanced-kernels-advanced-sync-primitives-barriers"></span><h3><span class="section-number">3.2.4.2. </span>异步屏障<a class="headerlink" href="advanced-kernel-programming.html#asynchronous-barriers" title="跳转到此标题">#</a></h3>
-<p>异步屏障不同于典型的单级屏障（<code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code>），因为线程通知它已到达屏障（“到达”）与等待其他线程到达屏障的操作（“等待”）是分开的。这种分离允许线程执行与屏障无关的附加操作，从而提高执行效率，从而更有效地利用等待时间。异步屏障可用于通过 CUDA 线程实现生产者-消费者模式，或者通过在完成时让复制操作向屏障发出信号（“到达”）来启用内存层次结构内的异步数据复制。</p>
-<p>异步屏障可在计算能力 7.0 或更高版本的设备上使用。计算能力 8.0 或更高的设备通过允许块内 CUDA 线程的任何子集的硬件加速同步，为共享内存中的异步屏障提供硬件加速，并在同步粒度方面取得显着进步。以前的架构只能加速整个warp 的同步（<code class="docutils literal notranslate"><span class="pre">__syncwarp()</span></code>) 或整块 (<code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code>）水平。</p>
-<p>CUDA 编程模型通过以下方式提供异步屏障 <code class="docutils literal notranslate"><span class="pre">cuda::std::barrier</span></code>，一个符合 ISO C++ 的屏障，可用于 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/synchronization_primitives/barrier.html">libcu++</a> 图书馆。除了实施 <a class="reference external" href="https://en.cppreference.com/w/cpp/thread/barrier.html">std::barrier</a>，该库提供了 CUDA 特定的扩展来选择屏障的线程范围以提高性能并公开较低级别的 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/ptx_api.html">cuda::ptx</a> API。一个 <code class="docutils literal notranslate"><span class="pre">cuda::barrier</span></code> 可以与 <code class="docutils literal notranslate"><span class="pre">cuda::ptx</span></code> 通过使用 <code class="docutils literal notranslate"><span class="pre">friend</span></code> function <code class="docutils literal notranslate"><span class="pre">cuda::device::barrier_native_handle()</span></code> 检索屏障的本机句柄并将其传递给 <code class="docutils literal notranslate"><span class="pre">cuda::ptx</span></code> 功能。 CUDA还提供了 <a class="reference internal" href="../05-appendices/device-callable-apis.html#async-barriers-primitives-api"><span class="std std-ref">原语API</span></a> 用于线程块范围内共享内存中的异步屏障。</p>
-<p>下表概述了可用于在不同线程范围进行同步的异步屏障。</p>
+<p>异步屏障不同于典型的单阶段屏障（<code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code>）：线程通知自己已经到达屏障的操作（“到达”），与等待其他线程到达屏障的操作（“等待”）是分离的。这种分离允许线程执行不依赖该屏障的额外工作，更有效地利用等待时间，从而提升执行效率。异步屏障可用于通过 CUDA 线程实现生产者-消费者模式，也可用于内存层次结构内的异步数据拷贝：拷贝操作完成时向屏障发出“到达”信号。</p>
+<p>异步屏障可在计算能力 7.0 或更高版本的设备上使用。计算能力 8.0 或更高的设备为共享内存中的异步屏障提供硬件加速，允许硬件加速同步线程块内任意 CUDA 线程子集，在同步粒度方面取得了显著进步。早期架构只能在整个 warp（<code class="docutils literal notranslate"><span class="pre">__syncwarp()</span></code>）或整个线程块（<code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code>）级别提供加速同步。</p>
+<p>CUDA 编程模型通过 <code class="docutils literal notranslate"><span class="pre">cuda::std::barrier</span></code> 提供异步屏障，这是一个符合 ISO C++ 的屏障，可在 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/synchronization_primitives/barrier.html">libcu++</a> 库中使用。除了实现 <a class="reference external" href="https://en.cppreference.com/w/cpp/thread/barrier.html">std::barrier</a> 之外，该库还提供 CUDA 专用扩展，用于选择屏障的线程作用域以提升性能，并公开更底层的 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/ptx_api.html">cuda::ptx</a> API。通过 <code class="docutils literal notranslate"><span class="pre">friend</span></code> 函数 <code class="docutils literal notranslate"><span class="pre">cuda::device::barrier_native_handle()</span></code> 取回屏障的原生句柄，并将其传给 <code class="docutils literal notranslate"><span class="pre">cuda::ptx</span></code> 函数，即可把 <code class="docutils literal notranslate"><span class="pre">cuda::barrier</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cuda::ptx</span></code> 搭配使用。CUDA 还为线程块作用域内、共享内存中的异步屏障提供了 <a class="reference internal" href="../05-appendices/device-callable-apis.html#async-barriers-primitives-api"><span class="std std-ref">原语 API</span></a>。</p>
+<p>下表概述了可用于在不同线程作用域进行同步的异步屏障。</p>
 <blockquote>
 <div><div class="pst-scrollable-table-container"><table class="table-no-stripes table">
 <thead>
-<tr class="row-odd"><th class="head"><p>线程范围</p></th>
+<tr class="row-odd"><th class="head"><p>线程作用域</p></th>
 <th class="head"><p>内存位置</p></th>
 <th class="head"><p>到达屏障</p></th>
 <th class="head"><p>等待屏障</p></th>
-<th class="head"><p>Hardware-accelerated</p></th>
+<th class="head"><p>硬件加速</p></th>
 <th class="head"><p>CUDA API</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>block</p></td>
+<tr class="row-even"><td><p>线程块</p></td>
 <td><p>本地共享内存</p></td>
-<td><p>allowed</p></td>
-<td><p>allowed</p></td>
+<td><p>允许</p></td>
+<td><p>允许</p></td>
 <td><p>是（8.0+）</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">cuda::barrier</span></code>, <code class="docutils literal notranslate"><span class="pre">cuda::ptx</span></code>, 基元</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cuda::barrier</span></code>, <code class="docutils literal notranslate"><span class="pre">cuda::ptx</span></code>, 原语</p></td>
 </tr>
-<tr class="row-odd"><td><p>cluster</p></td>
+<tr class="row-odd"><td><p>簇</p></td>
 <td><p>本地共享内存</p></td>
-<td><p>allowed</p></td>
-<td><p>allowed</p></td>
+<td><p>允许</p></td>
+<td><p>允许</p></td>
 <td><p>是（9.0+）</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">cuda::barrier</span></code>, <code class="docutils literal notranslate"><span class="pre">cuda::ptx</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p>cluster</p></td>
+<tr class="row-even"><td><p>簇</p></td>
 <td><p>远程共享内存</p></td>
-<td><p>allowed</p></td>
+<td><p>允许</p></td>
 <td><p>不允许</p></td>
 <td><p>是（9.0+）</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">cuda::barrier</span></code>, <code class="docutils literal notranslate"><span class="pre">cuda::ptx</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p>device</p></td>
+<tr class="row-odd"><td><p>设备</p></td>
 <td><p>全局内存</p></td>
-<td><p>allowed</p></td>
-<td><p>allowed</p></td>
-<td><p>no</p></td>
+<td><p>允许</p></td>
+<td><p>允许</p></td>
+<td><p>否</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">cuda::barrier</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p>system</p></td>
+<tr class="row-even"><td><p>系统</p></td>
 <td><p>全局/统一内存</p></td>
-<td><p>allowed</p></td>
-<td><p>allowed</p></td>
-<td><p>no</p></td>
+<td><p>允许</p></td>
+<td><p>允许</p></td>
+<td><p>否</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">cuda::barrier</span></code></p></td>
 </tr>
 </tbody>
@@ -600,7 +600,7 @@ CUDA C++ <code class="docutils literal notranslate"><span class="pre">cuda::atom
 </div>
 </div></blockquote>
 <p class="rubric">同步的时间分割</p>
-<p>如果没有异步到达等待屏障，线程块内的同步可以通过以下方式实现： <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">block.sync()</span></code> 使用时 <a class="reference internal" href="../04-special-topics/cooperative-groups.html#cooperative-groups"><span class="std std-ref">合作团体</span></a>.</p>
+<p>如果不使用异步到达/等待屏障，线程块内同步可以通过 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 实现；使用 <a class="reference internal" href="../04-special-topics/cooperative-groups.html#cooperative-groups"><span class="std std-ref">协作组</span></a> 时，也可以通过 <code class="docutils literal notranslate"><span class="pre">block.sync()</span></code> 实现。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cooperative_groups.h&gt;</span>
 
 <span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">simple_sync</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">iteration_count</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -617,12 +617,12 @@ CUDA C++ <code class="docutils literal notranslate"><span class="pre">cuda::atom
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>线程在同步点（<code class="docutils literal notranslate"><span class="pre">block.sync()</span></code>）直到所有线程都到达同步点。此外，保证同步点之前发生的内存更新对于同步点之后的块中的所有线程都是可见的。</p>
+<p>线程会在同步点（<code class="docutils literal notranslate"><span class="pre">block.sync()</span></code>）阻塞，直到所有线程都到达该同步点。此外，同步点之前发生的内存更新，保证在同步点之后对该线程块中的所有线程可见。</p>
 <p>该模式分为三个阶段：</p>
 <ul class="simple">
-<li><p>Code <strong>before</strong> 同步执行将被读取的内存更新 <strong>after</strong> 同步。</p></li>
+<li><p>同步 <strong>之前</strong> 的代码执行内存更新，这些更新会在同步 <strong>之后</strong> 被读取。</p></li>
 <li><p>同步点。</p></li>
-<li><p>Code <strong>after</strong> 同步，可以看到发生的内存更新 <strong>before</strong> 同步。</p></li>
+<li><p>同步 <strong>之后</strong> 的代码，可以看到同步 <strong>之前</strong> 发生的内存更新。</p></li>
 </ul>
 <p>使用异步屏障代替，时间分割同步模式如下。</p>
 <div class="sd-tab-set docutils">
@@ -644,7 +644,7 @@ CUDA C++ <code class="docutils literal notranslate"><span class="pre">cuda::barr
 
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">block</span><span class="p">.</span><span class="n">thread_rank</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
 <span class="w">  </span><span class="p">{</span>
-<span class="w">    </span><span class="c1">// 使用预期到达计数初始化障碍。</span>
+<span class="w">    </span><span class="c1">// 使用预期到达计数初始化屏障。</span>
 <span class="w">    </span><span class="n">init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">bar</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">size</span><span class="p">());</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="w">  </span><span class="n">block</span><span class="p">.</span><span class="n">sync</span><span class="p">();</span>
@@ -689,7 +689,7 @@ CUDA C++ <code class="docutils literal notranslate"><span class="pre">cuda::ptx<
 
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">block</span><span class="p">.</span><span class="n">thread_rank</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
 <span class="w">  </span><span class="p">{</span>
-<span class="w">    </span><span class="c1">// 使用预期到达计数初始化障碍。</span>
+<span class="w">    </span><span class="c1">// 使用预期到达计数初始化屏障。</span>
 <span class="w">    </span><span class="n">cuda</span><span class="o">::</span><span class="n">ptx</span><span class="o">::</span><span class="n">mbarrier_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">bar</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">size</span><span class="p">());</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="w">  </span><span class="n">block</span><span class="p">.</span><span class="n">sync</span><span class="p">();</span>
@@ -734,7 +734,7 @@ CUDA C 原语</label><div class="sd-tab-content docutils">
 
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">block</span><span class="p">.</span><span class="n">thread_rank</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
 <span class="w">  </span><span class="p">{</span>
-<span class="w">    </span><span class="c1">// 使用预期到达计数初始化障碍。</span>
+<span class="w">    </span><span class="c1">// 使用预期到达计数初始化屏障。</span>
 <span class="w">    </span><span class="n">__mbarrier_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">bar</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">size</span><span class="p">());</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="w">  </span><span class="n">block</span><span class="p">.</span><span class="n">sync</span><span class="p">();</span>
@@ -763,21 +763,21 @@ CUDA C 原语</label><div class="sd-tab-content docutils">
 </div>
 </div>
 </div>
-<p>在此模式中，同步点被分为到达点 (<code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code>）和一个等待点（<code class="docutils literal notranslate"><span class="pre">bar.wait(std::move(token))</span></code>）。一个线程开始参与一个 <code class="docutils literal notranslate"><span class="pre">cuda::barrier</span></code> 第一次致电 <code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code>。当一个线程调用 <code class="docutils literal notranslate"><span class="pre">bar.wait(std::move(token))</span></code> 它将被阻塞，直到参与线程完成 <code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code> 预期次数，这是传递给的预期到达计数参数 <code class="docutils literal notranslate"><span class="pre">init()</span></code>。在参与线程调用之前发生的内存更新 <code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code> 保证在调用后对参与线程可见 <code class="docutils literal notranslate"><span class="pre">bar.wait(std::move(token))</span></code>。请注意，调用 <code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code> 不会阻塞线程，它可以继续执行其他工作，这些工作不依赖于其他参与线程调用之前发生的内存更新 <code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code>.</p>
+<p>在这种模式中，同步点被拆分为到达点（<code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code>）和等待点（<code class="docutils literal notranslate"><span class="pre">bar.wait(std::move(token))</span></code>）。线程第一次调用 <code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code> 时，就开始参与该 <code class="docutils literal notranslate"><span class="pre">cuda::barrier</span></code>。当线程调用 <code class="docutils literal notranslate"><span class="pre">bar.wait(std::move(token))</span></code> 时，它会阻塞，直到参与线程完成预期次数的 <code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code> 调用；该预期次数就是传给 <code class="docutils literal notranslate"><span class="pre">init()</span></code> 的预期到达计数参数。参与线程调用 <code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code> 之前发生的内存更新，保证在它们调用 <code class="docutils literal notranslate"><span class="pre">bar.wait(std::move(token))</span></code> 之后对参与线程可见。注意，调用 <code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code> 不会阻塞线程；线程可以继续执行其他工作，只要这些工作不依赖于其他参与线程在调用 <code class="docutils literal notranslate"><span class="pre">bar.arrive()</span></code> 之前发生的内存更新。</p>
 <p><em>到达并等待</em> 模式有五个阶段：</p>
 <ul class="simple">
-<li><p>Code <strong>before</strong> 到达执行将被读取的内存更新 <strong>after</strong> 等待。</p></li>
-<li><p>到达具有隐式内存栅栏的点（即，相当于 <code class="docutils literal notranslate"><span class="pre">cuda::atomic_thread_fence(cuda::memory_order_seq_cst,</span> <span class="pre">cuda::thread_scope_block)</span></code>).</p></li>
-<li><p>Code <strong>between</strong> 到达并等待。</p></li>
+<li><p>到达 <strong>之前</strong> 的代码执行内存更新，这些更新会在等待 <strong>之后</strong> 被读取。</p></li>
+<li><p>带隐式内存栅栏的到达点（也就是等价于 <code class="docutils literal notranslate"><span class="pre">cuda::atomic_thread_fence(cuda::memory_order_seq_cst,</span> <span class="pre">cuda::thread_scope_block)</span></code>）。</p></li>
+<li><p>到达与等待 <strong>之间</strong> 的代码。</p></li>
 <li><p>等待点。</p></li>
-<li><p>Code <strong>after</strong> 等待，可以看到已执行的更新 <strong>before</strong> 到达。</p></li>
+<li><p>等待 <strong>之后</strong> 的代码，可以看到到达 <strong>之前</strong> 已执行的更新。</p></li>
 </ul>
-<p>有关如何使用异步屏障的综合指南，请参阅 <a class="reference internal" href="../04-special-topics/async-barriers.html#asynchronous-barriers"><span class="std std-ref">异步屏障</span></a>.</p>
+<p>有关异步屏障用法的完整指南，请参阅 <a class="reference internal" href="../04-special-topics/async-barriers.html#asynchronous-barriers"><span class="std std-ref">异步屏障</span></a>。</p>
 </section>
 <section id="pipelines">
 <span id="advanced-kernels-advanced-sync-primitives-pipelines"></span><h3><span class="section-number">3.2.4.3. </span>流水线<a class="headerlink" href="advanced-kernel-programming.html#pipelines" title="跳转到此标题">#</a></h3>
-<p>CUDA 编程模型提供管道同步对象作为协调机制，将异步内存副本排序为多个阶段，从而促进双或多缓冲生产者-消费者模式的实现。管道是一个双端队列 <em>head</em> 和一个 <em>tail</em> 以先进先出 (FIFO) 顺序处理工作。生产者线程将工作提交到管道的头部，而消费者线程从管道的尾部提取工作。</p>
-<p>管道暴露在外 <code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code> API 在 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/synchronization_primitives/pipeline.html">libcu++</a> 图书馆，以及通过 <a class="reference internal" href="../05-appendices/device-callable-apis.html#pipeline-primitives-interface"><span class="std std-ref">原语API</span></a>。下表描述了两个 API 的主要功能。</p>
+<p>CUDA 编程模型提供流水线同步对象，作为将异步内存拷贝组织成多个阶段的协调机制，从而便于实现双缓冲或多缓冲的生产者-消费者模式。流水线是一个带有 <em>head</em> 和 <em>tail</em> 的双端队列，按先进先出（FIFO）顺序处理工作。生产者线程把工作提交到流水线头部，消费者线程则从流水线尾部取出工作。</p>
+<p>流水线可通过 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/synchronization_primitives/pipeline.html">libcu++</a> 库中的 <code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code> API 使用，也可通过 <a class="reference internal" href="../05-appendices/device-callable-apis.html#pipeline-primitives-interface"><span class="std std-ref">原语 API</span></a> 使用。下表描述了这两类 API 的主要功能。</p>
 <div class="pst-scrollable-table-container"><table class="table-no-stripes table">
 <colgroup>
 <col style="width: 30.0%"/>
@@ -785,7 +785,7 @@ CUDA C 原语</label><div class="sd-tab-content docutils">
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code> API</p></th>
-<th class="head"><p>warp</p></th>
+<th class="head"><p>说明</p></th>
 </tr>
 </thead>
 <tbody>
@@ -793,13 +793,13 @@ CUDA C 原语</label><div class="sd-tab-content docutils">
 <td><p>获取管道内部队列中的可用阶段。</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">producer_commit</span></code></p></td>
-<td><p>提交之后发出的异步操作 <code class="docutils literal notranslate"><span class="pre">producer_acquire</span></code> 调用当前获取的管道阶段。</p></td>
+<td><p>提交在 <code class="docutils literal notranslate"><span class="pre">producer_acquire</span></code> 调用之后、针对当前已获取流水线阶段发出的异步操作。</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">consumer_wait</span></code></p></td>
 <td><p>等待管道最旧阶段中的异步操作完成。</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">consumer_release</span></code></p></td>
-<td><p>将管道最旧的阶段释放给管道对象以供重用。然后，制作人可以获取已发布的舞台。</p></td>
+<td><p>把流水线中最旧的阶段释放回流水线对象以便重用。释放后的阶段随后可由生产者获取。</p></td>
 </tr>
 </tbody>
 </table>
@@ -810,44 +810,44 @@ CUDA C 原语</label><div class="sd-tab-content docutils">
 <col style="width: 70.0%"/>
 </colgroup>
 <thead>
-<tr class="row-odd"><th class="head"><p>基元 API</p></th>
-<th class="head"><p>warp</p></th>
+<tr class="row-odd"><th class="head"><p>原语 API</p></th>
+<th class="head"><p>说明</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">__pipeline_memcpy_async</span></code></p></td>
-<td><p>请求提交从全局内存到共享内存的内存副本以进行异步评估。</p></td>
+<td><p>请求提交一次从全局内存到共享内存的内存拷贝，以便异步执行。</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">__pipeline_commit</span></code></p></td>
-<td><p>提交在管道当前阶段调用之前发出的异步操作。</p></td>
+<td><p>提交在当前流水线阶段、该调用之前发出的异步操作。</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">__pipeline_wait_prior(N)</span></code></p></td>
-<td><p>等待除最后 N 次提交到管道之外的所有异步操作的完成。</p></td>
+<td><p>等待除最近 N 次提交之外，所有提交到流水线的异步操作完成。</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code> API 具有更丰富的接口和更少的限制，而原语 API 仅支持跟踪从全局内存到具有特定大小和对齐要求的共享内存的异步副本。原语 API 提供与 <code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code> 对象与 <code class="docutils literal notranslate"><span class="pre">cuda::thread_scope_thread</span></code>.</p>
-<p>有关详细的使用模式和示例，请参阅 <a class="reference internal" href="../04-special-topics/pipelines.html#pipelines"><span class="std std-ref">流水线</span></a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code> API 的接口更丰富、限制更少；原语 API 则只支持跟踪从全局内存到共享内存的异步拷贝，并且有特定大小和对齐要求。原语 API 提供的功能等价于线程作用域为 <code class="docutils literal notranslate"><span class="pre">cuda::thread_scope_thread</span></code> 的 <code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code> 对象。</p>
+<p>有关详细使用模式和示例，请参阅 <a class="reference internal" href="../04-special-topics/pipelines.html#pipelines"><span class="std std-ref">流水线</span></a>。</p>
 </section>
 </section>
 <section id="asynchronous-data-copies">
-<span id="advanced-kernels-async-copies"></span><h2><span class="section-number">3.2.5. </span>异步数据复制<a class="headerlink" href="advanced-kernel-programming.html#asynchronous-data-copies" title="跳转到此标题">#</a></h2>
-<p>内存层次结构内的高效数据移动是实现 GPU 计算高性能的基础。传统的同步内存操作迫使线程在数据传输期间等待空闲。 GPU 本质上通过并行性隐藏内存延迟。也就是说，当内存操作完成时，SM 切换到执行另一个 warp。即使通过并行性隐藏了这种延迟，内存延迟仍然有可能成为内存带宽利用率和计算资源效率的瓶颈。为了解决这些瓶颈，现代 GPU 架构提供了硬件加速的异步数据复制机制，允许内存传输独立进行，同时线程继续执行其他工作。</p>
-<p>异步数据复制通过将内存传输的启动与等待其完成分离来实现计算与数据移动的重叠。这样，线程可以在内存延迟期间执行有用的工作，从而提高总体吞吐量和资源利用率。</p>
+<span id="advanced-kernels-async-copies"></span><h2><span class="section-number">3.2.5. </span>异步数据拷贝<a class="headerlink" href="advanced-kernel-programming.html#asynchronous-data-copies" title="跳转到此标题">#</a></h2>
+<p>在内存层次结构内高效移动数据，是 GPU 计算获得高性能的基础。传统同步内存操作会迫使线程在数据传输期间空闲等待。GPU 本身通过并行性隐藏内存延迟，也就是在内存操作完成期间让 SM 切换去执行另一个 warp。即便如此，内存延迟仍可能在内存带宽利用率和计算资源效率两方面成为瓶颈。为解决这些瓶颈，现代 GPU 架构提供了硬件加速的异步数据拷贝机制，使内存传输可以独立推进，同时线程继续执行其他工作。</p>
+<p>异步数据拷贝将内存传输的发起与等待其完成解耦，从而让计算与数据移动重叠。这样，线程可以在内存延迟期间执行有用工作，提高总体吞吐量和资源利用率。</p>
 <div class="admonition note">
 <p class="admonition-title">注</p>
-<p>虽然本节的概念和原则与前面章节中讨论的类似 <a class="reference internal" href="../02-basics/asynchronous-execution.html#asynchronous-execution"><span class="std std-ref">异步执行</span></a>，该章涵盖了内核的异步执行和内存传输，例如由 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyAsync</span></code>。这可以被认为是应用程序不同组件的异步。</p>
-<p>本节中描述的异步是指能够在 GPU 的 DRAM（即全局内存）和 on-SM 内存（例如共享内存或张量内存）之间传输数据，而不会阻塞 GPU 线程。这是单个内核启动执行中的异步。</p>
+<p>虽然本节背后的概念和原则，与前面 <a class="reference internal" href="../02-basics/asynchronous-execution.html#asynchronous-execution"><span class="std std-ref">异步执行</span></a> 一章讨论的内容相似，但该章讨论的是内核和内存传输（例如通过 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyAsync</span></code> 发起的传输）的异步执行。这可以看作应用程序不同组件之间的异步。</p>
+<p>本节所说的异步，是指在不阻塞 GPU 线程的情况下，在 GPU DRAM（即全局内存）与 SM 内存（例如共享内存或张量内存）之间传输数据。这是单个内核启动执行过程内部的异步。</p>
 </div>
-<p>要了解异步副本如何提高性能，检查常见的 GPU 计算模式会很有帮助。 CUDA 应用程序通常采用 <em>复制和计算</em> 模式：</p>
+<p>要理解异步拷贝如何提升性能，考察一种常见的 GPU 计算模式会很有帮助。CUDA 应用通常采用 <em>拷贝并计算</em> 模式：</p>
 <ul class="simple">
 <li><p>从全局内存中获取数据，</p></li>
-<li><p>将数据存储到共享内存，以及</p></li>
-<li><p>对共享内存数据执行计算，并可能将结果写回全局内存。</p></li>
+<li><p>把数据存储到共享内存，并且</p></li>
+<li><p>对共享内存中的数据执行计算，并可能把结果写回全局内存。</p></li>
 </ul>
-<p><em>copy</em> 该模式的阶段通常表示为 <code class="docutils literal notranslate"><span class="pre">shared[local_idx]</span> <span class="pre">=</span> <span class="pre">global[global_idx]</span></code>。编译器将这种全局到共享内存的复制扩展为从全局内存读取到寄存器，然后从寄存器写入共享内存。</p>
-<p>当这种模式出现在迭代算法中时，每个线程块都需要在迭代算法之后进行同步。 <code class="docutils literal notranslate"><span class="pre">shared[local_idx]</span> <span class="pre">=</span> <span class="pre">global[global_idx]</span></code> 分配，以确保在计算阶段开始之前完成对共享内存的所有写入。线程块还需要在计算阶段之后再次同步，以防止在所有线程完成计算之前覆盖共享内存。下面的代码片段说明了这种模式。</p>
+<p>该模式中的 <em>拷贝</em> 阶段通常写作 <code class="docutils literal notranslate"><span class="pre">shared[local_idx]</span> <span class="pre">=</span> <span class="pre">global[global_idx]</span></code>。编译器会把这种从全局内存到共享内存的拷贝展开为：先从全局内存读取到寄存器，再从寄存器写入共享内存。</p>
+<p>当这种模式出现在迭代算法中时，每个线程块都需要在 <code class="docutils literal notranslate"><span class="pre">shared[local_idx]</span> <span class="pre">=</span> <span class="pre">global[global_idx]</span></code> 赋值之后同步，以确保计算阶段开始前，所有对共享内存的写入都已完成。线程块还需要在计算阶段之后再次同步，以防止所有线程完成计算前共享内存被覆盖。下面的代码片段说明了这种模式。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cooperative_groups.h&gt;</span>
 
 <span class="n">__device__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">compute</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="w"> </span><span class="n">global_out</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="k">const</span><span class="o">*</span><span class="w"> </span><span class="n">shared_in</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -858,7 +858,7 @@ CUDA C 原语</label><div class="sd-tab-content docutils">
 <span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">without_async_copy</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="w"> </span><span class="n">global_out</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="k">const</span><span class="o">*</span><span class="w"> </span><span class="n">global_in</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">batch_sz</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cooperative_groups</span><span class="o">::</span><span class="n">this_grid</span><span class="p">();</span>
 <span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">block</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cooperative_groups</span><span class="o">::</span><span class="n">this_thread_block</span><span class="p">();</span>
-<span class="w">  </span><span class="n">assert</span><span class="p">(</span><span class="n">size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">batch_sz</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">grid</span><span class="p">.</span><span class="n">size</span><span class="p">());</span><span class="w"> </span><span class="c1">// 说明：输入大小适合batch_sz * grid_size</span>
+<span class="w">  </span><span class="n">assert</span><span class="p">(</span><span class="n">size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">batch_sz</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">grid</span><span class="p">.</span><span class="n">size</span><span class="p">());</span><span class="w"> </span><span class="c1">// 说明：输入大小适合 batch_sz * grid_size</span>
 
 <span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="n">__shared__</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">shared</span><span class="p">[];</span><span class="w"> </span><span class="c1">// block.size() * sizeof(int) 字节</span>
 
@@ -870,7 +870,7 @@ CUDA C 原语</label><div class="sd-tab-content docutils">
 <span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">global_idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">block_batch_idx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
 <span class="w">    </span><span class="n">shared</span><span class="p">[</span><span class="n">local_idx</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">global_in</span><span class="p">[</span><span class="n">global_idx</span><span class="p">];</span>
 
-<span class="w">    </span><span class="c1">// 等待所有副本完成。</span>
+<span class="w">    </span><span class="c1">// 等待所有拷贝完成。</span>
 <span class="w">    </span><span class="n">block</span><span class="p">.</span><span class="n">sync</span><span class="p">();</span>
 
 <span class="w">    </span><span class="c1">// 计算并将结果写入全局内存。</span>
@@ -882,7 +882,7 @@ CUDA C 原语</label><div class="sd-tab-content docutils">
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>通过异步数据复制，可以异步完成从全局内存到共享内存的数据移动，以便在等待数据到达时更有效地使用 SM。</p>
+<p>借助异步数据拷贝，可以异步完成从全局内存到共享内存的数据移动，使 SM 在等待数据到达期间得到更高效的利用。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cooperative_groups.h&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cooperative_groups/memcpy_async.h&gt;</span>
 
@@ -894,7 +894,7 @@ CUDA C 原语</label><div class="sd-tab-content docutils">
 <span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">with_async_copy</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="w"> </span><span class="n">global_out</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="k">const</span><span class="o">*</span><span class="w"> </span><span class="n">global_in</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">batch_sz</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cooperative_groups</span><span class="o">::</span><span class="n">this_grid</span><span class="p">();</span>
 <span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">block</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cooperative_groups</span><span class="o">::</span><span class="n">this_thread_block</span><span class="p">();</span>
-<span class="w">  </span><span class="n">assert</span><span class="p">(</span><span class="n">size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">batch_sz</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">grid</span><span class="p">.</span><span class="n">size</span><span class="p">());</span><span class="w"> </span><span class="c1">// 说明：输入大小适合batch_sz * grid_size</span>
+<span class="w">  </span><span class="n">assert</span><span class="p">(</span><span class="n">size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">batch_sz</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">grid</span><span class="p">.</span><span class="n">size</span><span class="p">());</span><span class="w"> </span><span class="c1">// 说明：输入大小适合 batch_sz * grid_size</span>
 
 <span class="w">  </span><span class="k">extern</span><span class="w"> </span><span class="n">__shared__</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">shared</span><span class="p">[];</span><span class="w"> </span><span class="c1">// block.size() * sizeof(int) 字节</span>
 
@@ -904,12 +904,12 @@ CUDA C 原语</label><div class="sd-tab-content docutils">
 <span class="w">    </span><span class="c1">// 计算全局内存中该块的当前批次的索引。</span>
 <span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">block_batch_idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">group_index</span><span class="p">().</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">grid</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">batch</span><span class="p">;</span>
 
-<span class="w">    </span><span class="c1">// 整个线程组协作地将整个批次复制到共享内存。</span>
+<span class="w">    </span><span class="c1">// 整个线程组协作地将整个批次拷贝到共享内存。</span>
 <span class="w">    </span><span class="n">cooperative_groups</span><span class="o">::</span><span class="n">memcpy_async</span><span class="p">(</span><span class="n">block</span><span class="p">,</span><span class="w"> </span><span class="n">shared</span><span class="p">,</span><span class="w"> </span><span class="n">global_in</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">block_batch_idx</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">size</span><span class="p">());</span>
 
 <span class="w">    </span><span class="c1">// 等待时计算不同的数据。</span>
 
-<span class="w">    </span><span class="c1">// 等待所有副本完成。</span>
+<span class="w">    </span><span class="c1">// 等待所有拷贝完成。</span>
 <span class="w">    </span><span class="n">cooperative_groups</span><span class="o">::</span><span class="n">wait</span><span class="p">(</span><span class="n">block</span><span class="p">);</span>
 
 <span class="w">    </span><span class="c1">// 计算并将结果写入全局内存。</span>
@@ -921,25 +921,25 @@ CUDA C 原语</label><div class="sd-tab-content docutils">
 <span class="p">}</span>
 </pre></div>
 </div>
-<p><a class="reference internal" href="../05-appendices/device-callable-apis.html#cg-api-async-memcpy"><span class="std std-ref">cooperative_groups::memcpy_async</span></a> 函数副本 <code class="docutils literal notranslate"><span class="pre">block.size()</span></code> 元素从全局内存到 <code class="docutils literal notranslate"><span class="pre">shared</span></code> 数据。此操作的发生就像由另一个线程执行一样，该线程与当前线程的调用同步 <a class="reference internal" href="../05-appendices/device-callable-apis.html#cg-api-async-wait"><span class="std std-ref">cooperative_groups::wait</span></a> 复制完成后。在复制操作完成之前，修改全局数据或读取或写入共享数据会引入数据竞争。</p>
-<p>此示例说明了所有异步复制操作背后的基本概念：它们将内存传输启动与完成分离，允许线程在数据在后台移动时执行其他工作。 CUDA 编程模型提供了多个 API 来访问这些功能，包括 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 可用的功能 <a class="reference internal" href="../05-appendices/device-callable-apis.html#cg-api-async-memcpy"><span class="std std-ref">合作团体</span></a> 和 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/asynchronous_operations/memcpy_async.html">libcu++</a> 图书馆以及较低级别的 <code class="docutils literal notranslate"><span class="pre">cuda::ptx</span></code> 和原语 API。这些 API 共享相似的语义：它们将对象从源复制到目标，就好像由另一个线程执行一样，在复制完成后，可以使用不同的完成机制进行同步。</p>
+<p><a class="reference internal" href="../05-appendices/device-callable-apis.html#cg-api-async-memcpy"><span class="std std-ref">cooperative_groups::memcpy_async</span></a> 函数会把 <code class="docutils literal notranslate"><span class="pre">block.size()</span></code> 个元素从全局内存拷贝到 <code class="docutils literal notranslate"><span class="pre">shared</span></code> 数据。该操作表现得像由另一个线程执行，并在拷贝完成后，与当前线程对 <a class="reference internal" href="../05-appendices/device-callable-apis.html#cg-api-async-wait"><span class="std std-ref">cooperative_groups::wait</span></a> 的调用同步。在拷贝操作完成之前，修改全局数据，或读取、写入共享数据，都会引入数据竞争。</p>
+<p>这个示例说明了所有异步拷贝操作背后的基本概念：它们将内存传输的发起与完成解耦，使线程能够在数据后台移动时执行其他工作。CUDA 编程模型提供了多个 API 来访问这些功能，包括 <a class="reference internal" href="../05-appendices/device-callable-apis.html#cg-api-async-memcpy"><span class="std std-ref">协作组</span></a> 和 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/asynchronous_operations/memcpy_async.html">libcu++</a> 库中的 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code> 函数，以及更底层的 <code class="docutils literal notranslate"><span class="pre">cuda::ptx</span></code> 和原语 API。这些 API 语义相似：它们像由另一个线程执行一样，把对象从源复制到目标；拷贝完成后，可以使用不同的完成机制与其同步。</p>
 <p>现代 GPU 架构为异步数据移动提供了多种硬件机制。</p>
 <ul class="simple">
 <li><p>LDGSTS（计算能力 8.0+）允许从全局内存到共享内存的高效小规模异步传输。</p></li>
-<li><p>张量内存加速器（TMA，计算能力 9.0+）扩展了这些功能，提供针对大型多维数据传输优化的批量异步复制操作</p></li>
-<li><p>STAS 指令（计算能力 9.0+）支持从寄存器到集群内分布式共享内存的小规模异步传输。</p></li>
+<li><p>张量内存加速器（TMA，计算能力 9.0+）扩展了这些功能，提供针对大型多维数据传输优化的批量异步拷贝操作。</p></li>
+<li><p>STAS 指令（计算能力 9.0+）支持从寄存器到簇内分布式共享内存的小规模异步传输。</p></li>
 </ul>
-<p>这些机制支持不同的数据路径、传输大小和对齐要求，允许开发人员为其特定的数据访问模式选择最合适的方法。下表概述了 GPU 内异步副本支持的数据路径。</p>
+<p>这些机制支持不同的数据路径、传输大小和对齐要求，允许开发者为特定数据访问模式选择最合适的方法。下表概述了 GPU 内异步拷贝支持的数据路径。</p>
 <div class="pst-scrollable-table-container"><table class="small table table-center" id="table-async-source-dest-state-spaces">
-<caption><span class="caption-number">表5 </span><span class="caption-text">具有可能的源和目标内存空间的异步副本。空单元格表示不支持源-目标对。</span><a class="headerlink" href="advanced-kernel-programming.html#table-async-source-dest-state-spaces" title="跳转到此标题">#</a></caption>
+<caption><span class="caption-number">表 5 </span><span class="caption-text">异步拷贝可能使用的源和目标内存空间。空单元格表示不支持该源-目标组合。</span><a class="headerlink" href="advanced-kernel-programming.html#table-async-source-dest-state-spaces" title="跳转到此标题">#</a></caption>
 <thead>
-<tr class="row-odd"><th class="head" colspan="2"><p>Direction</p></th>
-<th class="head" colspan="2"><p>复制机制</p></th>
+<tr class="row-odd"><th class="head" colspan="2"><p>方向</p></th>
+<th class="head" colspan="2"><p>拷贝机制</p></th>
 </tr>
-<tr class="row-even"><th class="head"><p>Source</p></th>
-<th class="head"><p>Destination</p></th>
-<th class="head"><p>异步复制</p></th>
-<th class="head"><p>批量异步复制</p></th>
+<tr class="row-even"><th class="head"><p>源</p></th>
+<th class="head"><p>目标</p></th>
+<th class="head"><p>异步拷贝</p></th>
+<th class="head"><p>批量异步拷贝</p></th>
 </tr>
 </thead>
 <tbody>
@@ -981,29 +981,29 @@ CUDA C 原语</label><div class="sd-tab-content docutils">
 </tbody>
 </table>
 </div>
-<p>Sections <a class="reference internal" href="../04-special-topics/async-copies.html#async-copies-ldgsts"><span class="std std-ref">使用LDGSTS</span></a>, <a class="reference internal" href="../04-special-topics/async-copies.html#async-copies-tma"><span class="std std-ref">使用张量内存加速器（TMA）</span></a> 和 <a class="reference internal" href="../04-special-topics/async-copies.html#async-copies-stas"><span class="std std-ref">使用STAS</span></a> 将详细介绍每种机制。</p>
+<p><a class="reference internal" href="../04-special-topics/async-copies.html#async-copies-ldgsts"><span class="std std-ref">使用 LDGSTS</span></a>、<a class="reference internal" href="../04-special-topics/async-copies.html#async-copies-tma"><span class="std std-ref">使用张量内存加速器（TMA）</span></a> 和 <a class="reference internal" href="../04-special-topics/async-copies.html#async-copies-stas"><span class="std std-ref">使用 STAS</span></a> 三节会更详细地介绍每种机制。</p>
 </section>
 <section id="configuring-l1-shared-memory-balance">
 <span id="advanced-kernel-l1-shared-config"></span><h2><span class="section-number">3.2.6. </span>配置 L1/共享内存平衡<a class="headerlink" href="advanced-kernel-programming.html#configuring-l1-shared-memory-balance" title="跳转到此标题">#</a></h2>
-<p>正如中提到的 <a class="reference internal" href="../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-caches"><span class="std std-ref">一级数据缓存</span></a>，SM上的L1和共享内存使用相同的物理资源，称为统一数据缓存。在大多数架构上，如果内核使用很少或不使用共享内存，则可以将统一数据缓存配置为提供架构允许的最大数量的 L1 缓存。</p>
-<p>为共享内存保留的统一数据缓存可在每个内核的基础上进行配置。  应用程序可以设置 <code class="docutils literal notranslate"><span class="pre">carveout</span></code>，或首选共享内存容量，与 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__EXECUTION.html#group__CUDART__EXECUTION_1g317e77d2657abf915fd9ed03e75f3eb0">cudaFuncSetAttribute</a> 在内核启动之前调用的函数。</p>
+<p>如 <a class="reference internal" href="../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-caches"><span class="std std-ref">L1 数据缓存</span></a> 中所述，SM 上的 L1 与共享内存使用同一份物理资源，称为统一数据缓存。在大多数架构上，如果内核很少使用或不使用共享内存，就可以把统一数据缓存配置为提供该架构允许的最大 L1 缓存容量。</p>
+<p>统一数据缓存中为共享内存保留的部分，可以按内核配置。应用程序可以在启动内核之前调用 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__EXECUTION.html#group__CUDART__EXECUTION_1g317e77d2657abf915fd9ed03e75f3eb0">cudaFuncSetAttribute</a>，设置 <code class="docutils literal notranslate"><span class="pre">carveout</span></code>，也就是首选共享内存容量。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaFuncSetAttribute</span><span class="p">(</span><span class="n">kernel_name</span><span class="p">,</span><span class="w"> </span><span class="n">cudaFuncAttributePreferredSharedMemoryCarveout</span><span class="p">,</span><span class="w"> </span><span class="n">carveout</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>应用程序可以设置 <code class="docutils literal notranslate"><span class="pre">carveout</span></code> 作为该架构支持的最大共享内存容量的整数百分比。  除了整数百分比之外，还提供了三个方便的枚举作为剥离值。</p>
+<p>应用程序可以把 <code class="docutils literal notranslate"><span class="pre">carveout</span></code> 设为该架构支持的最大共享内存容量的整数百分比。除了整数百分比之外，还提供了三个便捷枚举值作为 carveout 取值。</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">cudaSharedmemCarveoutDefault</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cudaSharedmemCarveoutMaxL1</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cudaSharedmemCarveoutMaxShared</span></code></p></li>
 </ul>
-<p>支持的最大共享内存和支持的剥离大小因架构而异；看到 <a class="reference internal" href="../05-appendices/compute-capabilities.html#compute-capabilities-table-shared-memory-capacity-per-compute-capability"><span class="std std-ref">每个计算能力的共享内存容量</span></a> 了解详情。</p>
-<p>如果所选的整数百分比剥离未准确映射到支持的共享内存容量，则使用下一个更大的容量。  例如，对于计算能力 12.0 的设备（最大共享内存容量为 100KB），将剥离设置为 50% 将导致共享内存为 64KB，而不是 50KB，因为计算能力 12.0 的设备支持的共享内存大小为 0、8、16、32、64 和 100。</p>
-<p>该函数传递给 <code class="docutils literal notranslate"><span class="pre">cudaFuncSetAttribute</span></code> 必须与 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> specifier. <code class="docutils literal notranslate"><span class="pre">cudaFuncSetAttribute</span></code> 被驱动程序解释为提示，并且如果需要执行内核，驱动程序可以选择不同的剥离大小。</p>
+<p>支持的最大共享内存容量和支持的 carveout 大小因架构而异；详情请参阅 <a class="reference internal" href="../05-appendices/compute-capabilities.html#compute-capabilities-table-shared-memory-capacity-per-compute-capability"><span class="std std-ref">每个计算能力的共享内存容量</span></a>。</p>
+<p>如果所选整数百分比 carveout 不能准确映射到某个受支持的共享内存容量，则会使用下一个更大的容量。例如，对于计算能力 12.0 的设备，其最大共享内存容量为 100KB；将 carveout 设为 50% 会得到 64KB 共享内存，而不是 50KB，因为计算能力 12.0 的设备支持的共享内存大小为 0、8、16、32、64 和 100。</p>
+<p>传给 <code class="docutils literal notranslate"><span class="pre">cudaFuncSetAttribute</span></code> 的函数必须使用 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 说明符声明。<code class="docutils literal notranslate"><span class="pre">cudaFuncSetAttribute</span></code> 会被驱动程序解释为提示；如果执行内核需要，驱动程序可以选择不同的 carveout 大小。</p>
 <div class="admonition note">
 <p class="admonition-title">注</p>
-<p>另一个 CUDA API， <code class="docutils literal notranslate"><span class="pre">cudaFuncSetCacheConfig</span></code>，还允许应用程序调整内核的 L1 和共享内存之间的平衡。然而，该 API 对内核启动的共享/L1 平衡提出了硬性要求。因此，将内核与不同的共享内存配置交错是不必要的 <a class="reference internal" href="advanced-host-programming.html#advanced-host-implicit-synchronization"><span class="std std-ref">序列化发射</span></a> 共享内存重新配置的背后。 <code class="docutils literal notranslate"><span class="pre">cudaFuncSetAttribute</span></code> 是首选，因为如果需要执行该功能或避免抖动，驱动程序可以选择不同的配置。</p>
+<p>另一个 CUDA API <code class="docutils literal notranslate"><span class="pre">cudaFuncSetCacheConfig</span></code> 也允许应用程序调整某个内核的 L1 与共享内存之间的平衡。不过，该 API 会对内核启动时的共享内存/L1 平衡提出硬性要求。因此，如果交错启动采用不同共享内存配置的内核，就可能因为共享内存重新配置而不必要地 <a class="reference internal" href="advanced-host-programming.html#advanced-host-implicit-synchronization"><span class="std std-ref">序列化启动</span></a>。更推荐使用 <code class="docutils literal notranslate"><span class="pre">cudaFuncSetAttribute</span></code>，因为在执行该函数需要或为避免配置抖动时，驱动程序可以选择不同配置。</p>
 </div>
-<p>依赖于每块超过 48 KB 共享内存分配的内核是特定于体系结构的。  因此他们必须使用 <a class="reference internal" href="../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-dynamic-allocation-shared-memory"><span class="std std-ref">动态共享内存</span></a> 而不是静态大小的数组，并且需要显式选择使用 <code class="docutils literal notranslate"><span class="pre">cudaFuncSetAttribute</span></code> 如下。</p>
+<p>依赖每个线程块超过 48 KB 共享内存分配的内核是架构相关的。因此，它们必须使用 <a class="reference internal" href="../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-dynamic-allocation-shared-memory"><span class="std std-ref">动态共享内存</span></a>，而不是静态大小数组，并且需要像下面这样使用 <code class="docutils literal notranslate"><span class="pre">cudaFuncSetAttribute</span></code> 显式选择启用。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 设备代码</span>
 <span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">MyKernel</span><span class="p">(...)</span>
 <span class="p">{</span>
@@ -1035,32 +1035,32 @@ CUDA C 原语</label><div class="sd-tab-content docutils">
   </div>
 <nav aria-labelledby="pst-page-navigation-heading-2" class="bd-toc-nav page-toc">
 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#using-ptx">3.2. 高级内核编程</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#hardware-implementation">3.2. 高级内核编程</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#simt-execution-model">3.2. 高级内核编程</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#independent-thread-scheduling">3.2. 高级内核编程</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#using-ptx">3.2.1. 使用 PTX</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#hardware-implementation">3.2.2. 硬件实现</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#simt-execution-model">3.2.2.1. SIMT 执行模型</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#independent-thread-scheduling">3.2.2.1.1. 独立线程调度</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#hardware-multithreading">3.2. 高级内核编程</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#asynchronous-execution-features">3.2. 高级内核编程</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#async-thread-and-async-proxy">3.2. 高级内核编程</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#hardware-multithreading">3.2.2.2. 硬件多线程</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#asynchronous-execution-features">3.2.2.3. 异步执行特性</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#async-thread-and-async-proxy">3.2.2.3.1. 异步线程和异步代理</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#thread-scopes">3.2. 高级内核编程</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#advanced-synchronization-primitives">3.2. 高级内核编程</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#scoped-atomics">3.2. 高级内核编程</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#thread-scope-and-memory-ordering">3.2. 高级内核编程</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#performance-considerations">3.2. 高级内核编程</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#thread-scopes">3.2.3. 线程作用域</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#advanced-synchronization-primitives">3.2.4. 高级同步原语</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#scoped-atomics">3.2.4.1. 作用域原子</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#thread-scope-and-memory-ordering">3.2.4.1.1. 线程作用域和内存排序</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#performance-considerations">3.2.4.1.2. 性能考虑因素</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#asynchronous-barriers">3.2. 高级内核编程</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#pipelines">3.2. 高级内核编程</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#asynchronous-barriers">3.2.4.2. 异步屏障</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#pipelines">3.2.4.3. 流水线</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#asynchronous-data-copies">3.2. 高级内核编程</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#configuring-l1-shared-memory-balance">3.2. 高级内核编程</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#asynchronous-data-copies">3.2.5. 异步数据拷贝</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="advanced-kernel-programming.html#configuring-l1-shared-memory-balance">3.2.6. 配置 L1/共享内存平衡</a></li>
 </ul>
 </nav></div>
 </div></div>
