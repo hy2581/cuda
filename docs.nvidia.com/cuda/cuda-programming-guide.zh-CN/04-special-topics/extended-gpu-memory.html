@@ -1,52 +1,37 @@
-
-
 <!DOCTYPE html>
-
-
-<html lang="en" data-content_root="../" >
-
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <title>4.17. Extended GPU Memory &#8212; CUDA Programming Guide</title>
-  
-  
-  
-  <script data-cfasync="false">
+<html data-content_root="../" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>4.17. 扩展 GPU 内存 — CUDA 编程指南</title>
+<script data-cfasync="false">
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
-  </script>
-  <!--
-    this give us a css class that will be invisible only if js is disabled
-  -->
-  <noscript>
-    <style>
+  </script></head><body><p>
+
+    这给了我们一个 css 类，只有在禁用 js 时才会不可见
+  
+<noscript>
+<style>
       .pst-js-only { display: none !important; }
 
     </style>
-  </noscript>
-  
-  <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css" rel="stylesheet" />
-
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/tables.css" />
-  
-  <!-- So that users can add custom icons -->
-  <script src="../_static/scripts/fontawesome.js"></script>
-  <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js" />
-
-
-<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript"
-  data-document-language="true" charset="UTF-8" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5">
+</noscript>
+ 在其他 Sphinx 资源之前加载 
+<link href="../_static/styles/theme.css" rel="stylesheet"/>
+<link href="../_static/styles/pydata-sphinx-theme.css" rel="stylesheet"/>
+<link href="../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/styles/nvidia-sphinx-theme.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/custom.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/copybutton.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx-design.min.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/tables.css" rel="stylesheet" type="text/css"/>
+ 以便用户可以添加自定义图标 
+<script src="../_static/scripts/fontawesome.js"></script>
+ 我们稍后将完全加载的预加载脚本 
+<link as="script" href="../_static/scripts/bootstrap.js" rel="preload"/>
+<link as="script" href="../_static/scripts/pydata-sphinx-theme.js" rel="preload"/>
+<script charset="UTF-8" data-document-language="true" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5" src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript">
 </script>
 <script type="text/javascript">
   function OptanonWrapper() {
@@ -56,523 +41,333 @@
 </script>
 <script src="https://images.nvidia.com/aem-dam/Solutions/ot-js/ot-custom.js" type="text/javascript">
 </script>
-
-
-    <script rel="preload" src="../_static/modal-table.js"></script>
-    <script src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/scrollspy-patch.js"></script>
-    <script src="../_static/clipboard.min.js"></script>
-    <script src="../_static/copybutton.js"></script>
-    <script src="../_static/design-tabs.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '04-special-topics/extended-gpu-memory';</script>
-    <script src="../_static/version-patch.js"></script>
-
-<script type="text/javascript" src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
-
-    <link rel="icon" href="../_static/favicon.ico"/>
-
-    <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="4.18. CUDA Dynamic Parallelism" href="dynamic-parallelism.html" />
-    <link rel="prev" title="4.16. Virtual Memory Management" href="virtual-memory-management.html" />
-
-<link rel="preload" as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png">
-
-
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="" />
-    <meta name="docbuild:last-update" content="Mar 04, 2026"/>
-
-
-  </head>
-
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
-
-  
-  
-  <div id="pst-skip-link" class="skip-link d-print-none"><a href="extended-gpu-memory.html#main-content">Skip to main content</a></div>
-
-<img src="https://www.nvidia.com/content/dam/1x1-00000000.png" width="1" height="1" style="display:none;" alt="country_code">
-
-
-  
-  <div id="pst-scroll-pixel-helper"></div>
-  
-  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
-    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
-  
-  <dialog id="pst-search-dialog">
-    
-<form class="bd-search d-flex align-items-center"
-      action="../search.html"
-      method="get">
-  <i class="fa-solid fa-magnifying-glass"></i>
-  <input type="search"
-         class="form-control"
-         name="q"
-         placeholder="Search the docs ..."
-         aria-label="Search the docs ..."
-         autocomplete="off"
-         autocorrect="off"
-         autocapitalize="off"
-         spellcheck="false"/>
-  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+<script rel="preload" src="../_static/modal-table.js"></script>
+<script src="../_static/documentation_options.js"></script>
+<script src="../_static/doctools.js"></script>
+<script src="../_static/sphinx_highlight.js"></script>
+<script src="../_static/scrollspy-patch.js"></script>
+<script src="../_static/clipboard.min.js"></script>
+<script src="../_static/copybutton.js"></script>
+<script src="../_static/design-tabs.js"></script>
+<script>DOCUMENTATION_OPTIONS.pagename = '04-special-topics/extended-gpu-memory';</script>
+<script src="../_static/version-patch.js"></script>
+<script src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js" type="text/javascript"></script>
+<link href="../_static/favicon.ico" rel="icon"/>
+<link href="../genindex.html" rel="index" title="索引"/>
+<link href="../search.html" rel="search" title="搜索"/>
+<link href="dynamic-parallelism.html" rel="next" title="4.18. CUDA 动态并行"/>
+<link href="virtual-memory-management.html" rel="prev" title="4.16. 虚拟内存管理"/>
+<link as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png" rel="preload"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="en" name="docsearch:language"/>
+<meta content="" name="docsearch:version"/>
+<meta content="Mar 04, 2026" name="docbuild:last-update"/>
+</p>
+<div class="skip-link d-print-none" id="pst-skip-link"><a href="extended-gpu-memory.html#main-content">跳到主要内容</a></div>
+<img alt="country_code" height="1" src="https://www.nvidia.com/content/dam/1x1-00000000.png" style="display:none;" width="1"/>
+<div id="pst-scroll-pixel-helper"></div>
+<button class="btn rounded-pill" id="pst-back-to-top" type="button">
+<i class="fa-solid fa-arrow-up"></i>返回顶部</button>
+<dialog id="pst-search-dialog">
+<form action="../search.html" class="bd-search d-flex align-items-center" method="get">
+<i class="fa-solid fa-magnifying-glass"></i>
+<input aria-label="搜索文档..." autocapitalize="off" autocomplete="off" autocorrect="off" class="form-control" name="q" placeholder="搜索文档..." spellcheck="false" type="search"/>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
 </form>
-  </dialog>
-
-  <div class="pst-async-banner-revealer d-none">
-  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</dialog>
+<div class="pst-async-banner-revealer d-none">
+<aside aria-label="版本警告" class="d-none d-print-none" id="bd-header-version-warning"></aside>
 </div>
-
-  
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
-    <span class="fa-solid fa-bars"></span>
-  </button>
-  
-  
-  <div class="col-lg-3 navbar-header-items__start">
-    
-      <div class="navbar-item">
-
-  
-    
-  
-
+<button aria-label="站点导航" class="pst-navbar-icon sidebar-toggle primary-toggle">
+<span class="fa-solid fa-bars"></span>
+</button>
+<div class="col-lg-3 navbar-header-items__start">
+<div class="navbar-item">
 <a class="navbar-brand logo" href="../contents.html">
-  
-  
-  
-  
-  
-    
-    
-      
-    
-    
-    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
-    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
-  
-  
-    <p class="title logo__title">CUDA Programming Guide</p>
-  
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg"/>
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-dark pst-js-only" src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg"/>
+<p class="title logo__title">CUDA 编程指南</p>
 </a></div>
-    
-  </div>
-  
-  <div class="col-lg-9 navbar-header-items">
-    
-    <div class="me-auto navbar-header-items__center">
-      
-        <div class="navbar-item">
-
-
+</div>
+<div class="col-lg-9 navbar-header-items">
+<div class="me-auto navbar-header-items__center">
+<div class="navbar-item">
 <div>
-  <ul class="bd-navbar-elements navbar-nav">
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>v13.2 |</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>|</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
-      
-    </li>
-  
-  </ul>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item pst-header-nav-item">
+<span>v13.2 |</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+</li>
+<li class="nav-item pst-header-nav-item">
+<span>|</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">warp</a>
+</li>
+</ul>
 </div>
 </div>
-      
-    </div>
-    
-    
-    <div class="navbar-header-items__end">
-      
-        <div class="navbar-item navbar-persistent--container">
-          
-
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
- <i class="fa-solid fa-magnifying-glass"></i>
- <span class="search-button__default-text">Search</span>
- <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</div>
+<div class="navbar-header-items__end">
+<div class="navbar-item navbar-persistent--container">
+<button aria-label="warp" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="warp">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">warp</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
 </button>
-        </div>
-      
-      
-        <div class="navbar-item">
-
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</div>
+<div class="navbar-item">
+<button aria-label="色彩模式" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="系统设置"></i>
 </button></div>
-      
-    </div>
-    
-  </div>
-  
-  
-    <div class="navbar-persistent--mobile">
-
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
- <i class="fa-solid fa-magnifying-glass"></i>
- <span class="search-button__default-text">Search</span>
- <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-</button>
-    </div>
-  
-
-  
-    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
-      <span class="fa-solid fa-outdent"></span>
-    </button>
-  
 </div>
-
-    </header>
-  
-
-  <div class="bd-container">
-    <div class="bd-container__inner bd-page-width">
-      
-      
-      
-      <dialog id="pst-primary-sidebar-modal"></dialog>
-      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
-        
-
-
-
-  
-    
-  
-
+</div>
+<div class="navbar-persistent--mobile">
+<button aria-label="warp" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="warp">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">warp</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+</div>
+<button aria-label="切换侧边栏" class="pst-navbar-icon sidebar-toggle secondary-toggle">
+<span class="fa-solid fa-outdent"></span>
+</button>
+</div>
+</header>
+<div class="bd-container">
+<div class="bd-container__inner bd-page-width">
+<dialog id="pst-primary-sidebar-modal"></dialog>
+<div class="bd-sidebar-primary bd-sidebar" id="pst-primary-sidebar">
 <a class="navbar-brand logo" href="../contents.html">
-  
-  
-  
-  
-  
-    
-    
-      
-    
-    
-    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
-    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
-  
-  
-    <p class="title logo__title">CUDA Programming Guide</p>
-  
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg"/>
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-dark pst-js-only" src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg"/>
+<p class="title logo__title">CUDA 编程指南</p>
 </a>
-
-
-  
-  <div class="sidebar-header-items sidebar-primary__section">
-    
-    
-      <div class="sidebar-header-items__center">
-        
-          
-          
-            <div class="navbar-item">
-
-
+<div class="sidebar-header-items sidebar-primary__section">
+<div class="sidebar-header-items__center">
+<div class="navbar-item">
 <div>
-  <ul class="bd-navbar-elements navbar-nav">
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>v13.2 |</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>|</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
-      
-    </li>
-  
-  </ul>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item pst-header-nav-item">
+<span>v13.2 |</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+</li>
+<li class="nav-item pst-header-nav-item">
+<span>|</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">warp</a>
+</li>
+</ul>
 </div>
 </div>
-          
-        
-      </div>
-    
-    
-    
-      <div class="sidebar-header-items__end">
-        
-          <div class="navbar-item">
-
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</div>
+<div class="sidebar-header-items__end">
+<div class="navbar-item">
+<button aria-label="色彩模式" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="系统设置"></i>
 </button></div>
-        
-      </div>
-    
-  </div>
-  
-    <div class="sidebar-primary-items__start sidebar-primary__section">
-        <div class="sidebar-primary-item">
-
-
-
-<nav class="bd-docs-nav bd-links"
-     aria-label="Table of Contents">
-  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
-  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA Programming Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. Introduction to CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../01-introduction/introduction.html">1.1. Introduction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../01-introduction/programming-model.html">1.2. Programming Model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../01-introduction/cuda-platform.html">1.3. The CUDA platform</a></li>
+</div>
+</div>
+<div class="sidebar-primary-items__start sidebar-primary__section">
+<div class="sidebar-primary-item">
+<nav aria-label="目录" class="bd-docs-nav bd-links">
+<p aria-level="1" class="bd-links__title" role="heading">目录</p>
+<div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA 编程指南</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. CUDA 简介</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/introduction.html">1.1. 引言</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/programming-model.html">1.2. 编程模型</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/cuda-platform.html">1.3. CUDA 平台</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part2.html">2. Programming GPUs in CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html">2.1. Intro to CUDA C++</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/writing-cuda-kernels.html">2.2. Writing CUDA SIMT Kernels</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/asynchronous-execution.html">2.3. Asynchronous Execution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/understanding-memory.html">2.4. Unified and System Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/nvcc.html">2.5. NVCC: The NVIDIA CUDA Compiler</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part2.html">2. 使用 CUDA 进行 GPU 编程</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html">2.1. CUDA C++ 入门</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/writing-cuda-kernels.html">2.2. 编写 CUDA SIMT 内核</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/asynchronous-execution.html">2.3. 异步执行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/understanding-memory.html">2.4. 统一内存与系统内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/nvcc.html">2.5. NVCC：NVIDIA CUDA 编译器</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. Advanced CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. Advanced CUDA APIs and Features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. Advanced Kernel Programming</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. The CUDA Driver API</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. Programming Systems with Multiple GPUs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. A Tour of CUDA Features</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. 高级 CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. 高级 CUDA API 与特性</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. 高级内核编程</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. CUDA Driver API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. 多 GPU 系统编程</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. CUDA 特性概览</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="../part4.html">4. CUDA Features</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="unified-memory.html">4.1. Unified Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cuda-graphs.html">4.2. CUDA Graphs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="stream-ordered-memory-allocation.html">4.3. Stream-Ordered Memory Allocator</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cooperative-groups.html">4.4. Cooperative Groups</a></li>
-<li class="toctree-l3"><a class="reference internal" href="programmatic-dependent-launch.html">4.5. Programmatic Dependent Launch and Synchronization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="green-contexts.html">4.6. Green Contexts</a></li>
-<li class="toctree-l3"><a class="reference internal" href="lazy-loading.html">4.7. Lazy Loading</a></li>
-<li class="toctree-l3"><a class="reference internal" href="error-log-management.html">4.8. Error Log Management</a></li>
-<li class="toctree-l3"><a class="reference internal" href="async-barriers.html">4.9. Asynchronous Barriers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pipelines.html">4.10. Pipelines</a></li>
-<li class="toctree-l3"><a class="reference internal" href="async-copies.html">4.11. Asynchronous Data Copies</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cluster-launch-control.html">4.12. Work Stealing with Cluster Launch Control</a></li>
-<li class="toctree-l3"><a class="reference internal" href="l2-cache-control.html">4.13. L2 Cache Control</a></li>
-<li class="toctree-l3"><a class="reference internal" href="memory-sync-domains.html">4.14. Memory Synchronization Domains</a></li>
-<li class="toctree-l3"><a class="reference internal" href="inter-process-communication.html">4.15. Interprocess Communication</a></li>
-<li class="toctree-l3"><a class="reference internal" href="virtual-memory-management.html">4.16. Virtual Memory Management</a></li>
-<li class="toctree-l3 current active"><a class="current reference internal" href="extended-gpu-memory.html#">4.17. Extended GPU Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dynamic-parallelism.html">4.18. CUDA Dynamic Parallelism</a></li>
-<li class="toctree-l3"><a class="reference internal" href="graphics-interop.html">4.19. CUDA Interoperability with APIs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="driver-entry-point-access.html">4.20. Driver Entry Point Access</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../part4.html">4. CUDA 特性</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="unified-memory.html">4.1. 统一内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda-graphs.html">4.2. CUDA Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stream-ordered-memory-allocation.html">4.3. 流有序内存分配器</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cooperative-groups.html">4.4. 协作组</a></li>
+<li class="toctree-l3"><a class="reference internal" href="programmatic-dependent-launch.html">4.5. 程序化依赖启动与同步</a></li>
+<li class="toctree-l3"><a class="reference internal" href="green-contexts.html">4.6. 绿色上下文</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lazy-loading.html">4.7. 延迟加载</a></li>
+<li class="toctree-l3"><a class="reference internal" href="error-log-management.html">4.8. 错误日志管理</a></li>
+<li class="toctree-l3"><a class="reference internal" href="async-barriers.html">4.9. 异步屏障</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pipelines.html">4.10. 流水线</a></li>
+<li class="toctree-l3"><a class="reference internal" href="async-copies.html">4.11. 异步数据拷贝</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cluster-launch-control.html">4.12. 使用簇启动控制进行工作窃取</a></li>
+<li class="toctree-l3"><a class="reference internal" href="l2-cache-control.html">4.13. L2 缓存控制</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory-sync-domains.html">4.14. 内存同步域</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inter-process-communication.html">4.15. 进程间通信</a></li>
+<li class="toctree-l3"><a class="reference internal" href="virtual-memory-management.html">4.16. 虚拟内存管理</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="extended-gpu-memory.html#">4.17. 扩展 GPU 内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamic-parallelism.html">4.18. CUDA 动态并行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graphics-interop.html">4.19. CUDA 与 API 的互操作</a></li>
+<li class="toctree-l3"><a class="reference internal" href="driver-entry-point-access.html">4.20. 驱动入口点访问</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part5.html">5. Technical Appendices</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/compute-capabilities.html">5.1. Compute Capabilities</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/environment-variables.html">5.2. CUDA Environment Variables</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-support.html">5.3. C++ Language Support</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-extensions.html">5.4. C/C++ Language Extensions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/mathematical-functions.html">5.5. Floating-Point Computation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/device-callable-apis.html">5.6. Device-Callable APIs and Intrinsics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-memory-model.html">5.7. CUDA C++ Memory Model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-execution-model.html">5.8. CUDA C++ Execution model</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part5.html">5. 技术附录</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/compute-capabilities.html">5.1. 计算能力</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/environment-variables.html">5.2. CUDA 环境变量</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-support.html">5.3. C++ 语言支持</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-extensions.html">5.4. C/C++ 语言扩展</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/mathematical-functions.html">5.5. 浮点计算</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/device-callable-apis.html">5.6. 设备端可调用 API 与内建函数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-memory-model.html">5.7. CUDA C++ 内存模型</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-execution-model.html">5.8. CUDA C++ 执行模型</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. Notices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. 声明</a></li>
 </ul>
 </details></li>
 </ul>
 </div>
 </nav></div>
-    </div>
-  
-  
-  <div class="sidebar-primary-items__end sidebar-primary__section">
-  </div>
-
-
-
-      </div>
-      
-      <main id="main-content" class="bd-main" role="main">
-        
-        
-          <div class="bd-content">
-            <div class="bd-article-container">
-              
-              <div class="bd-header-article d-print-none">
+</div>
+<div class="sidebar-primary-items__end sidebar-primary__section">
+</div>
+</div>
+<main class="bd-main" id="main-content" role="main">
+<div class="bd-content">
+<div class="bd-article-container">
+<div class="bd-header-article d-print-none">
 <div class="header-article-items header-article__inner">
-  
-    <div class="header-article-items__start">
-      
-        <div class="header-article-item">
-
+<div class="header-article-items__start">
+<div class="header-article-item">
 <nav aria-label="Breadcrumb" class="d-print-none">
-  <ul class="bd-breadcrumbs">
-    
-    <li class="breadcrumb-item breadcrumb-home">
-      <a href="../contents.html" class="nav-link" aria-label="Home">
-        <i class="fa-solid fa-home"></i>
-      </a>
-    </li>
-    
-    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">CUDA Programming Guide</a></li>
-    
-    
-    <li class="breadcrumb-item"><a href="../part4.html" class="nav-link"><span class="section-number">4. </span>CUDA Features</a></li>
-    
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">4.17. </span>Extended GPU Memory</span></li>
-  </ul>
+<ul class="bd-breadcrumbs">
+<li class="breadcrumb-item breadcrumb-home">
+<a aria-label="Home" class="nav-link" href="../contents.html">目录</a>
+</li>
+<li class="breadcrumb-item"><a class="nav-link" href="../index.html">CUDA 编程指南</a></li>
+<li class="breadcrumb-item"><a class="nav-link" href="../part4.html">4. CUDA 特性</a></li>
+<li aria-current="page" class="breadcrumb-item active"><span class="ellipsis"><span class="section-number">4.17. </span>扩展 GPU 内存</span></li>
+</ul>
 </nav>
 </div>
-      
-    </div>
-  
-  
-    <div class="header-article-items__end">
-      
-        <div class="header-article-item">
+</div>
+<div class="header-article-items__end">
 <div class="header-article-item">
-  <div class="d-flex justify-content-end w-100">
-    <a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">Is this page helpful?</a>
-  </div>
+<div class="header-article-item">
+<div class="d-flex justify-content-end w-100">
+<a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">此页面有帮助吗？</a>
+</div>
 </div></div>
-      
-    </div>
-  
 </div>
 </div>
-              
-              
-              
-                
+</div>
 <div id="searchbox"></div>
-                <article class="bd-article">
-                  
-  <section id="extended-gpu-memory">
-<span id="id1"></span><h1><span class="section-number">4.17. </span>Extended GPU Memory<a class="headerlink" href="extended-gpu-memory.html#extended-gpu-memory" title="Link to this heading">#</a></h1>
-<p>The Extended GPU Memory (EGM) feature, utilizing the high-bandwidth
-NVLink-C2C, facilitates efficient access to all system memory by GPUs,
-in both single-node and multi-node systems.
-EGM applies to integrated CPU-GPU NVIDIA systems by allowing physical memory
-allocation that can be accessed from any GPU
-thread within the setup. EGM ensures that all GPUs can access
-its resources at the speed of either GPU-GPU NVLink or NVLink-C2C.</p>
+<article class="bd-article">
+<section id="extended-gpu-memory">
+<span id="id1"></span><h1>4.17. 扩展 GPU 内存<a class="headerlink" href="extended-gpu-memory.html#extended-gpu-memory" title="跳转到此标题">#</a></h1>
+<p>扩展 GPU 内存 (EGM) 功能，利用高带宽
+NVLink-C2C，促进 GPU 对所有系统内存的高效访问，
+在单节点和多节点系统中。
+EGM 通过允许物理内存应用于集成 CPU-GPU NVIDIA 系统
+可以从任何 GPU 访问的分配
+设置中的线程。 EGM 确保所有 GPU 都可以访问
+以 GPU-GPU NVLink 或 NVLink-C2C 的速度访问其资源。</p>
 <figure class="align-center">
-<a class="reference internal image-reference" href="../_images/egm-c2c-intro.png"><img alt="EGM" src="../_images/egm-c2c-intro.png" style="width: 800px;" />
+<a class="reference internal image-reference" href="../_images/egm-c2c-intro.png"><img alt="EGM" src="../_images/egm-c2c-intro.png" style="width: 800px;"/>
 </a>
 </figure>
-<p>In this setup, memory accesses occur via the local high-bandwidth
-NVLink-C2C. For remote memory accesses,
-GPU NVLink and, in some cases, NVLink-C2C are used. With EGM, GPU
-threads gain the capability to access all available memory resources,
-including CPU attached memory and HBM3, over the NVSwitch fabric.</p>
+<p>在此设置中，内存访问通过本地高带宽进行
+NVLink-C2C。对于远程内存访问，
+使用 GPU NVLink，在某些情况下使用 NVLink-C2C。带 EGM、GPU
+线程获得访问所有可用内存资源的能力，
+包括通过 NVSwitch 结构连接 CPU 的内存和 HBM3。</p>
 <section id="preliminaries">
-<h2><span class="section-number">4.17.1. </span>Preliminaries<a class="headerlink" href="extended-gpu-memory.html#preliminaries" title="Link to this heading">#</a></h2>
-<p>Before diving into API changes for EGM functionalities, we are going to
-cover currently supported topologies, identifier assignment,
-prerequisites for virtual memory management, and CUDA types for EGM.</p>
+<h2><span class="section-number">4.17.1. </span>预备知识<a class="headerlink" href="extended-gpu-memory.html#preliminaries" title="跳转到此标题">#</a></h2>
+<p>在深入研究 EGM 功能的 API 更改之前，我们将
+涵盖当前支持的拓扑、标识符分配、
+虚拟内存管理的先决条件以及 EGM 的 CUDA 类型。</p>
 <section id="egm-platforms-system-topology">
-<h3><span class="section-number">4.17.1.1. </span>EGM Platforms: System topology<a class="headerlink" href="extended-gpu-memory.html#egm-platforms-system-topology" title="Link to this heading">#</a></h3>
-<p>Currently, EGM can be enabled in several platforms: <strong>(1) Single-Node, Single-GPU</strong>:
-Consists of an Arm-based CPU, CPU attached memory, and a GPU. Between the CPU
-and the GPU there is a high bandwidth C2C (Chip-to-Chip) interconnect.
-<strong>(2) Single-Node, Multi-GPU</strong>: Consists of ARM-based CPUs, each with attached memory,
-and multiple GPUs connected through an NVLink-based network.
-<strong>(3) Multi-Node, Multi-GPU</strong>: Two or more single-node systems, each as in (1) or (2) above,
-connected through an NVLink-based network.</p>
+<h3><span class="section-number">4.17.1.1. </span>EGM 平台：系统拓扑<a class="headerlink" href="extended-gpu-memory.html#egm-platforms-system-topology" title="跳转到此标题">#</a></h3>
+<p>目前，EGM 可以在多个平台上启用： <strong>(1) 单节点、单GPU</strong>:
+由基于 Arm 的 CPU、CPU 连接内存和 GPU 组成。 CPU之间
+与 GPU 之间存在高带宽 C2C（芯片到芯片）互连。
+<strong>(2) 单节点、多GPU</strong>：由基于 ARM 的 CPU 组成，每个 CPU 都带有附加内存，
+以及通过基于 NVLink 的网络连接的多个 GPU。
+<strong>(3) 多节点、多GPU</strong>：两个或多个单节点系统，每个系统如上述 (1) 或 (2) 所示，
+通过基于 NVLink 的网络连接。</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Using <code class="docutils literal notranslate"><span class="pre">cgroups</span></code> to limit available devices will block routing over EGM
-and cause performance issues. Use <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES</span></code> instead.</p>
+<p class="admonition-title">注</p>
+<p>Using <code class="docutils literal notranslate"><span class="pre">cgroups</span></code> 限制可用设备将阻止通过 EGM 进行路由
+并导致性能问题。使用 <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES</span></code> instead.</p>
 </div>
 </section>
 <section id="socket-identifiers-what-are-they-how-to-access-them">
-<h3><span class="section-number">4.17.1.2. </span>Socket Identifiers: What are they? How to access them?<a class="headerlink" href="extended-gpu-memory.html#socket-identifiers-what-are-they-how-to-access-them" title="Link to this heading">#</a></h3>
-<p>NUMA (Non-Uniform Memory Access) is a memory architecture used in
-multi-processor computer systems such that the memory is divided into
-multiple nodes. Each node has its own processors and memory. In such a
-system, NUMA divides the system into nodes and assigns a unique
-identifier (<cite>numaID</cite>) to every node.</p>
-<p>EGM uses the NUMA node identifier which is assigned by the operating
-system. Note that, this identifier is different from the ordinal of a
-device and it is associated with the closest host node. In addition to
-the existing methods, the user can obtain the identifier of the host
-node (<cite>numaID</cite>) by calling <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__DEVICE.html#group__CUDA__DEVICE_1g9c3e1414f0ad901d3278a4d6645fc266">cuDeviceGetAttribute</a>
-with <code class="docutils literal notranslate"><span class="pre">CU_DEVICE_ATTRIBUTE_HOST_NUMA_ID</span></code> attribute type as follows:</p>
+<h3><span class="section-number">4.17.1.2. </span>套接字标识符：它们是什么？如何访问它们？<a class="headerlink" href="extended-gpu-memory.html#socket-identifiers-what-are-they-how-to-access-them" title="跳转到此标题">#</a></h3>
+<p>NUMA（非统一内存访问）是一种内存架构
+多处理器计算机系统，内存被分为
+多个节点。每个节点都有自己的处理器和内存。在这样一个
+系统中，NUMA将系统划分为节点并分配唯一的
+标识符（<cite>numaID</cite>）到每个节点。</p>
+<p>EGM 使用由操作分配的 NUMA 节点标识符
+系统。请注意，该标识符与 a 的序数不同
+设备并且它与最近的主机节点关联。除了
+现有的方法，用户可以获得主机的标识符
+节点（<cite>numaID</cite>）通过调用 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__DEVICE.html#group__CUDA__DEVICE_1g9c3e1414f0ad901d3278a4d6645fc266">cuDeviceGetAttribute</a>
+<code class="docutils literal notranslate"><span class="pre">CU_DEVICE_ATTRIBUTE_HOST_NUMA_ID</span></code> 属性类型如下：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">numaId</span><span class="p">;</span>
 <span class="n">cuDeviceGetAttribute</span><span class="p">(</span><span class="o">&amp;</span><span class="n">numaId</span><span class="p">,</span><span class="w"> </span><span class="n">CU_DEVICE_ATTRIBUTE_HOST_NUMA_ID</span><span class="p">,</span><span class="w"> </span><span class="n">deviceOrdinal</span><span class="p">);</span>
 </pre></div>
 </div>
 </section>
 <section id="allocators-and-egm-support">
-<h3><span class="section-number">4.17.1.3. </span>Allocators and EGM support<a class="headerlink" href="extended-gpu-memory.html#allocators-and-egm-support" title="Link to this heading">#</a></h3>
-<p>Mapping system memory as EGM does not cause any performance issues. In
-fact, accessing a remote socket’s system memory mapped as EGM is going
-to be faster. Because, with EGM traffic is guaranteed to be routed over
-NVLinks. Currently, <code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code> and <code class="docutils literal notranslate"><span class="pre">cudaMemPoolCreate</span></code> allocators are
-supported with appropriate location type and NUMA identifiers.</p>
+<h3><span class="section-number">4.17.1.3. </span>分配者和临时股东大会支持<a class="headerlink" href="extended-gpu-memory.html#allocators-and-egm-support" title="跳转到此标题">#</a></h3>
+<p>将系统内存映射为 EGM 不会导致任何性能问题。在
+事实上，访问映射为 EGM 的远程套接字的系统内存正在进行
+更快。因为，使用 EGM 可以保证流量通过
+NVLink。目前， <code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolCreate</span></code> 分配器是
+通过适当的位置类型和 NUMA 标识符来支持。</p>
 </section>
 <section id="memory-management-extensions-to-current-apis">
-<h3><span class="section-number">4.17.1.4. </span>Memory management extensions to current APIs<a class="headerlink" href="extended-gpu-memory.html#memory-management-extensions-to-current-apis" title="Link to this heading">#</a></h3>
-<p>Currently, EGM memory can be mapped with Virtual Memory (<code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code>)  or
-Stream Ordered Memory (<code class="docutils literal notranslate"><span class="pre">cudaMemPoolCreate</span></code>) allocators. The user is
-responsible for allocating physical memory and mapping it to a virtual
-memory address space on all sockets.</p>
+<h3><span class="section-number">4.17.1.4. </span>对当前 API 的内存管理扩展<a class="headerlink" href="extended-gpu-memory.html#memory-management-extensions-to-current-apis" title="跳转到此标题">#</a></h3>
+<p>目前，EGM内存可以与虚拟内存（<code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code>）或
+流有序内存（<code class="docutils literal notranslate"><span class="pre">cudaMemPoolCreate</span></code>) 分配器。用户是
+负责分配物理内存并将其映射到虚拟内存
+所有套接字上的内存地址空间。</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Multi-node, multi-GPU platforms require interprocess
-communication. Therefore we encourage the reader to see <a class="reference internal" href="inter-process-communication.html#interprocess-communication"><span class="std std-numref">Chapter 4.15</span></a>.</p>
+<p class="admonition-title">注</p>
+<p>多节点、多GPU平台需要进程间
+沟通。因此我们鼓励读者看到 <a class="reference internal" href="inter-process-communication.html#interprocess-communication"><span class="std std-numref">第4.15章</span></a>.</p>
 </div>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>We encourage readers to read CUDA Programming Guide’s <a class="reference internal" href="virtual-memory-management.html#virtual-memory-management"><span class="std std-numref">Chapter 4.16</span></a> and <a class="reference internal" href="stream-ordered-memory-allocation.html#stream-ordered-memory-allocator"><span class="std std-numref">Chapter 4.3</span></a> for a better understanding.</p>
+<p class="admonition-title">注</p>
+<p>我们鼓励读者阅读 CUDA 编程指南 <a class="reference internal" href="virtual-memory-management.html#virtual-memory-management"><span class="std std-numref">第4.16章</span></a> 和 <a class="reference internal" href="stream-ordered-memory-allocation.html#stream-ordered-memory-allocator"><span class="std std-numref">第4.3章</span></a> 为了更好的理解。</p>
 </div>
-<p>New CUDA property types have been added to APIs for allowing those
-approaches to understand allocation locations using NUMA-like node
-identifiers:</p>
+<p>API 中添加了新的 CUDA 属性类型，以允许这些属性
+使用类似 NUMA 的节点了解分配位置的方法
+标识符：</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <tbody>
-<tr class="row-odd"><td><p><strong>CUDA Type</strong></p></td>
-<td><p><strong>Used with</strong></p></td>
+<tr class="row-odd"><td><p><strong>CUDA类型</strong></p></td>
+<td><p><strong>与使用</strong></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CU_MEM_LOCATION_TYPE_HOST_NUMA</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">CUmemAllocationProp</span></code> for
@@ -586,44 +381,44 @@ identifiers:</p>
 </table>
 </div>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Please see  <a class="reference external" href="https://www.google.com/url?q=https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__TYPES.html&amp;sa=D&amp;source=editors&amp;ust=1696873412599124&amp;usg=AOvVaw0Ru93Acs_FpJG0gl02BLMX">CUDA Driver API</a>
-and <a class="reference external" href="https://www.google.com/url?q=https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html%23group__CUDART__TYPES_1gg2279aa08666f329f3ba4afe397fa60f024dc63fb938dee27b41e3842da35d2d0&amp;sa=D&amp;source=editors&amp;ust=1696873412599344&amp;usg=AOvVaw2O-SyvDt1G37IjcpFzc-4C">CUDA Runtime Data Types</a>
-to find more about NUMA specific CUDA types.</p>
+<p class="admonition-title">注</p>
+<p>请参阅  <a class="reference external" href="https://www.google.com/url?q=https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__TYPES.html&amp;sa=D&amp;source=editors&amp;ust=1696873412599124&amp;usg=AOvVaw0Ru93Acs_FpJG0gl02BLMX">CUDA驱动程序API</a>
+—<a class="reference external" href="https://www.google.com/url?q=https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html%23group__CUDART__TYPES_1gg2279aa08666f329f3ba4afe397fa60f024dc63fb938dee27b41e3842da35d2d0&amp;sa=D&amp;source=editors&amp;ust=1696873412599344&amp;usg=AOvVaw2O-SyvDt1G37IjcpFzc-4C">CUDA 运行时数据类型</a>
+查找有关 NUMA 特定 CUDA 类型的更多信息。</p>
 </div>
 </section>
 </section>
 <section id="using-the-egm-interface">
-<h2><span class="section-number">4.17.2. </span>Using the EGM Interface<a class="headerlink" href="extended-gpu-memory.html#using-the-egm-interface" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">4.17.2. </span>使用 EGM 界面<a class="headerlink" href="extended-gpu-memory.html#using-the-egm-interface" title="跳转到此标题">#</a></h2>
 <section id="single-node-single-gpu">
-<h3><span class="section-number">4.17.2.1. </span>Single-Node, Single-GPU<a class="headerlink" href="extended-gpu-memory.html#single-node-single-gpu" title="Link to this heading">#</a></h3>
-<p>Any of the existing CUDA host allocators as well as system allocated
-memory can be used to benefit from high-bandwidth C2C. To the user,
-local access is what a host allocation is today.</p>
+<h3><span class="section-number">4.17.2.1. </span>单节点、单 GPU<a class="headerlink" href="extended-gpu-memory.html#single-node-single-gpu" title="跳转到此标题">#</a></h3>
+<p>任何现有的 CUDA 主机分配器以及系统分配器
+内存可用于从高带宽 C2C 中受益。对于用户来说，
+本地访问就是今天的主机分配。</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Refer to the tuning guide for more information about memory allocators and page sizes.</p>
+<p class="admonition-title">注</p>
+<p>有关内存分配器和页面大小的更多信息，请参阅调优指南。</p>
 </div>
 </section>
 <section id="single-node-multi-gpu">
-<h3><span class="section-number">4.17.2.2. </span>Single-Node, Multi-GPU<a class="headerlink" href="extended-gpu-memory.html#single-node-multi-gpu" title="Link to this heading">#</a></h3>
-<p>In a multi-GPU system, the user has to provide host information for
-the placement. As we mentioned, a natural way to express that
-information would be by using NUMA node IDs and EGM follows this
-approach. Therefore, using the <code class="docutils literal notranslate"><span class="pre">cuDeviceGetAttribute</span></code> function the
-user should be able to learn the closest NUMA node id. (See <a class="reference external" href="extended-gpu-memory.html#socket-identifiers-what-are-they-how-to-access-them">Socket Identifiers: What are they? How to access them?</a>).
-Then the user can allocate and manage EGM memory using VMM (Virtual
-Memory Management) API or CUDA Memory Pool.</p>
+<h3><span class="section-number">4.17.2.2. </span>单节点、多GPU<a class="headerlink" href="extended-gpu-memory.html#single-node-multi-gpu" title="跳转到此标题">#</a></h3>
+<p>在多 GPU 系统中，用户必须提供主机信息
+的安置。正如我们提到的，表达这一点的自然方式
+信息将通过使用 NUMA 节点 ID 和 EGM 遵循此
+方法。因此，使用 <code class="docutils literal notranslate"><span class="pre">cuDeviceGetAttribute</span></code> 函数
+用户应该能够了解最接近的 NUMA 节点 ID。 （参见 <a class="reference external" href="extended-gpu-memory.html#socket-identifiers-what-are-they-how-to-access-them">套接字标识符：它们是什么？如何访问它们？</a>）。
+然后用户可以使用VMM（Virtual Virtual Machine）来分配和管理EGM内存。
+内存管理）API 或 CUDA 内存池。</p>
 <section id="using-vmm-apis">
-<h4><span class="section-number">4.17.2.2.1. </span>Using VMM APIs<a class="headerlink" href="extended-gpu-memory.html#using-vmm-apis" title="Link to this heading">#</a></h4>
-<p>The first step in memory allocation using Virtual Memory Management APIs
-is to create a physical memory chunk that will provide a backing for the
-allocation. See CUDA Programming Guide’s <a class="reference external" href="extended-gpu-memory.html#virtual-memory-management">Virtual Memory Management section</a>
-for more details. In EGM allocations the user has to explicitly provide
-<code class="docutils literal notranslate"><span class="pre">CU_MEM_LOCATION_TYPE_HOST_NUMA</span></code>  as the location type and
-<cite>numaID</cite> as the location identifier. Also in EGM, allocations must
-be aligned to appropriate granularity of the platform. The following
-code snippet shows allocating physical memory with <code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code>:</p>
+<h4><span class="section-number">4.17.2.2.1. </span>使用 VMM API<a class="headerlink" href="extended-gpu-memory.html#using-vmm-apis" title="跳转到此标题">#</a></h4>
+<p>使用虚拟内存管理 API 进行内存分配的第一步
+是创建一个物理内存块，为
+分配。请参阅 CUDA 编程指南 <a class="reference external" href="virtual-memory-management.html#virtual-memory-management">虚拟内存管理部分</a>
+了解更多详情。在 EGM 分配中，用户必须明确提供
+<code class="docutils literal notranslate"><span class="pre">CU_MEM_LOCATION_TYPE_HOST_NUMA</span></code>  作为位置类型和
+<cite>numaID</cite> 作为位置标识符。同样在临时股东大会中，分配必须
+与平台的适当粒度保持一致。以下
+代码片段显示了分配物理内存 <code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code>:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">CUmemAllocationProp</span><span class="w"> </span><span class="n">prop</span><span class="p">{};</span>
 <span class="n">prop</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CU_MEM_ALLOCATION_TYPE_PINNED</span><span class="p">;</span>
 <span class="n">prop</span><span class="p">.</span><span class="n">location</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CU_MEM_LOCATION_TYPE_HOST_NUMA</span><span class="p">;</span>
@@ -635,21 +430,21 @@ code snippet shows allocating physical memory with <code class="docutils literal
 <span class="n">cuMemCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">allocHandle</span><span class="p">,</span><span class="w"> </span><span class="n">padded_size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">prop</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>After physical memory allocation, we have to reserve an address space
-and map it to a pointer. These procedures do not have EGM-specific
-changes:</p>
+<p>分配物理内存后，我们要预留一个地址空间
+并将其映射到一个指针。这些程序没有特别股东大会特定的
+变化：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">CUdeviceptr</span><span class="w"> </span><span class="n">dptr</span><span class="p">;</span>
 <span class="n">cuMemAddressReserve</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dptr</span><span class="p">,</span><span class="w"> </span><span class="n">padded_size</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 <span class="n">cuMemMap</span><span class="p">(</span><span class="n">dptr</span><span class="p">,</span><span class="w"> </span><span class="n">padded_size</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">allocHandle</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>Finally, the user has to explicitly protect mapped virtual address
-ranges. Otherwise access to the mapped space would result in a crash.
-Similar to the memory allocation, the user has to provide
-<code class="docutils literal notranslate"><span class="pre">CU_MEM_LOCATION_TYPE_HOST_NUMA</span></code> as the location type and
-<cite>numaId</cite> as the location identifier. Following code snippet create
-an access descriptors for the host node and the GPU to give read and
-write access for the mapped memory to both of them:</p>
+<p>最后，用户必须显式保护映射的虚拟地址
+范围。否则访问映射空间将导致崩溃。
+与内存分配类似，用户必须提供
+<code class="docutils literal notranslate"><span class="pre">CU_MEM_LOCATION_TYPE_HOST_NUMA</span></code> 作为位置类型和
+<cite>numaId</cite> 作为位置标识符。以下代码片段创建
+主机节点和 GPU 的访问描述符，用于提供读取和
+对映射内存的写访问权限对它们两者：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">CUmemAccessDesc</span><span class="w"> </span><span class="n">accessDesc</span><span class="p">[</span><span class="mi">2</span><span class="p">]{{}};</span>
 <span class="n">accessDesc</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">location</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CU_MEM_LOCATION_TYPE_HOST_NUMA</span><span class="p">;</span>
 <span class="n">accessDesc</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">location</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">numaId</span><span class="p">;</span>
@@ -662,12 +457,12 @@ write access for the mapped memory to both of them:</p>
 </div>
 </section>
 <section id="using-cuda-memory-pool">
-<h4><span class="section-number">4.17.2.2.2. </span>Using CUDA Memory Pool<a class="headerlink" href="extended-gpu-memory.html#using-cuda-memory-pool" title="Link to this heading">#</a></h4>
-<p>To define EGM, the user can create a memory pool on a node and give
-access to peers. In this case, the user has to explicitly define
-<code class="docutils literal notranslate"><span class="pre">cudaMemLocationTypeHostNuma</span></code> as the location type and <cite>numaId</cite>
-as the location identifier. The following code snippet shows creating a
-memory pool <code class="docutils literal notranslate"><span class="pre">cudaMemPoolCreate</span></code>:</p>
+<h4><span class="section-number">4.17.2.2.2. </span>使用 CUDA 内存池<a class="headerlink" href="extended-gpu-memory.html#using-cuda-memory-pool" title="跳转到此标题">#</a></h4>
+<p>为了定义EGM，用户可以在节点上创建一个内存池并给出
+访问同行。在这种情况下，用户必须明确定义
+<code class="docutils literal notranslate"><span class="pre">cudaMemLocationTypeHostNuma</span></code> 作为位置类型和 <cite>numaId</cite>
+作为位置标识符。以下代码片段显示创建一个
+内存池 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolCreate</span></code>:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaSetDevice</span><span class="p">(</span><span class="n">homeDevice</span><span class="p">);</span>
 <span class="n">cudaMemPoolProps</span><span class="w"> </span><span class="n">props</span><span class="p">{};</span>
 <span class="n">props</span><span class="p">.</span><span class="n">allocType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaMemAllocationTypePinned</span><span class="p">;</span>
@@ -676,9 +471,9 @@ memory pool <code class="docutils literal notranslate"><span class="pre">cudaMem
 <span class="n">cudaMemPoolCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">memPool</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">props</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>Additionally, for direct connect peer access, it is also possible to use
-the existing peer access API, <code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAccess</span></code>. An example
-for an <cite>accessingDevice</cite> is shown in the following code snippet:</p>
+<p>此外，对于直接连接对等访问，还可以使用
+现有的对等访问 API， <code class="docutils literal notranslate"><span class="pre">cudaMemPoolSetAccess</span></code>。一个例子
+对于一个 <cite>accessingDevice</cite> 如下面的代码片段所示：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaMemAccessDesc</span><span class="w"> </span><span class="n">desc</span><span class="p">{};</span>
 <span class="n">desc</span><span class="p">.</span><span class="n">flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaMemAccessFlagsProtReadWrite</span><span class="p">;</span>
 <span class="n">desc</span><span class="p">.</span><span class="n">location</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaMemLocationTypeDevice</span><span class="p">;</span>
@@ -686,32 +481,32 @@ for an <cite>accessingDevice</cite> is shown in the following code snippet:</p>
 <span class="n">cudaMemPoolSetAccess</span><span class="p">(</span><span class="n">memPool</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">desc</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>When the memory pool is created, and accesses are given, the user can
-set created memory pool to the <cite>residentDevice</cite> and start allocating
-memory using <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code>:</p>
+<p>当创建内存池并给出访问权限时，用户可以
+将创建的内存池设置为 <cite>residentDevice</cite> 并开始分配
+内存使用 <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code>:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaDeviceSetMemPool</span><span class="p">(</span><span class="n">residentDevice</span><span class="p">,</span><span class="w"> </span><span class="n">memPool</span><span class="p">);</span>
 <span class="n">cudaMallocAsync</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">memPool</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
 </pre></div>
 </div>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>EGM is mapped with 2MB pages. Therefore, users may encounter more TLB
-misses when accessing very large allocations.</p>
+<p class="admonition-title">注</p>
+<p>EGM 映射有 2MB 页面。因此，用户可能会遇到更多的TLB
+访问非常大的分配时会丢失。</p>
 </div>
 </section>
 </section>
 <section id="multi-node-multi-gpu">
-<h3><span class="section-number">4.17.2.3. </span>Multi-Node, Multi-GPU<a class="headerlink" href="extended-gpu-memory.html#multi-node-multi-gpu" title="Link to this heading">#</a></h3>
-<p>Beyond memory allocation, remote peer access does not have EGM-specific
-modification and it follows CUDA inter process (IPC) protocol. See
-<a class="reference external" href="https://www.google.com/url?q=https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html%23allocating-physical-memory&amp;sa=D&amp;source=editors&amp;ust=1696873412606850&amp;usg=AOvVaw0IF8bdtDWgRlAiW3tIoyXg">CUDA Programming Guide</a>
-for more details in IPC.</p>
-<p>The user should allocate memory using <code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code> and again the
-user has to explicitly provide <code class="docutils literal notranslate"><span class="pre">CU_MEM_LOCATION_TYPE_HOST_NUMA</span></code> as
-the location type and <cite>numaID</cite> as the location identifier. In
-addition <code class="docutils literal notranslate"><span class="pre">CU_MEM_HANDLE_TYPE_FABRIC</span></code> should be defined as the
-requested handle type. The following code snippet shows allocating
-physical memory on Node A:</p>
+<h3><span class="section-number">4.17.2.3. </span>多节点、多GPU<a class="headerlink" href="extended-gpu-memory.html#multi-node-multi-gpu" title="跳转到此标题">#</a></h3>
+<p>除了内存分配之外，远程对等访问没有 EGM 特定的
+修改并遵循 CUDA 进程间 (IPC) 协议。参见
+<a class="reference external" href="https://www.google.com/url?q=https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html%23allocating-physical-memory&amp;sa=D&amp;source=editors&amp;ust=1696873412606850&amp;usg=AOvVaw0IF8bdtDWgRlAiW3tIoyXg">CUDA warp</a>
+有关 IPC 的更多详细信息。</p>
+<p>用户应该使用分配内存 <code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code> 再次
+用户必须明确提供 <code class="docutils literal notranslate"><span class="pre">CU_MEM_LOCATION_TYPE_HOST_NUMA</span></code> 作为
+位置类型和 <cite>numaID</cite> 作为位置标识符。在
+加法 <code class="docutils literal notranslate"><span class="pre">CU_MEM_HANDLE_TYPE_FABRIC</span></code> 应定义为
+请求的句柄类型。下面的代码片段显示了分配
+节点 A 上的物理内存：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">CUmemAllocationProp</span><span class="w"> </span><span class="n">prop</span><span class="p">{};</span>
 <span class="n">prop</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CU_MEM_ALLOCATION_TYPE_PINNED</span><span class="p">;</span>
 <span class="n">prop</span><span class="p">.</span><span class="n">requestedHandleTypes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CU_MEM_HANDLE_TYPE_FABRIC</span><span class="p">;</span>
@@ -727,25 +522,25 @@ physical memory on Node A:</p>
 <span class="n">cuMemCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">allocHandle</span><span class="p">,</span><span class="w"> </span><span class="n">padded_size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">prop</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>After creating allocation handle using <code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code> the user can
-export that handle to the other node, Node B, calling
+<p>使用创建分配句柄后 <code class="docutils literal notranslate"><span class="pre">cuMemCreate</span></code> 用户可以
+将该句柄导出到另一个节点（节点 B），调用
 <code class="docutils literal notranslate"><span class="pre">cuMemExportToShareableHandle</span></code>:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cuMemExportToShareableHandle</span><span class="p">(</span><span class="o">&amp;</span><span class="n">fabricHandle</span><span class="p">,</span><span class="w"> </span><span class="n">allocHandle</span><span class="p">,</span>
 <span class="w">                             </span><span class="n">CU_MEM_HANDLE_TYPE_FABRIC</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
-<span class="c1">// At this point, fabricHandle should be sent to Node B via TCP/IP.</span>
+<span class="c1">// 此时，fabricHandle 应该通过 TCP/IP 发送到 Node B。</span>
 </pre></div>
 </div>
-<p>On Node B, the handle can be imported using
-<code class="docutils literal notranslate"><span class="pre">cuMemImportFromShareableHandle</span></code> and treated as any other fabric
-handle</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// At this point, fabricHandle should be received from Node A via TCP/IP.</span>
+<p>在节点 B 上，可以使用以下命令导入句柄
+<code class="docutils literal notranslate"><span class="pre">cuMemImportFromShareableHandle</span></code> 并像任何其他织物一样处理
+手柄</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 此时，应该通过 TCP/IP 从节点 A 接收 FabricHandle。</span>
 <span class="n">CUmemGenericAllocationHandle</span><span class="w"> </span><span class="n">allocHandle</span><span class="p">;</span>
 <span class="n">cuMemImportFromShareableHandle</span><span class="p">(</span><span class="o">&amp;</span><span class="n">allocHandle</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">fabricHandle</span><span class="p">,</span>
 <span class="w">                               </span><span class="n">CU_MEM_HANDLE_TYPE_FABRIC</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>When handle is imported at Node B, then the user can reserve an address
-space and map it locally in a regular fashion:</p>
+<p>当在节点B导入句柄时，用户可以保留一个地址
+空间并以常规方式在本地映射它：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">size_t</span><span class="w"> </span><span class="n">granularity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="n">cuMemGetAllocationGranularity</span><span class="p">(</span><span class="o">&amp;</span><span class="n">granularity</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">prop</span><span class="p">,</span>
 <span class="w">                              </span><span class="n">MEM_ALLOC_GRANULARITY_MINIMUM</span><span class="p">);</span>
@@ -757,10 +552,10 @@ space and map it locally in a regular fashion:</p>
 <span class="n">cuMemMap</span><span class="p">(</span><span class="n">dptr</span><span class="p">,</span><span class="w"> </span><span class="n">padded_size</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">allocHandle</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>As the final step, the user should give appropriate accesses to each of
-the local GPUs at Node B. An example code snippet that gives read and
-write access to eight local GPUs:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// Give all 8 local  GPUS access to exported EGM memory located on Node A.                                                               |</span>
+<p>作为最后一步，用户应该给予每个
+节点 B 的本地 GPU。示例代码片段给出了读取和
+对八个本地 GPU 的写访问：</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 向所有 8 个本地 GPU 授予对位于节点 A 上导出的 EGM 内存的访问权限。</span>
 <span class="n">CUmemAccessDesc</span><span class="w"> </span><span class="n">accessDesc</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span>
 <span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">   </span><span class="n">accessDesc</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">location</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CU_MEM_LOCATION_TYPE_DEVICE</span><span class="p">;</span>
@@ -773,124 +568,73 @@ write access to eight local GPUs:</p>
 </section>
 </section>
 </section>
-
-
-                </article>
-              
-              
-              
-              
-              
-                <footer class="prev-next-footer d-print-none">
-                  
+</article>
+<footer class="prev-next-footer d-print-none">
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="virtual-memory-management.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><span class="section-number">4.16. </span>Virtual Memory Management</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="dynamic-parallelism.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><span class="section-number">4.18. </span>CUDA Dynamic Parallelism</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
+<a class="left-prev" href="virtual-memory-management.html" title="上一页">4.16. 虚拟内存管理</a>
+<a class="right-next" href="dynamic-parallelism.html" title="下一页">4.18. CUDA 动态并行</a>
 </div>
-                </footer>
-              
-            </div>
-            
-            
-
-
-              
-                <dialog id="pst-secondary-sidebar-modal"></dialog>
-                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
-
-
-  <div class="sidebar-secondary-item">
-<div
-    id="pst-page-navigation-heading-2"
-    class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
+</footer>
+</div>
+<dialog id="pst-secondary-sidebar-modal"></dialog>
+<div class="bd-sidebar-secondary bd-toc" id="pst-secondary-sidebar"><div class="sidebar-secondary-items sidebar-secondary__inner">
+<div class="sidebar-secondary-item">
+<div class="page-toc tocsection onthispage" id="pst-page-navigation-heading-2">
+<i class="fa-solid fa-list"></i>本页内容
   </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="extended-gpu-memory.html#preliminaries">4.17.1. Preliminaries</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="extended-gpu-memory.html#egm-platforms-system-topology">4.17.1.1. EGM Platforms: System topology</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="extended-gpu-memory.html#socket-identifiers-what-are-they-how-to-access-them">4.17.1.2. Socket Identifiers: What are they? How to access them?</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="extended-gpu-memory.html#allocators-and-egm-support">4.17.1.3. Allocators and EGM support</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="extended-gpu-memory.html#memory-management-extensions-to-current-apis">4.17.1.4. Memory management extensions to current APIs</a></li>
+<nav aria-labelledby="pst-page-navigation-heading-2" class="bd-toc-nav page-toc">
+<ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="extended-gpu-memory.html#preliminaries">4.17. 扩展 GPU 内存</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="extended-gpu-memory.html#egm-platforms-system-topology">4.17. 扩展 GPU 内存</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="extended-gpu-memory.html#socket-identifiers-what-are-they-how-to-access-them">4.17. 扩展 GPU 内存</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="extended-gpu-memory.html#allocators-and-egm-support">4.17. 扩展 GPU 内存</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="extended-gpu-memory.html#memory-management-extensions-to-current-apis">4.17. 扩展 GPU 内存</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="extended-gpu-memory.html#using-the-egm-interface">4.17.2. Using the EGM Interface</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="extended-gpu-memory.html#single-node-single-gpu">4.17.2.1. Single-Node, Single-GPU</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="extended-gpu-memory.html#single-node-multi-gpu">4.17.2.2. Single-Node, Multi-GPU</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="extended-gpu-memory.html#using-vmm-apis">4.17.2.2.1. Using VMM APIs</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="extended-gpu-memory.html#using-cuda-memory-pool">4.17.2.2.2. Using CUDA Memory Pool</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="extended-gpu-memory.html#using-the-egm-interface">4.17. 扩展 GPU 内存</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="extended-gpu-memory.html#single-node-single-gpu">4.17. 扩展 GPU 内存</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="extended-gpu-memory.html#single-node-multi-gpu">4.17. 扩展 GPU 内存</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="extended-gpu-memory.html#using-vmm-apis">4.17. 扩展 GPU 内存</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="extended-gpu-memory.html#using-cuda-memory-pool">4.17. 扩展 GPU 内存</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="extended-gpu-memory.html#multi-node-multi-gpu">4.17.2.3. Multi-Node, Multi-GPU</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="extended-gpu-memory.html#multi-node-multi-gpu">4.17. 扩展 GPU 内存</a></li>
 </ul>
 </li>
 </ul>
-  </nav></div>
-
+</nav></div>
 </div></div>
-              
-            
-
-          </div>
-          <footer class="bd-footer-content">
-            
-          </footer>
-        
-      </main>
-    </div>
-  </div>
-  
-
-  <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js"></script>
-
-
+</div>
+<footer class="bd-footer-content">
+</footer>
+</main>
+</div>
+</div>
+ 脚本在 &lt;body&gt; 之后加载，因此 DOM 不会被阻塞 
+<script defer="" src="../_static/scripts/bootstrap.js"></script>
+<script defer="" src="../_static/scripts/pydata-sphinx-theme.js"></script>
 <script type="text/javascript">if (typeof _satellite !== "undefined") {_satellite.pageBottom();}</script>
-
-  <footer class="bd-footer">
+<footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
-  
-    <div class="footer-items__start">
-      
-        <div class="footer-item">
+<div class="footer-items__start">
+<div class="footer-item">
 <a class="footer-brand logo" href="https://www.nvidia.com">
-  <img src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
-  <img src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+<img alt="NVIDIA" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg"/>
+<img alt="NVIDIA" class="logo__image only-dark" src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg"/>
 </a></div>
-      
-        <div class="footer-item">
-
+<div class="footer-item">
 <div class="footer-links">
-  
-  
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+<a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">隐私政策</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">您的隐私选择</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">服务条款</a>
    | 
   
   
@@ -900,47 +644,31 @@ write access to eight local GPUs:</p>
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">公司政策</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">产品安全</a>
    | 
   
   
   
   <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
-  
-  
-  
 </div>
 </div>
-      
-        <div class="footer-item">
-
-
-
-
-  <p class="copyright">
+<div class="footer-item">
+<p class="copyright">
     
-      Copyright © 2007-2026, NVIDIA Corporation &amp; affiliates. All rights reserved.
+      版权所有 © 2007-2026，NVIDIA 公司及附属公司。版权所有。
       <br/>
-    
-  </p>
+</p>
 </div>
-      
-        <div class="footer-item"><p class="last-updated">
-  Last updated on Mar 04, 2026.
+<div class="footer-item"><p class="last-updated">
+  最后更新于 2026 年 3 月 4 日。
   <br/>
 </p></div>
-      
-    </div>
-  
-  
-  
 </div>
-
-  </footer>
-  </body>
-</html>
+</div>
+</footer>
+</body></html>

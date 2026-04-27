@@ -1,52 +1,37 @@
-
-
 <!DOCTYPE html>
-
-
-<html lang="en" data-content_root="../" >
-
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <title>4.7. Lazy Loading &#8212; CUDA Programming Guide</title>
-  
-  
-  
-  <script data-cfasync="false">
+<html data-content_root="../" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>4.7. 延迟加载 — CUDA 编程指南</title>
+<script data-cfasync="false">
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
-  </script>
-  <!--
-    this give us a css class that will be invisible only if js is disabled
-  -->
-  <noscript>
-    <style>
+  </script></head><body><p>
+
+    这给了我们一个 css 类，只有在禁用 js 时才会不可见
+  
+<noscript>
+<style>
       .pst-js-only { display: none !important; }
 
     </style>
-  </noscript>
-  
-  <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css" rel="stylesheet" />
-
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/tables.css" />
-  
-  <!-- So that users can add custom icons -->
-  <script src="../_static/scripts/fontawesome.js"></script>
-  <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js" />
-
-
-<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript"
-  data-document-language="true" charset="UTF-8" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5">
+</noscript>
+ 在其他 Sphinx 资源之前加载 
+<link href="../_static/styles/theme.css" rel="stylesheet"/>
+<link href="../_static/styles/pydata-sphinx-theme.css" rel="stylesheet"/>
+<link href="../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/styles/nvidia-sphinx-theme.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/custom.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/copybutton.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx-design.min.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/tables.css" rel="stylesheet" type="text/css"/>
+ 以便用户可以添加自定义图标 
+<script src="../_static/scripts/fontawesome.js"></script>
+ 我们稍后将完全加载的预加载脚本 
+<link as="script" href="../_static/scripts/bootstrap.js" rel="preload"/>
+<link as="script" href="../_static/scripts/pydata-sphinx-theme.js" rel="preload"/>
+<script charset="UTF-8" data-document-language="true" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5" src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript">
 </script>
 <script type="text/javascript">
   function OptanonWrapper() {
@@ -56,502 +41,312 @@
 </script>
 <script src="https://images.nvidia.com/aem-dam/Solutions/ot-js/ot-custom.js" type="text/javascript">
 </script>
-
-
-    <script rel="preload" src="../_static/modal-table.js"></script>
-    <script src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/scrollspy-patch.js"></script>
-    <script src="../_static/clipboard.min.js"></script>
-    <script src="../_static/copybutton.js"></script>
-    <script src="../_static/design-tabs.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '04-special-topics/lazy-loading';</script>
-    <script src="../_static/version-patch.js"></script>
-
-<script type="text/javascript" src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
-
-    <link rel="icon" href="../_static/favicon.ico"/>
-
-    <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="4.8. Error Log Management" href="error-log-management.html" />
-    <link rel="prev" title="4.6. Green Contexts" href="green-contexts.html" />
-
-<link rel="preload" as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png">
-
-
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="" />
-    <meta name="docbuild:last-update" content="Mar 04, 2026"/>
-
-
-  </head>
-
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
-
-  
-  
-  <div id="pst-skip-link" class="skip-link d-print-none"><a href="lazy-loading.html#main-content">Skip to main content</a></div>
-
-<img src="https://www.nvidia.com/content/dam/1x1-00000000.png" width="1" height="1" style="display:none;" alt="country_code">
-
-
-  
-  <div id="pst-scroll-pixel-helper"></div>
-  
-  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
-    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
-  
-  <dialog id="pst-search-dialog">
-    
-<form class="bd-search d-flex align-items-center"
-      action="../search.html"
-      method="get">
-  <i class="fa-solid fa-magnifying-glass"></i>
-  <input type="search"
-         class="form-control"
-         name="q"
-         placeholder="Search the docs ..."
-         aria-label="Search the docs ..."
-         autocomplete="off"
-         autocorrect="off"
-         autocapitalize="off"
-         spellcheck="false"/>
-  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+<script rel="preload" src="../_static/modal-table.js"></script>
+<script src="../_static/documentation_options.js"></script>
+<script src="../_static/doctools.js"></script>
+<script src="../_static/sphinx_highlight.js"></script>
+<script src="../_static/scrollspy-patch.js"></script>
+<script src="../_static/clipboard.min.js"></script>
+<script src="../_static/copybutton.js"></script>
+<script src="../_static/design-tabs.js"></script>
+<script>DOCUMENTATION_OPTIONS.pagename = '04-special-topics/lazy-loading';</script>
+<script src="../_static/version-patch.js"></script>
+<script src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js" type="text/javascript"></script>
+<link href="../_static/favicon.ico" rel="icon"/>
+<link href="../genindex.html" rel="index" title="索引"/>
+<link href="../search.html" rel="search" title="搜索"/>
+<link href="error-log-management.html" rel="next" title="4.8. 错误日志管理"/>
+<link href="green-contexts.html" rel="prev" title="4.6. 绿色上下文"/>
+<link as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png" rel="preload"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="en" name="docsearch:language"/>
+<meta content="" name="docsearch:version"/>
+<meta content="Mar 04, 2026" name="docbuild:last-update"/>
+</p>
+<div class="skip-link d-print-none" id="pst-skip-link"><a href="lazy-loading.html#main-content">跳到主要内容</a></div>
+<img alt="country_code" height="1" src="https://www.nvidia.com/content/dam/1x1-00000000.png" style="display:none;" width="1"/>
+<div id="pst-scroll-pixel-helper"></div>
+<button class="btn rounded-pill" id="pst-back-to-top" type="button">
+<i class="fa-solid fa-arrow-up"></i>返回顶部</button>
+<dialog id="pst-search-dialog">
+<form action="../search.html" class="bd-search d-flex align-items-center" method="get">
+<i class="fa-solid fa-magnifying-glass"></i>
+<input aria-label="搜索文档..." autocapitalize="off" autocomplete="off" autocorrect="off" class="form-control" name="q" placeholder="搜索文档..." spellcheck="false" type="search"/>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
 </form>
-  </dialog>
-
-  <div class="pst-async-banner-revealer d-none">
-  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</dialog>
+<div class="pst-async-banner-revealer d-none">
+<aside aria-label="版本警告" class="d-none d-print-none" id="bd-header-version-warning"></aside>
 </div>
-
-  
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
-    <span class="fa-solid fa-bars"></span>
-  </button>
-  
-  
-  <div class="col-lg-3 navbar-header-items__start">
-    
-      <div class="navbar-item">
-
-  
-    
-  
-
+<button aria-label="站点导航" class="pst-navbar-icon sidebar-toggle primary-toggle">
+<span class="fa-solid fa-bars"></span>
+</button>
+<div class="col-lg-3 navbar-header-items__start">
+<div class="navbar-item">
 <a class="navbar-brand logo" href="../contents.html">
-  
-  
-  
-  
-  
-    
-    
-      
-    
-    
-    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
-    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
-  
-  
-    <p class="title logo__title">CUDA Programming Guide</p>
-  
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg"/>
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-dark pst-js-only" src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg"/>
+<p class="title logo__title">CUDA 编程指南</p>
 </a></div>
-    
-  </div>
-  
-  <div class="col-lg-9 navbar-header-items">
-    
-    <div class="me-auto navbar-header-items__center">
-      
-        <div class="navbar-item">
-
-
+</div>
+<div class="col-lg-9 navbar-header-items">
+<div class="me-auto navbar-header-items__center">
+<div class="navbar-item">
 <div>
-  <ul class="bd-navbar-elements navbar-nav">
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>v13.2 |</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>|</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
-      
-    </li>
-  
-  </ul>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item pst-header-nav-item">
+<span>v13.2 |</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+</li>
+<li class="nav-item pst-header-nav-item">
+<span>|</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">warp</a>
+</li>
+</ul>
 </div>
 </div>
-      
-    </div>
-    
-    
-    <div class="navbar-header-items__end">
-      
-        <div class="navbar-item navbar-persistent--container">
-          
-
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
- <i class="fa-solid fa-magnifying-glass"></i>
- <span class="search-button__default-text">Search</span>
- <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</div>
+<div class="navbar-header-items__end">
+<div class="navbar-item navbar-persistent--container">
+<button aria-label="warp" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="warp">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">warp</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
 </button>
-        </div>
-      
-      
-        <div class="navbar-item">
-
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</div>
+<div class="navbar-item">
+<button aria-label="色彩模式" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="系统设置"></i>
 </button></div>
-      
-    </div>
-    
-  </div>
-  
-  
-    <div class="navbar-persistent--mobile">
-
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
- <i class="fa-solid fa-magnifying-glass"></i>
- <span class="search-button__default-text">Search</span>
- <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-</button>
-    </div>
-  
-
-  
-    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
-      <span class="fa-solid fa-outdent"></span>
-    </button>
-  
 </div>
-
-    </header>
-  
-
-  <div class="bd-container">
-    <div class="bd-container__inner bd-page-width">
-      
-      
-      
-      <dialog id="pst-primary-sidebar-modal"></dialog>
-      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
-        
-
-
-
-  
-    
-  
-
+</div>
+<div class="navbar-persistent--mobile">
+<button aria-label="warp" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="warp">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">warp</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+</div>
+<button aria-label="切换侧边栏" class="pst-navbar-icon sidebar-toggle secondary-toggle">
+<span class="fa-solid fa-outdent"></span>
+</button>
+</div>
+</header>
+<div class="bd-container">
+<div class="bd-container__inner bd-page-width">
+<dialog id="pst-primary-sidebar-modal"></dialog>
+<div class="bd-sidebar-primary bd-sidebar" id="pst-primary-sidebar">
 <a class="navbar-brand logo" href="../contents.html">
-  
-  
-  
-  
-  
-    
-    
-      
-    
-    
-    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
-    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
-  
-  
-    <p class="title logo__title">CUDA Programming Guide</p>
-  
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg"/>
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-dark pst-js-only" src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg"/>
+<p class="title logo__title">CUDA 编程指南</p>
 </a>
-
-
-  
-  <div class="sidebar-header-items sidebar-primary__section">
-    
-    
-      <div class="sidebar-header-items__center">
-        
-          
-          
-            <div class="navbar-item">
-
-
+<div class="sidebar-header-items sidebar-primary__section">
+<div class="sidebar-header-items__center">
+<div class="navbar-item">
 <div>
-  <ul class="bd-navbar-elements navbar-nav">
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>v13.2 |</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>|</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
-      
-    </li>
-  
-  </ul>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item pst-header-nav-item">
+<span>v13.2 |</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+</li>
+<li class="nav-item pst-header-nav-item">
+<span>|</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">warp</a>
+</li>
+</ul>
 </div>
 </div>
-          
-        
-      </div>
-    
-    
-    
-      <div class="sidebar-header-items__end">
-        
-          <div class="navbar-item">
-
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</div>
+<div class="sidebar-header-items__end">
+<div class="navbar-item">
+<button aria-label="色彩模式" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="系统设置"></i>
 </button></div>
-        
-      </div>
-    
-  </div>
-  
-    <div class="sidebar-primary-items__start sidebar-primary__section">
-        <div class="sidebar-primary-item">
-
-
-
-<nav class="bd-docs-nav bd-links"
-     aria-label="Table of Contents">
-  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
-  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA Programming Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. Introduction to CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../01-introduction/introduction.html">1.1. Introduction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../01-introduction/programming-model.html">1.2. Programming Model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../01-introduction/cuda-platform.html">1.3. The CUDA platform</a></li>
+</div>
+</div>
+<div class="sidebar-primary-items__start sidebar-primary__section">
+<div class="sidebar-primary-item">
+<nav aria-label="目录" class="bd-docs-nav bd-links">
+<p aria-level="1" class="bd-links__title" role="heading">目录</p>
+<div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA 编程指南</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. CUDA 简介</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/introduction.html">1.1. 引言</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/programming-model.html">1.2. 编程模型</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/cuda-platform.html">1.3. CUDA 平台</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part2.html">2. Programming GPUs in CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html">2.1. Intro to CUDA C++</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/writing-cuda-kernels.html">2.2. Writing CUDA SIMT Kernels</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/asynchronous-execution.html">2.3. Asynchronous Execution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/understanding-memory.html">2.4. Unified and System Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/nvcc.html">2.5. NVCC: The NVIDIA CUDA Compiler</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part2.html">2. 使用 CUDA 进行 GPU 编程</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html">2.1. CUDA C++ 入门</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/writing-cuda-kernels.html">2.2. 编写 CUDA SIMT 内核</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/asynchronous-execution.html">2.3. 异步执行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/understanding-memory.html">2.4. 统一内存与系统内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/nvcc.html">2.5. NVCC：NVIDIA CUDA 编译器</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. Advanced CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. Advanced CUDA APIs and Features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. Advanced Kernel Programming</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. The CUDA Driver API</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. Programming Systems with Multiple GPUs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. A Tour of CUDA Features</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. 高级 CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. 高级 CUDA API 与特性</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. 高级内核编程</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. CUDA Driver API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. 多 GPU 系统编程</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. CUDA 特性概览</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="../part4.html">4. CUDA Features</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="unified-memory.html">4.1. Unified Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cuda-graphs.html">4.2. CUDA Graphs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="stream-ordered-memory-allocation.html">4.3. Stream-Ordered Memory Allocator</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cooperative-groups.html">4.4. Cooperative Groups</a></li>
-<li class="toctree-l3"><a class="reference internal" href="programmatic-dependent-launch.html">4.5. Programmatic Dependent Launch and Synchronization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="green-contexts.html">4.6. Green Contexts</a></li>
-<li class="toctree-l3 current active"><a class="current reference internal" href="lazy-loading.html#">4.7. Lazy Loading</a></li>
-<li class="toctree-l3"><a class="reference internal" href="error-log-management.html">4.8. Error Log Management</a></li>
-<li class="toctree-l3"><a class="reference internal" href="async-barriers.html">4.9. Asynchronous Barriers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pipelines.html">4.10. Pipelines</a></li>
-<li class="toctree-l3"><a class="reference internal" href="async-copies.html">4.11. Asynchronous Data Copies</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cluster-launch-control.html">4.12. Work Stealing with Cluster Launch Control</a></li>
-<li class="toctree-l3"><a class="reference internal" href="l2-cache-control.html">4.13. L2 Cache Control</a></li>
-<li class="toctree-l3"><a class="reference internal" href="memory-sync-domains.html">4.14. Memory Synchronization Domains</a></li>
-<li class="toctree-l3"><a class="reference internal" href="inter-process-communication.html">4.15. Interprocess Communication</a></li>
-<li class="toctree-l3"><a class="reference internal" href="virtual-memory-management.html">4.16. Virtual Memory Management</a></li>
-<li class="toctree-l3"><a class="reference internal" href="extended-gpu-memory.html">4.17. Extended GPU Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dynamic-parallelism.html">4.18. CUDA Dynamic Parallelism</a></li>
-<li class="toctree-l3"><a class="reference internal" href="graphics-interop.html">4.19. CUDA Interoperability with APIs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="driver-entry-point-access.html">4.20. Driver Entry Point Access</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../part4.html">4. CUDA 特性</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="unified-memory.html">4.1. 统一内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda-graphs.html">4.2. CUDA Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stream-ordered-memory-allocation.html">4.3. 流有序内存分配器</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cooperative-groups.html">4.4. 协作组</a></li>
+<li class="toctree-l3"><a class="reference internal" href="programmatic-dependent-launch.html">4.5. 程序化依赖启动与同步</a></li>
+<li class="toctree-l3"><a class="reference internal" href="green-contexts.html">4.6. 绿色上下文</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="lazy-loading.html#">4.7. 延迟加载</a></li>
+<li class="toctree-l3"><a class="reference internal" href="error-log-management.html">4.8. 错误日志管理</a></li>
+<li class="toctree-l3"><a class="reference internal" href="async-barriers.html">4.9. 异步屏障</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pipelines.html">4.10. 流水线</a></li>
+<li class="toctree-l3"><a class="reference internal" href="async-copies.html">4.11. 异步数据拷贝</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cluster-launch-control.html">4.12. 使用簇启动控制进行工作窃取</a></li>
+<li class="toctree-l3"><a class="reference internal" href="l2-cache-control.html">4.13. L2 缓存控制</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory-sync-domains.html">4.14. 内存同步域</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inter-process-communication.html">4.15. 进程间通信</a></li>
+<li class="toctree-l3"><a class="reference internal" href="virtual-memory-management.html">4.16. 虚拟内存管理</a></li>
+<li class="toctree-l3"><a class="reference internal" href="extended-gpu-memory.html">4.17. 扩展 GPU 内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamic-parallelism.html">4.18. CUDA 动态并行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graphics-interop.html">4.19. CUDA 与 API 的互操作</a></li>
+<li class="toctree-l3"><a class="reference internal" href="driver-entry-point-access.html">4.20. 驱动入口点访问</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part5.html">5. Technical Appendices</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/compute-capabilities.html">5.1. Compute Capabilities</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/environment-variables.html">5.2. CUDA Environment Variables</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-support.html">5.3. C++ Language Support</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-extensions.html">5.4. C/C++ Language Extensions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/mathematical-functions.html">5.5. Floating-Point Computation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/device-callable-apis.html">5.6. Device-Callable APIs and Intrinsics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-memory-model.html">5.7. CUDA C++ Memory Model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-execution-model.html">5.8. CUDA C++ Execution model</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part5.html">5. 技术附录</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/compute-capabilities.html">5.1. 计算能力</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/environment-variables.html">5.2. CUDA 环境变量</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-support.html">5.3. C++ 语言支持</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-extensions.html">5.4. C/C++ 语言扩展</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/mathematical-functions.html">5.5. 浮点计算</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/device-callable-apis.html">5.6. 设备端可调用 API 与内建函数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-memory-model.html">5.7. CUDA C++ 内存模型</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-execution-model.html">5.8. CUDA C++ 执行模型</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. Notices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. 声明</a></li>
 </ul>
 </details></li>
 </ul>
 </div>
 </nav></div>
-    </div>
-  
-  
-  <div class="sidebar-primary-items__end sidebar-primary__section">
-  </div>
-
-
-
-      </div>
-      
-      <main id="main-content" class="bd-main" role="main">
-        
-        
-          <div class="bd-content">
-            <div class="bd-article-container">
-              
-              <div class="bd-header-article d-print-none">
+</div>
+<div class="sidebar-primary-items__end sidebar-primary__section">
+</div>
+</div>
+<main class="bd-main" id="main-content" role="main">
+<div class="bd-content">
+<div class="bd-article-container">
+<div class="bd-header-article d-print-none">
 <div class="header-article-items header-article__inner">
-  
-    <div class="header-article-items__start">
-      
-        <div class="header-article-item">
-
+<div class="header-article-items__start">
+<div class="header-article-item">
 <nav aria-label="Breadcrumb" class="d-print-none">
-  <ul class="bd-breadcrumbs">
-    
-    <li class="breadcrumb-item breadcrumb-home">
-      <a href="../contents.html" class="nav-link" aria-label="Home">
-        <i class="fa-solid fa-home"></i>
-      </a>
-    </li>
-    
-    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">CUDA Programming Guide</a></li>
-    
-    
-    <li class="breadcrumb-item"><a href="../part4.html" class="nav-link"><span class="section-number">4. </span>CUDA Features</a></li>
-    
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">4.7. </span>Lazy Loading</span></li>
-  </ul>
+<ul class="bd-breadcrumbs">
+<li class="breadcrumb-item breadcrumb-home">
+<a aria-label="Home" class="nav-link" href="../contents.html">目录</a>
+</li>
+<li class="breadcrumb-item"><a class="nav-link" href="../index.html">CUDA 编程指南</a></li>
+<li class="breadcrumb-item"><a class="nav-link" href="../part4.html">4. CUDA 特性</a></li>
+<li aria-current="page" class="breadcrumb-item active"><span class="ellipsis"><span class="section-number">4.7. </span>延迟加载</span></li>
+</ul>
 </nav>
 </div>
-      
-    </div>
-  
-  
-    <div class="header-article-items__end">
-      
-        <div class="header-article-item">
+</div>
+<div class="header-article-items__end">
 <div class="header-article-item">
-  <div class="d-flex justify-content-end w-100">
-    <a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">Is this page helpful?</a>
-  </div>
+<div class="header-article-item">
+<div class="d-flex justify-content-end w-100">
+<a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">此页面有帮助吗？</a>
+</div>
 </div></div>
-      
-    </div>
-  
 </div>
 </div>
-              
-              
-              
-                
+</div>
 <div id="searchbox"></div>
-                <article class="bd-article">
-                  
-  <section id="lazy-loading">
-<span id="id1"></span><h1><span class="section-number">4.7. </span>Lazy Loading<a class="headerlink" href="lazy-loading.html#lazy-loading" title="Link to this heading">#</a></h1>
+<article class="bd-article">
+<section id="lazy-loading">
+<span id="id1"></span><h1>4.7. 延迟加载<a class="headerlink" href="lazy-loading.html#lazy-loading" title="跳转到此标题">#</a></h1>
 <section id="introduction">
-<span id="what-is-lazy-loading"></span><h2><span class="section-number">4.7.1. </span>Introduction<a class="headerlink" href="lazy-loading.html#introduction" title="Link to this heading">#</a></h2>
-<p>Lazy loading reduces program initialization time by waiting to load CUDA modules until they are needed. Lazy loading is particularly effective for programs that only use a small number of the kernels they include, as is common when using libraries. Lazy loading is designed to be invisible to the user when the CUDA programming model is followed. <a class="reference internal" href="lazy-loading.html#lazy-loading-potential-hazards"><span class="std std-ref">Potential Hazards</span></a> explains this in detail. As of CUDA 12.3 lazy Loading is enabled by default on all platforms, but can be controlled via the <code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_LOADING</span></code> environment variable.</p>
+<span id="what-is-lazy-loading"></span><h2><span class="section-number">4.7.1. </span>引言<a class="headerlink" href="lazy-loading.html#introduction" title="跳转到此标题">#</a></h2>
+<p>延迟加载通过等到需要时才加载 CUDA 模块来减少程序初始化时间。延迟加载对于仅使用其包含的少量内核的程序特别有效，这在使用库时很常见。延迟加载被设计为在遵循 CUDA 编程模型时对用户不可见。 <a class="reference internal" href="lazy-loading.html#lazy-loading-potential-hazards"><span class="std std-ref">潜在危险</span></a> 详细解释了这一点。从 CUDA 12.3 开始，延迟加载在所有平台上默认启用，但可以通过 <code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_LOADING</span></code> 环境变量。</p>
 </section>
 <section id="change-history">
-<span id="lazy-loading-change-history"></span><h2><span class="section-number">4.7.2. </span>Change History<a class="headerlink" href="lazy-loading.html#change-history" title="Link to this heading">#</a></h2>
+<span id="lazy-loading-change-history"></span><h2><span class="section-number">4.7.2. </span>变更历史记录<a class="headerlink" href="lazy-loading.html#change-history" title="跳转到此标题">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="table-no-stripes longtable table" id="lazy-loading-version-history">
-<caption><span class="caption-number">Table 17 </span><span class="caption-text">Select Lazy Loading Changes by CUDA Version</span><a class="headerlink" href="lazy-loading.html#lazy-loading-version-history" title="Link to this table">#</a></caption>
+<caption><span class="caption-number">表17 </span><span class="caption-text">按 CUDA 版本选择延迟加载更改</span><a class="headerlink" href="lazy-loading.html#lazy-loading-version-history" title="跳转到此标题">#</a></caption>
 <colgroup>
-<col style="width: 20.0%" />
-<col style="width: 80.0%" />
+<col style="width: 20.0%"/>
+<col style="width: 80.0%"/>
 </colgroup>
 <thead>
-<tr class="row-odd"><th class="head"><p>CUDA Version</p></th>
+<tr class="row-odd"><th class="head"><p>CUDA版本</p></th>
 <th class="head"><p>Change</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>12.3</p></td>
-<td><p>Lazy loading performance improved. Now enabled by default for Windows.</p></td>
+<td><p>延迟加载性能得到改善。现在 Windows 默认启用。</p></td>
 </tr>
 <tr class="row-odd"><td><p>12.2</p></td>
-<td><p>Lazy loading enabled by default for Linux.</p></td>
+<td><p>Linux 默认启用延迟加载。</p></td>
 </tr>
 <tr class="row-even"><td><p>11.7</p></td>
-<td><p>Lazy loading first introduced, disabled by default.</p></td>
+<td><p>首先引入延迟加载，默认禁用。</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 </section>
 <section id="requirements-for-lazy-loading">
-<span id="lazy-loading-system-requirements"></span><h2><span class="section-number">4.7.3. </span>Requirements for Lazy Loading<a class="headerlink" href="lazy-loading.html#requirements-for-lazy-loading" title="Link to this heading">#</a></h2>
-<p>Lazy loading is a joint feature of both the CUDA runtime and driver. Lazy loading is only available when the runtime and driver version requirements are satisfied.</p>
+<span id="lazy-loading-system-requirements"></span><h2><span class="section-number">4.7.3. </span>延迟加载的要求<a class="headerlink" href="lazy-loading.html#requirements-for-lazy-loading" title="跳转到此标题">#</a></h2>
+<p>延迟加载是 CUDA 运行时和驱动程序的联合功能。仅当满足运行时和驱动程序版本要求时，延迟加载才可用。</p>
 <section id="cuda-runtime-version-requirement">
-<h3><span class="section-number">4.7.3.1. </span>CUDA Runtime Version Requirement<a class="headerlink" href="lazy-loading.html#cuda-runtime-version-requirement" title="Link to this heading">#</a></h3>
-<p>Lazy loading is available starting in CUDA runtime version 11.7. As CUDA runtime is usually linked statically into programs and libraries, only programs and libraries from or compiled with CUDA 11.7+ toolkit will benefit from lazy loading. Libraries compiled using older CUDA runtime versions will load all modules eagerly.</p>
+<h3><span class="section-number">4.7.3.1. </span>CUDA 运行时版本要求<a class="headerlink" href="lazy-loading.html#cuda-runtime-version-requirement" title="跳转到此标题">#</a></h3>
+<p>从 CUDA 运行时版本 11.7 开始，可以使用延迟加载。由于 CUDA 运行时通常静态链接到程序和库中，因此只有来自 CUDA 11.7+ 工具包或使用 CUDA 11.7+ 工具包编译的程序和库才会受益于延迟加载。使用较旧的 CUDA 运行时版本编译的库将急切地加载所有模块。</p>
 </section>
 <section id="cuda-driver-version-requirement">
-<h3><span class="section-number">4.7.3.2. </span>CUDA Driver Version Requirement<a class="headerlink" href="lazy-loading.html#cuda-driver-version-requirement" title="Link to this heading">#</a></h3>
-<p>Lazy loading requires driver version 515 or newer. Lazy loading is not available for driver versions older than 515, even when using CUDA toolkit 11.7 or newer.</p>
+<h3><span class="section-number">4.7.3.2. </span>CUDA驱动程序版本要求<a class="headerlink" href="lazy-loading.html#cuda-driver-version-requirement" title="跳转到此标题">#</a></h3>
+<p>延迟加载需要驱动程序版本 515 或更高版本。延迟加载对于早于 515 的驱动程序版本不可用，即使使用 CUDA 工具包 11.7 或更高版本也是如此。</p>
 </section>
 <section id="compiler-requirements">
-<h3><span class="section-number">4.7.3.3. </span>Compiler Requirements<a class="headerlink" href="lazy-loading.html#compiler-requirements" title="Link to this heading">#</a></h3>
-<p>Lazy loading does not require any compiler support. Both SASS and PTX compiled with pre-11.7 compilers can be loaded with lazy loading enabled, and will see full benefits of the feature. However, the version 11.7+ CUDA runtime is still required, as described above.</p>
+<h3><span class="section-number">4.7.3.3. </span>编译器要求<a class="headerlink" href="lazy-loading.html#compiler-requirements" title="跳转到此标题">#</a></h3>
+<p>延迟加载不需要任何编译器支持。使用 11.7 之前的编译器编译的 SASS 和 PTX 都可以在启用延迟加载的情况下进行加载，并且将看到该功能的全部优势。但是，如上所述，仍然需要 11.7+ 版本的 CUDA 运行时。</p>
 </section>
 <section id="kernel-requirements">
-<h3><span class="section-number">4.7.3.4. </span>Kernel Requirements<a class="headerlink" href="lazy-loading.html#kernel-requirements" title="Link to this heading">#</a></h3>
-<p>Lazy loading does not affect modules containing managed variables, which will still be loaded eagerly.</p>
+<h3><span class="section-number">4.7.3.4. </span>内核要求<a class="headerlink" href="lazy-loading.html#kernel-requirements" title="跳转到此标题">#</a></h3>
+<p>延迟加载不会影响包含托管变量的模块，这些变量仍然会被急切地加载。</p>
 </section>
 </section>
 <section id="usage">
-<span id="lazy-loading-controlling"></span><h2><span class="section-number">4.7.4. </span>Usage<a class="headerlink" href="lazy-loading.html#usage" title="Link to this heading">#</a></h2>
+<span id="lazy-loading-controlling"></span><h2><span class="section-number">4.7.4. </span>用法<a class="headerlink" href="lazy-loading.html#usage" title="跳转到此标题">#</a></h2>
 <section id="enabling-disabling">
-<h3><span class="section-number">4.7.4.1. </span>Enabling &amp; Disabling<a class="headerlink" href="lazy-loading.html#enabling-disabling" title="Link to this heading">#</a></h3>
-<p>Lazy loading is enabled by setting the <code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_LOADING</span></code> environment variable to <code class="docutils literal notranslate"><span class="pre">LAZY</span></code>. Lazy loading can be disabled by setting the <code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_LOADING</span></code> environment variable to <code class="docutils literal notranslate"><span class="pre">EAGER</span></code>. As of CUDA 12.3, lazy loading is enabled by default on all platforms.</p>
+<h3><span class="section-number">4.7.4.1. </span>启用和禁用<a class="headerlink" href="lazy-loading.html#enabling-disabling" title="跳转到此标题">#</a></h3>
+<p>通过设置启用延迟加载 <code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_LOADING</span></code> 环境变量为 <code class="docutils literal notranslate"><span class="pre">LAZY</span></code>。可以通过设置来禁用延迟加载 <code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_LOADING</span></code> 环境变量为 <code class="docutils literal notranslate"><span class="pre">EAGER</span></code>。从 CUDA 12.3 开始，所有平台上默认启用延迟加载。</p>
 </section>
 <section id="checking-if-lazy-loading-is-enabled-at-runtime">
-<h3><span class="section-number">4.7.4.2. </span>Checking if Lazy Loading is Enabled at Runtime<a class="headerlink" href="lazy-loading.html#checking-if-lazy-loading-is-enabled-at-runtime" title="Link to this heading">#</a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">cuModuleGetLoadingMode</span></code> API in the CUDA driver API can be used to determine if lazy loading is enabled. Note that CUDA must be initialized before running this function. Sample usage is shown in the snippet below.</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;&lt;cuda.h&gt;&quot;</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;&lt;assert.h&gt;&quot;</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;&lt;iostream&gt;&quot;</span>
+<h3><span class="section-number">4.7.4.2. </span>检查运行时是否启用延迟加载<a class="headerlink" href="lazy-loading.html#checking-if-lazy-loading-is-enabled-at-runtime" title="跳转到此标题">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">cuModuleGetLoadingMode</span></code> CUDA驱动程序API中的API可用于确定是否启用延迟加载。请注意，在运行此函数之前必须初始化 CUDA。下面的代码片段显示了示例用法。</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">"&lt;cuda.h&gt;"</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"&lt;assert.h&gt;"</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"&lt;iostream&gt;"</span>
 
 <span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="n">CUmoduleLoadingMode</span><span class="w"> </span><span class="n">mode</span><span class="p">;</span>
@@ -559,7 +354,7 @@
 <span class="w">        </span><span class="n">assert</span><span class="p">(</span><span class="n">CUDA_SUCCESS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">cuInit</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span>
 <span class="w">        </span><span class="n">assert</span><span class="p">(</span><span class="n">CUDA_SUCCESS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">cuModuleGetLoadingMode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mode</span><span class="p">));</span>
 
-<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;CUDA Module Loading Mode is &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="p">((</span><span class="n">mode</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">CU_MODULE_LAZY_LOADING</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;lazy&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;eager&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">"CUDA Module Loading Mode is "</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="p">((</span><span class="n">mode</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">CU_MODULE_LAZY_LOADING</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">"lazy"</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">"eager"</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
 
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
@@ -567,170 +362,119 @@
 </div>
 </section>
 <section id="forcing-a-module-to-load-eagerly-at-runtime">
-<h3><span class="section-number">4.7.4.3. </span>Forcing a Module to Load Eagerly at Runtime<a class="headerlink" href="lazy-loading.html#forcing-a-module-to-load-eagerly-at-runtime" title="Link to this heading">#</a></h3>
-<p>Loading kernels and variables happens automatically, without any need for explicit loading. Kernels can be loaded explicitly even without executing them by doing the following:</p>
+<h3><span class="section-number">4.7.4.3. </span>强制模块在运行时立即加载<a class="headerlink" href="lazy-loading.html#forcing-a-module-to-load-eagerly-at-runtime" title="跳转到此标题">#</a></h3>
+<p>加载内核和变量会自动发生，无需显式加载。即使不执行内核，也可以通过执行以下操作显式加载它们：</p>
 <ul class="simple">
-<li><p>The <code class="docutils literal notranslate"><span class="pre">cuModuleGetFunction()</span></code> function will cause a module to be loaded into device memory</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">cudaFuncGetAttributes()</span></code> function will cause a kernel to be loaded into device memory</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cuModuleGetFunction()</span></code> 函数将导致模块加载到设备内存中</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaFuncGetAttributes()</span></code> 函数将导致内核加载到设备内存中</p></li>
 </ul>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p><code class="docutils literal notranslate"><span class="pre">cuModuleLoad()</span></code> does not guarantee that a module will be loaded immediately.</p>
+<p class="admonition-title">注</p>
+<p><code class="docutils literal notranslate"><span class="pre">cuModuleLoad()</span></code> 不保证模块会立即加载。</p>
 </div>
 </section>
 </section>
 <section id="potential-hazards">
-<span id="lazy-loading-potential-hazards"></span><h2><span class="section-number">4.7.5. </span>Potential Hazards<a class="headerlink" href="lazy-loading.html#potential-hazards" title="Link to this heading">#</a></h2>
-<p>Lazy loading is designed so that it should not require any modifications to applications to use it. That said, there are some caveats, especially when applications are not fully compliant with the CUDA programming model, as described below.</p>
+<span id="lazy-loading-potential-hazards"></span><h2><span class="section-number">4.7.5. </span>潜在危险<a class="headerlink" href="lazy-loading.html#potential-hazards" title="跳转到此标题">#</a></h2>
+<p>延迟加载的设计不需要对应用程序进行任何修改即可使用它。也就是说，有一些警告，特别是当应用程序不完全符合 CUDA 编程模型时，如下所述。</p>
 <section id="impact-on-concurrent-kernel-execution">
-<h3><span class="section-number">4.7.5.1. </span>Impact on Concurrent Kernel Execution<a class="headerlink" href="lazy-loading.html#impact-on-concurrent-kernel-execution" title="Link to this heading">#</a></h3>
-<p>Some programs incorrectly assume that concurrent kernel execution is guaranteed. A deadlock can occur if cross-kernel synchronization is required, but kernel execution has been serialized. To minimize the impact of lazy loading on concurrent kernel execution, do the following:</p>
+<h3><span class="section-number">4.7.5.1. </span>对并发内核执行的影响<a class="headerlink" href="lazy-loading.html#impact-on-concurrent-kernel-execution" title="跳转到此标题">#</a></h3>
+<p>某些程序错误地假设并发内核执行是有保证的。如果需要跨内核同步，但内核执行已经串行化，则可能会发生死锁。要最大限度地减少延迟加载对并发内核执行的影响，请执行以下操作：</p>
 <ul class="simple">
-<li><p>preload all kernels that you hope to execute concurrently prior to launching them or</p></li>
-<li><p>run application with <code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_LOADING</span> <span class="pre">=</span> <span class="pre">EAGER</span></code> to force loading data eagerly without forcing each function to load eagerly</p></li>
+<li><p>在启动之前预加载您希望同时执行的所有内核，或者</p></li>
+<li><p>运行应用程序 <code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_LOADING</span> <span class="pre">=</span> <span class="pre">EAGER</span></code> 强制急切加载数据，而不强制每个函数急切加载</p></li>
 </ul>
 </section>
 <section id="large-memory-allocations">
-<h3><span class="section-number">4.7.5.2. </span>Large Memory Allocations<a class="headerlink" href="lazy-loading.html#large-memory-allocations" title="Link to this heading">#</a></h3>
-<p>Lazy loading delays memory allocation for CUDA modules from program initialization until closer to execution time. If an application allocates the entire VRAM on startup, CUDA can fail to allocate memory for modules at runtime. Possible solutions:</p>
+<h3><span class="section-number">4.7.5.2. </span>大内存分配<a class="headerlink" href="lazy-loading.html#large-memory-allocations" title="跳转到此标题">#</a></h3>
+<p>延迟加载将 CUDA 模块的内存分配从程序初始化延迟到接近执行时间。如果应用程序在启动时分配整个 VRAM，则 CUDA 可能无法在运行时为模块分配内存。可能的解决方案：</p>
 <ul class="simple">
-<li><p>use <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync()</span></code> instead of an allocator that allocates the entire VRAM on startup</p></li>
-<li><p>add some buffer to compensate for the delayed loading of kernels</p></li>
-<li><p>preload all kernels that will be used in the program before trying to initialize the allocator</p></li>
+<li><p>use <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync()</span></code> 而不是在启动时分配整个 VRAM 的分配器</p></li>
+<li><p>添加一些缓冲区来补偿内核的延迟加载</p></li>
+<li><p>在尝试初始化分配器之前预加载程序中将使用的所有内核</p></li>
 </ul>
 </section>
 <section id="impact-on-performance-measurements">
-<h3><span class="section-number">4.7.5.3. </span>Impact on Performance Measurements<a class="headerlink" href="lazy-loading.html#impact-on-performance-measurements" title="Link to this heading">#</a></h3>
-<p>Lazy loading may skew performance measurements by moving CUDA module initialization into the measured execution window. To avoid this:</p>
+<h3><span class="section-number">4.7.5.3. </span>对绩效衡量的影响<a class="headerlink" href="lazy-loading.html#impact-on-performance-measurements" title="跳转到此标题">#</a></h3>
+<p>延迟加载可能会通过将 CUDA 模块初始化移入被测执行窗口而影响性能测量。为了避免这种情况：</p>
 <ul class="simple">
-<li><p>do at least one warmup iteration prior to measurement</p></li>
-<li><p>preload the benchmarked kernel prior to launching it</p></li>
+<li><p>在测量之前至少进行一次预热迭代</p></li>
+<li><p>在启动之前预加载经过基准测试的内核</p></li>
 </ul>
 </section>
 </section>
 </section>
-
-
-                </article>
-              
-              
-              
-              
-              
-                <footer class="prev-next-footer d-print-none">
-                  
+</article>
+<footer class="prev-next-footer d-print-none">
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="green-contexts.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><span class="section-number">4.6. </span>Green Contexts</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="error-log-management.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><span class="section-number">4.8. </span>Error Log Management</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
+<a class="left-prev" href="green-contexts.html" title="上一页">4.6. 绿色上下文</a>
+<a class="right-next" href="error-log-management.html" title="下一页">4.8. 错误日志管理</a>
 </div>
-                </footer>
-              
-            </div>
-            
-            
-
-
-              
-                <dialog id="pst-secondary-sidebar-modal"></dialog>
-                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
-
-
-  <div class="sidebar-secondary-item">
-<div
-    id="pst-page-navigation-heading-2"
-    class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
+</footer>
+</div>
+<dialog id="pst-secondary-sidebar-modal"></dialog>
+<div class="bd-sidebar-secondary bd-toc" id="pst-secondary-sidebar"><div class="sidebar-secondary-items sidebar-secondary__inner">
+<div class="sidebar-secondary-item">
+<div class="page-toc tocsection onthispage" id="pst-page-navigation-heading-2">
+<i class="fa-solid fa-list"></i>本页内容
   </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#introduction">4.7.1. Introduction</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#change-history">4.7.2. Change History</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#requirements-for-lazy-loading">4.7.3. Requirements for Lazy Loading</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#cuda-runtime-version-requirement">4.7.3.1. CUDA Runtime Version Requirement</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#cuda-driver-version-requirement">4.7.3.2. CUDA Driver Version Requirement</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#compiler-requirements">4.7.3.3. Compiler Requirements</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#kernel-requirements">4.7.3.4. Kernel Requirements</a></li>
+<nav aria-labelledby="pst-page-navigation-heading-2" class="bd-toc-nav page-toc">
+<ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#introduction">4.7. 延迟加载</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#change-history">4.7. 延迟加载</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#requirements-for-lazy-loading">4.7. 延迟加载</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#cuda-runtime-version-requirement">4.7. 延迟加载</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#cuda-driver-version-requirement">4.7. 延迟加载</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#compiler-requirements">4.7. 延迟加载</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#kernel-requirements">4.7. 延迟加载</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#usage">4.7.4. Usage</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#enabling-disabling">4.7.4.1. Enabling &amp; Disabling</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#checking-if-lazy-loading-is-enabled-at-runtime">4.7.4.2. Checking if Lazy Loading is Enabled at Runtime</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#forcing-a-module-to-load-eagerly-at-runtime">4.7.4.3. Forcing a Module to Load Eagerly at Runtime</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#usage">4.7. 延迟加载</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#enabling-disabling">4.7. 延迟加载</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#checking-if-lazy-loading-is-enabled-at-runtime">4.7. 延迟加载</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#forcing-a-module-to-load-eagerly-at-runtime">4.7. 延迟加载</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#potential-hazards">4.7.5. Potential Hazards</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#impact-on-concurrent-kernel-execution">4.7.5.1. Impact on Concurrent Kernel Execution</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#large-memory-allocations">4.7.5.2. Large Memory Allocations</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#impact-on-performance-measurements">4.7.5.3. Impact on Performance Measurements</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#potential-hazards">4.7. 延迟加载</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#impact-on-concurrent-kernel-execution">4.7. 延迟加载</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#large-memory-allocations">4.7. 延迟加载</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="lazy-loading.html#impact-on-performance-measurements">4.7. 延迟加载</a></li>
 </ul>
 </li>
 </ul>
-  </nav></div>
-
+</nav></div>
 </div></div>
-              
-            
-
-          </div>
-          <footer class="bd-footer-content">
-            
-          </footer>
-        
-      </main>
-    </div>
-  </div>
-  
-
-  <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js"></script>
-
-
+</div>
+<footer class="bd-footer-content">
+</footer>
+</main>
+</div>
+</div>
+ 脚本在 &lt;body&gt; 之后加载，因此 DOM 不会被阻塞 
+<script defer="" src="../_static/scripts/bootstrap.js"></script>
+<script defer="" src="../_static/scripts/pydata-sphinx-theme.js"></script>
 <script type="text/javascript">if (typeof _satellite !== "undefined") {_satellite.pageBottom();}</script>
-
-  <footer class="bd-footer">
+<footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
-  
-    <div class="footer-items__start">
-      
-        <div class="footer-item">
+<div class="footer-items__start">
+<div class="footer-item">
 <a class="footer-brand logo" href="https://www.nvidia.com">
-  <img src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
-  <img src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+<img alt="NVIDIA" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg"/>
+<img alt="NVIDIA" class="logo__image only-dark" src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg"/>
 </a></div>
-      
-        <div class="footer-item">
-
+<div class="footer-item">
 <div class="footer-links">
-  
-  
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+<a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">隐私政策</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">您的隐私选择</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">服务条款</a>
    | 
   
   
@@ -740,47 +484,31 @@
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">公司政策</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">产品安全</a>
    | 
   
   
   
   <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
-  
-  
-  
 </div>
 </div>
-      
-        <div class="footer-item">
-
-
-
-
-  <p class="copyright">
+<div class="footer-item">
+<p class="copyright">
     
-      Copyright © 2007-2026, NVIDIA Corporation &amp; affiliates. All rights reserved.
+      版权所有 © 2007-2026，NVIDIA 公司及附属公司。版权所有。
       <br/>
-    
-  </p>
+</p>
 </div>
-      
-        <div class="footer-item"><p class="last-updated">
-  Last updated on Mar 04, 2026.
+<div class="footer-item"><p class="last-updated">
+  最后更新于 2026 年 3 月 4 日。
   <br/>
 </p></div>
-      
-    </div>
-  
-  
-  
 </div>
-
-  </footer>
-  </body>
-</html>
+</div>
+</footer>
+</body></html>

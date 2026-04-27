@@ -1,52 +1,37 @@
-
-
 <!DOCTYPE html>
-
-
-<html lang="en" data-content_root="../" >
-
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <title>4.18. CUDA Dynamic Parallelism &#8212; CUDA Programming Guide</title>
-  
-  
-  
-  <script data-cfasync="false">
+<html data-content_root="../" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>4.18. CUDA 动态并行 — CUDA 编程指南</title>
+<script data-cfasync="false">
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
-  </script>
-  <!--
-    this give us a css class that will be invisible only if js is disabled
-  -->
-  <noscript>
-    <style>
+  </script></head><body><p>
+
+    这给了我们一个 css 类，只有在禁用 js 时才会不可见
+  
+<noscript>
+<style>
       .pst-js-only { display: none !important; }
 
     </style>
-  </noscript>
-  
-  <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css" rel="stylesheet" />
-
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/tables.css" />
-  
-  <!-- So that users can add custom icons -->
-  <script src="../_static/scripts/fontawesome.js"></script>
-  <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js" />
-
-
-<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript"
-  data-document-language="true" charset="UTF-8" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5">
+</noscript>
+ 在其他 Sphinx 资源之前加载 
+<link href="../_static/styles/theme.css" rel="stylesheet"/>
+<link href="../_static/styles/pydata-sphinx-theme.css" rel="stylesheet"/>
+<link href="../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/styles/nvidia-sphinx-theme.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/custom.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/copybutton.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx-design.min.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/tables.css" rel="stylesheet" type="text/css"/>
+ 以便用户可以添加自定义图标 
+<script src="../_static/scripts/fontawesome.js"></script>
+ 我们稍后将完全加载的预加载脚本 
+<link as="script" href="../_static/scripts/bootstrap.js" rel="preload"/>
+<link as="script" href="../_static/scripts/pydata-sphinx-theme.js" rel="preload"/>
+<script charset="UTF-8" data-document-language="true" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5" src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript">
 </script>
 <script type="text/javascript">
   function OptanonWrapper() {
@@ -56,519 +41,329 @@
 </script>
 <script src="https://images.nvidia.com/aem-dam/Solutions/ot-js/ot-custom.js" type="text/javascript">
 </script>
-
-
-    <script rel="preload" src="../_static/modal-table.js"></script>
-    <script src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/scrollspy-patch.js"></script>
-    <script src="../_static/clipboard.min.js"></script>
-    <script src="../_static/copybutton.js"></script>
-    <script src="../_static/design-tabs.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '04-special-topics/dynamic-parallelism';</script>
-    <script src="../_static/version-patch.js"></script>
-
-<script type="text/javascript" src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
-
-    <link rel="icon" href="../_static/favicon.ico"/>
-
-    <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="4.19. CUDA Interoperability with APIs" href="graphics-interop.html" />
-    <link rel="prev" title="4.17. Extended GPU Memory" href="extended-gpu-memory.html" />
-
-<link rel="preload" as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png">
-
-
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="" />
-    <meta name="docbuild:last-update" content="Mar 04, 2026"/>
-
-
-  </head>
-
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
-
-  
-  
-  <div id="pst-skip-link" class="skip-link d-print-none"><a href="dynamic-parallelism.html#main-content">Skip to main content</a></div>
-
-<img src="https://www.nvidia.com/content/dam/1x1-00000000.png" width="1" height="1" style="display:none;" alt="country_code">
-
-
-  
-  <div id="pst-scroll-pixel-helper"></div>
-  
-  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
-    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
-  
-  <dialog id="pst-search-dialog">
-    
-<form class="bd-search d-flex align-items-center"
-      action="../search.html"
-      method="get">
-  <i class="fa-solid fa-magnifying-glass"></i>
-  <input type="search"
-         class="form-control"
-         name="q"
-         placeholder="Search the docs ..."
-         aria-label="Search the docs ..."
-         autocomplete="off"
-         autocorrect="off"
-         autocapitalize="off"
-         spellcheck="false"/>
-  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+<script rel="preload" src="../_static/modal-table.js"></script>
+<script src="../_static/documentation_options.js"></script>
+<script src="../_static/doctools.js"></script>
+<script src="../_static/sphinx_highlight.js"></script>
+<script src="../_static/scrollspy-patch.js"></script>
+<script src="../_static/clipboard.min.js"></script>
+<script src="../_static/copybutton.js"></script>
+<script src="../_static/design-tabs.js"></script>
+<script>DOCUMENTATION_OPTIONS.pagename = '04-special-topics/dynamic-parallelism';</script>
+<script src="../_static/version-patch.js"></script>
+<script src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js" type="text/javascript"></script>
+<link href="../_static/favicon.ico" rel="icon"/>
+<link href="../genindex.html" rel="index" title="索引"/>
+<link href="../search.html" rel="search" title="搜索"/>
+<link href="graphics-interop.html" rel="next" title="4.19. CUDA 与 API 的互操作"/>
+<link href="extended-gpu-memory.html" rel="prev" title="4.17. 扩展 GPU 内存"/>
+<link as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png" rel="preload"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="en" name="docsearch:language"/>
+<meta content="" name="docsearch:version"/>
+<meta content="Mar 04, 2026" name="docbuild:last-update"/>
+</p>
+<div class="skip-link d-print-none" id="pst-skip-link"><a href="dynamic-parallelism.html#main-content">跳到主要内容</a></div>
+<img alt="country_code" height="1" src="https://www.nvidia.com/content/dam/1x1-00000000.png" style="display:none;" width="1"/>
+<div id="pst-scroll-pixel-helper"></div>
+<button class="btn rounded-pill" id="pst-back-to-top" type="button">
+<i class="fa-solid fa-arrow-up"></i>返回顶部</button>
+<dialog id="pst-search-dialog">
+<form action="../search.html" class="bd-search d-flex align-items-center" method="get">
+<i class="fa-solid fa-magnifying-glass"></i>
+<input aria-label="搜索文档..." autocapitalize="off" autocomplete="off" autocorrect="off" class="form-control" name="q" placeholder="搜索文档..." spellcheck="false" type="search"/>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
 </form>
-  </dialog>
-
-  <div class="pst-async-banner-revealer d-none">
-  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</dialog>
+<div class="pst-async-banner-revealer d-none">
+<aside aria-label="版本警告" class="d-none d-print-none" id="bd-header-version-warning"></aside>
 </div>
-
-  
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
-    <span class="fa-solid fa-bars"></span>
-  </button>
-  
-  
-  <div class="col-lg-3 navbar-header-items__start">
-    
-      <div class="navbar-item">
-
-  
-    
-  
-
+<button aria-label="站点导航" class="pst-navbar-icon sidebar-toggle primary-toggle">
+<span class="fa-solid fa-bars"></span>
+</button>
+<div class="col-lg-3 navbar-header-items__start">
+<div class="navbar-item">
 <a class="navbar-brand logo" href="../contents.html">
-  
-  
-  
-  
-  
-    
-    
-      
-    
-    
-    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
-    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
-  
-  
-    <p class="title logo__title">CUDA Programming Guide</p>
-  
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg"/>
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-dark pst-js-only" src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg"/>
+<p class="title logo__title">CUDA 编程指南</p>
 </a></div>
-    
-  </div>
-  
-  <div class="col-lg-9 navbar-header-items">
-    
-    <div class="me-auto navbar-header-items__center">
-      
-        <div class="navbar-item">
-
-
+</div>
+<div class="col-lg-9 navbar-header-items">
+<div class="me-auto navbar-header-items__center">
+<div class="navbar-item">
 <div>
-  <ul class="bd-navbar-elements navbar-nav">
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>v13.2 |</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>|</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
-      
-    </li>
-  
-  </ul>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item pst-header-nav-item">
+<span>v13.2 |</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+</li>
+<li class="nav-item pst-header-nav-item">
+<span>|</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">warp</a>
+</li>
+</ul>
 </div>
 </div>
-      
-    </div>
-    
-    
-    <div class="navbar-header-items__end">
-      
-        <div class="navbar-item navbar-persistent--container">
-          
-
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
- <i class="fa-solid fa-magnifying-glass"></i>
- <span class="search-button__default-text">Search</span>
- <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</div>
+<div class="navbar-header-items__end">
+<div class="navbar-item navbar-persistent--container">
+<button aria-label="warp" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="warp">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">warp</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
 </button>
-        </div>
-      
-      
-        <div class="navbar-item">
-
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</div>
+<div class="navbar-item">
+<button aria-label="色彩模式" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="系统设置"></i>
 </button></div>
-      
-    </div>
-    
-  </div>
-  
-  
-    <div class="navbar-persistent--mobile">
-
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
- <i class="fa-solid fa-magnifying-glass"></i>
- <span class="search-button__default-text">Search</span>
- <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-</button>
-    </div>
-  
-
-  
-    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
-      <span class="fa-solid fa-outdent"></span>
-    </button>
-  
 </div>
-
-    </header>
-  
-
-  <div class="bd-container">
-    <div class="bd-container__inner bd-page-width">
-      
-      
-      
-      <dialog id="pst-primary-sidebar-modal"></dialog>
-      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
-        
-
-
-
-  
-    
-  
-
+</div>
+<div class="navbar-persistent--mobile">
+<button aria-label="warp" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="warp">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">warp</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+</div>
+<button aria-label="切换侧边栏" class="pst-navbar-icon sidebar-toggle secondary-toggle">
+<span class="fa-solid fa-outdent"></span>
+</button>
+</div>
+</header>
+<div class="bd-container">
+<div class="bd-container__inner bd-page-width">
+<dialog id="pst-primary-sidebar-modal"></dialog>
+<div class="bd-sidebar-primary bd-sidebar" id="pst-primary-sidebar">
 <a class="navbar-brand logo" href="../contents.html">
-  
-  
-  
-  
-  
-    
-    
-      
-    
-    
-    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
-    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
-  
-  
-    <p class="title logo__title">CUDA Programming Guide</p>
-  
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg"/>
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-dark pst-js-only" src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg"/>
+<p class="title logo__title">CUDA 编程指南</p>
 </a>
-
-
-  
-  <div class="sidebar-header-items sidebar-primary__section">
-    
-    
-      <div class="sidebar-header-items__center">
-        
-          
-          
-            <div class="navbar-item">
-
-
+<div class="sidebar-header-items sidebar-primary__section">
+<div class="sidebar-header-items__center">
+<div class="navbar-item">
 <div>
-  <ul class="bd-navbar-elements navbar-nav">
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>v13.2 |</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>|</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
-      
-    </li>
-  
-  </ul>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item pst-header-nav-item">
+<span>v13.2 |</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+</li>
+<li class="nav-item pst-header-nav-item">
+<span>|</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">warp</a>
+</li>
+</ul>
 </div>
 </div>
-          
-        
-      </div>
-    
-    
-    
-      <div class="sidebar-header-items__end">
-        
-          <div class="navbar-item">
-
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</div>
+<div class="sidebar-header-items__end">
+<div class="navbar-item">
+<button aria-label="色彩模式" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="系统设置"></i>
 </button></div>
-        
-      </div>
-    
-  </div>
-  
-    <div class="sidebar-primary-items__start sidebar-primary__section">
-        <div class="sidebar-primary-item">
-
-
-
-<nav class="bd-docs-nav bd-links"
-     aria-label="Table of Contents">
-  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
-  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA Programming Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. Introduction to CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../01-introduction/introduction.html">1.1. Introduction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../01-introduction/programming-model.html">1.2. Programming Model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../01-introduction/cuda-platform.html">1.3. The CUDA platform</a></li>
+</div>
+</div>
+<div class="sidebar-primary-items__start sidebar-primary__section">
+<div class="sidebar-primary-item">
+<nav aria-label="目录" class="bd-docs-nav bd-links">
+<p aria-level="1" class="bd-links__title" role="heading">目录</p>
+<div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA 编程指南</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. CUDA 简介</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/introduction.html">1.1. 引言</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/programming-model.html">1.2. 编程模型</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/cuda-platform.html">1.3. CUDA 平台</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part2.html">2. Programming GPUs in CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html">2.1. Intro to CUDA C++</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/writing-cuda-kernels.html">2.2. Writing CUDA SIMT Kernels</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/asynchronous-execution.html">2.3. Asynchronous Execution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/understanding-memory.html">2.4. Unified and System Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/nvcc.html">2.5. NVCC: The NVIDIA CUDA Compiler</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part2.html">2. 使用 CUDA 进行 GPU 编程</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html">2.1. CUDA C++ 入门</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/writing-cuda-kernels.html">2.2. 编写 CUDA SIMT 内核</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/asynchronous-execution.html">2.3. 异步执行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/understanding-memory.html">2.4. 统一内存与系统内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/nvcc.html">2.5. NVCC：NVIDIA CUDA 编译器</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. Advanced CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. Advanced CUDA APIs and Features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. Advanced Kernel Programming</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. The CUDA Driver API</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. Programming Systems with Multiple GPUs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. A Tour of CUDA Features</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. 高级 CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. 高级 CUDA API 与特性</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. 高级内核编程</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. CUDA Driver API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. 多 GPU 系统编程</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. CUDA 特性概览</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="../part4.html">4. CUDA Features</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="unified-memory.html">4.1. Unified Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cuda-graphs.html">4.2. CUDA Graphs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="stream-ordered-memory-allocation.html">4.3. Stream-Ordered Memory Allocator</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cooperative-groups.html">4.4. Cooperative Groups</a></li>
-<li class="toctree-l3"><a class="reference internal" href="programmatic-dependent-launch.html">4.5. Programmatic Dependent Launch and Synchronization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="green-contexts.html">4.6. Green Contexts</a></li>
-<li class="toctree-l3"><a class="reference internal" href="lazy-loading.html">4.7. Lazy Loading</a></li>
-<li class="toctree-l3"><a class="reference internal" href="error-log-management.html">4.8. Error Log Management</a></li>
-<li class="toctree-l3"><a class="reference internal" href="async-barriers.html">4.9. Asynchronous Barriers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pipelines.html">4.10. Pipelines</a></li>
-<li class="toctree-l3"><a class="reference internal" href="async-copies.html">4.11. Asynchronous Data Copies</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cluster-launch-control.html">4.12. Work Stealing with Cluster Launch Control</a></li>
-<li class="toctree-l3"><a class="reference internal" href="l2-cache-control.html">4.13. L2 Cache Control</a></li>
-<li class="toctree-l3"><a class="reference internal" href="memory-sync-domains.html">4.14. Memory Synchronization Domains</a></li>
-<li class="toctree-l3"><a class="reference internal" href="inter-process-communication.html">4.15. Interprocess Communication</a></li>
-<li class="toctree-l3"><a class="reference internal" href="virtual-memory-management.html">4.16. Virtual Memory Management</a></li>
-<li class="toctree-l3"><a class="reference internal" href="extended-gpu-memory.html">4.17. Extended GPU Memory</a></li>
-<li class="toctree-l3 current active"><a class="current reference internal" href="dynamic-parallelism.html#">4.18. CUDA Dynamic Parallelism</a></li>
-<li class="toctree-l3"><a class="reference internal" href="graphics-interop.html">4.19. CUDA Interoperability with APIs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="driver-entry-point-access.html">4.20. Driver Entry Point Access</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../part4.html">4. CUDA 特性</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="unified-memory.html">4.1. 统一内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda-graphs.html">4.2. CUDA Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stream-ordered-memory-allocation.html">4.3. 流有序内存分配器</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cooperative-groups.html">4.4. 协作组</a></li>
+<li class="toctree-l3"><a class="reference internal" href="programmatic-dependent-launch.html">4.5. 程序化依赖启动与同步</a></li>
+<li class="toctree-l3"><a class="reference internal" href="green-contexts.html">4.6. 绿色上下文</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lazy-loading.html">4.7. 延迟加载</a></li>
+<li class="toctree-l3"><a class="reference internal" href="error-log-management.html">4.8. 错误日志管理</a></li>
+<li class="toctree-l3"><a class="reference internal" href="async-barriers.html">4.9. 异步屏障</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pipelines.html">4.10. 流水线</a></li>
+<li class="toctree-l3"><a class="reference internal" href="async-copies.html">4.11. 异步数据拷贝</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cluster-launch-control.html">4.12. 使用簇启动控制进行工作窃取</a></li>
+<li class="toctree-l3"><a class="reference internal" href="l2-cache-control.html">4.13. L2 缓存控制</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory-sync-domains.html">4.14. 内存同步域</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inter-process-communication.html">4.15. 进程间通信</a></li>
+<li class="toctree-l3"><a class="reference internal" href="virtual-memory-management.html">4.16. 虚拟内存管理</a></li>
+<li class="toctree-l3"><a class="reference internal" href="extended-gpu-memory.html">4.17. 扩展 GPU 内存</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="dynamic-parallelism.html#">4.18. CUDA 动态并行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graphics-interop.html">4.19. CUDA 与 API 的互操作</a></li>
+<li class="toctree-l3"><a class="reference internal" href="driver-entry-point-access.html">4.20. 驱动入口点访问</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part5.html">5. Technical Appendices</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/compute-capabilities.html">5.1. Compute Capabilities</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/environment-variables.html">5.2. CUDA Environment Variables</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-support.html">5.3. C++ Language Support</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-extensions.html">5.4. C/C++ Language Extensions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/mathematical-functions.html">5.5. Floating-Point Computation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/device-callable-apis.html">5.6. Device-Callable APIs and Intrinsics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-memory-model.html">5.7. CUDA C++ Memory Model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-execution-model.html">5.8. CUDA C++ Execution model</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part5.html">5. 技术附录</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/compute-capabilities.html">5.1. 计算能力</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/environment-variables.html">5.2. CUDA 环境变量</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-support.html">5.3. C++ 语言支持</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-extensions.html">5.4. C/C++ 语言扩展</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/mathematical-functions.html">5.5. 浮点计算</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/device-callable-apis.html">5.6. 设备端可调用 API 与内建函数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-memory-model.html">5.7. CUDA C++ 内存模型</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-execution-model.html">5.8. CUDA C++ 执行模型</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. Notices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. 声明</a></li>
 </ul>
 </details></li>
 </ul>
 </div>
 </nav></div>
-    </div>
-  
-  
-  <div class="sidebar-primary-items__end sidebar-primary__section">
-  </div>
-
-
-
-      </div>
-      
-      <main id="main-content" class="bd-main" role="main">
-        
-        
-          <div class="bd-content">
-            <div class="bd-article-container">
-              
-              <div class="bd-header-article d-print-none">
+</div>
+<div class="sidebar-primary-items__end sidebar-primary__section">
+</div>
+</div>
+<main class="bd-main" id="main-content" role="main">
+<div class="bd-content">
+<div class="bd-article-container">
+<div class="bd-header-article d-print-none">
 <div class="header-article-items header-article__inner">
-  
-    <div class="header-article-items__start">
-      
-        <div class="header-article-item">
-
+<div class="header-article-items__start">
+<div class="header-article-item">
 <nav aria-label="Breadcrumb" class="d-print-none">
-  <ul class="bd-breadcrumbs">
-    
-    <li class="breadcrumb-item breadcrumb-home">
-      <a href="../contents.html" class="nav-link" aria-label="Home">
-        <i class="fa-solid fa-home"></i>
-      </a>
-    </li>
-    
-    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">CUDA Programming Guide</a></li>
-    
-    
-    <li class="breadcrumb-item"><a href="../part4.html" class="nav-link"><span class="section-number">4. </span>CUDA Features</a></li>
-    
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">4.18. </span>CUDA Dynamic Parallelism</span></li>
-  </ul>
+<ul class="bd-breadcrumbs">
+<li class="breadcrumb-item breadcrumb-home">
+<a aria-label="Home" class="nav-link" href="../contents.html">目录</a>
+</li>
+<li class="breadcrumb-item"><a class="nav-link" href="../index.html">CUDA 编程指南</a></li>
+<li class="breadcrumb-item"><a class="nav-link" href="../part4.html">4. CUDA 特性</a></li>
+<li aria-current="page" class="breadcrumb-item active"><span class="ellipsis"><span class="section-number">4.18. </span>CUDA 动态并行性</span></li>
+</ul>
 </nav>
 </div>
-      
-    </div>
-  
-  
-    <div class="header-article-items__end">
-      
-        <div class="header-article-item">
+</div>
+<div class="header-article-items__end">
 <div class="header-article-item">
-  <div class="d-flex justify-content-end w-100">
-    <a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">Is this page helpful?</a>
-  </div>
+<div class="header-article-item">
+<div class="d-flex justify-content-end w-100">
+<a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">此页面有帮助吗？</a>
+</div>
 </div></div>
-      
-    </div>
-  
 </div>
 </div>
-              
-              
-              
-                
+</div>
 <div id="searchbox"></div>
-                <article class="bd-article">
-                  
-  <section id="cuda-dynamic-parallelism">
-<span id="id1"></span><h1><span class="section-number">4.18. </span>CUDA Dynamic Parallelism<a class="headerlink" href="dynamic-parallelism.html#cuda-dynamic-parallelism" title="Link to this heading">#</a></h1>
+<article class="bd-article">
+<section id="cuda-dynamic-parallelism">
+<span id="id1"></span><h1>4.18. CUDA 动态并行<a class="headerlink" href="dynamic-parallelism.html#cuda-dynamic-parallelism" title="跳转到此标题">#</a></h1>
 <section id="introduction">
-<span id="introduction-cuda-dynamic-parallelism"></span><h2><span class="section-number">4.18.1. </span>Introduction<a class="headerlink" href="dynamic-parallelism.html#introduction" title="Link to this heading">#</a></h2>
+<span id="introduction-cuda-dynamic-parallelism"></span><h2><span class="section-number">4.18.1. </span>引言<a class="headerlink" href="dynamic-parallelism.html#introduction" title="跳转到此标题">#</a></h2>
 <section id="overview">
-<h3><span class="section-number">4.18.1.1. </span>Overview<a class="headerlink" href="dynamic-parallelism.html#overview" title="Link to this heading">#</a></h3>
-<p>CUDA dynamic parallelism - often abbreviated CDP - is a feature of the CUDA programming model that enables code running on the GPU to create new GPU work. That is, new work can be added to the GPU in the form of additional kernel launches from device code already running on the GPU. This feature can reduce the need to transfer execution control and data between host and device, as launch configuration decisions can be made at runtime by threads executing on the device.</p>
-<p>Data-dependent parallel work can be generated by a kernel at run-time. Before CDP was added to CUDA, some algorithms and programming patterns required modifications to eliminate recursion, irregular loop structure, or other constructs that do not fit a flat, single-level of parallelism. These program structures may be expressed more naturally using CUDA dynamic parallelism.</p>
+<h3><span class="section-number">4.18.1.1. </span>概述<a class="headerlink" href="dynamic-parallelism.html#overview" title="跳转到此标题">#</a></h3>
+<p>CUDA 动态并行性（通常缩写为 CDP）是 CUDA 编程模型的一项功能，它使在 GPU 上运行的代码能够创建新的 GPU 工作。也就是说，新工作可以以从 GPU 上运行的设备代码启动额外内核的形式添加到 GPU。此功能可以减少在主机和设备之间传输执行控制和数据的需要，因为启动配置决策可以由在设备上执行的线程在运行时做出。</p>
+<p>数据相关的并行工作可以由内核在运行时生成。在将 CDP 添加到 CUDA 之前，需要修改一些算法和编程模式，以消除递归、不规则循环结构或其他不适合平面、单级并行性的构造。使用 CUDA 动态并行性可以更自然地表达这些程序结构。</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This section documents the updated version of CUDA Dynamic Parallelism, sometimes called CDP2, which is the default in CUDA 12.0 and later. CDP2 is the only version of CUDA dynamic parallelism available on devices of CC 9.0 and higher. Developers can still opt in to the legacy CUDA Dynamic Parallelism, CDP1, for devices of CC lower than 9.0 with the compiler argument <cite>-DCUDA_FORCE_CDP1_IF_SUPPORTED</cite>. CDP1 documentation can be found in <a class="reference external" href="https://developer.nvidia.com/cuda-toolkit-archive">Legacy versions of the CUDA Programming Guide</a>. CDP1 is slated for removal from a future version of CUDA.</p>
+<p class="admonition-title">注</p>
+<p>本节介绍 CUDA 动态并行性的更新版本，有时称为 CDP2，它是 CUDA 12.0 及更高版本中的默认版本。 CDP2 是 CC 9.0 及更高版本设备上可用的唯一 CUDA 动态并行版本。对于低于 9.0 的 CC 设备，开发人员仍然可以通过编译器参数选择使用旧版 CUDA 动态并行机制 CDP1 <cite>-DCUDA_FORCE_CDP1_IF_SUPPORTED</cite>。 CDP1 文档可以在以下位置找到 <a class="reference external" href="https://developer.nvidia.com/cuda-toolkit-archive">旧版本的 CUDA 编程指南</a>。 CDP1 预计会从 CUDA 的未来版本中删除。</p>
 </div>
 </section>
 </section>
 <section id="execution-environment">
-<span id="execution-environment-cdp2"></span><h2><span class="section-number">4.18.2. </span>Execution Environment<a class="headerlink" href="dynamic-parallelism.html#execution-environment" title="Link to this heading">#</a></h2>
-<p>Dynamic parallelism in CUDA allows GPU threads to configure, launch, and implicitly synchronize new grids. A grid is an instance of a kernel launch, including the specific shape of the thread blocks and the grid of thread blocks. The distinction between a kernel function itself and the specific invocation of that kernel, i.e. a grid, is important to note in the following sections.</p>
+<span id="execution-environment-cdp2"></span><h2><span class="section-number">4.18.2. </span>执行环境<a class="headerlink" href="dynamic-parallelism.html#execution-environment" title="跳转到此标题">#</a></h2>
+<p>CUDA 中的动态并行性允许 GPU 线程配置、启动和隐式同步新网格。网格是内核启动的一个实例，包括线程块的具体形状和线程块的网格。在以下各节中，需要重点注意内核函数本身和该内核的特定调用（即网格）之间的区别。</p>
 <section id="parent-and-child-grids">
-<span id="parent-and-child-grids-cdp2"></span><h3><span class="section-number">4.18.2.1. </span>Parent and Child Grids<a class="headerlink" href="dynamic-parallelism.html#parent-and-child-grids" title="Link to this heading">#</a></h3>
-<p>A device thread that configures and launches a new grid belongs to the parent grid. The new grid that is created by the invocation is called a child grid.</p>
-<p>The invocation and completion of child grids is properly nested, meaning that the parent grid is not considered complete until all child grids created by its threads have completed, and the runtime guarantees an implicit synchronization between the parent and child.</p>
+<span id="parent-and-child-grids-cdp2"></span><h3><span class="section-number">4.18.2.1. </span>父子网格<a class="headerlink" href="dynamic-parallelism.html#parent-and-child-grids" title="跳转到此标题">#</a></h3>
+<p>配置和启动新网格的设备线程属于父网格。通过调用创建的新网格称为子网格。</p>
+<p>子网格的调用和完成是正确嵌套的，这意味着父网格在其线程创建的所有子网格都完成之前才被视为完成，并且运行时保证父网格和子网格之间的隐式同步。</p>
 <figure class="align-center" id="parent-child-launch-nesting-figure">
-<img alt="Parent-Child Launch Nesting" src="../_images/parent-child-launch-nesting.png" />
+<img alt="亲子发射筑巢" src="../_images/parent-child-launch-nesting.png"/>
 <figcaption>
-<p><span class="caption-number">Figure 54 </span><span class="caption-text">Parent-Child Launch Nesting</span><a class="headerlink" href="dynamic-parallelism.html#parent-child-launch-nesting-figure" title="Link to this image">#</a></p>
+<p><span class="caption-number">图54 </span><span class="caption-text">亲子发射筑巢</span><a class="headerlink" href="dynamic-parallelism.html#parent-child-launch-nesting-figure" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
 </section>
 <section id="scope-of-cuda-primitives">
-<span id="scope-of-cuda-primitives-cdp2"></span><h3><span class="section-number">4.18.2.2. </span>Scope of CUDA Primitives<a class="headerlink" href="dynamic-parallelism.html#scope-of-cuda-primitives" title="Link to this heading">#</a></h3>
-<p>CUDA Dynamic Parallelism relies on the <a class="reference internal" href="../05-appendices/device-callable-apis.html#cuda-device-runtime"><span class="std std-ref">CUDA Device Runtime</span></a>, which enables calling a limited set of APIs which are syntactically similar to the CUDA Runtime API, but available in device code. The behavior of the device runtime APIs are similar to their host counterparts, but there are some differences. These differences are captured in the table in section <a class="reference internal" href="../05-appendices/device-callable-apis.html#device-runtime-api-reference"><span class="std std-ref">API Reference</span></a>.</p>
-<p>On both host and device, the CUDA runtime offers an API for launching kernels and for tracking dependencies between launches via streams and events. On the device, launched kernels and CUDA objects are visible to all threads in the invoking grid. This means, for example, that a stream may be created by one thread and used by any other thread in the same grid. However, CUDA objects such as streams and events which were created on by device API calls are only valid within the grid where they were created.</p>
+<span id="scope-of-cuda-primitives-cdp2"></span><h3><span class="section-number">4.18.2.2. </span>CUDA 基元的范围<a class="headerlink" href="dynamic-parallelism.html#scope-of-cuda-primitives" title="跳转到此标题">#</a></h3>
+<p>CUDA 动态并行性依赖于 <a class="reference internal" href="../05-appendices/device-callable-apis.html#cuda-device-runtime"><span class="std std-ref">CUDA 设备运行时</span></a>，它允许调用一组有限的 API，这些 API 在语法上类似于 CUDA 运行时 API，但在设备代码中可用。设备运行时 API 的行为与其主机对应的 API 类似，但也存在一些差异。这些差异在章节中的表格中得到了体现 <a class="reference internal" href="../05-appendices/device-callable-apis.html#device-runtime-api-reference"><span class="std std-ref">API参考</span></a>.</p>
+<p>在主机和设备上，CUDA 运行时都提供了一个 API，用于启动内核并通过流和事件跟踪启动之间的依赖关系。在设备上，启动的内核和 CUDA 对象对于调用网格中的所有线程都是可见的。例如，这意味着流可以由一个线程创建并由同一网格中的任何其他线程使用。但是，由设备 API 调用创建的 CUDA 对象（例如流和事件）仅在创建它们的网格内有效。</p>
 </section>
 <section id="streams-and-events">
-<span id="streams-and-events-cdp2"></span><h3><span class="section-number">4.18.2.3. </span>Streams and Events<a class="headerlink" href="dynamic-parallelism.html#streams-and-events" title="Link to this heading">#</a></h3>
-<p>CUDA <em>Streams</em> and <em>Events</em> allow control over dependencies between kernel launches: kernels launched into the same stream execute in-order, and events may be used to create dependencies between streams. Streams and events created on the device serve this exact same purpose.</p>
-<p>Streams and events created within a grid exist within grid scope, but have undefined behavior when used outside of the grid where they were created. As described above, all work launched by a grid is implicitly synchronized when the grid exits; work launched into streams is included in this, with all dependencies resolved appropriately. The behavior of operations on a stream that has been modified outside of grid scope is undefined.</p>
-<p>Streams and events created on the host have undefined behavior when used within any kernel, just as streams and events created by a parent grid have undefined behavior if used within a child grid.</p>
+<span id="streams-and-events-cdp2"></span><h3><span class="section-number">4.18.2.3. </span>直播和活动<a class="headerlink" href="dynamic-parallelism.html#streams-and-events" title="跳转到此标题">#</a></h3>
+<p>CUDA <em>Streams</em> 或 <em>事件</em> 允许控制内核启动之间的依赖关系：启动到同一流中的内核按顺序执行，并且事件可用于创建流之间的依赖关系。在设备上创建的流和事件具有完全相同的目的。</p>
+<p>在网格内创建的流和事件存在于网格范围内，但在创建它们的网格之外使用时具有未定义的行为。如上所述，当网格退出时，网格启动的所有工作都会隐式同步；启动到流中的工作包含在其中，所有依赖项都得到了适当的解决。在网格范围之外修改的流上的操作的行为是未定义的。</p>
+<p>在主机上创建的流和事件在任何内核中使用时都具有未定义的行为，就像父网格创建的流和事件在子网格中使用时具有未定义的行为一样。</p>
 </section>
 <section id="ordering-and-concurrency">
-<span id="ordering-and-concurrency-cdp2"></span><h3><span class="section-number">4.18.2.4. </span>Ordering and Concurrency<a class="headerlink" href="dynamic-parallelism.html#ordering-and-concurrency" title="Link to this heading">#</a></h3>
-<p>The ordering of kernel launches from the device runtime follows CUDA Stream ordering semantics. Within a grid, all kernel launches into the same stream (with the exception of <a class="reference internal" href="../05-appendices/device-callable-apis.html#fire-and-forget-stream"><span class="std std-ref">The Fire-and-Forget Stream</span></a>) are executed in-order. With multiple threads in the same grid launching into the same stream, the ordering within the stream is dependent on the thread scheduling within the grid, which may be controlled with synchronization primitives such as <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code>.</p>
-<p>Note that while named streams are shared by all threads within a grid, the implicit <em>NULL</em> stream is only shared by all threads within a thread block. If multiple threads in a thread block launch into the implicit stream, then these launches will be executed in-order. If threads in different thread blocks launch into the implicit stream, these launches may be executed concurrently. If concurrency is desired for launches from multiple threads within a thread block, explicit named streams should be used.</p>
-<p>The device runtime introduces no new concurrency guarantees within the CUDA execution model. That is, there is no guarantee of concurrent execution between any number of different thread blocks on a device.</p>
-<p>The lack of concurrency guarantee extends to a parent grid and their child grids. When a parent grid launches a child grid, the child may start to execute once stream dependencies are satisfied and hardware resources are available, but is not guaranteed to begin execution until the parent grid reaches an implicit synchronization point.</p>
-<p>Concurrency may vary as a function of device configuration, application workload, and runtime scheduling. It is therefore unsafe to depend on any concurrency between different thread blocks.</p>
+<span id="ordering-and-concurrency-cdp2"></span><h3><span class="section-number">4.18.2.4. </span>排序和并发<a class="headerlink" href="dynamic-parallelism.html#ordering-and-concurrency" title="跳转到此标题">#</a></h3>
+<p>从设备运行时启动内核的顺序遵循 CUDA Stream 排序语义。在网格内，所有内核都启动到同一个流中（除了 <a class="reference internal" href="../05-appendices/device-callable-apis.html#fire-and-forget-stream"><span class="std std-ref">即发即忘流</span></a>）按顺序执行。当同一网格中的多个线程启动到同一流中时，流内的排序取决于网格内的线程调度，这可以通过同步原语进行控制，例如 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code>.</p>
+<p>请注意，虽然命名流由网格内的所有线程共享，但隐式 <em>NULL</em> 流仅由线程块内的所有线程共享。如果线程块中的多个线程启动到隐式流中，则这些启动将按顺序执行。如果不同线程块中的线程启动到隐式流中，则这些启动可以并发执行。如果需要从线程块内的多个线程启动并发，则应使用显式命名流。</p>
+<p>设备运行时在 CUDA 执行模型中没有引入新的并发保证。也就是说，不能保证设备上任意数量的不同线程块之间的并发执行。</p>
+<p>缺乏并发保证扩展到父网格及其子网格。当父网格启动子网格时，一旦满足流依赖性并且硬件资源可用，子网格就可以开始执行，但不保证在父网格到达隐式同步点之前开始执行。</p>
+<p>并发性可能因设备配置、应用程序工作负载和运行时调度而异。因此，依赖不同线程块之间的任何并发性都是不安全的。</p>
 </section>
 </section>
 <section id="memory-coherence-and-consistency">
-<span id="cdp-memory-coherence-and-consistency"></span><h2><span class="section-number">4.18.3. </span>Memory Coherence and Consistency<a class="headerlink" href="dynamic-parallelism.html#memory-coherence-and-consistency" title="Link to this heading">#</a></h2>
-<p>Parent and child grids share the same global and constant memory storage, but have distinct local and shared memory. The following table shows which memory spaces allow parent and child to access via the same pointers. Child grids can never access the local or shared memory of parent grids, nor can parent grids access local or shared memory of child grids.</p>
+<span id="cdp-memory-coherence-and-consistency"></span><h2><span class="section-number">4.18.3. </span>内存相干性与一致性<a class="headerlink" href="dynamic-parallelism.html#memory-coherence-and-consistency" title="跳转到此标题">#</a></h2>
+<p>父网格和子网格共享相同的全局和常量内存存储，但具有不同的本地和共享内存。下表显示了哪些内存空间允许父级和子级通过相同的指针访问。子网格永远不能访问父网格的本地或共享内存，父网格也不能访问子网格的本地或共享内存。</p>
 <div class="pst-scrollable-table-container"><table class="table-no-stripes table" id="id16">
-<caption><span class="caption-number">Table 26 </span><span class="caption-text">Dynamic Parallelism: Memory Scope Accessibility Between Parent and Child Grids</span><a class="headerlink" href="dynamic-parallelism.html#id16" title="Link to this table">#</a></caption>
+<caption><span class="caption-number">表26 </span><span class="caption-text">动态并行性：父子网格之间的内存范围可访问性</span><a class="headerlink" href="dynamic-parallelism.html#id16" title="跳转到此标题">#</a></caption>
 <thead>
-<tr class="row-odd"><th class="head"><p>Memory Space</p></th>
-<th class="head"><p>Parent/Child use same pointers?</p></th>
+<tr class="row-odd"><th class="head"><p>内存空间</p></th>
+<th class="head"><p>父/子使用相同的指针？</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>Global Memory</p></td>
-<td><p>Yes</p></td>
+<tr class="row-even"><td><p>全局内存</p></td>
+<td><p>—</p></td>
 </tr>
-<tr class="row-odd"><td><p>Mapped Memory</p></td>
-<td><p>Yes</p></td>
+<tr class="row-odd"><td><p>映射内存</p></td>
+<td><p>—</p></td>
 </tr>
-<tr class="row-even"><td><p>Local Memory</p></td>
-<td><p>No</p></td>
+<tr class="row-even"><td><p>本地内存</p></td>
+<td><p>—</p></td>
 </tr>
-<tr class="row-odd"><td><p>Shared Memory</p></td>
-<td><p>No</p></td>
+<tr class="row-odd"><td><p>共享内存</p></td>
+<td><p>—</p></td>
 </tr>
-<tr class="row-even"><td><p>Texture Memory</p></td>
-<td><p>Yes (read-only)</p></td>
+<tr class="row-even"><td><p>纹理内存</p></td>
+<td><p>是（只读）</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <section id="global-memory">
-<span id="global-memory-cdp2"></span><h3><span class="section-number">4.18.3.1. </span>Global Memory<a class="headerlink" href="dynamic-parallelism.html#global-memory" title="Link to this heading">#</a></h3>
-<p>Parent and child grids have coherent access to global memory, with weak consistency guarantees between child and parent. There is only one point of time in the execution of a child grid when its view of memory is fully consistent with the parent thread: at the point when the child grid is invoked by the parent.</p>
-<p>All global memory operations in the parent thread prior to the child grid’s invocation are visible to the child grid. With the removal of <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code>, it is no longer possible to access the modifications made by the threads in the child grid from the parent grid. The only way to access the modifications made by the threads in the child grid before the parent grid exits is via a kernel launched into the <code class="docutils literal notranslate"><span class="pre">cudaStreamTailLaunch</span></code> stream.</p>
-<p>In the following example, the child grid executing <code class="docutils literal notranslate"><span class="pre">child_launch</span></code> is only guaranteed to see the modifications to <code class="docutils literal notranslate"><span class="pre">data</span></code> made before the child grid was launched. Since thread 0 of the parent is performing the launch, the child will be consistent with the memory seen by thread 0 of the parent. Due to the first <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> call, the child will see <code class="docutils literal notranslate"><span class="pre">data[0]=0</span></code>, <code class="docutils literal notranslate"><span class="pre">data[1]=1</span></code>, …, <code class="docutils literal notranslate"><span class="pre">data[255]=255</span></code> (without the <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> call, only <code class="docutils literal notranslate"><span class="pre">data[0]=0</span></code> would be guaranteed to be seen by the child). The child grid is only guaranteed to return at an implicit synchronization. This means that the modifications made by the threads in the child grid are never guaranteed to become available to the parent grid. To access modifications made by <code class="docutils literal notranslate"><span class="pre">child_launch</span></code>, a <code class="docutils literal notranslate"><span class="pre">tail_launch</span></code> kernel is launched into the <code class="docutils literal notranslate"><span class="pre">cudaStreamTailLaunch</span></code> stream.</p>
+<span id="global-memory-cdp2"></span><h3><span class="section-number">4.18.3.1. </span>全局内存<a class="headerlink" href="dynamic-parallelism.html#global-memory" title="跳转到此标题">#</a></h3>
+<p>父网格和子网格可以一致地访问全局内存，而子网格和父网格之间的一致性保证很弱。在子网格的执行过程中，只有一个时间点其内存视图与父线程完全一致：即子网格被父网格调用时。</p>
+<p>在子网格调用之前父线程中的所有全局内存操作对于子网格都是可见的。随着去除 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code>，不再可能从父网格访问子网格中的线程所做的修改。在父网格退出之前访问子网格中线程所做的修改的唯一方法是通过启动到子网格中的内核 <code class="docutils literal notranslate"><span class="pre">cudaStreamTailLaunch</span></code> stream.</p>
+<p>在下面的示例中，子网格执行 <code class="docutils literal notranslate"><span class="pre">child_launch</span></code> 只保证看到修改 <code class="docutils literal notranslate"><span class="pre">data</span></code> 在子网格启动之前制作。由于父线程 0 正在执行启动，因此子线程将与父线程 0 看到的内存保持一致。由于第一个 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 打电话，孩子就会看到 <code class="docutils literal notranslate"><span class="pre">data[0]=0</span></code>, <code class="docutils literal notranslate"><span class="pre">data[1]=1</span></code>, …, <code class="docutils literal notranslate"><span class="pre">data[255]=255</span></code> （没有 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 打电话，仅 <code class="docutils literal notranslate"><span class="pre">data[0]=0</span></code> 保证能被孩子看到）。仅保证子网格在隐式同步时返回。这意味着子网格中的线程所做的修改永远不能保证对父网格可用。访问所做的修改 <code class="docutils literal notranslate"><span class="pre">child_launch</span></code>, a <code class="docutils literal notranslate"><span class="pre">tail_launch</span></code> 内核被启动到 <code class="docutils literal notranslate"><span class="pre">cudaStreamTailLaunch</span></code> stream.</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">tail_launch</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">   </span><span class="n">data</span><span class="p">[</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span>
 <span class="p">}</span>
@@ -595,25 +390,25 @@
 </div>
 </section>
 <section id="mapped-memory">
-<span id="id2"></span><h3><span class="section-number">4.18.3.2. </span>Mapped Memory<a class="headerlink" href="dynamic-parallelism.html#mapped-memory" title="Link to this heading">#</a></h3>
-<p>Mapped system memory has identical coherence and consistency guarantees to global memory, and follows the semantics detailed above. A kernel may not allocate or free mapped memory, but may use pointers to mapped memory passed in from the host program.</p>
+<span id="id2"></span><h3><span class="section-number">4.18.3.2. </span>映射内存<a class="headerlink" href="dynamic-parallelism.html#mapped-memory" title="跳转到此标题">#</a></h3>
+<p>映射的系统内存具有与全局内存相同的一致性和一致性保证，并遵循上面详述的语义。内核不能分配或释放映射内存，但可以使用从主机程序传入的指向映射内存的指针。</p>
 </section>
 <section id="shared-and-local-memory">
-<span id="shared-and-local-memory-cdp2"></span><h3><span class="section-number">4.18.3.3. </span>Shared and Local Memory<a class="headerlink" href="dynamic-parallelism.html#shared-and-local-memory" title="Link to this heading">#</a></h3>
-<p>Shared and Local memory is private to a thread block or thread, respectively, and is not visible or coherent between parent and child. Behavior is undefined when an object in one of these locations is referenced outside of the scope within which it belongs, and may cause an error.</p>
-<p>The NVIDIA compiler will attempt to warn if it can detect that a pointer to local or shared memory is being passed as an argument to a kernel launch. At runtime, the programmer may use the <code class="docutils literal notranslate"><span class="pre">__isGlobal()</span></code> intrinsic to determine whether a pointer references global memory and so may safely be passed to a child launch.</p>
-<p>Calls to <code class="docutils literal notranslate"><span class="pre">cudaMemcpy*Async()</span></code> or <code class="docutils literal notranslate"><span class="pre">cudaMemset*Async()</span></code> may invoke new child kernels on the device in order to preserve stream semantics. As such, passing shared or local memory pointers to these APIs is illegal and will return an error.</p>
+<span id="shared-and-local-memory-cdp2"></span><h3><span class="section-number">4.18.3.3. </span>共享内存和本地内存<a class="headerlink" href="dynamic-parallelism.html#shared-and-local-memory" title="跳转到此标题">#</a></h3>
+<p>共享内存和本地内存分别是线程块或线程私有的，并且在父级和子级之间不可见或不一致。当这些位置之一的对象在其所属范围之外被引用时，行为是未定义的，并且可能会导致错误。</p>
+<p>NVIDIA 编译器将尝试警告是否可以检测到指向本地或共享内存的指针正在作为参数传递给内核启动。在运行时，程序员可以使用 <code class="docutils literal notranslate"><span class="pre">__isGlobal()</span></code> 内部确定指针是否引用全局内存，因此可以安全地传递给子启动。</p>
+<p>致电 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy*Async()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaMemset*Async()</span></code> 可以调用设备上的新子内核以保留流语义。因此，将共享或本地内存指针传递给这些 API 是非法的，并且会返回错误。</p>
 </section>
 <section id="local-memory">
-<span id="local-memory-cdp2"></span><h3><span class="section-number">4.18.3.4. </span>Local Memory<a class="headerlink" href="dynamic-parallelism.html#local-memory" title="Link to this heading">#</a></h3>
-<p>Local memory is private storage for an executing thread, and is not visible outside of that thread. It is illegal to pass a pointer to local memory as a launch argument when launching a child kernel. The result of dereferencing such a local memory pointer from a child grid is undefined.</p>
-<p>For example the following is illegal, with undefined behavior if <code class="docutils literal notranslate"><span class="pre">x_array</span></code> is accessed by <code class="docutils literal notranslate"><span class="pre">child_launch</span></code>:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">x_array</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span><span class="w">       </span><span class="c1">// Creates x_array in parent&#39;s local memory</span>
+<span id="local-memory-cdp2"></span><h3><span class="section-number">4.18.3.4. </span>本地内存<a class="headerlink" href="dynamic-parallelism.html#local-memory" title="跳转到此标题">#</a></h3>
+<p>本地内存是执行线程的私有存储，在该线程外部不可见。启动子内核时，将指向本地内存的指针作为启动参数传递是非法的。从子网格取消引用此类本地内存指针的结果是未定义的。</p>
+<p>例如，以下内容是非法的，如果存在未定义的行为 <code class="docutils literal notranslate"><span class="pre">x_array</span></code> 访问者是 <code class="docutils literal notranslate"><span class="pre">child_launch</span></code>:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">x_array</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span><span class="w">       </span><span class="c1">// 在父级的本地内存中创建 x_array</span>
 <span class="n">child_launch</span><span class="o">&lt;&lt;&lt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">x_array</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>It is sometimes difficult for a programmer to be aware of when a variable is placed into local memory by the compiler. As a general rule, all storage passed to a child kernel should be allocated explicitly from the global-memory heap, either with <code class="docutils literal notranslate"><span class="pre">cudaMalloc()</span></code>, <code class="docutils literal notranslate"><span class="pre">new()</span></code> or by declaring <code class="docutils literal notranslate"><span class="pre">__device__</span></code> storage at global scope. For example:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// Correct - &quot;value&quot; is global storage</span>
+<p>有时，程序员很难意识到编译器何时将变量放入本地内存。作为一般规则，传递给子内核的所有存储都应该从全局内存堆中显式分配，或者使用 <code class="docutils literal notranslate"><span class="pre">cudaMalloc()</span></code>, <code class="docutils literal notranslate"><span class="pre">new()</span></code> 或者通过声明 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> 全局范围内的存储。例如：</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 正确 - “值”是全局存储</span>
 <span class="n">__device__</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">value</span><span class="p">;</span>
 <span class="n">__device__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">x</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
@@ -621,7 +416,7 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// Invalid - &quot;value&quot; is local storage</span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 无效 - “值”是本地存储</span>
 <span class="n">__device__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">y</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
 <span class="w">    </span><span class="n">child</span><span class="o">&lt;&lt;&lt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">value</span><span class="p">);</span>
@@ -629,51 +424,51 @@
 </pre></div>
 </div>
 <section id="texture-memory">
-<span id="texture-memory-cdp"></span><h4><span class="section-number">4.18.3.4.1. </span>Texture Memory<a class="headerlink" href="dynamic-parallelism.html#texture-memory" title="Link to this heading">#</a></h4>
-<p>Writes to the global memory region over which a texture is mapped are incoherent with respect to texture accesses. Coherence for texture memory is enforced at the invocation of a child grid and when a child grid completes. This means that writes to memory prior to a child kernel launch are reflected in texture memory accesses of the child. Similarly to Global Memory above, writes to memory by a child are never guaranteed to be reflected in the texture memory accesses by a parent. The only way to access the modifications made by the threads in the child grid before the parent grid exits is via a kernel launched into the <code class="docutils literal notranslate"><span class="pre">cudaStreamTailLaunch</span></code> stream. Concurrent accesses by parent and child may result in inconsistent data.</p>
+<span id="texture-memory-cdp"></span><h4><span class="section-number">4.18.3.4.1. </span>纹理内存<a class="headerlink" href="dynamic-parallelism.html#texture-memory" title="跳转到此标题">#</a></h4>
+<p>对映射纹理的全局内存区域的写入与纹理访问是不一致的。纹理内存的一致性是在调用子网格时以及子网格完成时强制执行的。这意味着在子内核启动之前对内存的写入会反映在子内核的纹理内存访问中。与上面的全局内存类似，子进程对内存的写入永远不能保证反映在父进程的纹理内存访问中。在父网格退出之前访问子网格中线程所做的修改的唯一方法是通过启动到子网格中的内核 <code class="docutils literal notranslate"><span class="pre">cudaStreamTailLaunch</span></code> 流。父级和子级的并发访问可能会导致数据不一致。</p>
 </section>
 </section>
 </section>
 <section id="programming-interface">
-<span id="programming-interface-cdp"></span><h2><span class="section-number">4.18.4. </span>Programming Interface<a class="headerlink" href="dynamic-parallelism.html#programming-interface" title="Link to this heading">#</a></h2>
+<span id="programming-interface-cdp"></span><h2><span class="section-number">4.18.4. </span>编程接口<a class="headerlink" href="dynamic-parallelism.html#programming-interface" title="跳转到此标题">#</a></h2>
 <section id="basics">
-<span id="id3"></span><h3><span class="section-number">4.18.4.1. </span>Basics<a class="headerlink" href="dynamic-parallelism.html#basics" title="Link to this heading">#</a></h3>
-<p>The following example shows a simple <em>Hello World</em> program incorporating dynamic parallelism:</p>
+<span id="id3"></span><h3><span class="section-number">4.18.4.1. </span>基础<a class="headerlink" href="dynamic-parallelism.html#basics" title="跳转到此标题">#</a></h3>
+<p>下面的例子展示了一个简单的 <em>你好世界</em> 结合动态并行性的程序：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
 
 <span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">childKernel</span><span class="p">()</span>
 <span class="p">{</span>
-<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Hello &quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">"Hello "</span><span class="p">);</span>
 <span class="p">}</span>
 
 <span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">tailKernel</span><span class="p">()</span>
 <span class="p">{</span>
-<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;World!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">"World!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
 <span class="p">}</span>
 
 <span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">parentKernel</span><span class="p">()</span>
 <span class="p">{</span>
-<span class="w">    </span><span class="c1">// launch child</span>
+<span class="w">    </span><span class="c1">// 发射孩子</span>
 <span class="w">    </span><span class="n">childKernel</span><span class="o">&lt;&lt;&lt;</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cudaSuccess</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">cudaGetLastError</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="k">return</span><span class="p">;</span>
 <span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="c1">// launch tail into cudaStreamTailLaunch stream</span>
-<span class="w">    </span><span class="c1">// implicitly synchronizes: waits for child to complete</span>
+<span class="w">    </span><span class="c1">// 将 tail 启动到 cudaStreamTailLaunch 流中</span>
+<span class="w">    </span><span class="c1">// 隐式同步：等待子进程完成</span>
 <span class="w">    </span><span class="n">tailKernel</span><span class="o">&lt;&lt;&lt;</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">cudaStreamTailLaunch</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span>
 
 <span class="p">}</span>
 
 <span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
 <span class="p">{</span>
-<span class="w">    </span><span class="c1">// launch parent</span>
+<span class="w">    </span><span class="c1">// 启动父级</span>
 <span class="w">    </span><span class="n">parentKernel</span><span class="o">&lt;&lt;&lt;</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cudaSuccess</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">cudaGetLastError</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 <span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="c1">// wait for parent to complete</span>
+<span class="w">    </span><span class="c1">// 等待父级完成</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cudaSuccess</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">cudaDeviceSynchronize</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
 <span class="w">    </span><span class="p">}</span>
@@ -682,121 +477,121 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>This program may be built in a single step from the command line as follows:</p>
+<p>该程序可以通过命令行一步构建，如下所示：</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ nvcc -arch=sm_75 -rdc=true hello_world.cu -o hello -lcudadevrt
 </pre></div>
 </div>
 </section>
 <section id="c-language-interface-for-cdp">
-<span id="dynamic-parallelism-cpp-language-structures"></span><h3><span class="section-number">4.18.4.2. </span>C++ Language Interface for CDP<a class="headerlink" href="dynamic-parallelism.html#c-language-interface-for-cdp" title="Link to this heading">#</a></h3>
-<p>The language interface and API available to CUDA kernels using CUDA C++ for Dynamic Parallelism is called the <a class="reference internal" href="../05-appendices/device-callable-apis.html#cuda-device-runtime"><span class="std std-ref">CUDA Device Runtime</span></a>.</p>
-<p>Where possible the syntax and semantics of the CUDA Runtime API have been retained in order to facilitate ease of code reuse for routines that may run in either the host or device environments.</p>
-<p>As with all code in CUDA C++, the APIs and code outlined here is per-thread code. This enables each thread to make unique, dynamic decisions regarding what kernel or operation to execute next. There are no synchronization requirements between threads within a block to execute any of the provided device runtime APIs, which enables the device runtime API functions to be called in arbitrarily divergent kernel code without deadlock.</p>
+<span id="dynamic-parallelism-cpp-language-structures"></span><h3><span class="section-number">4.18.4.2. </span>CDP 的 C++ 语言接口<a class="headerlink" href="dynamic-parallelism.html#c-language-interface-for-cdp" title="跳转到此标题">#</a></h3>
+<p>使用 CUDA C++ 实现动态并行性的 CUDA 内核可用的语言接口和 API 称为 <a class="reference internal" href="../05-appendices/device-callable-apis.html#cuda-device-runtime"><span class="std std-ref">CUDA 设备运行时</span></a>.</p>
+<p>在可能的情况下，保留了 CUDA 运行时 API 的语法和语义，以便于轻松重用可在主机或设备环境中运行的例程的代码。</p>
+<p>与 CUDA C++ 中的所有代码一样，此处概述的 API 和代码是每线程代码。这使得每个线程能够就下一步执行哪个内核或操作做出独特的动态决策。块内的线程之间没有同步要求来执行任何提供的设备运行时 API，这使得可以在任意不同的内核代码中调用设备运行时 API 函数，而不会出现死锁。</p>
 <section id="device-side-kernel-launch">
-<span id="dynamic-parallelism-device-runtime-kernel-launch"></span><h4><span class="section-number">4.18.4.2.1. </span>Device-Side Kernel Launch<a class="headerlink" href="dynamic-parallelism.html#device-side-kernel-launch" title="Link to this heading">#</a></h4>
-<p>Kernels may be launched from the device using the standard CUDA &lt;&lt;&lt; &gt;&gt;&gt; syntax:</p>
+<span id="dynamic-parallelism-device-runtime-kernel-launch"></span><h4><span class="section-number">4.18.4.2.1. </span>设备端内核启动<a class="headerlink" href="dynamic-parallelism.html#device-side-kernel-launch" title="跳转到此标题">#</a></h4>
+<p>可以使用标准 CUDA &lt;&lt;&lt; &gt;&gt;&gt; 语法从设备启动内核：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">kernel_name</span><span class="o">&lt;&lt;&lt;</span><span class="w"> </span><span class="n">Dg</span><span class="p">,</span><span class="w"> </span><span class="n">Db</span><span class="p">,</span><span class="w"> </span><span class="n">Ns</span><span class="p">,</span><span class="w"> </span><span class="n">S</span><span class="w"> </span><span class="o">&gt;&gt;&gt;</span><span class="p">([</span><span class="n">kernel</span><span class="w"> </span><span class="n">arguments</span><span class="p">]);</span>
 </pre></div>
 </div>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">Dg</span></code> is of type <code class="docutils literal notranslate"><span class="pre">dim3</span></code> and specifies the dimensions and size of the grid</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Db</span></code> is of type <code class="docutils literal notranslate"><span class="pre">dim3</span></code> and specifies the dimensions and size of each thread block</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Ns</span></code> is of type <code class="docutils literal notranslate"><span class="pre">size_t</span></code> and specifies the number of bytes of shared memory that is dynamically allocated per thread block for this call in addition to statically allocated memory. <code class="docutils literal notranslate"><span class="pre">Ns</span></code> is an optional argument that defaults to 0.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">S</span></code> is of type <code class="docutils literal notranslate"><span class="pre">cudaStream_t</span></code> and specifies the stream associated with this call. The stream must have been allocated in the same grid where the call is being made. <code class="docutils literal notranslate"><span class="pre">S</span></code> is an optional argument that defaults to the NULL stream.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Dg</span></code> 属于类型 <code class="docutils literal notranslate"><span class="pre">dim3</span></code> 并指定网格的尺寸和大小</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Db</span></code> 属于类型 <code class="docutils literal notranslate"><span class="pre">dim3</span></code> 并指定每个线程块的尺寸和大小</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Ns</span></code> 属于类型 <code class="docutils literal notranslate"><span class="pre">size_t</span></code> 并指定除了静态分配的内存之外，为此调用为每个线程块动态分配的共享内存的字节数。 <code class="docutils literal notranslate"><span class="pre">Ns</span></code> 是一个可选参数，默认为 0。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">S</span></code> 属于类型 <code class="docutils literal notranslate"><span class="pre">cudaStream_t</span></code> 并指定与此调用关联的流。该流必须已分配在进行调用的同一网格中。 <code class="docutils literal notranslate"><span class="pre">S</span></code> 是一个可选参数，默认为 NULL 流。</p></li>
 </ul>
 <section id="launches-are-asynchronous">
-<span id="id4"></span><h5><span class="section-number">4.18.4.2.1.1. </span>Launches are Asynchronous<a class="headerlink" href="dynamic-parallelism.html#launches-are-asynchronous" title="Link to this heading">#</a></h5>
-<p>Identical to host-side launches, all device-side kernel launches are asynchronous with respect to the launching thread. That is to say, the <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;&gt;&gt;&gt;</span></code> launch command will return immediately and the launching thread will continue to execute until it hits an implicit launch-synchronization point, such as at a kernel launched into the <code class="docutils literal notranslate"><span class="pre">cudaStreamTailLaunch</span></code> stream (<a class="reference internal" href="../05-appendices/device-callable-apis.html#tail-launch-stream"><span class="std std-ref">The Tail Launch Stream</span></a>). The child grid may begin execution at any time after launch, but is not guaranteed to begin execution until the launching thread reaches an implicit launch-synchronization point.</p>
-<p>Similar to host-side launch, work launched into separate streams may run concurrently, but actual concurrency is not guaranteed. Programs that depend upon concurrency between child kernels are not supported by the CUDA programming model and will have undefined behavior.</p>
+<span id="id4"></span><h5><span class="section-number">4.18.4.2.1.1. </span>启动是异步的<a class="headerlink" href="dynamic-parallelism.html#launches-are-asynchronous" title="跳转到此标题">#</a></h5>
+<p>与主机端启动相同，所有设备端内核启动相对于启动线程都是异步的。也就是说， <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;&gt;&gt;&gt;</span></code> launch 命令将立即返回，并且启动线程将继续执行，直到它到达隐式启动同步点，例如在启动到 <code class="docutils literal notranslate"><span class="pre">cudaStreamTailLaunch</span></code> 流（<a class="reference internal" href="../05-appendices/device-callable-apis.html#tail-launch-stream"><span class="std std-ref">尾部发射流</span></a>）。子网格可以在启动后的任何时间开始执行，但不保证在启动线程到达隐式启动同步点之前开始执行。</p>
+<p>与主机端启动类似，启动到单独流中的工作可能会同时运行，但不能保证实际的并发性。依赖于子内核之间并发的程序不受 CUDA 编程模型支持，并且将具有未定义的行为。</p>
 </section>
 <section id="launch-environment-configuration">
-<span id="id5"></span><h5><span class="section-number">4.18.4.2.1.2. </span>Launch Environment Configuration<a class="headerlink" href="dynamic-parallelism.html#launch-environment-configuration" title="Link to this heading">#</a></h5>
-<p>All global device configuration settings (for example, shared memory and L1 cache size as returned from <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetCacheConfig()</span></code>, and device limits returned from <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetLimit()</span></code>) will be inherited from the parent. Likewise, device limits such as stack size will remain as-configured.</p>
-<p>For host-launched kernels, per-kernel configurations set from the host will take precedence over the global setting. These configurations will be used when the kernel is launched from the device as well. It is not possible to reconfigure a kernel’s environment from the device.</p>
+<span id="id5"></span><h5><span class="section-number">4.18.4.2.1.2. </span>启动环境配置<a class="headerlink" href="dynamic-parallelism.html#launch-environment-configuration" title="跳转到此标题">#</a></h5>
+<p>所有全局设备配置设置（例如，从 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetCacheConfig()</span></code>，以及从返回的设备限制 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetLimit()</span></code>）将从父级继承。同样，设备限制（例如堆栈大小）将保持配置状态。</p>
+<p>对于主机启动的内核，主机设置的每内核配置将优先于全局设置。从设备启动内核时也会使用这些配置。无法从设备重新配置内核环境。</p>
 </section>
 </section>
 <section id="events">
-<span id="events-cdp"></span><h4><span class="section-number">4.18.4.2.2. </span>Events<a class="headerlink" href="dynamic-parallelism.html#events" title="Link to this heading">#</a></h4>
-<p>Only the inter-stream synchronization capabilities of CUDA events are supported. This means that <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code> is supported, but <code class="docutils literal notranslate"><span class="pre">cudaEventSynchronize()</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaEventElapsedTime()</span></code>, and <code class="docutils literal notranslate"><span class="pre">cudaEventQuery()</span></code> are not. As <code class="docutils literal notranslate"><span class="pre">cudaEventElapsedTime()</span></code> is not supported, cudaEvents must be created via <code class="docutils literal notranslate"><span class="pre">cudaEventCreateWithFlags()</span></code>, passing the <code class="docutils literal notranslate"><span class="pre">cudaEventDisableTiming</span></code> flag.</p>
-<p>As with streams, event objects may be shared between all threads within the grid which created them but are local to that grid and may not be passed to other kernels. Event handles are not guaranteed to be unique between grids, so using an event handle within a grid that did not create it will result in undefined behavior.</p>
+<span id="events-cdp"></span><h4><span class="section-number">4.18.4.2.2. </span>事件<a class="headerlink" href="dynamic-parallelism.html#events" title="跳转到此标题">#</a></h4>
+<p>仅支持 CUDA 事件的流间同步功能。这意味着 <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code> 是支持的，但是 <code class="docutils literal notranslate"><span class="pre">cudaEventSynchronize()</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaEventElapsedTime()</span></code>, 和 <code class="docutils literal notranslate"><span class="pre">cudaEventQuery()</span></code> 不是。作为 <code class="docutils literal notranslate"><span class="pre">cudaEventElapsedTime()</span></code> 不支持，cudaEvents 必须通过创建 <code class="docutils literal notranslate"><span class="pre">cudaEventCreateWithFlags()</span></code>，通过 <code class="docutils literal notranslate"><span class="pre">cudaEventDisableTiming</span></code> 标志。</p>
+<p>与流一样，事件对象可以在创建它们的网格内的所有线程之间共享，但对于该网格来说是本地的，并且不能传递到其他内核。不保证事件句柄在网格之间是唯一的，因此在未创建事件句柄的网格中使用事件句柄将导致未定义的行为。</p>
 </section>
 <section id="synchronization">
-<span id="synchronization-programming-interface"></span><h4><span class="section-number">4.18.4.2.3. </span>Synchronization<a class="headerlink" href="dynamic-parallelism.html#synchronization" title="Link to this heading">#</a></h4>
-<p>It is up to the program to perform sufficient inter-thread synchronization, for example via a CUDA Event, if the calling thread is intended to synchronize with child grids invoked from other threads.</p>
-<p>As it is not possible to explicitly synchronize child work from a parent thread, there is no way to guarantee that changes occurring in child grids are visible to threads within the parent grid.</p>
+<span id="synchronization-programming-interface"></span><h4><span class="section-number">4.18.4.2.3. </span>同步<a class="headerlink" href="dynamic-parallelism.html#synchronization" title="跳转到此标题">#</a></h4>
+<p>如果调用线程旨在与从其他线程调用的子网格同步，则由程序执行足够的线程间同步，例如通过 CUDA 事件。</p>
+<p>由于无法从父线程显式同步子工作，因此无法保证子网格中发生的更改对于父网格内的线程可见。</p>
 </section>
 <section id="device-management">
-<span id="device-management-programming"></span><h4><span class="section-number">4.18.4.2.4. </span>Device Management<a class="headerlink" href="dynamic-parallelism.html#device-management" title="Link to this heading">#</a></h4>
-<p>Only the device on which a kernel is running will be controllable from that kernel. This means that device APIs such as <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code> are not supported by the device runtime. The active device as seen from the GPU (returned from <code class="docutils literal notranslate"><span class="pre">cudaGetDevice()</span></code>) will have the same device number as seen from the host system. The <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetAttribute()</span></code> call may request information about another device as this API allows specification of a device ID as a parameter of the call. Note that the catch-all <code class="docutils literal notranslate"><span class="pre">cudaGetDeviceProperties()</span></code> API is not offered by the device runtime - properties must be queried individually.</p>
+<span id="device-management-programming"></span><h4><span class="section-number">4.18.4.2.4. </span>设备管理<a class="headerlink" href="dynamic-parallelism.html#device-management" title="跳转到此标题">#</a></h4>
+<p>只有运行内核的设备才能从该内核控制。这意味着设备 API，例如 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice()</span></code> 设备运行时不支持。从 GPU 看到的活动设备（从 <code class="docutils literal notranslate"><span class="pre">cudaGetDevice()</span></code>）将具有与主机系统中看到的相同的设备号。的 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetAttribute()</span></code> 调用可能会请求有关另一个设备的信息，因为此 API 允许指定设备 ID 作为调用的参数。请注意，包罗万象 <code class="docutils literal notranslate"><span class="pre">cudaGetDeviceProperties()</span></code> 设备运行时不提供 API - 必须单独查询属性。</p>
 </section>
 </section>
 </section>
 <section id="programming-guidelines">
-<span id="id6"></span><h2><span class="section-number">4.18.5. </span>Programming Guidelines<a class="headerlink" href="dynamic-parallelism.html#programming-guidelines" title="Link to this heading">#</a></h2>
+<span id="id6"></span><h2><span class="section-number">4.18.5. </span>编程指南<a class="headerlink" href="dynamic-parallelism.html#programming-guidelines" title="跳转到此标题">#</a></h2>
 <section id="performance">
-<span id="id7"></span><h3><span class="section-number">4.18.5.1. </span>Performance<a class="headerlink" href="dynamic-parallelism.html#performance" title="Link to this heading">#</a></h3>
+<span id="id7"></span><h3><span class="section-number">4.18.5.1. </span>性能<a class="headerlink" href="dynamic-parallelism.html#performance" title="跳转到此标题">#</a></h3>
 <section id="dynamic-parallelism-enabled-kernel-overhead">
-<span id="id8"></span><h4><span class="section-number">4.18.5.1.1. </span>Dynamic-parallelism-enabled Kernel Overhead<a class="headerlink" href="dynamic-parallelism.html#dynamic-parallelism-enabled-kernel-overhead" title="Link to this heading">#</a></h4>
-<p>System software which is active when controlling dynamic launches may impose an overhead on any kernel which is running at the time, whether or not it invokes kernel launches of its own. This overhead arises from the device runtime’s execution tracking and management software and may result in decreased performance. This overhead is, in general, incurred for applications that link against the device runtime library.</p>
+<span id="id8"></span><h4><span class="section-number">4.18.5.1.1. </span>支持动态并行的内核开销<a class="headerlink" href="dynamic-parallelism.html#dynamic-parallelism-enabled-kernel-overhead" title="跳转到此标题">#</a></h4>
+<p>在控制动态启动时处于活动状态的系统软件可能会对当时正在运行的任何内核施加开销，无论它是否调用自己的内核启动。这种开销由设备运行时的执行跟踪和管理软件产生，可能会导致性能下降。一般来说，这种开销是由链接到设备运行时库的应用程序产生的。</p>
 </section>
 </section>
 <section id="implementation-restrictions-and-limitations">
-<span id="id9"></span><h3><span class="section-number">4.18.5.2. </span>Implementation Restrictions and Limitations<a class="headerlink" href="dynamic-parallelism.html#implementation-restrictions-and-limitations" title="Link to this heading">#</a></h3>
-<p>Dynamic Parallelism guarantees all semantics described in this document, however, certain hardware and software resources are implementation-dependent and limit the scale, performance and other properties of a program which uses the device runtime.</p>
+<span id="id9"></span><h3><span class="section-number">4.18.5.2. </span>实施限制和限制<a class="headerlink" href="dynamic-parallelism.html#implementation-restrictions-and-limitations" title="跳转到此标题">#</a></h3>
+<p>动态并行保证了本文档中描述的所有语义，但是，某些硬件和软件资源依赖于实现，并限制了使用设备运行时的程序的规模、性能和其他属性。</p>
 <section id="runtime">
-<span id="id10"></span><h4><span class="section-number">4.18.5.2.1. </span>Runtime<a class="headerlink" href="dynamic-parallelism.html#runtime" title="Link to this heading">#</a></h4>
+<span id="id10"></span><h4><span class="section-number">4.18.5.2.1. </span>运行时<a class="headerlink" href="dynamic-parallelism.html#runtime" title="跳转到此标题">#</a></h4>
 <section id="memory-footprint">
-<span id="id11"></span><h5><span class="section-number">4.18.5.2.1.1. </span>Memory Footprint<a class="headerlink" href="dynamic-parallelism.html#memory-footprint" title="Link to this heading">#</a></h5>
-<p>The device runtime system software reserves memory for various management purposes, in particular a reservation for tracking pending grid launches. Configuration controls are available to reduce the size of this reservation in exchange for certain launch limitations. See <a class="reference internal" href="../05-appendices/device-callable-apis.html#device-runtime-configuration-options"><span class="std std-ref">Configuration Options</span></a>, below, for details.</p>
+<span id="id11"></span><h5><span class="section-number">4.18.5.2.1.1. </span>内存占用<a class="headerlink" href="dynamic-parallelism.html#memory-footprint" title="跳转到此标题">#</a></h5>
+<p>设备运行时系统软件保留用于各种管理目的的存储器，特别是用于跟踪待处理的网格启动的保留。配置控件可用于减少此预留的大小，以换取某些启动限制。参见 <a class="reference internal" href="../05-appendices/device-callable-apis.html#device-runtime-configuration-options"><span class="std std-ref">配置选项</span></a>，如下，了解详细信息。</p>
 </section>
 <section id="pending-kernel-launches">
-<span id="id12"></span><h5><span class="section-number">4.18.5.2.1.2. </span>Pending Kernel Launches<a class="headerlink" href="dynamic-parallelism.html#pending-kernel-launches" title="Link to this heading">#</a></h5>
-<p>When a kernel is launched, all associated configuration and parameter data is tracked until the kernel completes. This data is stored within a system-managed launch pool.</p>
-<p>The size of the fixed-size launch pool is configurable by calling <code class="docutils literal notranslate"><span class="pre">cudaDeviceSetLimit()</span></code> from the host and specifying <code class="docutils literal notranslate"><span class="pre">cudaLimitDevRuntimePendingLaunchCount</span></code>.</p>
+<span id="id12"></span><h5><span class="section-number">4.18.5.2.1.2. </span>等待内核发布<a class="headerlink" href="dynamic-parallelism.html#pending-kernel-launches" title="跳转到此标题">#</a></h5>
+<p>当内核启动时，所有关联的配置和参数数据都会被跟踪，直到内核完成。该数据存储在系统管理的启动池中。</p>
+<p>固定大小启动池的大小可通过调用进行配置 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSetLimit()</span></code> 来自主机并指定 <code class="docutils literal notranslate"><span class="pre">cudaLimitDevRuntimePendingLaunchCount</span></code>.</p>
 </section>
 </section>
 </section>
 <section id="compatibility-and-interoperability">
-<span id="id13"></span><h3><span class="section-number">4.18.5.3. </span>Compatibility and Interoperability<a class="headerlink" href="dynamic-parallelism.html#compatibility-and-interoperability" title="Link to this heading">#</a></h3>
-<p>CDP2 is the default. Functions can be compiled with <code class="docutils literal notranslate"><span class="pre">-DCUDA_FORCE_CDP1_IF_SUPPORTED</span></code> to opt-out of using CDP2 on devices of compute capability less than 9.0.</p>
+<span id="id13"></span><h3><span class="section-number">4.18.5.3. </span>兼容性和互操作性<a class="headerlink" href="dynamic-parallelism.html#compatibility-and-interoperability" title="跳转到此标题">#</a></h3>
+<p>CDP2 是默认值。函数可以用以下方式编译 <code class="docutils literal notranslate"><span class="pre">-DCUDA_FORCE_CDP1_IF_SUPPORTED</span></code> 选择不在计算能力低于 9.0 的设备上使用 CDP2。</p>
 <div class="pst-scrollable-table-container"><table class="table-no-stripes table">
 <thead>
 <tr class="row-odd"><th class="head"></th>
-<th class="head"><p>Function compiler with CUDA 12.0 and newer (default)</p></th>
-<th class="head"><p>Function compiled with pre-CUDA 12.0 or with CUDA 12.0 and newer with <code class="docutils literal notranslate"><span class="pre">-DCUDA_FORCE_CDP1_IF_SUPPORTED</span></code> specified</p></th>
+<th class="head"><p>使用 CUDA 12.0 及更高版本的函数编译器（默认）</p></th>
+<th class="head"><p>使用 CUDA 12.0 之前版本或使用 CUDA 12.0 及更高版本编译的函数 <code class="docutils literal notranslate"><span class="pre">-DCUDA_FORCE_CDP1_IF_SUPPORTED</span></code> specified</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Compilation</p></td>
-<td><p>Compile error if device code references <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize</span></code>.</p></td>
-<td><p>Compile error if code references <code class="docutils literal notranslate"><span class="pre">cudaStreamTailLaunch</span></code> or <code class="docutils literal notranslate"><span class="pre">cudaStreamFireAndForget</span></code>. Compile error if device code references <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize</span></code> and code is compiled for sm_90 or newer.</p></td>
+<td><p>如果设备代码引用则编译错误 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize</span></code>.</p></td>
+<td><p>如果代码引用则编译错误 <code class="docutils literal notranslate"><span class="pre">cudaStreamTailLaunch</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaStreamFireAndForget</span></code>。如果设备代码引用则编译错误 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize</span></code> 并且代码是为 sm_90 或更高版本编译的。</p></td>
 </tr>
-<tr class="row-odd"><td><p>Compute capability &lt; 9.0</p></td>
-<td><p>New interface is used.</p></td>
-<td><p>Legacy interface is used.</p></td>
+<tr class="row-odd"><td><p>计算能力 &lt; 9.0</p></td>
+<td><p>使用新界面。</p></td>
+<td><p>使用旧版接口。</p></td>
 </tr>
-<tr class="row-even"><td><p>Compute capability 9.0 and higher</p></td>
-<td><p>New interface is used.</p></td>
-<td><p>New interface is used. If function references <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize</span></code> in device code, function load returns <code class="docutils literal notranslate"><span class="pre">cudaErrorSymbolNotFound</span></code> (this could happen if the code is compiled for devices of compute capability less than 9.0, but run on devices of compute capability 9.0 or higher using JIT).</p></td>
+<tr class="row-even"><td><p>计算能力9.0及以上</p></td>
+<td><p>使用新界面。</p></td>
+<td><p>使用新界面。如果函数引用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize</span></code> 在设备代码中，函数 load 返回 <code class="docutils literal notranslate"><span class="pre">cudaErrorSymbolNotFound</span></code> （如果代码是为计算能力低于 9.0 的设备编译的，但使用 JIT 在计算能力 9.0 或更高的设备上运行，则可能会发生这种情况）。</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>Functions using CDP1 and CDP2 may be loaded and run simultaneously in the same context. The CDP1 functions are able to use CDP1-specific features (e.g. <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize</span></code>) and CDP2 functions are able to use CDP2-specific features (e.g. tail launch and fire-and-forget launch).</p>
-<p>A function using CDP1 cannot launch a function using CDP2, and vice versa. If a function that would use CDP1 contains in its call graph a function that would use CDP2, or vice versa, <code class="docutils literal notranslate"><span class="pre">cudaErrorCdpVersionMismatch</span></code> would result during function load.</p>
-<p>The behavior of legacy CDP1 is not included in this document. For information on CDP1, refer back to a <a class="reference external" href="https://developer.nvidia.com/cuda-toolkit-archive">legacy version of the CUDA Programming Guide</a></p>
+<p>使用 CDP1 和 CDP2 的函数可以在同一上下文中同时加载和运行。 CDP1 函数能够使用 CDP1 特定的功能（例如 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize</span></code>）和 CDP2 函数能够使用 CDP2 特定的功能（例如尾部启动和即发即忘启动）。</p>
+<p>使用 CDP1 的函数无法启动使用 CDP2 的函数，反之亦然。如果将使用 CDP1 的函数在其调用图中包含将使用 CDP2 的函数，反之亦然， <code class="docutils literal notranslate"><span class="pre">cudaErrorCdpVersionMismatch</span></code> 会在函数加载期间产生。</p>
+<p>本文档不包含旧版 CDP1 的行为。有关 CDP1 的信息，请参阅 <a class="reference external" href="https://developer.nvidia.com/cuda-toolkit-archive">旧版 CUDA 编程指南</a></p>
 </section>
 </section>
 <section id="device-side-launch-from-ptx">
-<span id="device-side-launch-from-ptx-cdp2"></span><h2><span class="section-number">4.18.6. </span>Device-side Launch from PTX<a class="headerlink" href="dynamic-parallelism.html#device-side-launch-from-ptx" title="Link to this heading">#</a></h2>
-<p>The previous sections have discussed using the <a class="reference internal" href="../05-appendices/device-callable-apis.html#cuda-device-runtime"><span class="std std-ref">CUDA Device Runtime</span></a> to achieve dynamic parallelism. Dynamic parallelism can also be performed from PTX. For the programming language and compiler implementers who target <em>Parallel Thread Execution</em> (PTX) and plan to support <em>Dynamic Parallelism</em> in their language, this section provides the low-level details related to supporting kernel launches at the PTX level.</p>
+<span id="device-side-launch-from-ptx-cdp2"></span><h2><span class="section-number">4.18.6. </span>从 PTX 设备端启动<a class="headerlink" href="dynamic-parallelism.html#device-side-launch-from-ptx" title="跳转到此标题">#</a></h2>
+<p>前面几节已经讨论了使用 <a class="reference internal" href="../05-appendices/device-callable-apis.html#cuda-device-runtime"><span class="std std-ref">CUDA 设备运行时</span></a> 实现动态并行。动态并行也可以从 PTX 执行。对于目标为以下目标的编程语言和编译器实现者 <em>并行线程执行</em> (PTX) 并计划支持 <em>动态并行性</em> 用他们的语言，本节提供了与支持 PTX 级别的内核启动相关的底层细节。</p>
 <section id="kernel-launch-apis">
-<span id="id14"></span><h3><span class="section-number">4.18.6.1. </span>Kernel Launch APIs<a class="headerlink" href="dynamic-parallelism.html#kernel-launch-apis" title="Link to this heading">#</a></h3>
-<p>Device-side kernel launches can be implemented using the following two APIs accessible from PTX: <code class="docutils literal notranslate"><span class="pre">cudaLaunchDevice()</span></code> and <code class="docutils literal notranslate"><span class="pre">cudaGetParameterBuffer()</span></code>. <code class="docutils literal notranslate"><span class="pre">cudaLaunchDevice()</span></code> launches the specified kernel with the parameter buffer that is obtained by calling <code class="docutils literal notranslate"><span class="pre">cudaGetParameterBuffer()</span></code> and filled with the parameters to the launched kernel. The parameter buffer can be NULL, i.e., no need to invoke <code class="docutils literal notranslate"><span class="pre">cudaGetParameterBuffer()</span></code>, if the launched kernel does not take any parameters.</p>
+<span id="id14"></span><h3><span class="section-number">4.18.6.1. </span>内核启动 API<a class="headerlink" href="dynamic-parallelism.html#kernel-launch-apis" title="跳转到此标题">#</a></h3>
+<p>设备端内核启动可以使用以下两个可从 PTX 访问的 API 来实现： <code class="docutils literal notranslate"><span class="pre">cudaLaunchDevice()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaGetParameterBuffer()</span></code>. <code class="docutils literal notranslate"><span class="pre">cudaLaunchDevice()</span></code> 使用通过调用获得的参数缓冲区启动指定的内核 <code class="docutils literal notranslate"><span class="pre">cudaGetParameterBuffer()</span></code> 并填充启动内核的参数。参数buffer可以为NULL，即不需要调用 <code class="docutils literal notranslate"><span class="pre">cudaGetParameterBuffer()</span></code>，如果启动的内核不带任何参数。</p>
 <section id="cudalaunchdevice">
-<span id="cudalaunchdevice-cdp2"></span><h4><span class="section-number">4.18.6.1.1. </span>cudaLaunchDevice<a class="headerlink" href="dynamic-parallelism.html#cudalaunchdevice" title="Link to this heading">#</a></h4>
-<p>At the PTX level, <code class="docutils literal notranslate"><span class="pre">cudaLaunchDevice()</span></code>needs to be declared in one of the two forms shown below before it is used.</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// PTX-level Declaration of cudaLaunchDevice() when .address_size is 64</span>
+<span id="cudalaunchdevice-cdp2"></span><h4><span class="section-number">4.18.6.1.1. </span>cudaLaunchDevice<a class="headerlink" href="dynamic-parallelism.html#cudalaunchdevice" title="跳转到此标题">#</a></h4>
+<p>在 PTX 级别， <code class="docutils literal notranslate"><span class="pre">cudaLaunchDevice()</span></code>在使用之前需要以下面所示的两种形式之一进行声明。</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 当 .address_size 为 64 时 cudaLaunchDevice() 的 PTX 级声明</span>
 <span class="p">.</span><span class="k">extern</span><span class="w"> </span><span class="p">.</span><span class="n">func</span><span class="p">(.</span><span class="n">param</span><span class="w"> </span><span class="p">.</span><span class="n">b32</span><span class="w"> </span><span class="n">func_retval0</span><span class="p">)</span><span class="w"> </span><span class="n">cudaLaunchDevice</span>
 <span class="p">(</span>
 <span class="w">  </span><span class="p">.</span><span class="n">param</span><span class="w"> </span><span class="p">.</span><span class="n">b64</span><span class="w"> </span><span class="n">func</span><span class="p">,</span>
@@ -809,21 +604,21 @@
 <span class="p">;</span>
 </pre></div>
 </div>
-<p>The CUDA-level declaration below is mapped to one of the aforementioned PTX-level declarations and is found in the system header file <code class="docutils literal notranslate"><span class="pre">cuda_device_runtime_api.h</span></code>. The function is defined in the <code class="docutils literal notranslate"><span class="pre">cudadevrt</span></code> system library, which must be linked with a program in order to use device-side kernel launch functionality.</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// CUDA-level declaration of cudaLaunchDevice()</span>
-<span class="k">extern</span><span class="w"> </span><span class="s">&quot;C&quot;</span><span class="w"> </span><span class="n">__device__</span>
+<p>下面的 CUDA 级别声明映射到上述 PTX 级别声明之一，并可在系统头文件中找到 <code class="docutils literal notranslate"><span class="pre">cuda_device_runtime_api.h</span></code>。该函数定义在 <code class="docutils literal notranslate"><span class="pre">cudadevrt</span></code> 系统库，必须与程序链接才能使用设备端内核启动功能。</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// cudaLaunchDevice() 的 CUDA 级声明</span>
+<span class="k">extern</span><span class="w"> </span><span class="s">"C"</span><span class="w"> </span><span class="n">__device__</span>
 <span class="n">cudaError_t</span><span class="w"> </span><span class="n">cudaLaunchDevice</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">func</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">parameterBuffer</span><span class="p">,</span>
 <span class="w">                             </span><span class="n">dim3</span><span class="w"> </span><span class="n">gridDimension</span><span class="p">,</span><span class="w"> </span><span class="n">dim3</span><span class="w"> </span><span class="n">blockDimension</span><span class="p">,</span>
 <span class="w">                             </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">sharedMemSize</span><span class="p">,</span>
 <span class="w">                             </span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>The first parameter is a pointer to the kernel to be launched, and the second parameter is the parameter buffer that holds the actual parameters to the launched kernel. The layout of the parameter buffer is explained in <a class="reference internal" href="dynamic-parallelism.html#parameter-buffer-layout"><span class="std std-ref">Parameter Buffer Layout</span></a>, below. Other parameters specify the launch configuration, i.e., as grid dimension, block dimension, shared memory size, and the stream associated with the launch (please refer to <a class="reference internal" href="../05-appendices/cpp-language-extensions.html#execution-configuration"><span class="std std-ref">Kernel Configuration</span></a> for the detailed description of launch configuration.</p>
+<p>第一个参数是指向要启动的内核的指针，第二个参数是保存启动内核的实际参数的参数缓冲区。参数缓冲区的布局解释如下 <a class="reference internal" href="dynamic-parallelism.html#parameter-buffer-layout"><span class="std std-ref">参数缓冲区布局</span></a>，如下。其他参数指定启动配置，即网格尺寸、块尺寸、共享内存大小以及与启动相关的流（请参阅 <a class="reference internal" href="../05-appendices/cpp-language-extensions.html#execution-configuration"><span class="std std-ref">内核配置</span></a> 有关启动配置的详细说明。</p>
 </section>
 <section id="cudagetparameterbuffer">
-<span id="cudagetparameterbuffer-cdp2"></span><h4><span class="section-number">4.18.6.1.2. </span>cudaGetParameterBuffer<a class="headerlink" href="dynamic-parallelism.html#cudagetparameterbuffer" title="Link to this heading">#</a></h4>
-<p><code class="docutils literal notranslate"><span class="pre">cudaGetParameterBuffer()</span></code> needs to be declared at the PTX level before it’s used. The PTX-level declaration must be in one of the two forms given below, depending on address size:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// PTX-level Declaration of cudaGetParameterBuffer() when .address_size is 64</span>
+<span id="cudagetparameterbuffer-cdp2"></span><h4><span class="section-number">4.18.6.1.2. </span>cudaGetParameterBuffer<a class="headerlink" href="dynamic-parallelism.html#cudagetparameterbuffer" title="跳转到此标题">#</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">cudaGetParameterBuffer()</span></code> 使用前需要在 PTX 级别声明。 PTX 级声明必须采用下面给出的两种形式之一，具体取决于地址大小：</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// .address_size 为 64 时 cudaGetParameterBuffer() 的 PTX 级声明</span>
 <span class="p">.</span><span class="k">extern</span><span class="w"> </span><span class="p">.</span><span class="n">func</span><span class="p">(.</span><span class="n">param</span><span class="w"> </span><span class="p">.</span><span class="n">b64</span><span class="w"> </span><span class="n">func_retval0</span><span class="p">)</span><span class="w"> </span><span class="n">cudaGetParameterBuffer</span>
 <span class="p">(</span>
 <span class="w">  </span><span class="p">.</span><span class="n">param</span><span class="w"> </span><span class="p">.</span><span class="n">b64</span><span class="w"> </span><span class="n">alignment</span><span class="p">,</span>
@@ -832,184 +627,133 @@
 <span class="p">;</span>
 </pre></div>
 </div>
-<p>The following CUDA-level declaration of <code class="docutils literal notranslate"><span class="pre">cudaGetParameterBuffer()</span></code> is mapped to the aforementioned PTX-level declaration:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// CUDA-level Declaration of cudaGetParameterBuffer()</span>
-<span class="k">extern</span><span class="w"> </span><span class="s">&quot;C&quot;</span><span class="w"> </span><span class="n">__device__</span>
+<p>以下 CUDA 级别声明 <code class="docutils literal notranslate"><span class="pre">cudaGetParameterBuffer()</span></code> 映射到前面提到的 PTX 级声明：</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// cudaGetParameterBuffer() 的 CUDA 级声明</span>
+<span class="k">extern</span><span class="w"> </span><span class="s">"C"</span><span class="w"> </span><span class="n">__device__</span>
 <span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">cudaGetParameterBuffer</span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">alignment</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>The first parameter specifies the alignment requirement of the parameter buffer and the second parameter the size requirement in bytes. In the current implementation, the parameter buffer returned by <code class="docutils literal notranslate"><span class="pre">cudaGetParameterBuffer()</span></code> is always guaranteed to be 64- byte aligned, and the alignment requirement parameter is ignored. However, it is recommended to pass the correct alignment requirement value - which is the largest alignment of any parameter to be placed in the parameter buffer - to <code class="docutils literal notranslate"><span class="pre">cudaGetParameterBuffer()</span></code> to ensure portability in the future.</p>
+<p>第一个参数指定参数缓冲区的对齐要求，第二个参数指定大小要求（以字节为单位）。在当前的实现中，返回的参数缓冲区 <code class="docutils literal notranslate"><span class="pre">cudaGetParameterBuffer()</span></code> 始终保证 64 字节对齐，并且忽略对齐要求参数。但是，建议将正确的对齐要求值（这是要放置在参数缓冲区中的任何参数的最大对齐方式）传递给 <code class="docutils literal notranslate"><span class="pre">cudaGetParameterBuffer()</span></code> 以确保将来的可移植性。</p>
 </section>
 </section>
 <section id="parameter-buffer-layout">
-<span id="id15"></span><h3><span class="section-number">4.18.6.2. </span>Parameter Buffer Layout<a class="headerlink" href="dynamic-parallelism.html#parameter-buffer-layout" title="Link to this heading">#</a></h3>
-<p>Parameter reordering in the parameter buffer is prohibited, and each individual parameter placed in the parameter buffer is required to be aligned. That is, each parameter must be placed at the <em>n</em><sup>th</sup> byte in the parameter buffer, where <em>n</em> is the smallest multiple of the parameter size that is greater than the offset of the last byte taken by the preceding parameter. The maximum size of the parameter buffer is 4KB.</p>
-<p>For a more detailed description of PTX code generated by the CUDA compiler, please refer to the PTX-3.5 specification.</p>
+<span id="id15"></span><h3><span class="section-number">4.18.6.2. </span>参数缓冲区布局<a class="headerlink" href="dynamic-parallelism.html#parameter-buffer-layout" title="跳转到此标题">#</a></h3>
+<p>禁止参数缓冲区中的参数重新排序，并且放置在参数缓冲区中的每个单独的参数都需要对齐。也就是说，每个参数必须放在 <em>n</em><sup>th</sup> 参数缓冲区中的字节，其中 <em>n</em> 是参数大小的最小倍数，且该参数大小大于前一个参数所取的最后一个字节的偏移量。参数缓冲区的最大大小为 4KB。</p>
+<p>有关 CUDA 编译器生成的 PTX 代码的更详细说明，请参阅 PTX-3.5 规范。</p>
 </section>
 </section>
 </section>
-
-
-                </article>
-              
-              
-              
-              
-              
-                <footer class="prev-next-footer d-print-none">
-                  
+</article>
+<footer class="prev-next-footer d-print-none">
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="extended-gpu-memory.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><span class="section-number">4.17. </span>Extended GPU Memory</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="graphics-interop.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><span class="section-number">4.19. </span>CUDA Interoperability with APIs</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
+<a class="left-prev" href="extended-gpu-memory.html" title="上一页">4.17. 扩展 GPU 内存</a>
+<a class="right-next" href="graphics-interop.html" title="下一页">4.19. CUDA 与 API 的互操作</a>
 </div>
-                </footer>
-              
-            </div>
-            
-            
-
-
-              
-                <dialog id="pst-secondary-sidebar-modal"></dialog>
-                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
-
-
-  <div class="sidebar-secondary-item">
-<div
-    id="pst-page-navigation-heading-2"
-    class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
+</footer>
+</div>
+<dialog id="pst-secondary-sidebar-modal"></dialog>
+<div class="bd-sidebar-secondary bd-toc" id="pst-secondary-sidebar"><div class="sidebar-secondary-items sidebar-secondary__inner">
+<div class="sidebar-secondary-item">
+<div class="page-toc tocsection onthispage" id="pst-page-navigation-heading-2">
+<i class="fa-solid fa-list"></i>本页内容
   </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#introduction">4.18.1. Introduction</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#overview">4.18.1.1. Overview</a></li>
+<nav aria-labelledby="pst-page-navigation-heading-2" class="bd-toc-nav page-toc">
+<ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#introduction">4.18. CUDA 动态并行</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#overview">4.18. CUDA 动态并行</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#execution-environment">4.18.2. Execution Environment</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#parent-and-child-grids">4.18.2.1. Parent and Child Grids</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#scope-of-cuda-primitives">4.18.2.2. Scope of CUDA Primitives</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#streams-and-events">4.18.2.3. Streams and Events</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#ordering-and-concurrency">4.18.2.4. Ordering and Concurrency</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#execution-environment">4.18. CUDA 动态并行</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#parent-and-child-grids">4.18. CUDA 动态并行</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#scope-of-cuda-primitives">4.18. CUDA 动态并行</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#streams-and-events">4.18. CUDA 动态并行</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#ordering-and-concurrency">4.18. CUDA 动态并行</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#memory-coherence-and-consistency">4.18.3. Memory Coherence and Consistency</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#global-memory">4.18.3.1. Global Memory</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#mapped-memory">4.18.3.2. Mapped Memory</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#shared-and-local-memory">4.18.3.3. Shared and Local Memory</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#local-memory">4.18.3.4. Local Memory</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#texture-memory">4.18.3.4.1. Texture Memory</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#programming-interface">4.18.4. Programming Interface</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#basics">4.18.4.1. Basics</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#c-language-interface-for-cdp">4.18.4.2. C++ Language Interface for CDP</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#device-side-kernel-launch">4.18.4.2.1. Device-Side Kernel Launch</a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#launches-are-asynchronous">4.18.4.2.1.1. Launches are Asynchronous</a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#launch-environment-configuration">4.18.4.2.1.2. Launch Environment Configuration</a></li>
-</ul>
-</li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#events">4.18.4.2.2. Events</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#synchronization">4.18.4.2.3. Synchronization</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#device-management">4.18.4.2.4. Device Management</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#memory-coherence-and-consistency">4.18. CUDA 动态并行</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#global-memory">4.18. CUDA 动态并行</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#mapped-memory">4.18. CUDA 动态并行</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#shared-and-local-memory">4.18. CUDA 动态并行</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#local-memory">4.18. CUDA 动态并行</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#texture-memory">4.18. CUDA 动态并行</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#programming-guidelines">4.18.5. Programming Guidelines</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#performance">4.18.5.1. Performance</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#dynamic-parallelism-enabled-kernel-overhead">4.18.5.1.1. Dynamic-parallelism-enabled Kernel Overhead</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#programming-interface">4.18. CUDA 动态并行</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#basics">4.18. CUDA 动态并行</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#c-language-interface-for-cdp">4.18. CUDA 动态并行</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#device-side-kernel-launch">4.18. CUDA 动态并行</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#launches-are-asynchronous">4.18. CUDA 动态并行</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#launch-environment-configuration">4.18. CUDA 动态并行</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#implementation-restrictions-and-limitations">4.18.5.2. Implementation Restrictions and Limitations</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#runtime">4.18.5.2.1. Runtime</a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#memory-footprint">4.18.5.2.1.1. Memory Footprint</a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#pending-kernel-launches">4.18.5.2.1.2. Pending Kernel Launches</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#compatibility-and-interoperability">4.18.5.3. Compatibility and Interoperability</a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#device-side-launch-from-ptx">4.18.6. Device-side Launch from PTX</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#kernel-launch-apis">4.18.6.1. Kernel Launch APIs</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#cudalaunchdevice">4.18.6.1.1. cudaLaunchDevice</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#cudagetparameterbuffer">4.18.6.1.2. cudaGetParameterBuffer</a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#parameter-buffer-layout">4.18.6.2. Parameter Buffer Layout</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#events">4.18. CUDA 动态并行</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#synchronization">4.18. CUDA 动态并行</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#device-management">4.18. CUDA 动态并行</a></li>
 </ul>
 </li>
 </ul>
-  </nav></div>
-
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#programming-guidelines">4.18. CUDA 动态并行</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#performance">4.18. CUDA 动态并行</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#dynamic-parallelism-enabled-kernel-overhead">4.18. CUDA 动态并行</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#implementation-restrictions-and-limitations">4.18. CUDA 动态并行</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#runtime">4.18. CUDA 动态并行</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#memory-footprint">4.18. CUDA 动态并行</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#pending-kernel-launches">4.18. CUDA 动态并行</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#compatibility-and-interoperability">4.18. CUDA 动态并行</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#device-side-launch-from-ptx">4.18. CUDA 动态并行</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#kernel-launch-apis">4.18. CUDA 动态并行</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#cudalaunchdevice">4.18. CUDA 动态并行</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#cudagetparameterbuffer">4.18. CUDA 动态并行</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="dynamic-parallelism.html#parameter-buffer-layout">4.18. CUDA 动态并行</a></li>
+</ul>
+</li>
+</ul>
+</nav></div>
 </div></div>
-              
-            
-
-          </div>
-          <footer class="bd-footer-content">
-            
-          </footer>
-        
-      </main>
-    </div>
-  </div>
-  
-
-  <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js"></script>
-
-
+</div>
+<footer class="bd-footer-content">
+</footer>
+</main>
+</div>
+</div>
+ 脚本在 &lt;body&gt; 之后加载，因此 DOM 不会被阻塞 
+<script defer="" src="../_static/scripts/bootstrap.js"></script>
+<script defer="" src="../_static/scripts/pydata-sphinx-theme.js"></script>
 <script type="text/javascript">if (typeof _satellite !== "undefined") {_satellite.pageBottom();}</script>
-
-  <footer class="bd-footer">
+<footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
-  
-    <div class="footer-items__start">
-      
-        <div class="footer-item">
+<div class="footer-items__start">
+<div class="footer-item">
 <a class="footer-brand logo" href="https://www.nvidia.com">
-  <img src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
-  <img src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+<img alt="NVIDIA" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg"/>
+<img alt="NVIDIA" class="logo__image only-dark" src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg"/>
 </a></div>
-      
-        <div class="footer-item">
-
+<div class="footer-item">
 <div class="footer-links">
-  
-  
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+<a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">隐私政策</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">您的隐私选择</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">服务条款</a>
    | 
   
   
@@ -1019,47 +763,31 @@
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">公司政策</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">产品安全</a>
    | 
   
   
   
   <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
-  
-  
-  
 </div>
 </div>
-      
-        <div class="footer-item">
-
-
-
-
-  <p class="copyright">
+<div class="footer-item">
+<p class="copyright">
     
-      Copyright © 2007-2026, NVIDIA Corporation &amp; affiliates. All rights reserved.
+      版权所有 © 2007-2026，NVIDIA 公司及附属公司。版权所有。
       <br/>
-    
-  </p>
+</p>
 </div>
-      
-        <div class="footer-item"><p class="last-updated">
-  Last updated on Mar 04, 2026.
+<div class="footer-item"><p class="last-updated">
+  最后更新于 2026 年 3 月 4 日。
   <br/>
 </p></div>
-      
-    </div>
-  
-  
-  
 </div>
-
-  </footer>
-  </body>
-</html>
+</div>
+</footer>
+</body></html>

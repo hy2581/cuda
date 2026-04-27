@@ -1,52 +1,37 @@
-
-
 <!DOCTYPE html>
-
-
-<html lang="en" data-content_root="../" >
-
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <title>4.20. Driver Entry Point Access &#8212; CUDA Programming Guide</title>
-  
-  
-  
-  <script data-cfasync="false">
+<html data-content_root="../" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>4.20. 驱动入口点访问 — CUDA 编程指南</title>
+<script data-cfasync="false">
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
-  </script>
-  <!--
-    this give us a css class that will be invisible only if js is disabled
-  -->
-  <noscript>
-    <style>
+  </script></head><body><p>
+
+    这给了我们一个 css 类，只有在禁用 js 时才会不可见
+  
+<noscript>
+<style>
       .pst-js-only { display: none !important; }
 
     </style>
-  </noscript>
-  
-  <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css" rel="stylesheet" />
-
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/tables.css" />
-  
-  <!-- So that users can add custom icons -->
-  <script src="../_static/scripts/fontawesome.js"></script>
-  <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js" />
-
-
-<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript"
-  data-document-language="true" charset="UTF-8" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5">
+</noscript>
+ 在其他 Sphinx 资源之前加载 
+<link href="../_static/styles/theme.css" rel="stylesheet"/>
+<link href="../_static/styles/pydata-sphinx-theme.css" rel="stylesheet"/>
+<link href="../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/styles/nvidia-sphinx-theme.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/custom.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/copybutton.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx-design.min.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/tables.css" rel="stylesheet" type="text/css"/>
+ 以便用户可以添加自定义图标 
+<script src="../_static/scripts/fontawesome.js"></script>
+ 我们稍后将完全加载的预加载脚本 
+<link as="script" href="../_static/scripts/bootstrap.js" rel="preload"/>
+<link as="script" href="../_static/scripts/pydata-sphinx-theme.js" rel="preload"/>
+<script charset="UTF-8" data-document-language="true" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5" src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript">
 </script>
 <script type="text/javascript">
   function OptanonWrapper() {
@@ -56,458 +41,268 @@
 </script>
 <script src="https://images.nvidia.com/aem-dam/Solutions/ot-js/ot-custom.js" type="text/javascript">
 </script>
-
-
-    <script rel="preload" src="../_static/modal-table.js"></script>
-    <script src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/scrollspy-patch.js"></script>
-    <script src="../_static/clipboard.min.js"></script>
-    <script src="../_static/copybutton.js"></script>
-    <script src="../_static/design-tabs.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '04-special-topics/driver-entry-point-access';</script>
-    <script src="../_static/version-patch.js"></script>
-
-<script type="text/javascript" src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
-
-    <link rel="icon" href="../_static/favicon.ico"/>
-
-    <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="5. Technical Appendices" href="../part5.html" />
-    <link rel="prev" title="4.19. CUDA Interoperability with APIs" href="graphics-interop.html" />
-
-<link rel="preload" as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png">
-
-
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="" />
-    <meta name="docbuild:last-update" content="Mar 04, 2026"/>
-
-
-  </head>
-
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
-
-  
-  
-  <div id="pst-skip-link" class="skip-link d-print-none"><a href="driver-entry-point-access.html#main-content">Skip to main content</a></div>
-
-<img src="https://www.nvidia.com/content/dam/1x1-00000000.png" width="1" height="1" style="display:none;" alt="country_code">
-
-
-  
-  <div id="pst-scroll-pixel-helper"></div>
-  
-  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
-    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
-  
-  <dialog id="pst-search-dialog">
-    
-<form class="bd-search d-flex align-items-center"
-      action="../search.html"
-      method="get">
-  <i class="fa-solid fa-magnifying-glass"></i>
-  <input type="search"
-         class="form-control"
-         name="q"
-         placeholder="Search the docs ..."
-         aria-label="Search the docs ..."
-         autocomplete="off"
-         autocorrect="off"
-         autocapitalize="off"
-         spellcheck="false"/>
-  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+<script rel="preload" src="../_static/modal-table.js"></script>
+<script src="../_static/documentation_options.js"></script>
+<script src="../_static/doctools.js"></script>
+<script src="../_static/sphinx_highlight.js"></script>
+<script src="../_static/scrollspy-patch.js"></script>
+<script src="../_static/clipboard.min.js"></script>
+<script src="../_static/copybutton.js"></script>
+<script src="../_static/design-tabs.js"></script>
+<script>DOCUMENTATION_OPTIONS.pagename = '04-special-topics/driver-entry-point-access';</script>
+<script src="../_static/version-patch.js"></script>
+<script src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js" type="text/javascript"></script>
+<link href="../_static/favicon.ico" rel="icon"/>
+<link href="../genindex.html" rel="index" title="索引"/>
+<link href="../search.html" rel="search" title="搜索"/>
+<link href="../part5.html" rel="next" title="5. 技术附录"/>
+<link href="graphics-interop.html" rel="prev" title="4.19. CUDA 与 API 的互操作"/>
+<link as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png" rel="preload"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="en" name="docsearch:language"/>
+<meta content="" name="docsearch:version"/>
+<meta content="Mar 04, 2026" name="docbuild:last-update"/>
+</p>
+<div class="skip-link d-print-none" id="pst-skip-link"><a href="driver-entry-point-access.html#main-content">跳到主要内容</a></div>
+<img alt="country_code" height="1" src="https://www.nvidia.com/content/dam/1x1-00000000.png" style="display:none;" width="1"/>
+<div id="pst-scroll-pixel-helper"></div>
+<button class="btn rounded-pill" id="pst-back-to-top" type="button">
+<i class="fa-solid fa-arrow-up"></i>返回顶部</button>
+<dialog id="pst-search-dialog">
+<form action="../search.html" class="bd-search d-flex align-items-center" method="get">
+<i class="fa-solid fa-magnifying-glass"></i>
+<input aria-label="搜索文档..." autocapitalize="off" autocomplete="off" autocorrect="off" class="form-control" name="q" placeholder="搜索文档..." spellcheck="false" type="search"/>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
 </form>
-  </dialog>
-
-  <div class="pst-async-banner-revealer d-none">
-  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</dialog>
+<div class="pst-async-banner-revealer d-none">
+<aside aria-label="版本警告" class="d-none d-print-none" id="bd-header-version-warning"></aside>
 </div>
-
-  
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
-    <span class="fa-solid fa-bars"></span>
-  </button>
-  
-  
-  <div class="col-lg-3 navbar-header-items__start">
-    
-      <div class="navbar-item">
-
-  
-    
-  
-
+<button aria-label="站点导航" class="pst-navbar-icon sidebar-toggle primary-toggle">
+<span class="fa-solid fa-bars"></span>
+</button>
+<div class="col-lg-3 navbar-header-items__start">
+<div class="navbar-item">
 <a class="navbar-brand logo" href="../contents.html">
-  
-  
-  
-  
-  
-    
-    
-      
-    
-    
-    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
-    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
-  
-  
-    <p class="title logo__title">CUDA Programming Guide</p>
-  
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg"/>
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-dark pst-js-only" src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg"/>
+<p class="title logo__title">CUDA 编程指南</p>
 </a></div>
-    
-  </div>
-  
-  <div class="col-lg-9 navbar-header-items">
-    
-    <div class="me-auto navbar-header-items__center">
-      
-        <div class="navbar-item">
-
-
+</div>
+<div class="col-lg-9 navbar-header-items">
+<div class="me-auto navbar-header-items__center">
+<div class="navbar-item">
 <div>
-  <ul class="bd-navbar-elements navbar-nav">
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>v13.2 |</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>|</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
-      
-    </li>
-  
-  </ul>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item pst-header-nav-item">
+<span>v13.2 |</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+</li>
+<li class="nav-item pst-header-nav-item">
+<span>|</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">warp</a>
+</li>
+</ul>
 </div>
 </div>
-      
-    </div>
-    
-    
-    <div class="navbar-header-items__end">
-      
-        <div class="navbar-item navbar-persistent--container">
-          
-
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
- <i class="fa-solid fa-magnifying-glass"></i>
- <span class="search-button__default-text">Search</span>
- <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</div>
+<div class="navbar-header-items__end">
+<div class="navbar-item navbar-persistent--container">
+<button aria-label="warp" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="warp">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">warp</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
 </button>
-        </div>
-      
-      
-        <div class="navbar-item">
-
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</div>
+<div class="navbar-item">
+<button aria-label="色彩模式" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="系统设置"></i>
 </button></div>
-      
-    </div>
-    
-  </div>
-  
-  
-    <div class="navbar-persistent--mobile">
-
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
- <i class="fa-solid fa-magnifying-glass"></i>
- <span class="search-button__default-text">Search</span>
- <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-</button>
-    </div>
-  
-
-  
-    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
-      <span class="fa-solid fa-outdent"></span>
-    </button>
-  
 </div>
-
-    </header>
-  
-
-  <div class="bd-container">
-    <div class="bd-container__inner bd-page-width">
-      
-      
-      
-      <dialog id="pst-primary-sidebar-modal"></dialog>
-      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
-        
-
-
-
-  
-    
-  
-
+</div>
+<div class="navbar-persistent--mobile">
+<button aria-label="warp" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="warp">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">warp</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+</div>
+<button aria-label="切换侧边栏" class="pst-navbar-icon sidebar-toggle secondary-toggle">
+<span class="fa-solid fa-outdent"></span>
+</button>
+</div>
+</header>
+<div class="bd-container">
+<div class="bd-container__inner bd-page-width">
+<dialog id="pst-primary-sidebar-modal"></dialog>
+<div class="bd-sidebar-primary bd-sidebar" id="pst-primary-sidebar">
 <a class="navbar-brand logo" href="../contents.html">
-  
-  
-  
-  
-  
-    
-    
-      
-    
-    
-    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
-    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
-  
-  
-    <p class="title logo__title">CUDA Programming Guide</p>
-  
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg"/>
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-dark pst-js-only" src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg"/>
+<p class="title logo__title">CUDA 编程指南</p>
 </a>
-
-
-  
-  <div class="sidebar-header-items sidebar-primary__section">
-    
-    
-      <div class="sidebar-header-items__center">
-        
-          
-          
-            <div class="navbar-item">
-
-
+<div class="sidebar-header-items sidebar-primary__section">
+<div class="sidebar-header-items__center">
+<div class="navbar-item">
 <div>
-  <ul class="bd-navbar-elements navbar-nav">
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>v13.2 |</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>|</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
-      
-    </li>
-  
-  </ul>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item pst-header-nav-item">
+<span>v13.2 |</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+</li>
+<li class="nav-item pst-header-nav-item">
+<span>|</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">warp</a>
+</li>
+</ul>
 </div>
 </div>
-          
-        
-      </div>
-    
-    
-    
-      <div class="sidebar-header-items__end">
-        
-          <div class="navbar-item">
-
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</div>
+<div class="sidebar-header-items__end">
+<div class="navbar-item">
+<button aria-label="色彩模式" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="系统设置"></i>
 </button></div>
-        
-      </div>
-    
-  </div>
-  
-    <div class="sidebar-primary-items__start sidebar-primary__section">
-        <div class="sidebar-primary-item">
-
-
-
-<nav class="bd-docs-nav bd-links"
-     aria-label="Table of Contents">
-  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
-  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA Programming Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. Introduction to CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../01-introduction/introduction.html">1.1. Introduction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../01-introduction/programming-model.html">1.2. Programming Model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../01-introduction/cuda-platform.html">1.3. The CUDA platform</a></li>
+</div>
+</div>
+<div class="sidebar-primary-items__start sidebar-primary__section">
+<div class="sidebar-primary-item">
+<nav aria-label="目录" class="bd-docs-nav bd-links">
+<p aria-level="1" class="bd-links__title" role="heading">目录</p>
+<div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA 编程指南</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. CUDA 简介</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/introduction.html">1.1. 引言</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/programming-model.html">1.2. 编程模型</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/cuda-platform.html">1.3. CUDA 平台</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part2.html">2. Programming GPUs in CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html">2.1. Intro to CUDA C++</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/writing-cuda-kernels.html">2.2. Writing CUDA SIMT Kernels</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/asynchronous-execution.html">2.3. Asynchronous Execution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/understanding-memory.html">2.4. Unified and System Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/nvcc.html">2.5. NVCC: The NVIDIA CUDA Compiler</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part2.html">2. 使用 CUDA 进行 GPU 编程</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html">2.1. CUDA C++ 入门</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/writing-cuda-kernels.html">2.2. 编写 CUDA SIMT 内核</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/asynchronous-execution.html">2.3. 异步执行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/understanding-memory.html">2.4. 统一内存与系统内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/nvcc.html">2.5. NVCC：NVIDIA CUDA 编译器</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. Advanced CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. Advanced CUDA APIs and Features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. Advanced Kernel Programming</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. The CUDA Driver API</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. Programming Systems with Multiple GPUs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. A Tour of CUDA Features</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. 高级 CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. 高级 CUDA API 与特性</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. 高级内核编程</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. CUDA Driver API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. 多 GPU 系统编程</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. CUDA 特性概览</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="../part4.html">4. CUDA Features</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="unified-memory.html">4.1. Unified Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cuda-graphs.html">4.2. CUDA Graphs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="stream-ordered-memory-allocation.html">4.3. Stream-Ordered Memory Allocator</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cooperative-groups.html">4.4. Cooperative Groups</a></li>
-<li class="toctree-l3"><a class="reference internal" href="programmatic-dependent-launch.html">4.5. Programmatic Dependent Launch and Synchronization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="green-contexts.html">4.6. Green Contexts</a></li>
-<li class="toctree-l3"><a class="reference internal" href="lazy-loading.html">4.7. Lazy Loading</a></li>
-<li class="toctree-l3"><a class="reference internal" href="error-log-management.html">4.8. Error Log Management</a></li>
-<li class="toctree-l3"><a class="reference internal" href="async-barriers.html">4.9. Asynchronous Barriers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pipelines.html">4.10. Pipelines</a></li>
-<li class="toctree-l3"><a class="reference internal" href="async-copies.html">4.11. Asynchronous Data Copies</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cluster-launch-control.html">4.12. Work Stealing with Cluster Launch Control</a></li>
-<li class="toctree-l3"><a class="reference internal" href="l2-cache-control.html">4.13. L2 Cache Control</a></li>
-<li class="toctree-l3"><a class="reference internal" href="memory-sync-domains.html">4.14. Memory Synchronization Domains</a></li>
-<li class="toctree-l3"><a class="reference internal" href="inter-process-communication.html">4.15. Interprocess Communication</a></li>
-<li class="toctree-l3"><a class="reference internal" href="virtual-memory-management.html">4.16. Virtual Memory Management</a></li>
-<li class="toctree-l3"><a class="reference internal" href="extended-gpu-memory.html">4.17. Extended GPU Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dynamic-parallelism.html">4.18. CUDA Dynamic Parallelism</a></li>
-<li class="toctree-l3"><a class="reference internal" href="graphics-interop.html">4.19. CUDA Interoperability with APIs</a></li>
-<li class="toctree-l3 current active"><a class="current reference internal" href="driver-entry-point-access.html#">4.20. Driver Entry Point Access</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../part4.html">4. CUDA 特性</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="unified-memory.html">4.1. 统一内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda-graphs.html">4.2. CUDA Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stream-ordered-memory-allocation.html">4.3. 流有序内存分配器</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cooperative-groups.html">4.4. 协作组</a></li>
+<li class="toctree-l3"><a class="reference internal" href="programmatic-dependent-launch.html">4.5. 程序化依赖启动与同步</a></li>
+<li class="toctree-l3"><a class="reference internal" href="green-contexts.html">4.6. 绿色上下文</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lazy-loading.html">4.7. 延迟加载</a></li>
+<li class="toctree-l3"><a class="reference internal" href="error-log-management.html">4.8. 错误日志管理</a></li>
+<li class="toctree-l3"><a class="reference internal" href="async-barriers.html">4.9. 异步屏障</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pipelines.html">4.10. 流水线</a></li>
+<li class="toctree-l3"><a class="reference internal" href="async-copies.html">4.11. 异步数据拷贝</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cluster-launch-control.html">4.12. 使用簇启动控制进行工作窃取</a></li>
+<li class="toctree-l3"><a class="reference internal" href="l2-cache-control.html">4.13. L2 缓存控制</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory-sync-domains.html">4.14. 内存同步域</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inter-process-communication.html">4.15. 进程间通信</a></li>
+<li class="toctree-l3"><a class="reference internal" href="virtual-memory-management.html">4.16. 虚拟内存管理</a></li>
+<li class="toctree-l3"><a class="reference internal" href="extended-gpu-memory.html">4.17. 扩展 GPU 内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamic-parallelism.html">4.18. CUDA 动态并行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graphics-interop.html">4.19. CUDA 与 API 的互操作</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="driver-entry-point-access.html#">4.20. 驱动入口点访问</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part5.html">5. Technical Appendices</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/compute-capabilities.html">5.1. Compute Capabilities</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/environment-variables.html">5.2. CUDA Environment Variables</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-support.html">5.3. C++ Language Support</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-extensions.html">5.4. C/C++ Language Extensions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/mathematical-functions.html">5.5. Floating-Point Computation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/device-callable-apis.html">5.6. Device-Callable APIs and Intrinsics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-memory-model.html">5.7. CUDA C++ Memory Model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-execution-model.html">5.8. CUDA C++ Execution model</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part5.html">5. 技术附录</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/compute-capabilities.html">5.1. 计算能力</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/environment-variables.html">5.2. CUDA 环境变量</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-support.html">5.3. C++ 语言支持</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-extensions.html">5.4. C/C++ 语言扩展</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/mathematical-functions.html">5.5. 浮点计算</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/device-callable-apis.html">5.6. 设备端可调用 API 与内建函数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-memory-model.html">5.7. CUDA C++ 内存模型</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-execution-model.html">5.8. CUDA C++ 执行模型</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. Notices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. 声明</a></li>
 </ul>
 </details></li>
 </ul>
 </div>
 </nav></div>
-    </div>
-  
-  
-  <div class="sidebar-primary-items__end sidebar-primary__section">
-  </div>
-
-
-
-      </div>
-      
-      <main id="main-content" class="bd-main" role="main">
-        
-        
-          <div class="bd-content">
-            <div class="bd-article-container">
-              
-              <div class="bd-header-article d-print-none">
+</div>
+<div class="sidebar-primary-items__end sidebar-primary__section">
+</div>
+</div>
+<main class="bd-main" id="main-content" role="main">
+<div class="bd-content">
+<div class="bd-article-container">
+<div class="bd-header-article d-print-none">
 <div class="header-article-items header-article__inner">
-  
-    <div class="header-article-items__start">
-      
-        <div class="header-article-item">
-
+<div class="header-article-items__start">
+<div class="header-article-item">
 <nav aria-label="Breadcrumb" class="d-print-none">
-  <ul class="bd-breadcrumbs">
-    
-    <li class="breadcrumb-item breadcrumb-home">
-      <a href="../contents.html" class="nav-link" aria-label="Home">
-        <i class="fa-solid fa-home"></i>
-      </a>
-    </li>
-    
-    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">CUDA Programming Guide</a></li>
-    
-    
-    <li class="breadcrumb-item"><a href="../part4.html" class="nav-link"><span class="section-number">4. </span>CUDA Features</a></li>
-    
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">4.20. </span>Driver Entry Point Access</span></li>
-  </ul>
+<ul class="bd-breadcrumbs">
+<li class="breadcrumb-item breadcrumb-home">
+<a aria-label="Home" class="nav-link" href="../contents.html">目录</a>
+</li>
+<li class="breadcrumb-item"><a class="nav-link" href="../index.html">CUDA 编程指南</a></li>
+<li class="breadcrumb-item"><a class="nav-link" href="../part4.html">4. CUDA 特性</a></li>
+<li aria-current="page" class="breadcrumb-item active"><span class="ellipsis"><span class="section-number">4.20. </span>驱动程序入口点访问</span></li>
+</ul>
 </nav>
 </div>
-      
-    </div>
-  
-  
-    <div class="header-article-items__end">
-      
-        <div class="header-article-item">
+</div>
+<div class="header-article-items__end">
 <div class="header-article-item">
-  <div class="d-flex justify-content-end w-100">
-    <a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">Is this page helpful?</a>
-  </div>
+<div class="header-article-item">
+<div class="d-flex justify-content-end w-100">
+<a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">此页面有帮助吗？</a>
+</div>
 </div></div>
-      
-    </div>
-  
 </div>
 </div>
-              
-              
-              
-                
+</div>
 <div id="searchbox"></div>
-                <article class="bd-article">
-                  
-  <section id="driver-entry-point-access">
-<span id="id1"></span><h1><span class="section-number">4.20. </span>Driver Entry Point Access<a class="headerlink" href="driver-entry-point-access.html#driver-entry-point-access" title="Link to this heading">#</a></h1>
+<article class="bd-article">
+<section id="driver-entry-point-access">
+<span id="id1"></span><h1>4.20. 驱动入口点访问<a class="headerlink" href="driver-entry-point-access.html#driver-entry-point-access" title="跳转到此标题">#</a></h1>
 <section id="introduction">
-<span id="introduction-driver-entry-point-access"></span><h2><span class="section-number">4.20.1. </span>Introduction<a class="headerlink" href="driver-entry-point-access.html#introduction" title="Link to this heading">#</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">Driver</span> <span class="pre">Entry</span> <span class="pre">Point</span> <span class="pre">Access</span> <span class="pre">APIs</span></code> provide a way to retrieve the address of a CUDA driver function. Starting from CUDA 11.3, users can call into available CUDA driver APIs using function pointers obtained from these APIs.</p>
-<p>These APIs provide functionality similar to their counterparts, dlsym on POSIX platforms and GetProcAddress on Windows. The provided APIs will let users:</p>
+<span id="introduction-driver-entry-point-access"></span><h2><span class="section-number">4.20.1. </span>引言<a class="headerlink" href="driver-entry-point-access.html#introduction" title="跳转到此标题">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Driver</span> <span class="pre">Entry</span> <span class="pre">Point</span> <span class="pre">Access</span> <span class="pre">APIs</span></code> 提供一种检索 CUDA 驱动程序函数地址的方法。从 CUDA 11.3 开始，用户可以使用从这些 API 获取的函数指针来调用可用的 CUDA 驱动程序 API。</p>
+<p>这些 API 提供的功能类似于 POSIX 平台上的 dlsym 和 Windows 上的 GetProcAddress。提供的 API 将允许用户：</p>
 <ul class="simple">
-<li><p>Retrieve the address of a driver function using the <code class="docutils literal notranslate"><span class="pre">CUDA</span> <span class="pre">Driver</span> <span class="pre">API.</span></code></p></li>
-<li><p>Retrieve the address of a driver function using the <code class="docutils literal notranslate"><span class="pre">CUDA</span> <span class="pre">Runtime</span> <span class="pre">API.</span></code></p></li>
-<li><p>Request <em>per-thread default stream</em> version of a CUDA driver function. For more details, see <a class="reference internal" href="driver-entry-point-access.html#retrieve-per-thread-default-stream-versions"><span class="std std-ref">Retrieve Per-thread Default Stream Versions</span></a>.</p></li>
-<li><p>Access new CUDA features on older toolkits but with a newer driver.</p></li>
+<li><p>使用以下命令检索驱动程序函数的地址 <code class="docutils literal notranslate"><span class="pre">CUDA</span> <span class="pre">Driver</span> <span class="pre">API.</span></code></p></li>
+<li><p>使用以下命令检索驱动程序函数的地址 <code class="docutils literal notranslate"><span class="pre">CUDA</span> <span class="pre">运行时</span> <span class="pre">API.</span></code></p></li>
+<li><p>请求 CUDA 驱动程序函数的 <em>每线程默认流</em> 版本。有关更多详细信息，请参阅 <a class="reference internal" href="driver-entry-point-access.html#retrieve-per-thread-default-stream-versions"><span class="std std-ref">检索每线程默认流版本</span></a>。</p></li>
+<li><p>使用较旧的工具包但使用较新的驱动程序访问新的 CUDA 功能。</p></li>
 </ul>
 </section>
 <section id="driver-function-typedefs">
-<span id="id2"></span><h2><span class="section-number">4.20.2. </span>Driver Function Typedefs<a class="headerlink" href="driver-entry-point-access.html#driver-function-typedefs" title="Link to this heading">#</a></h2>
-<p>To help retrieve the CUDA Driver API entry points, the CUDA Toolkit provides access to headers containing the function pointer definitions for all CUDA driver APIs. These headers are installed with the CUDA Toolkit and are made available in the toolkit’s <code class="docutils literal notranslate"><span class="pre">include/</span></code> directory. The table below summarizes the header files containing the <code class="docutils literal notranslate"><span class="pre">typedefs</span></code> for each CUDA API header file.</p>
+<span id="id2"></span><h2><span class="section-number">4.20.2. </span>驱动程序函数类型定义<a class="headerlink" href="driver-entry-point-access.html#driver-function-typedefs" title="跳转到此标题">#</a></h2>
+<p>为了帮助检索 CUDA 驱动程序 API 入口点，CUDA 工具包提供对包含所有 CUDA 驱动程序 API 的函数指针定义的标头的访问。这些标头随 CUDA 工具包一起安装，并在工具包的 <code class="docutils literal notranslate"><span class="pre">include/</span></code> 目录。下表总结了包含以下内容的头文件 <code class="docutils literal notranslate"><span class="pre">typedefs</span></code> 对于每个 CUDA API 头文件。</p>
 <div class="pst-scrollable-table-container"><table class="table" id="id9">
-<caption><span class="caption-number">Table 27 </span><span class="caption-text">Typedefs header files for CUDA driver APIs</span><a class="headerlink" href="driver-entry-point-access.html#id9" title="Link to this table">#</a></caption>
+<caption><span class="caption-number">表27 </span><span class="caption-text">CUDA 驱动程序 API 的 Typedefs 头文件</span><a class="headerlink" href="driver-entry-point-access.html#id9" title="跳转到此标题">#</a></caption>
 <thead>
-<tr class="row-odd"><th class="head"><p>API header file</p></th>
-<th class="head"><p>API Typedef header file</p></th>
+<tr class="row-odd"><th class="head"><p>API头文件</p></th>
+<th class="head"><p>API Typedef 头文件</p></th>
 </tr>
 </thead>
 <tbody>
@@ -538,29 +333,29 @@
 </tbody>
 </table>
 </div>
-<p>The above headers do not define actual function pointers themselves; they define the typedefs for function pointers. For example, <code class="docutils literal notranslate"><span class="pre">cudaTypedefs.h</span></code> has the below typedefs for the driver API <code class="docutils literal notranslate"><span class="pre">cuMemAlloc</span></code>:</p>
+<p>上面的头文件本身并没有定义实际的函数指针；它们定义了函数指针的 typedef。例如， <code class="docutils literal notranslate"><span class="pre">cudaTypedefs.h</span></code> 具有以下驱动程序 API 的 typedef <code class="docutils literal notranslate"><span class="pre">cuMemAlloc</span></code>:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="n">CUresult</span><span class="w"> </span><span class="p">(</span><span class="n">CUDAAPI</span><span class="w"> </span><span class="o">*</span><span class="n">PFN_cuMemAlloc_v3020</span><span class="p">)(</span><span class="n">CUdeviceptr_v2</span><span class="w"> </span><span class="o">*</span><span class="n">dptr</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">bytesize</span><span class="p">);</span>
 <span class="k">typedef</span><span class="w"> </span><span class="n">CUresult</span><span class="w"> </span><span class="p">(</span><span class="n">CUDAAPI</span><span class="w"> </span><span class="o">*</span><span class="n">PFN_cuMemAlloc_v2000</span><span class="p">)(</span><span class="n">CUdeviceptr_v1</span><span class="w"> </span><span class="o">*</span><span class="n">dptr</span><span class="p">,</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">bytesize</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>CUDA driver symbols have a version based naming scheme with a <code class="docutils literal notranslate"><span class="pre">_v*</span></code> extension in its name except for the first version. When the signature or the semantics of a specific CUDA driver API changes, we increment the version number of the corresponding driver symbol. In the case of the <code class="docutils literal notranslate"><span class="pre">cuMemAlloc</span></code> driver API, the first driver symbol name is <code class="docutils literal notranslate"><span class="pre">cuMemAlloc</span></code> and the next symbol name is <code class="docutils literal notranslate"><span class="pre">cuMemAlloc_v2</span></code>. The typedef for the first version which was introduced in CUDA 2.0 (2000) is <code class="docutils literal notranslate"><span class="pre">PFN_cuMemAlloc_v2000</span></code>. The typedef for the next version which was introduced in CUDA 3.2 (3020) is <code class="docutils literal notranslate"><span class="pre">PFN_cuMemAlloc_v3020</span></code>.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">typedefs</span></code> can be used to more easily define a function pointer of the appropriate type in code:</p>
+<p>CUDA 驱动程序符号具有基于版本的命名方案，其中 <code class="docutils literal notranslate"><span class="pre">_v*</span></code> 除第一个版本外，其名称中包含扩展名。当特定 CUDA 驱动程序 API 的签名或语义发生变化时，我们会增加相应驱动程序符号的版本号。在这种情况下 <code class="docutils literal notranslate"><span class="pre">cuMemAlloc</span></code> 驱动程序 API，第一个驱动程序符号名称是 <code class="docutils literal notranslate"><span class="pre">cuMemAlloc</span></code> 下一个符号名称是 <code class="docutils literal notranslate"><span class="pre">cuMemAlloc_v2</span></code>。 CUDA 2.0 (2000) 中引入的第一个版本的 typedef 是 <code class="docutils literal notranslate"><span class="pre">PFN_cuMemAlloc_v2000</span></code>。 CUDA 3.2 (3020) 中引入的下一个版本的 typedef 是 <code class="docutils literal notranslate"><span class="pre">PFN_cuMemAlloc_v3020</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">typedefs</span></code> 可用于更轻松地在代码中定义适当类型的函数指针：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">PFN_cuMemAlloc_v3020</span><span class="w"> </span><span class="n">pfn_cuMemAlloc_v2</span><span class="p">;</span>
 <span class="n">PFN_cuMemAlloc_v2000</span><span class="w"> </span><span class="n">pfn_cuMemAlloc_v1</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>The above method is preferable if users are interested in a specific version of the API. Additionally, the headers have predefined macros for the latest version of all driver symbols that were available when the installed CUDA toolkit was released; these typedefs do not have a <code class="docutils literal notranslate"><span class="pre">_v*</span></code> suffix. For CUDA 11.3 toolkit, <code class="docutils literal notranslate"><span class="pre">cuMemAlloc_v2</span></code> was the latest version and so we can also define its function pointer as below:</p>
+<p>如果用户对特定版本的 API 感兴趣，则更适合使用上述方法。此外，标头还为已安装的 CUDA 工具包发布时可用的所有驱动程序符号的最新版本预定义了宏；这些 typedef 没有 <code class="docutils literal notranslate"><span class="pre">_v*</span></code> 后缀。对于 CUDA 11.3 工具包， <code class="docutils literal notranslate"><span class="pre">cuMemAlloc_v2</span></code> 是最新版本，所以我们也可以定义它的函数指针，如下所示：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">PFN_cuMemAlloc</span><span class="w"> </span><span class="n">pfn_cuMemAlloc</span><span class="p">;</span>
 </pre></div>
 </div>
 </section>
 <section id="driver-function-retrieval">
-<span id="id3"></span><h2><span class="section-number">4.20.3. </span>Driver Function Retrieval<a class="headerlink" href="driver-entry-point-access.html#driver-function-retrieval" title="Link to this heading">#</a></h2>
-<p>Using the Driver Entry Point Access APIs and the appropriate typedef, we can get the function pointer to any CUDA driver API.</p>
+<span id="id3"></span><h2><span class="section-number">4.20.3. </span>驱动程序功能检索<a class="headerlink" href="driver-entry-point-access.html#driver-function-retrieval" title="跳转到此标题">#</a></h2>
+<p>使用驱动程序入口点访问 API 和适当的 typedef，我们可以获得指向任何 CUDA 驱动程序 API 的函数指针。</p>
 <section id="using-the-driver-api">
-<span id="id4"></span><h3><span class="section-number">4.20.3.1. </span>Using the Driver API<a class="headerlink" href="driver-entry-point-access.html#using-the-driver-api" title="Link to this heading">#</a></h3>
-<p>The driver API requires CUDA version as an argument to get the ABI compatible version for the requested driver symbol. CUDA Driver APIs have a per-function ABI denoted with a <code class="docutils literal notranslate"><span class="pre">_v*</span></code> extension. For example, consider the versions of <code class="docutils literal notranslate"><span class="pre">cuStreamBeginCapture</span></code> and their corresponding <code class="docutils literal notranslate"><span class="pre">typedefs</span></code> from <code class="docutils literal notranslate"><span class="pre">cudaTypedefs.h</span></code>:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// cuda.h</span>
+<span id="id4"></span><h3><span class="section-number">4.20.3.1. </span>使用驱动程序 API<a class="headerlink" href="driver-entry-point-access.html#using-the-driver-api" title="跳转到此标题">#</a></h3>
+<p>驱动程序 API 需要 CUDA 版本作为参数来获取所请求的驱动程序符号的 ABI 兼容版本。 CUDA 驱动程序 API 有一个按功能 ABI，用 <code class="docutils literal notranslate"><span class="pre">_v*</span></code> 扩展。例如，考虑以下版本 <code class="docutils literal notranslate"><span class="pre">cuStreamBeginCapture</span></code> 以及他们对应的 <code class="docutils literal notranslate"><span class="pre">typedefs</span></code> from <code class="docutils literal notranslate"><span class="pre">cudaTypedefs.h</span></code>:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// CUDA.h</span>
 <span class="n">CUresult</span><span class="w"> </span><span class="n">CUDAAPI</span><span class="w"> </span><span class="n">cuStreamBeginCapture</span><span class="p">(</span><span class="n">CUstream</span><span class="w"> </span><span class="n">hStream</span><span class="p">);</span>
 <span class="n">CUresult</span><span class="w"> </span><span class="n">CUDAAPI</span><span class="w"> </span><span class="n">cuStreamBeginCapture_v2</span><span class="p">(</span><span class="n">CUstream</span><span class="w"> </span><span class="n">hStream</span><span class="p">,</span><span class="w"> </span><span class="n">CUstreamCaptureMode</span><span class="w"> </span><span class="n">mode</span><span class="p">);</span>
 
@@ -569,91 +364,91 @@
 <span class="k">typedef</span><span class="w"> </span><span class="n">CUresult</span><span class="w"> </span><span class="p">(</span><span class="n">CUDAAPI</span><span class="w"> </span><span class="o">*</span><span class="n">PFN_cuStreamBeginCapture_v10010</span><span class="p">)(</span><span class="n">CUstream</span><span class="w"> </span><span class="n">hStream</span><span class="p">,</span><span class="w"> </span><span class="n">CUstreamCaptureMode</span><span class="w"> </span><span class="n">mode</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>From the above <code class="docutils literal notranslate"><span class="pre">typedefs</span></code> in the code snippet, version suffixes <code class="docutils literal notranslate"><span class="pre">_v10000</span></code> and <code class="docutils literal notranslate"><span class="pre">_v10010</span></code> indicate that the above APIs were introduced in CUDA 10.0 and CUDA 10.1 respectively.</p>
+<p>从上面 <code class="docutils literal notranslate"><span class="pre">typedefs</span></code> 在代码片段中，版本后缀 <code class="docutils literal notranslate"><span class="pre">_v10000</span></code> 或 <code class="docutils literal notranslate"><span class="pre">_v10010</span></code> 表明上述API分别在CUDA 10.0和 CUDA 10.1中引入。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cudaTypedefs.h&gt;</span>
 
-<span class="c1">// Declare the entry points for cuStreamBeginCapture</span>
+<span class="c1">// 声明 cuStreamBeginCapture 的入口点</span>
 <span class="n">PFN_cuStreamBeginCapture_v10000</span><span class="w"> </span><span class="n">pfn_cuStreamBeginCapture_v1</span><span class="p">;</span>
 <span class="n">PFN_cuStreamBeginCapture_v10010</span><span class="w"> </span><span class="n">pfn_cuStreamBeginCapture_v2</span><span class="p">;</span>
 
-<span class="c1">// Get the function pointer to the cuStreamBeginCapture driver symbol</span>
-<span class="n">cuGetProcAddress</span><span class="p">(</span><span class="s">&quot;cuStreamBeginCapture&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pfn_cuStreamBeginCapture_v1</span><span class="p">,</span><span class="w"> </span><span class="mi">10000</span><span class="p">,</span><span class="w"> </span><span class="n">CU_GET_PROC_ADDRESS_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">driverStatus</span><span class="p">);</span>
-<span class="c1">// Get the function pointer to the cuStreamBeginCapture_v2 driver symbol</span>
-<span class="n">cuGetProcAddress</span><span class="p">(</span><span class="s">&quot;cuStreamBeginCapture&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pfn_cuStreamBeginCapture_v2</span><span class="p">,</span><span class="w"> </span><span class="mi">10010</span><span class="p">,</span><span class="w"> </span><span class="n">CU_GET_PROC_ADDRESS_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">driverStatus</span><span class="p">);</span>
+<span class="c1">// 获取指向 cuStreamBeginCapture 驱动程序符号的函数指针</span>
+<span class="n">cuGetProcAddress</span><span class="p">(</span><span class="s">"cuStreamBeginCapture"</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pfn_cuStreamBeginCapture_v1</span><span class="p">,</span><span class="w"> </span><span class="mi">10000</span><span class="p">,</span><span class="w"> </span><span class="n">CU_GET_PROC_ADDRESS_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">driverStatus</span><span class="p">);</span>
+<span class="c1">// 获取指向 cuStreamBeginCapture_v2 驱动程序符号的函数指针</span>
+<span class="n">cuGetProcAddress</span><span class="p">(</span><span class="s">"cuStreamBeginCapture"</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pfn_cuStreamBeginCapture_v2</span><span class="p">,</span><span class="w"> </span><span class="mi">10010</span><span class="p">,</span><span class="w"> </span><span class="n">CU_GET_PROC_ADDRESS_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">driverStatus</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>Referring to the code snippet above, to retrieve the address to the <code class="docutils literal notranslate"><span class="pre">_v1</span></code> version of the driver API <code class="docutils literal notranslate"><span class="pre">cuStreamBeginCapture</span></code>, the CUDA version argument should be exactly 10.0 (10000). Similarly, the CUDA version for retrieving the address to the <code class="docutils literal notranslate"><span class="pre">_v2</span></code> version of the API should be 10.1 (10010). Specifying a higher CUDA version for retrieving a specific version of a driver API might not always be portable. For example, using 11030 here would still return the <code class="docutils literal notranslate"><span class="pre">_v2</span></code> symbol, but if a hypothetical <code class="docutils literal notranslate"><span class="pre">_v3</span></code> version is released in CUDA 11.3, the <code class="docutils literal notranslate"><span class="pre">cuGetProcAddress</span></code> API would start returning the newer <code class="docutils literal notranslate"><span class="pre">_v3</span></code> symbol instead when paired with a CUDA 11.3 driver. Since the ABI and function signatures of the <code class="docutils literal notranslate"><span class="pre">_v2</span></code> and <code class="docutils literal notranslate"><span class="pre">_v3</span></code> symbols might differ, calling the <code class="docutils literal notranslate"><span class="pre">_v3</span></code> function using the <code class="docutils literal notranslate"><span class="pre">_v10010</span></code> typedef intended for the <code class="docutils literal notranslate"><span class="pre">_v2</span></code> symbol would exhibit undefined behavior.</p>
-<p>To retrieve the latest version of a driver API for a given CUDA Toolkit, we can also specify CUDA_VERSION as the <code class="docutils literal notranslate"><span class="pre">version</span></code> argument and use the unversioned typedef to define the function pointer. Since <code class="docutils literal notranslate"><span class="pre">_v2</span></code> is the latest version of the driver API <code class="docutils literal notranslate"><span class="pre">cuStreamBeginCapture</span></code> in CUDA 11.3, the below code snippet shows a different method to retrieve it.</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// Assuming we are using CUDA 11.3 Toolkit</span>
+<p>参考上面的代码片段，检索地址 <code class="docutils literal notranslate"><span class="pre">_v1</span></code> 驱动程序 API 的版本 <code class="docutils literal notranslate"><span class="pre">cuStreamBeginCapture</span></code>，CUDA 版本参数应该正好是 10.0 (10000)。同样，用于检索地址的 CUDA 版本 <code class="docutils literal notranslate"><span class="pre">_v2</span></code> API 的版本应为 10.1 (10010)。指定更高的 CUDA 版本来检索特定版本的驱动程序 API 可能并不总是可移植的。例如，在这里使用 11030 仍然会返回 <code class="docutils literal notranslate"><span class="pre">_v2</span></code> 符号，但如果是一个假设 <code class="docutils literal notranslate"><span class="pre">_v3</span></code> 版本在 CUDA 11.3 中发布， <code class="docutils literal notranslate"><span class="pre">cuGetProcAddress</span></code> API 将开始返回较新的 <code class="docutils literal notranslate"><span class="pre">_v3</span></code> 与 CUDA 11.3 驱动程序配对时改为使用符号。由于 ABI 和函数签名 <code class="docutils literal notranslate"><span class="pre">_v2</span></code> 或 <code class="docutils literal notranslate"><span class="pre">_v3</span></code> 符号可能会有所不同，调用 <code class="docutils literal notranslate"><span class="pre">_v3</span></code> 函数使用 <code class="docutils literal notranslate"><span class="pre">_v10010</span></code> typedef 旨在用于 <code class="docutils literal notranslate"><span class="pre">_v2</span></code> 符号将表现出未定义的行为。</p>
+<p>要检索给定 CUDA 工具包的驱动程序 API 的最新版本，我们还可以指定 CUDA_VERSION 作为 <code class="docutils literal notranslate"><span class="pre">version</span></code> 参数并使用无版本的 typedef 来定义函数指针。自从 <code class="docutils literal notranslate"><span class="pre">_v2</span></code> 是最新版本的驱动程序API <code class="docutils literal notranslate"><span class="pre">cuStreamBeginCapture</span></code> 在 CUDA 11.3 中，以下代码片段显示了检索它的不同方法。</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 假设我们使用 CUDA 11.3 Toolkit</span>
 
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cudaTypedefs.h&gt;</span>
 
-<span class="c1">// Declare the entry point</span>
+<span class="c1">// 声明入口点</span>
 <span class="n">PFN_cuStreamBeginCapture</span><span class="w"> </span><span class="n">pfn_cuStreamBeginCapture_latest</span><span class="p">;</span>
 
-<span class="c1">// Initialize the entry point. Specifying CUDA_VERSION will give the function pointer to the</span>
-<span class="c1">// cuStreamBeginCapture_v2 symbol since it is latest version on CUDA 11.3.</span>
-<span class="n">cuGetProcAddress</span><span class="p">(</span><span class="s">&quot;cuStreamBeginCapture&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pfn_cuStreamBeginCapture_latest</span><span class="p">,</span><span class="w"> </span><span class="n">CUDA_VERSION</span><span class="p">,</span><span class="w"> </span><span class="n">CU_GET_PROC_ADDRESS_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">driverStatus</span><span class="p">);</span>
+<span class="c1">// 初始化入口点。指定 CUDA_VERSION 将使函数指针指向</span>
+<span class="c1">// cuStreamBeginCapture_v2 符号，因为它是 CUDA 11.3 上的最新版本。</span>
+<span class="n">cuGetProcAddress</span><span class="p">(</span><span class="s">"cuStreamBeginCapture"</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pfn_cuStreamBeginCapture_latest</span><span class="p">,</span><span class="w"> </span><span class="n">CUDA_VERSION</span><span class="p">,</span><span class="w"> </span><span class="n">CU_GET_PROC_ADDRESS_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">driverStatus</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>Note that requesting a driver API with an invalid CUDA version will return an error <code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_NOT_FOUND</span></code>. In the above code examples, passing in a version less than 10000 (CUDA 10.0) would be invalid.</p>
+<p>请注意，请求具有无效 CUDA 版本的驱动程序 API 将返回错误 <code class="docutils literal notranslate"><span class="pre">CUDA_ERROR_NOT_FOUND</span></code>。在上面的代码示例中，传入小于 10000 (CUDA 10.0) 的版本将是无效的。</p>
 </section>
 <section id="using-the-runtime-api">
-<span id="id5"></span><h3><span class="section-number">4.20.3.2. </span>Using the Runtime API<a class="headerlink" href="driver-entry-point-access.html#using-the-runtime-api" title="Link to this heading">#</a></h3>
-<p>The runtime API <code class="docutils literal notranslate"><span class="pre">cudaGetDriverEntryPoint</span></code> uses the CUDA runtime version to get the ABI compatible version for the requested driver symbol. In the below code snippet, the minimum CUDA runtime version required would be CUDA 11.2 as <code class="docutils literal notranslate"><span class="pre">cuMemAllocAsync</span></code> was introduced then.</p>
+<span id="id5"></span><h3><span class="section-number">4.20.3.2. </span>使用运行时 API<a class="headerlink" href="driver-entry-point-access.html#using-the-runtime-api" title="跳转到此标题">#</a></h3>
+<p>运行时 API <code class="docutils literal notranslate"><span class="pre">cudaGetDriverEntryPoint</span></code> 使用 CUDA 运行时版本来获取所请求的驱动程序符号的 ABI 兼容版本。在下面的代码片段中，所需的最低 CUDA 运行时版本为 CUDA 11.2，如下所示 <code class="docutils literal notranslate"><span class="pre">cuMemAllocAsync</span></code> 当时就被介绍了。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cudaTypedefs.h&gt;</span>
 
-<span class="c1">// Declare the entry point</span>
+<span class="c1">// 声明入口点</span>
 <span class="n">PFN_cuMemAllocAsync</span><span class="w"> </span><span class="n">pfn_cuMemAllocAsync</span><span class="p">;</span>
 
-<span class="c1">// Initialize the entry point. Assuming CUDA runtime version &gt;= 11.2</span>
-<span class="n">cudaGetDriverEntryPoint</span><span class="p">(</span><span class="s">&quot;cuMemAllocAsync&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pfn_cuMemAllocAsync</span><span class="p">,</span><span class="w"> </span><span class="n">cudaEnableDefault</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">driverStatus</span><span class="p">);</span>
+<span class="c1">// 初始化入口点。假设 CUDA 运行时版本 &gt;= 11.2</span>
+<span class="n">cudaGetDriverEntryPoint</span><span class="p">(</span><span class="s">"cuMemAllocAsync"</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pfn_cuMemAllocAsync</span><span class="p">,</span><span class="w"> </span><span class="n">cudaEnableDefault</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">driverStatus</span><span class="p">);</span>
 
-<span class="c1">// Call the entry point</span>
+<span class="c1">// 调用入口点</span>
 <span class="k">if</span><span class="p">(</span><span class="n">driverStatus</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">cudaDriverEntryPointSuccess</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">pfn_cuMemAllocAsync</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">pfn_cuMemAllocAsync</span><span class="p">(...);</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The runtime API <code class="docutils literal notranslate"><span class="pre">cudaGetDriverEntryPointByVersion</span></code> uses the user provided CUDA version to get the ABI compatible version for the requested driver symbol. This allows more specific control over the requested ABI version.</p>
+<p>运行时 API <code class="docutils literal notranslate"><span class="pre">cudaGetDriverEntryPointByVersion</span></code> 使用用户提供的 CUDA 版本来获取所请求的驱动程序符号的 ABI 兼容版本。这允许对请求的 ABI 版本进行更具体的控制。</p>
 </section>
 <section id="retrieve-per-thread-default-stream-versions">
-<span id="id6"></span><h3><span class="section-number">4.20.3.3. </span>Retrieve Per-thread Default Stream Versions<a class="headerlink" href="driver-entry-point-access.html#retrieve-per-thread-default-stream-versions" title="Link to this heading">#</a></h3>
-<p>Some CUDA driver APIs can be configured to have <em>default stream</em> or <em>per-thread default stream</em> semantics. Driver APIs having <em>per-thread default stream</em> semantics are suffixed with <em>_ptsz</em> or <em>_ptds</em> in their name. For example, <code class="docutils literal notranslate"><span class="pre">cuLaunchKernel</span></code> has a <em>per-thread default stream</em> variant named <code class="docutils literal notranslate"><span class="pre">cuLaunchKernel_ptsz</span></code>. With the Driver Entry Point Access APIs, users can request for the <em>per-thread default stream</em> version of the driver API <code class="docutils literal notranslate"><span class="pre">cuLaunchKernel</span></code> instead of the <em>default stream</em> version. Configuring the CUDA driver APIs for <em>default stream</em> or <em>per-thread default stream</em> semantics affects the synchronization behavior. More details can be found <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-driver-api/stream-sync-behavior.html#stream-sync-behavior__default-stream">here</a>.</p>
-<p>The <em>default stream</em> or <em>per-thread default stream</em> versions of a driver API can be obtained by one of the following ways:</p>
+<span id="id6"></span><h3><span class="section-number">4.20.3.3. </span>检索每线程默认流版本<a class="headerlink" href="driver-entry-point-access.html#retrieve-per-thread-default-stream-versions" title="跳转到此标题">#</a></h3>
+<p>一些 CUDA 驱动程序 API 可以配置为 <em>默认流</em> 或 <em>每个线程默认流</em> 语义。驱动程序 API 具有 <em>每个线程默认流</em> 语义后缀为 <em>_ptsz</em> 或 <em>_ptds</em> 以他们的名义。例如， <code class="docutils literal notranslate"><span class="pre">cuLaunchKernel</span></code> 有一个 <em>每个线程默认流</em> 变体命名为 <code class="docutils literal notranslate"><span class="pre">cuLaunchKernel_ptsz</span></code>。通过驱动程序入口点访问 API，用户可以请求 <em>每个线程默认流</em> 驱动程序 API 的版本 <code class="docutils literal notranslate"><span class="pre">cuLaunchKernel</span></code> 而不是 <em>默认流</em> 版本。配置 CUDA 驱动程序 API <em>默认流</em> 或 <em>每个线程默认流</em> 语义影响同步行为。可以找到更多详细信息 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-driver-api/stream-sync-behavior.html#stream-sync-behavior__default-stream">here</a>.</p>
+<p><em>默认流</em> 或 <em>每个线程默认流</em> 可以通过以下方式之一获取驱动程序 API 的版本：</p>
 <ul class="simple">
-<li><p>Use the compilation flag <code class="docutils literal notranslate"><span class="pre">--default-stream</span> <span class="pre">per-thread</span></code> or define the macro <code class="docutils literal notranslate"><span class="pre">CUDA_API_PER_THREAD_DEFAULT_STREAM</span></code> to get <em>per-thread default stream</em> behavior.</p></li>
-<li><p>Force <em>default stream</em> or <em>per-thread default stream</em> behavior using the flags <code class="docutils literal notranslate"><span class="pre">CU_GET_PROC_ADDRESS_LEGACY_STREAM/cudaEnableLegacyStream</span></code> or <code class="docutils literal notranslate"><span class="pre">CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM/cudaEnablePerThreadDefaultStream</span></code> respectively.</p></li>
+<li><p>使用编译标志 <code class="docutils literal notranslate"><span class="pre">--default-stream</span> <span class="pre">per-thread</span></code> 或者定义宏 <code class="docutils literal notranslate"><span class="pre">CUDA_API_PER_THREAD_DEFAULT_STREAM</span></code> 得到 <em>每个线程默认流</em> behavior.</p></li>
+<li><p>Force <em>默认流</em> 或 <em>每个线程默认流</em> 使用标志的行为 <code class="docutils literal notranslate"><span class="pre">CU_GET_PROC_ADDRESS_LEGACY_STREAM/cudaEnableLegacyStream</span></code> 或 <code class="docutils literal notranslate"><span class="pre">CU_GET_PROC_ADDRESS_PER_THREAD_DEFAULT_STREAM/cudaEnablePerThreadDefaultStream</span></code> respectively.</p></li>
 </ul>
 </section>
 <section id="access-new-cuda-features">
-<span id="id7"></span><h3><span class="section-number">4.20.3.4. </span>Access New CUDA features<a class="headerlink" href="driver-entry-point-access.html#access-new-cuda-features" title="Link to this heading">#</a></h3>
-<p>It is always recommended to install the latest CUDA toolkit to access new CUDA driver features, but if for some reason, a user does not want to update or does not have access to the latest toolkit, the API can be used to access new CUDA features with only an updated CUDA driver. For discussion, let us assume the user is on CUDA 11.3 and wants to use a new driver API <code class="docutils literal notranslate"><span class="pre">cuFoo</span></code> available in the CUDA 12.0 driver. The below code snippet illustrates this use-case:</p>
+<span id="id7"></span><h3><span class="section-number">4.20.3.4. </span>访问新的 CUDA 功能<a class="headerlink" href="driver-entry-point-access.html#access-new-cuda-features" title="跳转到此标题">#</a></h3>
+<p>始终建议安装最新的 CUDA 工具包来访问新的 CUDA 驱动程序功能，但如果由于某种原因，用户不想更新或无法访问最新的工具包，则只需更新 CUDA 驱动程序即可使用 API 来访问新的 CUDA 功能。为了便于讨论，我们假设用户使用 CUDA 11.3 并且想要使用新的驱动程序 API <code class="docutils literal notranslate"><span class="pre">cuFoo</span></code> 在 CUDA 12.0 驱动程序中可用。下面的代码片段说明了这个用例：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
 <span class="p">{</span>
-<span class="w">    </span><span class="c1">// Assuming we have CUDA 12.0 driver installed.</span>
+<span class="w">    </span><span class="c1">// 假设我们安装了 CUDA 12.0 驱动程序。</span>
 
-<span class="w">    </span><span class="c1">// Manually define the prototype as cudaTypedefs.h in CUDA 11.3 does not have the cuFoo typedef</span>
+<span class="w">    </span><span class="c1">// 手动将原型定义为 cudaTypedefs.h 在 CUDA 11.3 中没有 cuFoo typedef</span>
 <span class="w">    </span><span class="k">typedef</span><span class="w"> </span><span class="n">CUresult</span><span class="w"> </span><span class="p">(</span><span class="n">CUDAAPI</span><span class="w"> </span><span class="o">*</span><span class="n">PFN_cuFoo</span><span class="p">)(...);</span>
 <span class="w">    </span><span class="n">PFN_cuFoo</span><span class="w"> </span><span class="n">pfn_cuFoo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
 <span class="w">    </span><span class="n">CUdriverProcAddressQueryResult</span><span class="w"> </span><span class="n">driverStatus</span><span class="p">;</span>
 
-<span class="w">    </span><span class="c1">// Get the address for cuFoo API using cuGetProcAddress. Specify CUDA version as</span>
-<span class="w">    </span><span class="c1">// 12000 since cuFoo was introduced then or get the driver version dynamically</span>
-<span class="w">    </span><span class="c1">// using cuDriverGetVersion</span>
+<span class="w">    </span><span class="c1">// 使用 cuGetProcAddress 获取 cuFoo API 的地址。指定 CUDA 版本为</span>
+<span class="w">    </span><span class="c1">// 12000 自 cuFoo 推出以来或动态获取驱动程序版本</span>
+<span class="w">    </span><span class="c1">// 使用 cuDriverGetVersion</span>
 <span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">driverVersion</span><span class="p">;</span>
 <span class="w">    </span><span class="n">cuDriverGetVersion</span><span class="p">(</span><span class="o">&amp;</span><span class="n">driverVersion</span><span class="p">);</span>
-<span class="w">    </span><span class="n">CUresult</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuGetProcAddress</span><span class="p">(</span><span class="s">&quot;cuFoo&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pfn_cuFoo</span><span class="p">,</span><span class="w"> </span><span class="n">driverVersion</span><span class="p">,</span><span class="w"> </span><span class="n">CU_GET_PROC_ADDRESS_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">driverStatus</span><span class="p">);</span>
+<span class="w">    </span><span class="n">CUresult</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuGetProcAddress</span><span class="p">(</span><span class="s">"cuFoo"</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pfn_cuFoo</span><span class="p">,</span><span class="w"> </span><span class="n">driverVersion</span><span class="p">,</span><span class="w"> </span><span class="n">CU_GET_PROC_ADDRESS_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">driverStatus</span><span class="p">);</span>
 
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">status</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">CUDA_SUCCESS</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">pfn_cuFoo</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="n">pfn_cuFoo</span><span class="p">(...);</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Cannot retrieve the address to cuFoo - driverStatus = %d. Check if the latest driver for CUDA 12.0 is installed.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">driverStatus</span><span class="p">);</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">"Cannot retrieve the address to cuFoo - driverStatus = %d. Check if the latest driver for CUDA 12.0 is installed.</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="n">driverStatus</span><span class="p">);</span>
 <span class="w">        </span><span class="n">assert</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
 <span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="c1">// rest of code here</span>
+<span class="w">    </span><span class="c1">// 其余代码在这里</span>
 
 <span class="p">}</span>
 </pre></div>
@@ -661,24 +456,24 @@
 </section>
 </section>
 <section id="potential-implications-with-cugetprocaddress">
-<span id="implications-with-cugetprocaddress"></span><h2><span class="section-number">4.20.4. </span>Potential Implications with cuGetProcAddress<a class="headerlink" href="driver-entry-point-access.html#potential-implications-with-cugetprocaddress" title="Link to this heading">#</a></h2>
-<p>Below is a set of concrete and theoretical examples of potential issues with <code class="docutils literal notranslate"><span class="pre">cuGetProcAddress</span></code> and <code class="docutils literal notranslate"><span class="pre">cudaGetDriverEntryPoint</span></code>.</p>
+<span id="implications-with-cugetprocaddress"></span><h2><span class="section-number">4.20.4. </span>cuGetProcAddress 的潜在影响<a class="headerlink" href="driver-entry-point-access.html#potential-implications-with-cugetprocaddress" title="跳转到此标题">#</a></h2>
+<p>以下是一组潜在问题的具体和理论示例 <code class="docutils literal notranslate"><span class="pre">cuGetProcAddress</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaGetDriverEntryPoint</span></code>.</p>
 <section id="implications-with-cugetprocaddress-vs-implicit-linking">
-<span id="implications-with-native-compilation"></span><h3><span class="section-number">4.20.4.1. </span>Implications with cuGetProcAddress vs Implicit Linking<a class="headerlink" href="driver-entry-point-access.html#implications-with-cugetprocaddress-vs-implicit-linking" title="Link to this heading">#</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">cuDeviceGetUuid</span></code> was introduced in CUDA 9.2. This API has a newer revision (<code class="docutils literal notranslate"><span class="pre">cuDeviceGetUuid_v2</span></code>) introduced in CUDA 11.4. To preserve minor version compatibility, <code class="docutils literal notranslate"><span class="pre">cuDeviceGetUuid</span></code> will not be version bumped to <code class="docutils literal notranslate"><span class="pre">cuDeviceGetUuid_v2</span></code> in cuda.h until CUDA 12.0. This means that calling it by obtaining a function pointer to it via <code class="docutils literal notranslate"><span class="pre">cuGetProcAddress</span></code> might have different behavior. Example using the API directly:</p>
+<span id="implications-with-native-compilation"></span><h3><span class="section-number">4.20.4.1. </span>cuGetProcAddress 与隐式链接的影响<a class="headerlink" href="driver-entry-point-access.html#implications-with-cugetprocaddress-vs-implicit-linking" title="跳转到此标题">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">cuDeviceGetUuid</span></code> 在 CUDA 9.2 中引入。此 API 有较新的修订版（<code class="docutils literal notranslate"><span class="pre">cuDeviceGetUuid_v2</span></code>）在 CUDA 11.4 中引入。为了保持次要版本兼容性， <code class="docutils literal notranslate"><span class="pre">cuDeviceGetUuid</span></code> 不会被版本撞到 <code class="docutils literal notranslate"><span class="pre">cuDeviceGetUuid_v2</span></code> 在 cuda.h 中，直到 CUDA 12.0。这意味着通过获取指向它的函数指针来调用它 <code class="docutils literal notranslate"><span class="pre">cuGetProcAddress</span></code> 可能有不同的行为。直接使用 API 的示例：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cuda.h&gt;</span>
 
 <span class="n">CUuuid</span><span class="w"> </span><span class="n">uuid</span><span class="p">;</span>
 <span class="n">CUdevice</span><span class="w"> </span><span class="n">dev</span><span class="p">;</span>
 <span class="n">CUresult</span><span class="w"> </span><span class="n">status</span><span class="p">;</span>
 
-<span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuDeviceGet</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="c1">// Get device 0</span>
-<span class="c1">// handle status</span>
+<span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuDeviceGet</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="c1">// 获取设备0</span>
+<span class="c1">// 处理状态</span>
 
-<span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuDeviceGetUuid</span><span class="p">(</span><span class="o">&amp;</span><span class="n">uuid</span><span class="p">,</span><span class="w"> </span><span class="n">dev</span><span class="p">)</span><span class="w"> </span><span class="c1">// Get uuid of device 0</span>
+<span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuDeviceGetUuid</span><span class="p">(</span><span class="o">&amp;</span><span class="n">uuid</span><span class="p">,</span><span class="w"> </span><span class="n">dev</span><span class="p">)</span><span class="w"> </span><span class="c1">// 获取设备0的uuid</span>
 </pre></div>
 </div>
-<p>In this example, assume the user is compiling with CUDA 11.4. Note that this will perform the behavior of <code class="docutils literal notranslate"><span class="pre">cuDeviceGetUuid</span></code>, not _v2 version. Now an example of using <code class="docutils literal notranslate"><span class="pre">cuGetProcAddress</span></code>:</p>
+<p>在此示例中，假设用户使用 CUDA 11.4 进行编译。请注意，这将执行以下行为 <code class="docutils literal notranslate"><span class="pre">cuDeviceGetUuid</span></code>，不是 _v2 版本。现在是一个使用的例子 <code class="docutils literal notranslate"><span class="pre">cuGetProcAddress</span></code>:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cudaTypedefs.h&gt;</span>
 
 <span class="n">CUuuid</span><span class="w"> </span><span class="n">uuid</span><span class="p">;</span>
@@ -686,21 +481,21 @@
 <span class="n">CUresult</span><span class="w"> </span><span class="n">status</span><span class="p">;</span>
 <span class="n">CUdriverProcAddressQueryResult</span><span class="w"> </span><span class="n">driverStatus</span><span class="p">;</span>
 
-<span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuDeviceGet</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="c1">// Get device 0</span>
-<span class="c1">// handle status</span>
+<span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuDeviceGet</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="c1">// 获取设备0</span>
+<span class="c1">// 处理状态</span>
 
 <span class="n">PFN_cuDeviceGetUuid</span><span class="w"> </span><span class="n">pfn_cuDeviceGetUuid</span><span class="p">;</span>
-<span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuGetProcAddress</span><span class="p">(</span><span class="s">&quot;cuDeviceGetUuid&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pfn_cuDeviceGetUuid</span><span class="p">,</span><span class="w"> </span><span class="n">CUDA_VERSION</span><span class="p">,</span><span class="w"> </span><span class="n">CU_GET_PROC_ADDRESS_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">driverStatus</span><span class="p">);</span>
+<span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuGetProcAddress</span><span class="p">(</span><span class="s">"cuDeviceGetUuid"</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pfn_cuDeviceGetUuid</span><span class="p">,</span><span class="w"> </span><span class="n">CUDA_VERSION</span><span class="p">,</span><span class="w"> </span><span class="n">CU_GET_PROC_ADDRESS_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">driverStatus</span><span class="p">);</span>
 <span class="k">if</span><span class="p">(</span><span class="n">CUDA_SUCCESS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">pfn_cuDeviceGetUuid</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="c1">// pfn_cuDeviceGetUuid points to ???</span>
+<span class="w">    </span><span class="c1">// pfn_cuDeviceGetUuid 指向跳转到此标题</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>In this example, assume the user is compiling with CUDA 11.4. This will get the function pointer of <code class="docutils literal notranslate"><span class="pre">cuDeviceGetUuid_v2</span></code>. Calling the function pointer will then invoke the new _v2 function, not the same <code class="docutils literal notranslate"><span class="pre">cuDeviceGetUuid</span></code> as shown in the previous example.</p>
+<p>在此示例中，假设用户使用 CUDA 11.4 进行编译。这将得到函数指针 <code class="docutils literal notranslate"><span class="pre">cuDeviceGetUuid_v2</span></code>。调用函数指针之后会调用新的_v2函数，不一样 <code class="docutils literal notranslate"><span class="pre">cuDeviceGetUuid</span></code> 如前面的示例所示。</p>
 </section>
 <section id="compile-time-vs-runtime-version-usage-in-cugetprocaddress">
-<span id="implications-compile-vs-runtime-version"></span><h3><span class="section-number">4.20.4.2. </span>Compile Time vs Runtime Version Usage in cuGetProcAddress<a class="headerlink" href="driver-entry-point-access.html#compile-time-vs-runtime-version-usage-in-cugetprocaddress" title="Link to this heading">#</a></h3>
-<p>Let’s take the same issue and make one small tweak. The last example used the compile time constant of CUDA_VERSION to determine which function pointer to obtain. More complications arise if the user queries the driver version dynamically using <code class="docutils literal notranslate"><span class="pre">cuDriverGetVersion</span></code> or <code class="docutils literal notranslate"><span class="pre">cudaDriverGetVersion</span></code> to pass to <code class="docutils literal notranslate"><span class="pre">cuGetProcAddress</span></code>. Example:</p>
+<span id="implications-compile-vs-runtime-version"></span><h3><span class="section-number">4.20.4.2. </span>cuGetProcAddress 中的编译时与运行时版本用法<a class="headerlink" href="driver-entry-point-access.html#compile-time-vs-runtime-version-usage-in-cugetprocaddress" title="跳转到此标题">#</a></h3>
+<p>让我们以同样的问题做一点小小的调整。最后一个示例使用 CUDA_VERSION 的编译时常量来确定要获取哪个函数指针。如果用户使用动态查询驱动程序版本，则会出现更多复杂情况 <code class="docutils literal notranslate"><span class="pre">cuDriverGetVersion</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaDriverGetVersion</span></code> 传递给 <code class="docutils literal notranslate"><span class="pre">cuGetProcAddress</span></code>。示例：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cudaTypedefs.h&gt;</span>
 
 <span class="n">CUuuid</span><span class="w"> </span><span class="n">uuid</span><span class="p">;</span>
@@ -709,43 +504,43 @@
 <span class="kt">int</span><span class="w"> </span><span class="n">cudaVersion</span><span class="p">;</span>
 <span class="n">CUdriverProcAddressQueryResult</span><span class="w"> </span><span class="n">driverStatus</span><span class="p">;</span>
 
-<span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuDeviceGet</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="c1">// Get device 0</span>
-<span class="c1">// handle status</span>
+<span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuDeviceGet</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="c1">// 获取设备0</span>
+<span class="c1">// 处理状态</span>
 
 <span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuDriverGetVersion</span><span class="p">(</span><span class="o">&amp;</span><span class="n">cudaVersion</span><span class="p">);</span>
-<span class="c1">// handle status</span>
+<span class="c1">// 处理状态</span>
 
 <span class="n">PFN_cuDeviceGetUuid</span><span class="w"> </span><span class="n">pfn_cuDeviceGetUuid</span><span class="p">;</span>
-<span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuGetProcAddress</span><span class="p">(</span><span class="s">&quot;cuDeviceGetUuid&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pfn_cuDeviceGetUuid</span><span class="p">,</span><span class="w"> </span><span class="n">cudaVersion</span><span class="p">,</span><span class="w"> </span><span class="n">CU_GET_PROC_ADDRESS_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">driverStatus</span><span class="p">);</span>
+<span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuGetProcAddress</span><span class="p">(</span><span class="s">"cuDeviceGetUuid"</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pfn_cuDeviceGetUuid</span><span class="p">,</span><span class="w"> </span><span class="n">cudaVersion</span><span class="p">,</span><span class="w"> </span><span class="n">CU_GET_PROC_ADDRESS_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">driverStatus</span><span class="p">);</span>
 <span class="k">if</span><span class="p">(</span><span class="n">CUDA_SUCCESS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">pfn_cuDeviceGetUuid</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="c1">// pfn_cuDeviceGetUuid points to ???</span>
+<span class="w">    </span><span class="c1">// pfn_cuDeviceGetUuid 指向跳转到此标题</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>In this example, assume the user is compiling with CUDA 11.3. The user would debug, test, and deploy this application with the known behavior of getting <code class="docutils literal notranslate"><span class="pre">cuDeviceGetUuid</span></code> (not the _v2 version). Since CUDA has guaranteed ABI compatibility between minor versions, this same application is expected to run after the driver is upgraded to CUDA 11.4 (without updating the toolkit and runtime) without requiring recompilation. This will have undefined behavior though, because now the typedef for <code class="docutils literal notranslate"><span class="pre">PFN_cuDeviceGetUuid</span></code> will still be of the signature for the original version, but since <code class="docutils literal notranslate"><span class="pre">cudaVersion</span></code> would now be 11040 (CUDA 11.4), <code class="docutils literal notranslate"><span class="pre">cuGetProcAddress</span></code> would return the function pointer to the _v2 version, meaning calling it might have undefined behavior.</p>
-<p>Note in this case the original (not the _v2 version) typedef looks like:</p>
+<p>在此示例中，假设用户使用 CUDA 11.3 进行编译。用户将使用已知的行为来调试、测试和部署该应用程序 <code class="docutils literal notranslate"><span class="pre">cuDeviceGetUuid</span></code> （不是 _v2 版本）。由于 CUDA 保证了次要版本之间的 ABI 兼容性，因此在驱动程序升级到 CUDA 11.4（无需更新工具包和运行时）后，该应用程序预计可以运行，而无需重新编译。但这将具有未定义的行为，因为现在的 typedef <code class="docutils literal notranslate"><span class="pre">PFN_cuDeviceGetUuid</span></code> 仍将是原始版本的签名，但因为 <code class="docutils literal notranslate"><span class="pre">cudaVersion</span></code> 现在是 11040 (CUDA 11.4)， <code class="docutils literal notranslate"><span class="pre">cuGetProcAddress</span></code> 将返回指向 _v2 版本的函数指针，这意味着调用它可能具有未定义的行为。</p>
+<p>请注意，在这种情况下，原始（不是 _v2 版本）typedef 如下所示：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="n">CUresult</span><span class="w"> </span><span class="p">(</span><span class="n">CUDAAPI</span><span class="w"> </span><span class="o">*</span><span class="n">PFN_cuDeviceGetUuid_v9020</span><span class="p">)(</span><span class="n">CUuuid</span><span class="w"> </span><span class="o">*</span><span class="n">uuid</span><span class="p">,</span><span class="w"> </span><span class="n">CUdevice_v1</span><span class="w"> </span><span class="n">dev</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>But the _v2 version typedef looks like:</p>
+<p>但 _v2 版本的 typedef 看起来像：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="n">CUresult</span><span class="w"> </span><span class="p">(</span><span class="n">CUDAAPI</span><span class="w"> </span><span class="o">*</span><span class="n">PFN_cuDeviceGetUuid_v11040</span><span class="p">)(</span><span class="n">CUuuid</span><span class="w"> </span><span class="o">*</span><span class="n">uuid</span><span class="p">,</span><span class="w"> </span><span class="n">CUdevice_v1</span><span class="w"> </span><span class="n">dev</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>So in this case, the API/ABI is going to be the same and the runtime API call will likely not cause issues–only the potential for unknown uuid return. In <a class="reference internal" href="driver-entry-point-access.html#implications-to-api-abi"><span class="std std-ref">Implications to API/ABI</span></a>, we discuss a more problematic case of API/ABI compatibility.</p>
+<p>因此，在这种情况下，API/ABI 将是相同的，并且运行时 API 调用可能不会导致问题 - 只是可能会返回未知的 uuid。在 <a class="reference internal" href="driver-entry-point-access.html#implications-to-api-abi"><span class="std std-ref">对 API/ABI 的影响</span></a>，我们讨论 API/ABI 兼容性问题较多的情况。</p>
 </section>
 <section id="api-version-bumps-with-explicit-version-checks">
-<span id="implications-runtime-version-bumps"></span><h3><span class="section-number">4.20.4.3. </span>API Version Bumps with Explicit Version Checks<a class="headerlink" href="driver-entry-point-access.html#api-version-bumps-with-explicit-version-checks" title="Link to this heading">#</a></h3>
-<p>Above, was a specific concrete example. Now for instance let’s use a theoretical example that still has issues with compatibility across driver versions. Example:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">CUresult</span><span class="w"> </span><span class="nf">cuFoo</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">bar</span><span class="p">);</span><span class="w"> </span><span class="c1">// Introduced in CUDA 11.4</span>
-<span class="n">CUresult</span><span class="w"> </span><span class="nf">cuFoo_v2</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">bar</span><span class="p">);</span><span class="w"> </span><span class="c1">// Introduced in CUDA 11.5</span>
-<span class="n">CUresult</span><span class="w"> </span><span class="nf">cuFoo_v3</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">bar</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">jazz</span><span class="p">);</span><span class="w"> </span><span class="c1">// Introduced in CUDA 11.6</span>
+<span id="implications-runtime-version-bumps"></span><h3><span class="section-number">4.20.4.3. </span>通过显式版本检查实现 API 版本更新<a class="headerlink" href="driver-entry-point-access.html#api-version-bumps-with-explicit-version-checks" title="跳转到此标题">#</a></h3>
+<p>以上，是一个具体的具体例子。现在，让我们使用一个理论示例，该示例仍然存在跨驱动程序版本的兼容性问题。示例：</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">CUresult</span><span class="w"> </span><span class="nf">cuFoo</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">bar</span><span class="p">);</span><span class="w"> </span><span class="c1">// CUDA 11.4 中引入</span>
+<span class="n">CUresult</span><span class="w"> </span><span class="nf">cuFoo_v2</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">bar</span><span class="p">);</span><span class="w"> </span><span class="c1">// CUDA 11.5 中引入</span>
+<span class="n">CUresult</span><span class="w"> </span><span class="nf">cuFoo_v3</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">bar</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">jazz</span><span class="p">);</span><span class="w"> </span><span class="c1">// CUDA 11.6 中引入</span>
 
 <span class="k">typedef</span><span class="w"> </span><span class="n">CUresult</span><span class="w"> </span><span class="p">(</span><span class="n">CUDAAPI</span><span class="w"> </span><span class="o">*</span><span class="n">PFN_cuFoo_v11040</span><span class="p">)(</span><span class="kt">int</span><span class="w"> </span><span class="n">bar</span><span class="p">);</span>
 <span class="k">typedef</span><span class="w"> </span><span class="n">CUresult</span><span class="w"> </span><span class="p">(</span><span class="n">CUDAAPI</span><span class="w"> </span><span class="o">*</span><span class="n">PFN_cuFoo_v11050</span><span class="p">)(</span><span class="kt">int</span><span class="w"> </span><span class="n">bar</span><span class="p">);</span>
 <span class="k">typedef</span><span class="w"> </span><span class="n">CUresult</span><span class="w"> </span><span class="p">(</span><span class="n">CUDAAPI</span><span class="w"> </span><span class="o">*</span><span class="n">PFN_cuFoo_v11060</span><span class="p">)(</span><span class="kt">int</span><span class="w"> </span><span class="n">bar</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">jazz</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>Notice that the API has been modified twice since original creation in CUDA 11.4 and the latest in CUDA 11.6 also modified the API/ABI interface to the function. The usage in user code compiled against CUDA 11.5 is:</p>
+<p>请注意，自 CUDA 11.4 中最初创建以来，该 API 已被修改两次，最新的 CUDA 11.6 还修改了该函数的 API/ABI 接口。针对 CUDA 11.5 编译的用户代码中的用法是：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cuda.h&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cudaTypedefs.h&gt;</span>
 
@@ -754,28 +549,28 @@
 <span class="n">CUdriverProcAddressQueryResult</span><span class="w"> </span><span class="n">driverStatus</span><span class="p">;</span>
 
 <span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuDriverGetVersion</span><span class="p">(</span><span class="o">&amp;</span><span class="n">cudaVersion</span><span class="p">);</span>
-<span class="c1">// handle status</span>
+<span class="c1">// 处理状态</span>
 
 <span class="n">PFN_cuFoo_v11040</span><span class="w"> </span><span class="n">pfn_cuFoo_v11040</span><span class="p">;</span>
 <span class="n">PFN_cuFoo_v11050</span><span class="w"> </span><span class="n">pfn_cuFoo_v11050</span><span class="p">;</span>
 <span class="k">if</span><span class="p">(</span><span class="n">cudaVersion</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">11050</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="c1">// We know to get the CUDA 11.4 version</span>
-<span class="w">    </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuGetProcAddress</span><span class="p">(</span><span class="s">&quot;cuFoo&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pfn_cuFoo_v11040</span><span class="p">,</span><span class="w"> </span><span class="n">cudaVersion</span><span class="p">,</span><span class="w"> </span><span class="n">CU_GET_PROC_ADDRESS_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">driverStatus</span><span class="p">);</span>
-<span class="w">    </span><span class="c1">// Handle status and validating pfn_cuFoo_v11040</span>
+<span class="w">    </span><span class="c1">// 我们知道要获取 CUDA 11.4 版本</span>
+<span class="w">    </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuGetProcAddress</span><span class="p">(</span><span class="s">"cuFoo"</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pfn_cuFoo_v11040</span><span class="p">,</span><span class="w"> </span><span class="n">cudaVersion</span><span class="p">,</span><span class="w"> </span><span class="n">CU_GET_PROC_ADDRESS_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">driverStatus</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// 处理状态并验证 pfn_cuFoo_v11040</span>
 <span class="p">}</span>
 <span class="k">else</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="c1">// Assume &gt;= CUDA 11.5 version we can use the second version</span>
-<span class="w">    </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuGetProcAddress</span><span class="p">(</span><span class="s">&quot;cuFoo&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pfn_cuFoo_v11050</span><span class="p">,</span><span class="w"> </span><span class="n">cudaVersion</span><span class="p">,</span><span class="w"> </span><span class="n">CU_GET_PROC_ADDRESS_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">driverStatus</span><span class="p">);</span>
-<span class="w">    </span><span class="c1">// Handle status and validating pfn_cuFoo_v11050</span>
+<span class="w">    </span><span class="c1">// 假设 &gt;= CUDA 11.5 版本我们可以使用第二个版本</span>
+<span class="w">    </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuGetProcAddress</span><span class="p">(</span><span class="s">"cuFoo"</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pfn_cuFoo_v11050</span><span class="p">,</span><span class="w"> </span><span class="n">cudaVersion</span><span class="p">,</span><span class="w"> </span><span class="n">CU_GET_PROC_ADDRESS_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">driverStatus</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// 处理状态并验证 pfn_cuFoo_v11050</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>In this example, without updates for the new typedef in CUDA 11.6 and recompiling the application with those new typedefs and case handling, the application will get the cuFoo_v3 function pointer returned and any usage of that function would then cause undefined behavior. The point of this example was to illustrate that even explicit version checks for <code class="docutils literal notranslate"><span class="pre">cuGetProcAddress</span></code> may not safely cover the minor version bumps within a CUDA major release.</p>
+<p>在此示例中，如果不更新 CUDA 11.6 中的新 typedef 并使用这些新 typedef 和案例处理重新编译应用程序，应用程序将返回 cuFoo_v3 函数指针，并且对该函数的任何使用都会导致未定义的行为。这个例子的目的是说明即使是显式版本也会检查 <code class="docutils literal notranslate"><span class="pre">cuGetProcAddress</span></code> 可能无法安全地覆盖 CUDA 主要版本中的次要版本变更。</p>
 </section>
 <section id="issues-with-runtime-api-usage">
-<span id="implications-issues-with-runtime-api"></span><h3><span class="section-number">4.20.4.4. </span>Issues with Runtime API Usage<a class="headerlink" href="driver-entry-point-access.html#issues-with-runtime-api-usage" title="Link to this heading">#</a></h3>
-<p>The above examples were focused on the issues with the Driver API usage for obtaining the function pointers to driver APIs. Now we will discuss the potential issues with the Runtime API usage for <code class="docutils literal notranslate"><span class="pre">cudaApiGetDriverEntryPoint</span></code>.</p>
-<p>We will start by using the Runtime APIs similar to the above.</p>
+<span id="implications-issues-with-runtime-api"></span><h3><span class="section-number">4.20.4.4. </span>运行时 API 使用问题<a class="headerlink" href="driver-entry-point-access.html#issues-with-runtime-api-usage" title="跳转到此标题">#</a></h3>
+<p>上面的示例重点关注使用驱动程序 API 来获取驱动程序 API 的函数指针的问题。现在我们将讨论运行时 API 使用的潜在问题 <code class="docutils literal notranslate"><span class="pre">cudaApiGetDriverEntryPoint</span></code>.</p>
+<p>我们将首先使用与上面类似的运行时 API。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cuda.h&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cudaTypedefs.h&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cuda_runtime.h&gt;</span>
@@ -785,23 +580,23 @@
 <span class="kt">int</span><span class="w"> </span><span class="n">driverVersion</span><span class="p">,</span><span class="w"> </span><span class="n">runtimeVersion</span><span class="p">;</span>
 <span class="n">CUdriverProcAddressQueryResult</span><span class="w"> </span><span class="n">driverStatus</span><span class="p">;</span>
 
-<span class="c1">// Ask the runtime for the function</span>
+<span class="c1">// 向运行时询问该函数</span>
 <span class="n">PFN_cuDeviceGetUuid</span><span class="w"> </span><span class="n">pfn_cuDeviceGetUuidRuntime</span><span class="p">;</span>
-<span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaGetDriverEntryPoint</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;cuDeviceGetUuid&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pfn_cuDeviceGetUuidRuntime</span><span class="p">,</span><span class="w"> </span><span class="n">cudaEnableDefault</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">driverStatus</span><span class="p">);</span>
+<span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaGetDriverEntryPoint</span><span class="w"> </span><span class="p">(</span><span class="s">"cuDeviceGetUuid"</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pfn_cuDeviceGetUuidRuntime</span><span class="p">,</span><span class="w"> </span><span class="n">cudaEnableDefault</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">driverStatus</span><span class="p">);</span>
 <span class="k">if</span><span class="p">(</span><span class="n">cudaSuccess</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">pfn_cuDeviceGetUuidRuntime</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="c1">// pfn_cuDeviceGetUuid points to ???</span>
+<span class="w">    </span><span class="c1">// pfn_cuDeviceGetUuid 指向跳转到此标题</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The function pointer in this example is even more complicated than the driver only examples above because there is no control over which version of the function to obtain; it will always get the API for the current CUDA Runtime version. See the following table for more information:</p>
+<p>此示例中的函数指针甚至比上面仅包含驱动程序的示例更复杂，因为无法控制要获取哪个版本的函数；它将始终获取当前 CUDA 运行时版本的 API。请参阅下表了解更多信息：</p>
 <div class="pst-scrollable-table-container"><table class="table-no-stripes table">
 <thead>
 <tr class="row-odd"><th class="head"></th>
-<th class="head" colspan="2"><p>Static Runtime Version Linkage</p></th>
+<th class="head" colspan="2"><p>静态运行时版本联动</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>Driver Version Installed</p></td>
+<tr class="row-even"><td><p>安装的驱动版本</p></td>
 <td><p><strong>V11.3</strong></p></td>
 <td><p><strong>V11.4</strong></p></td>
 </tr>
@@ -821,17 +616,17 @@ V11.4 =&gt; 11.4 CUDA Runtime and Toolkit (includes header files cuda.h and cuda
 v1 =&gt; cuDeviceGetUuid
 v2 =&gt; cuDeviceGetUuid_v2
 
-x =&gt; Implies the typedef function pointer won&#39;t match the returned
+x =&gt; Implies the typedef function pointer won't match the returned
      function pointer.  In these cases, the typedef at compile time
      using a CUDA 11.4 runtime, would match the _v2 version, but the
      returned function pointer would be the original (non _v2) function.
 </pre></div>
 </div>
-<p>The problem in the table comes in with a newer CUDA 11.4 Runtime and Toolkit and older driver (CUDA 11.3) combination, labeled as v1x in the above. This combination would have the driver returning the pointer to the older function (non _v2), but the typedef used in the application would be for the new function pointer.</p>
+<p>表中的问题出现在较新的 CUDA 11.4 运行时和工具包以及较旧的驱动程序 (CUDA 11.3) 组合中，在上面标记为 v1x。这种组合将使驱动程序返回指向旧函数（非 _v2）的指针，但应用程序中使用的 typedef 将用于新函数指针。</p>
 </section>
 <section id="issues-with-runtime-api-and-dynamic-versioning">
-<span id="implications-with-runtime-api-and-dynamic-version"></span><h3><span class="section-number">4.20.4.5. </span>Issues with Runtime API and Dynamic Versioning<a class="headerlink" href="driver-entry-point-access.html#issues-with-runtime-api-and-dynamic-versioning" title="Link to this heading">#</a></h3>
-<p>More complications arise when we consider different combinations of the CUDA version with which an application is compiled, CUDA runtime version, and CUDA driver version that an application dynamically links against.</p>
+<span id="implications-with-runtime-api-and-dynamic-version"></span><h3><span class="section-number">4.20.4.5. </span>运行时 API 和动态版本控制问题<a class="headerlink" href="driver-entry-point-access.html#issues-with-runtime-api-and-dynamic-versioning" title="跳转到此标题">#</a></h3>
+<p>当我们考虑编译应用程序的 CUDA 版本、CUDA 运行时版本和应用程序动态链接的 CUDA 驱动程序版本的不同组合时，会出现更多复杂情况。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cuda.h&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cudaTypedefs.h&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cuda_runtime.h&gt;</span>
@@ -843,34 +638,34 @@ x =&gt; Implies the typedef function pointer won&#39;t match the returned
 <span class="k">enum</span><span class="w"> </span><span class="nc">cudaDriverEntryPointQueryResult</span><span class="w"> </span><span class="n">runtimeStatus</span><span class="p">;</span>
 
 <span class="n">PFN_cuDeviceGetUuid</span><span class="w"> </span><span class="n">pfn_cuDeviceGetUuidDriver</span><span class="p">;</span>
-<span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuGetProcAddress</span><span class="p">(</span><span class="s">&quot;cuDeviceGetUuid&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pfn_cuDeviceGetUuidDriver</span><span class="p">,</span><span class="w"> </span><span class="n">CUDA_VERSION</span><span class="p">,</span><span class="w"> </span><span class="n">CU_GET_PROC_ADDRESS_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">driverStatus</span><span class="p">);</span>
+<span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuGetProcAddress</span><span class="p">(</span><span class="s">"cuDeviceGetUuid"</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pfn_cuDeviceGetUuidDriver</span><span class="p">,</span><span class="w"> </span><span class="n">CUDA_VERSION</span><span class="p">,</span><span class="w"> </span><span class="n">CU_GET_PROC_ADDRESS_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">driverStatus</span><span class="p">);</span>
 <span class="k">if</span><span class="p">(</span><span class="n">CUDA_SUCCESS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">pfn_cuDeviceGetUuidDriver</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="c1">// pfn_cuDeviceGetUuidDriver points to ???</span>
+<span class="w">    </span><span class="c1">// pfn_cuDeviceGetUuidDriver 指向跳转到此标题</span>
 <span class="p">}</span>
 
-<span class="c1">// Ask the runtime for the function</span>
+<span class="c1">// 向运行时询问该函数</span>
 <span class="n">PFN_cuDeviceGetUuid</span><span class="w"> </span><span class="n">pfn_cuDeviceGetUuidRuntime</span><span class="p">;</span>
-<span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaGetDriverEntryPoint</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;cuDeviceGetUuid&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pfn_cuDeviceGetUuidRuntime</span><span class="p">,</span><span class="w"> </span><span class="n">cudaEnableDefault</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">runtimeStatus</span><span class="p">);</span>
+<span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaGetDriverEntryPoint</span><span class="w"> </span><span class="p">(</span><span class="s">"cuDeviceGetUuid"</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pfn_cuDeviceGetUuidRuntime</span><span class="p">,</span><span class="w"> </span><span class="n">cudaEnableDefault</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">runtimeStatus</span><span class="p">);</span>
 <span class="k">if</span><span class="p">(</span><span class="n">cudaSuccess</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">pfn_cuDeviceGetUuidRuntime</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="c1">// pfn_cuDeviceGetUuidRuntime points to ???</span>
+<span class="w">    </span><span class="c1">// pfn_cuDeviceGetUuidRuntime 指向跳转到此标题</span>
 <span class="p">}</span>
 
-<span class="c1">// Ask the driver for the function based on the driver version (obtained via runtime)</span>
+<span class="c1">// 根据驱动版本向驱动询问该功能（通过runtime获取）</span>
 <span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaDriverGetVersion</span><span class="p">(</span><span class="o">&amp;</span><span class="n">driverVersion</span><span class="p">);</span>
 <span class="n">PFN_cuDeviceGetUuid</span><span class="w"> </span><span class="n">pfn_cuDeviceGetUuidDriverDriverVer</span><span class="p">;</span>
-<span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuGetProcAddress</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;cuDeviceGetUuid&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pfn_cuDeviceGetUuidDriverDriverVer</span><span class="p">,</span><span class="w"> </span><span class="n">driverVersion</span><span class="p">,</span><span class="w"> </span><span class="n">CU_GET_PROC_ADDRESS_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">driverStatus</span><span class="p">);</span>
+<span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuGetProcAddress</span><span class="w"> </span><span class="p">(</span><span class="s">"cuDeviceGetUuid"</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pfn_cuDeviceGetUuidDriverDriverVer</span><span class="p">,</span><span class="w"> </span><span class="n">driverVersion</span><span class="p">,</span><span class="w"> </span><span class="n">CU_GET_PROC_ADDRESS_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">driverStatus</span><span class="p">);</span>
 <span class="k">if</span><span class="p">(</span><span class="n">CUDA_SUCCESS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">pfn_cuDeviceGetUuidDriverDriverVer</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="c1">// pfn_cuDeviceGetUuidDriverDriverVer points to ???</span>
+<span class="w">    </span><span class="c1">// pfn_cuDeviceGetUuidDriverDriverVer 指向跳转到此标题</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The following matrix of function pointers is expected:</p>
+<p>预期函数指针矩阵如下：</p>
 <div class="pst-scrollable-table-container"><table class="table-no-stripes table">
 <tbody>
-<tr class="row-odd"><td rowspan="3"><p><strong>Function Pointer</strong></p></td>
-<td colspan="8"><p><strong>Application Compiled/Runtime Dynamic Linked Version/Driver Version</strong></p></td>
+<tr class="row-odd"><td rowspan="3"><p><strong>函数指针</strong></p></td>
+<td colspan="8"><p><strong>应用程序编译/运行时动态链接版本/驱动程序版本</strong></p></td>
 </tr>
-<tr class="row-even"><td colspan="8"><p><strong>(3 =&gt; CUDA 11.3 and 4 =&gt; CUDA 11.4)</strong></p></td>
+<tr class="row-even"><td colspan="8"><p><strong>（3 =&gt; CUDA 11.3 和 4 =&gt; CUDA 11.4）</strong></p></td>
 </tr>
 <tr class="row-odd"><td><p><strong>3/3/3</strong></p></td>
 <td><p><strong>3/3/4</strong></p></td>
@@ -918,179 +713,128 @@ x =&gt; Implies the typedef function pointer won&#39;t match the returned
 vX -&gt; Version returned/used at runtime
 </pre></div>
 </div>
-<p>If the application is compiled against CUDA Version 11.3, it would have the typedef for the original function, but if compiled against CUDA Version 11.4, it would have the typedef for the _v2 function. Because of that, notice the number of cases where the typedef does not match the actual version returned/used.</p>
+<p>如果应用程序针对 CUDA 版本 11.3 进行编译，则它将具有原始函数的 typedef，但如果针对 CUDA 版本 11.4 进行编译，它将具有 _v2 函数的 typedef。因此，请注意 typedef 与返回/使用的实际版本不匹配的情况数量。</p>
 </section>
 <section id="issues-with-runtime-api-allowing-cuda-version">
-<span id="implications-with-runtime-api-by-version"></span><h3><span class="section-number">4.20.4.6. </span>Issues with Runtime API allowing CUDA Version<a class="headerlink" href="driver-entry-point-access.html#issues-with-runtime-api-allowing-cuda-version" title="Link to this heading">#</a></h3>
-<p>Unless specified otherwise, the CUDA runtime API <code class="docutils literal notranslate"><span class="pre">cudaGetDriverEntryPointByVersion</span></code> will have similar implications as the driver entry point <code class="docutils literal notranslate"><span class="pre">cuGetProcAddress</span></code> since it allows for the user to request a specific CUDA driver version.</p>
+<span id="implications-with-runtime-api-by-version"></span><h3><span class="section-number">4.20.4.6. </span>允许 CUDA 版本的运行时 API 存在问题<a class="headerlink" href="driver-entry-point-access.html#issues-with-runtime-api-allowing-cuda-version" title="跳转到此标题">#</a></h3>
+<p>除非另有指定，否则 CUDA 运行时 API <code class="docutils literal notranslate"><span class="pre">cudaGetDriverEntryPointByVersion</span></code> 将具有与驱动程序入口点类似的含义 <code class="docutils literal notranslate"><span class="pre">cuGetProcAddress</span></code> 因为它允许用户请求特定的 CUDA 驱动程序版本。</p>
 </section>
 <section id="implications-to-api-abi">
-<span id="id8"></span><h3><span class="section-number">4.20.4.7. </span>Implications to API/ABI<a class="headerlink" href="driver-entry-point-access.html#implications-to-api-abi" title="Link to this heading">#</a></h3>
-<p>In the above examples using <code class="docutils literal notranslate"><span class="pre">cuDeviceGetUuid</span></code>, the implications of the mismatched API are minimal, and may not be entirely noticeable to many users as the _v2 was added to support Multi-Instance GPU (MIG) mode. So, on a system without MIG, the user might not even realize they are getting a different API.</p>
-<p>More problematic is an API which changes its application signature (and hence ABI) such as <code class="docutils literal notranslate"><span class="pre">cuCtxCreate</span></code>. The _v2 version, introduced in CUDA 3.2 is currently used as the default <code class="docutils literal notranslate"><span class="pre">cuCtxCreate</span></code> when using <code class="docutils literal notranslate"><span class="pre">cuda.h</span></code> but now has a newer version introduced in CUDA 11.4 (<code class="docutils literal notranslate"><span class="pre">cuCtxCreate_v3</span></code>). The API signature has been modified as well, and now takes extra arguments. So, in some of the cases above, where the typedef to the function pointer doesn’t match the returned function pointer, there is a chance for non-obvious ABI incompatibility which would lead to undefined behavior.</p>
-<p>For example, assume the following code compiled against a CUDA 11.3 toolkit with a CUDA 11.4 driver installed:</p>
+<span id="id8"></span><h3><span class="section-number">4.20.4.7. </span>对 API/ABI 的影响<a class="headerlink" href="driver-entry-point-access.html#implications-to-api-abi" title="跳转到此标题">#</a></h3>
+<p>在上面的例子中使用 <code class="docutils literal notranslate"><span class="pre">cuDeviceGetUuid</span></code>，不匹配的 API 的影响很小，并且许多用户可能不会完全注意到，因为添加 _v2 是为了支持多实例 GPU (MIG) 模式。因此，在没有 MIG 的系统上，用户甚至可能没有意识到他们正在获取不同的 API。</p>
+<p>更成问题的是 API 会更改其应用程序签名（以及 ABI），例如 <code class="docutils literal notranslate"><span class="pre">cuCtxCreate</span></code>。目前默认使用 CUDA 3.2 中引入的 _v2 版本 <code class="docutils literal notranslate"><span class="pre">cuCtxCreate</span></code> 使用时 <code class="docutils literal notranslate"><span class="pre">cuda.h</span></code> 但现在 CUDA 11.4 中引入了更新版本（<code class="docutils literal notranslate"><span class="pre">cuCtxCreate_v3</span></code>）。 API 签名也已修改，现在需要额外的参数。因此，在上述某些情况下，如果函数指针的 typedef 与返回的函数指针不匹配，则可能会出现不明显的 ABI 不兼容性，从而导致未定义的行为。</p>
+<p>例如，假设针对安装了 CUDA 11.4 驱动程序的 CUDA 11.3 工具包编译以下代码：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">PFN_cuCtxCreate</span><span class="w"> </span><span class="n">cuUnknown</span><span class="p">;</span>
 <span class="n">CUdriverProcAddressQueryResult</span><span class="w"> </span><span class="n">driverStatus</span><span class="p">;</span>
 
-<span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuGetProcAddress</span><span class="p">(</span><span class="s">&quot;cuCtxCreate&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">cuUnknown</span><span class="p">,</span><span class="w"> </span><span class="n">cudaVersion</span><span class="p">,</span><span class="w"> </span><span class="n">CU_GET_PROC_ADDRESS_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">driverStatus</span><span class="p">);</span>
+<span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuGetProcAddress</span><span class="p">(</span><span class="s">"cuCtxCreate"</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">cuUnknown</span><span class="p">,</span><span class="w"> </span><span class="n">cudaVersion</span><span class="p">,</span><span class="w"> </span><span class="n">CU_GET_PROC_ADDRESS_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">driverStatus</span><span class="p">);</span>
 <span class="k">if</span><span class="p">(</span><span class="n">CUDA_SUCCESS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">cuUnknown</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuUnknown</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">dev</span><span class="p">);</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>Running this code where <code class="docutils literal notranslate"><span class="pre">cudaVersion</span></code> is set to anything &gt;=11040 (indicating CUDA 11.4) could have undefined behavior due to not having adequately supplied all the parameters required for the _v3 version of the <code class="docutils literal notranslate"><span class="pre">cuCtxCreate_v3</span></code> API.</p>
+<p>在哪里运行此代码 <code class="docutils literal notranslate"><span class="pre">cudaVersion</span></code> 设置为任何 &gt;=11040（表示 CUDA 11.4）可能会出现未定义的行为，因为没有充分提供 _v3 版本所需的所有参数 <code class="docutils literal notranslate"><span class="pre">cuCtxCreate_v3</span></code> API。</p>
 </section>
 </section>
 <section id="determining-cugetprocaddress-failure-reasons">
-<span id="determining-cugetprocaddress-failure-reason"></span><h2><span class="section-number">4.20.5. </span>Determining cuGetProcAddress Failure Reasons<a class="headerlink" href="driver-entry-point-access.html#determining-cugetprocaddress-failure-reasons" title="Link to this heading">#</a></h2>
-<p>There are two types of errors with cuGetProcAddress. Those are (1) API/usage errors and (2) inability to find the driver API requested. The first error type will return error codes from the API via the CUresult return value. Things like passing NULL as the <code class="docutils literal notranslate"><span class="pre">pfn</span></code> variable or passing invalid <code class="docutils literal notranslate"><span class="pre">flags</span></code>.</p>
-<p>The second error type encodes in the <code class="docutils literal notranslate"><span class="pre">CUdriverProcAddressQueryResult</span> <span class="pre">*symbolStatus</span></code> and can be used to help distinguish potential issues with the driver not being able to find the symbol requested. Take the following example:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// cuDeviceGetExecAffinitySupport was introduced in release CUDA 11.4</span>
+<span id="determining-cugetprocaddress-failure-reason"></span><h2><span class="section-number">4.20.5. </span>确定 cuGetProcAddress 失败原因<a class="headerlink" href="driver-entry-point-access.html#determining-cugetprocaddress-failure-reasons" title="跳转到此标题">#</a></h2>
+<p>cuGetProcAddress 有两种类型的错误。这些是 (1) API/使用错误和 (2) 无法找到所请求的驱动程序 API。第一个错误类型将通过 CUresult 返回值从 API 返回错误代码。诸如传递 NULL 作为 <code class="docutils literal notranslate"><span class="pre">pfn</span></code> 变量或传递无效 <code class="docutils literal notranslate"><span class="pre">flags</span></code>.</p>
+<p>第二个错误类型编码在 <code class="docutils literal notranslate"><span class="pre">CUdriverProcAddressQueryResult</span> <span class="pre">*symbolStatus</span></code> 并可用于帮助区分驱动程序无法找到所请求的符号的潜在问题。举个例子：</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// cuDeviceGetExecAffinitySupport 在 CUDA 11.4 版本中引入</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cuda.h&gt;</span>
 <span class="n">CUdriverProcAddressQueryResult</span><span class="w"> </span><span class="n">driverStatus</span><span class="p">;</span>
 <span class="n">cudaVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">...;</span>
-<span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuGetProcAddress</span><span class="p">(</span><span class="s">&quot;cuDeviceGetExecAffinitySupport&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pfn</span><span class="p">,</span><span class="w"> </span><span class="n">cudaVersion</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">driverStatus</span><span class="p">);</span>
+<span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuGetProcAddress</span><span class="p">(</span><span class="s">"cuDeviceGetExecAffinitySupport"</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pfn</span><span class="p">,</span><span class="w"> </span><span class="n">cudaVersion</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">driverStatus</span><span class="p">);</span>
 <span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">CUDA_SUCCESS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">status</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">CU_GET_PROC_ADDRESS_VERSION_NOT_SUFFICIENT</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">driverStatus</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;We can use the new feature when you upgrade cudaVersion to 11.4, but CUDA driver is good to go!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-<span class="w">        </span><span class="c1">// Indicating cudaVersion was &lt; 11.4 but run against a CUDA driver &gt;= 11.4</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">"We can use the new feature when you upgrade cudaVersion to 11.4, but CUDA driver is good to go!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="w">        </span><span class="c1">// 指示 cudaVersion &lt; 11.4 但针对 CUDA 驱动程序 &gt;= 11.4 运行</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">CU_GET_PROC_ADDRESS_SYMBOL_NOT_FOUND</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">driverStatus</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Please update both CUDA driver and cudaVersion to at least 11.4 to use the new feature!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-<span class="w">        </span><span class="c1">// Indicating driver is &lt; 11.4 since string not found, doesn&#39;t matter what cudaVersion was</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">"Please update both CUDA driver and cudaVersion to at least 11.4 to use the new feature!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="w">        </span><span class="c1">// 由于未找到字符串，指示驱动程序 &lt; 11.4，无论 cudaVersion 是什么</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">CU_GET_PROC_ADDRESS_SUCCESS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">driverStatus</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">pfn</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;You&#39;re using cudaVersion and CUDA driver &gt;= 11.4, using new feature!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">"You're using cudaVersion and CUDA driver &gt;= 11.4, using new feature!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
 <span class="w">        </span><span class="n">pfn</span><span class="p">();</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The first case with the return code <code class="docutils literal notranslate"><span class="pre">CU_GET_PROC_ADDRESS_VERSION_NOT_SUFFICIENT</span></code> indicates that the <code class="docutils literal notranslate"><span class="pre">symbol</span></code> was found when searching in the CUDA driver but it was added later than the <code class="docutils literal notranslate"><span class="pre">cudaVersion</span></code> supplied. In the example, specifying <code class="docutils literal notranslate"><span class="pre">cudaVersion</span></code> as anything 11030 or less and when running against a CUDA driver &gt;= CUDA 11.4 would give this result of <code class="docutils literal notranslate"><span class="pre">CU_GET_PROC_ADDRESS_VERSION_NOT_SUFFICIENT</span></code>. This is because <code class="docutils literal notranslate"><span class="pre">cuDeviceGetExecAffinitySupport</span></code> was added in CUDA 11.4 (11040).</p>
-<p>The second case with the return code <code class="docutils literal notranslate"><span class="pre">CU_GET_PROC_ADDRESS_SYMBOL_NOT_FOUND</span></code> indicates that the <code class="docutils literal notranslate"><span class="pre">symbol</span></code> was not found when searching in the CUDA driver. This can be due to a few reasons such as unsupported CUDA function due to older driver as well as just having a typo. In the latter, similar to the last example if the user had put <code class="docutils literal notranslate"><span class="pre">symbol</span></code> as CUDeviceGetExecAffinitySupport - notice the capital CU to start the string - <code class="docutils literal notranslate"><span class="pre">cuGetProcAddress</span></code> would not be able to find the API because the string doesn’t match. In the former case an example might be the user developing an application against a CUDA driver supporting the new API, and deploying the application against an older CUDA driver. Using the last example, if the developer developed against CUDA 11.4 or later but was deployed against a CUDA 11.3 driver, during their development they may have had a successful <code class="docutils literal notranslate"><span class="pre">cuGetProcAddress</span></code>, but when deploying an application running against a CUDA 11.3 driver the call would no longer work with the <code class="docutils literal notranslate"><span class="pre">CU_GET_PROC_ADDRESS_SYMBOL_NOT_FOUND</span></code> returned in <code class="docutils literal notranslate"><span class="pre">driverStatus</span></code>.</p>
+<p>第一种情况有返回码 <code class="docutils literal notranslate"><span class="pre">CU_GET_PROC_ADDRESS_VERSION_NOT_SUFFICIENT</span></code> 表明 <code class="docutils literal notranslate"><span class="pre">symbol</span></code> 在CUDA驱动中搜索时发现，但添加时间晚于 <code class="docutils literal notranslate"><span class="pre">cudaVersion</span></code> 提供。在示例中，指定 <code class="docutils literal notranslate"><span class="pre">cudaVersion</span></code> 作为 11030 或更少的值，并且当针对 CUDA 驱动程序 &gt;= CUDA 11.4 运行时，会给出以下结果 <code class="docutils literal notranslate"><span class="pre">CU_GET_PROC_ADDRESS_VERSION_NOT_SUFFICIENT</span></code>。这是因为 <code class="docutils literal notranslate"><span class="pre">cuDeviceGetExecAffinitySupport</span></code> 已在 CUDA 11.4 (11040) 中添加。</p>
+<p>第二种情况有返回码 <code class="docutils literal notranslate"><span class="pre">CU_GET_PROC_ADDRESS_SYMBOL_NOT_FOUND</span></code> 表明 <code class="docutils literal notranslate"><span class="pre">symbol</span></code> 在 CUDA 驱动程序中搜索时未找到。这可能是由于多种原因造成的，例如由于较旧的驱动程序导致不支持 CUDA 功能以及拼写错误。在后者中，类似于上一个示例，如果用户输入了 <code class="docutils literal notranslate"><span class="pre">symbol</span></code> as CUDeviceGetExecAffinitySupport - 注意大写 CU 以开始字符串 - <code class="docutils literal notranslate"><span class="pre">cuGetProcAddress</span></code> 由于字符串不匹配，将无法找到 API。在前一种情况下，一个示例可能是用户针对支持新 API 的 CUDA 驱动程序开发应用程序，并针对旧的 CUDA 驱动程序部署该应用程序。使用最后一个示例，如果开发人员针对 CUDA 11.4 或更高版本进行开发，但针对 CUDA 11.3 驱动程序进行部署，则在开发过程中他们可能已经成功 <code class="docutils literal notranslate"><span class="pre">cuGetProcAddress</span></code>，但是当部署针对 CUDA 11.3 驱动程序运行的应用程序时，该调用将不再适用于 <code class="docutils literal notranslate"><span class="pre">CU_GET_PROC_ADDRESS_SYMBOL_NOT_FOUND</span></code> 返回于 <code class="docutils literal notranslate"><span class="pre">driverStatus</span></code>.</p>
 </section>
 </section>
-
-
-                </article>
-              
-              
-              
-              
-              
-                <footer class="prev-next-footer d-print-none">
-                  
+</article>
+<footer class="prev-next-footer d-print-none">
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="graphics-interop.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><span class="section-number">4.19. </span>CUDA Interoperability with APIs</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="../part5.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><span class="section-number">5. </span>Technical Appendices</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
+<a class="left-prev" href="graphics-interop.html" title="上一页">4.19. CUDA 与 API 的互操作</a>
+<a class="right-next" href="../part5.html" title="下一页">5. 技术附录</a>
 </div>
-                </footer>
-              
-            </div>
-            
-            
-
-
-              
-                <dialog id="pst-secondary-sidebar-modal"></dialog>
-                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
-
-
-  <div class="sidebar-secondary-item">
-<div
-    id="pst-page-navigation-heading-2"
-    class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
+</footer>
+</div>
+<dialog id="pst-secondary-sidebar-modal"></dialog>
+<div class="bd-sidebar-secondary bd-toc" id="pst-secondary-sidebar"><div class="sidebar-secondary-items sidebar-secondary__inner">
+<div class="sidebar-secondary-item">
+<div class="page-toc tocsection onthispage" id="pst-page-navigation-heading-2">
+<i class="fa-solid fa-list"></i>本页内容
   </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#introduction">4.20.1. Introduction</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#driver-function-typedefs">4.20.2. Driver Function Typedefs</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#driver-function-retrieval">4.20.3. Driver Function Retrieval</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#using-the-driver-api">4.20.3.1. Using the Driver API</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#using-the-runtime-api">4.20.3.2. Using the Runtime API</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#retrieve-per-thread-default-stream-versions">4.20.3.3. Retrieve Per-thread Default Stream Versions</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#access-new-cuda-features">4.20.3.4. Access New CUDA features</a></li>
+<nav aria-labelledby="pst-page-navigation-heading-2" class="bd-toc-nav page-toc">
+<ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#introduction">4.20. 驱动入口点访问</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#driver-function-typedefs">4.20. 驱动入口点访问</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#driver-function-retrieval">4.20. 驱动入口点访问</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#using-the-driver-api">4.20. 驱动入口点访问</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#using-the-runtime-api">4.20. 驱动入口点访问</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#retrieve-per-thread-default-stream-versions">4.20. 驱动入口点访问</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#access-new-cuda-features">4.20. 驱动入口点访问</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#potential-implications-with-cugetprocaddress">4.20.4. Potential Implications with cuGetProcAddress</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#implications-with-cugetprocaddress-vs-implicit-linking">4.20.4.1. Implications with cuGetProcAddress vs Implicit Linking</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#compile-time-vs-runtime-version-usage-in-cugetprocaddress">4.20.4.2. Compile Time vs Runtime Version Usage in cuGetProcAddress</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#api-version-bumps-with-explicit-version-checks">4.20.4.3. API Version Bumps with Explicit Version Checks</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#issues-with-runtime-api-usage">4.20.4.4. Issues with Runtime API Usage</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#issues-with-runtime-api-and-dynamic-versioning">4.20.4.5. Issues with Runtime API and Dynamic Versioning</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#issues-with-runtime-api-allowing-cuda-version">4.20.4.6. Issues with Runtime API allowing CUDA Version</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#implications-to-api-abi">4.20.4.7. Implications to API/ABI</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#potential-implications-with-cugetprocaddress">4.20. 驱动入口点访问</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#implications-with-cugetprocaddress-vs-implicit-linking">4.20. 驱动入口点访问</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#compile-time-vs-runtime-version-usage-in-cugetprocaddress">4.20. 驱动入口点访问</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#api-version-bumps-with-explicit-version-checks">4.20. 驱动入口点访问</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#issues-with-runtime-api-usage">4.20. 驱动入口点访问</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#issues-with-runtime-api-and-dynamic-versioning">4.20. 驱动入口点访问</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#issues-with-runtime-api-allowing-cuda-version">4.20. 驱动入口点访问</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#implications-to-api-abi">4.20. 驱动入口点访问</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#determining-cugetprocaddress-failure-reasons">4.20.5. Determining cuGetProcAddress Failure Reasons</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="driver-entry-point-access.html#determining-cugetprocaddress-failure-reasons">4.20. 驱动入口点访问</a></li>
 </ul>
-  </nav></div>
-
+</nav></div>
 </div></div>
-              
-            
-
-          </div>
-          <footer class="bd-footer-content">
-            
-          </footer>
-        
-      </main>
-    </div>
-  </div>
-  
-
-  <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js"></script>
-
-
+</div>
+<footer class="bd-footer-content">
+</footer>
+</main>
+</div>
+</div>
+ 脚本在 &lt;body&gt; 之后加载，因此 DOM 不会被阻塞 
+<script defer="" src="../_static/scripts/bootstrap.js"></script>
+<script defer="" src="../_static/scripts/pydata-sphinx-theme.js"></script>
 <script type="text/javascript">if (typeof _satellite !== "undefined") {_satellite.pageBottom();}</script>
-
-  <footer class="bd-footer">
+<footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
-  
-    <div class="footer-items__start">
-      
-        <div class="footer-item">
+<div class="footer-items__start">
+<div class="footer-item">
 <a class="footer-brand logo" href="https://www.nvidia.com">
-  <img src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
-  <img src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+<img alt="NVIDIA" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg"/>
+<img alt="NVIDIA" class="logo__image only-dark" src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg"/>
 </a></div>
-      
-        <div class="footer-item">
-
+<div class="footer-item">
 <div class="footer-links">
-  
-  
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+<a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">隐私政策</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">您的隐私选择</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">服务条款</a>
    | 
   
   
@@ -1100,47 +844,31 @@ vX -&gt; Version returned/used at runtime
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">公司政策</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">产品安全</a>
    | 
   
   
   
   <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
-  
-  
-  
 </div>
 </div>
-      
-        <div class="footer-item">
-
-
-
-
-  <p class="copyright">
+<div class="footer-item">
+<p class="copyright">
     
-      Copyright © 2007-2026, NVIDIA Corporation &amp; affiliates. All rights reserved.
+      版权所有 © 2007-2026，NVIDIA 公司及附属公司。版权所有。
       <br/>
-    
-  </p>
+</p>
 </div>
-      
-        <div class="footer-item"><p class="last-updated">
-  Last updated on Mar 04, 2026.
+<div class="footer-item"><p class="last-updated">
+  最后更新于 2026 年 3 月 4 日。
   <br/>
 </p></div>
-      
-    </div>
-  
-  
-  
 </div>
-
-  </footer>
-  </body>
-</html>
+</div>
+</footer>
+</body></html>

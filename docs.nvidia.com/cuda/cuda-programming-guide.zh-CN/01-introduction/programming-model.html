@@ -1,52 +1,37 @@
-
-
 <!DOCTYPE html>
-
-
-<html lang="zh-CN" data-content_root="../" >
-
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <title>1.2. 编程模型 &#8212; CUDA 编程指南</title>
-  
-  
-  
-  <script data-cfasync="false">
+<html data-content_root="../" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>1.2. 编程模型 — CUDA 编程指南</title>
+<script data-cfasync="false">
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
-  </script>
-  <!--
-    this give us a css class that will be invisible only if js is disabled
-  -->
-  <noscript>
-    <style>
+  </script></head><body><p>
+
+    这给了我们一个 css 类，只有在禁用 js 时才会不可见
+  
+<noscript>
+<style>
       .pst-js-only { display: none !important; }
 
     </style>
-  </noscript>
-  
-  <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css" rel="stylesheet" />
-
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/tables.css" />
-  
-  <!-- So that users can add custom icons -->
-  <script src="../_static/scripts/fontawesome.js"></script>
-  <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js" />
-
-
-<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript"
-  data-document-language="true" charset="UTF-8" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5">
+</noscript>
+ 在其他 Sphinx 资源之前加载 
+<link href="../_static/styles/theme.css" rel="stylesheet"/>
+<link href="../_static/styles/pydata-sphinx-theme.css" rel="stylesheet"/>
+<link href="../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/styles/nvidia-sphinx-theme.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/custom.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/copybutton.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx-design.min.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/tables.css" rel="stylesheet" type="text/css"/>
+ 以便用户可以添加自定义图标 
+<script src="../_static/scripts/fontawesome.js"></script>
+ 我们稍后将完全加载的预加载脚本 
+<link as="script" href="../_static/scripts/bootstrap.js" rel="preload"/>
+<link as="script" href="../_static/scripts/pydata-sphinx-theme.js" rel="preload"/>
+<script charset="UTF-8" data-document-language="true" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5" src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript">
 </script>
 <script type="text/javascript">
   function OptanonWrapper() {
@@ -56,309 +41,149 @@
 </script>
 <script src="https://images.nvidia.com/aem-dam/Solutions/ot-js/ot-custom.js" type="text/javascript">
 </script>
-
-
-    <script rel="preload" src="../_static/modal-table.js"></script>
-    <script src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/scrollspy-patch.js"></script>
-    <script src="../_static/clipboard.min.js"></script>
-    <script src="../_static/copybutton.js"></script>
-    <script src="../_static/design-tabs.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '01-introduction/programming-model';</script>
-    <script src="../_static/version-patch.js"></script>
-
-<script type="text/javascript" src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
-
-    <link rel="icon" href="../_static/favicon.ico"/>
-
-    <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="1.3. The CUDA platform" href="cuda-platform.html" />
-    <link rel="prev" title="1.1. Introduction" href="introduction.html" />
-
-<link rel="preload" as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png">
-
-
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="" />
-    <meta name="docbuild:last-update" content="Mar 04, 2026"/>
-
-
-  </head>
-
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
-
-  
-  
-  <div id="pst-skip-link" class="skip-link d-print-none"><a href="programming-model.html#main-content">Skip to main content</a></div>
-
-<img src="https://www.nvidia.com/content/dam/1x1-00000000.png" width="1" height="1" style="display:none;" alt="country_code">
-
-
-  
-  <div id="pst-scroll-pixel-helper"></div>
-  
-  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
-    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
-  
-  <dialog id="pst-search-dialog">
-    
-<form class="bd-search d-flex align-items-center"
-      action="../search.html"
-      method="get">
-  <i class="fa-solid fa-magnifying-glass"></i>
-  <input type="search"
-         class="form-control"
-         name="q"
-         placeholder="Search the docs ..."
-         aria-label="Search the docs ..."
-         autocomplete="off"
-         autocorrect="off"
-         autocapitalize="off"
-         spellcheck="false"/>
-  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+<script rel="preload" src="../_static/modal-table.js"></script>
+<script src="../_static/documentation_options.js"></script>
+<script src="../_static/doctools.js"></script>
+<script src="../_static/sphinx_highlight.js"></script>
+<script src="../_static/scrollspy-patch.js"></script>
+<script src="../_static/clipboard.min.js"></script>
+<script src="../_static/copybutton.js"></script>
+<script src="../_static/design-tabs.js"></script>
+<script>DOCUMENTATION_OPTIONS.pagename = '01-introduction/programming-model';</script>
+<script src="../_static/version-patch.js"></script>
+<script src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js" type="text/javascript"></script>
+<link href="../_static/favicon.ico" rel="icon"/>
+<link href="../genindex.html" rel="index" title="索引"/>
+<link href="../search.html" rel="search" title="搜索"/>
+<link href="cuda-platform.html" rel="next" title="1.3. CUDA 平台"/>
+<link href="introduction.html" rel="prev" title="1.1. 引言"/>
+<link as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png" rel="preload"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="en" name="docsearch:language"/>
+<meta content="" name="docsearch:version"/>
+<meta content="Mar 04, 2026" name="docbuild:last-update"/>
+</p>
+<div class="skip-link d-print-none" id="pst-skip-link"><a href="programming-model.html#main-content">跳到主要内容</a></div>
+<img alt="country_code" height="1" src="https://www.nvidia.com/content/dam/1x1-00000000.png" style="display:none;" width="1"/>
+<div id="pst-scroll-pixel-helper"></div>
+<button class="btn rounded-pill" id="pst-back-to-top" type="button">
+<i class="fa-solid fa-arrow-up"></i>返回顶部</button>
+<dialog id="pst-search-dialog">
+<form action="../search.html" class="bd-search d-flex align-items-center" method="get">
+<i class="fa-solid fa-magnifying-glass"></i>
+<input aria-label="搜索文档..." autocapitalize="off" autocomplete="off" autocorrect="off" class="form-control" name="q" placeholder="搜索文档..." spellcheck="false" type="search"/>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
 </form>
-  </dialog>
-
-  <div class="pst-async-banner-revealer d-none">
-  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</dialog>
+<div class="pst-async-banner-revealer d-none">
+<aside aria-label="版本警告" class="d-none d-print-none" id="bd-header-version-warning"></aside>
 </div>
-
-  
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
-    <span class="fa-solid fa-bars"></span>
-  </button>
-  
-  
-  <div class="col-lg-3 navbar-header-items__start">
-    
-      <div class="navbar-item">
-
-  
-    
-  
-
+<button aria-label="站点导航" class="pst-navbar-icon sidebar-toggle primary-toggle">
+<span class="fa-solid fa-bars"></span>
+</button>
+<div class="col-lg-3 navbar-header-items__start">
+<div class="navbar-item">
 <a class="navbar-brand logo" href="../contents.html">
-  
-  
-  
-  
-  
-    
-    
-      
-    
-    
-    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
-    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
-  
-  
-    <p class="title logo__title">CUDA Programming Guide</p>
-  
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg"/>
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-dark pst-js-only" src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg"/>
+<p class="title logo__title">CUDA 编程指南</p>
 </a></div>
-    
-  </div>
-  
-  <div class="col-lg-9 navbar-header-items">
-    
-    <div class="me-auto navbar-header-items__center">
-      
-        <div class="navbar-item">
-
-
+</div>
+<div class="col-lg-9 navbar-header-items">
+<div class="me-auto navbar-header-items__center">
+<div class="navbar-item">
 <div>
-  <ul class="bd-navbar-elements navbar-nav">
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>v13.2 |</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>|</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
-      
-    </li>
-  
-  </ul>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item pst-header-nav-item">
+<span>v13.2 |</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+</li>
+<li class="nav-item pst-header-nav-item">
+<span>|</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">warp</a>
+</li>
+</ul>
 </div>
 </div>
-      
-    </div>
-    
-    
-    <div class="navbar-header-items__end">
-      
-        <div class="navbar-item navbar-persistent--container">
-          
-
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
- <i class="fa-solid fa-magnifying-glass"></i>
- <span class="search-button__default-text">Search</span>
- <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</div>
+<div class="navbar-header-items__end">
+<div class="navbar-item navbar-persistent--container">
+<button aria-label="warp" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="warp">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">warp</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
 </button>
-        </div>
-      
-      
-        <div class="navbar-item">
-
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</div>
+<div class="navbar-item">
+<button aria-label="色彩模式" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="系统设置"></i>
 </button></div>
-      
-    </div>
-    
-  </div>
-  
-  
-    <div class="navbar-persistent--mobile">
-
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
- <i class="fa-solid fa-magnifying-glass"></i>
- <span class="search-button__default-text">Search</span>
- <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-</button>
-    </div>
-  
-
-  
-    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
-      <span class="fa-solid fa-outdent"></span>
-    </button>
-  
 </div>
-
-    </header>
-  
-
-  <div class="bd-container">
-    <div class="bd-container__inner bd-page-width">
-      
-      
-      
-      <dialog id="pst-primary-sidebar-modal"></dialog>
-      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
-        
-
-
-
-  
-    
-  
-
+</div>
+<div class="navbar-persistent--mobile">
+<button aria-label="warp" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="warp">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">warp</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+</div>
+<button aria-label="切换侧边栏" class="pst-navbar-icon sidebar-toggle secondary-toggle">
+<span class="fa-solid fa-outdent"></span>
+</button>
+</div>
+</header>
+<div class="bd-container">
+<div class="bd-container__inner bd-page-width">
+<dialog id="pst-primary-sidebar-modal"></dialog>
+<div class="bd-sidebar-primary bd-sidebar" id="pst-primary-sidebar">
 <a class="navbar-brand logo" href="../contents.html">
-  
-  
-  
-  
-  
-    
-    
-      
-    
-    
-    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
-    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
-  
-  
-    <p class="title logo__title">CUDA Programming Guide</p>
-  
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg"/>
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-dark pst-js-only" src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg"/>
+<p class="title logo__title">CUDA 编程指南</p>
 </a>
-
-
-  
-  <div class="sidebar-header-items sidebar-primary__section">
-    
-    
-      <div class="sidebar-header-items__center">
-        
-          
-          
-            <div class="navbar-item">
-
-
+<div class="sidebar-header-items sidebar-primary__section">
+<div class="sidebar-header-items__center">
+<div class="navbar-item">
 <div>
-  <ul class="bd-navbar-elements navbar-nav">
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>v13.2 |</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>|</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
-      
-    </li>
-  
-  </ul>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item pst-header-nav-item">
+<span>v13.2 |</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+</li>
+<li class="nav-item pst-header-nav-item">
+<span>|</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">warp</a>
+</li>
+</ul>
 </div>
 </div>
-          
-        
-      </div>
-    
-    
-    
-      <div class="sidebar-header-items__end">
-        
-          <div class="navbar-item">
-
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</div>
+<div class="sidebar-header-items__end">
+<div class="navbar-item">
+<button aria-label="色彩模式" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="系统设置"></i>
 </button></div>
-        
-      </div>
-    
-  </div>
-  
-    <div class="sidebar-primary-items__start sidebar-primary__section">
-        <div class="sidebar-primary-item">
-
-
-
-<nav class="bd-docs-nav bd-links"
-     aria-label="Table of Contents">
-  <p class="bd-links__title" role="heading" aria-level="1">目录</p>
-  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+</div>
+</div>
+<div class="sidebar-primary-items__start sidebar-primary__section">
+<div class="sidebar-primary-item">
+<nav aria-label="目录" class="bd-docs-nav bd-links">
+<p aria-level="1" class="bd-links__title" role="heading">目录</p>
+<div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA 编程指南</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../part1.html">1. CUDA 简介</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="introduction.html">1.1. 引言</a></li>
@@ -366,372 +191,291 @@
 <li class="toctree-l3"><a class="reference internal" href="cuda-platform.html">1.3. CUDA 平台</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part2.html">2. Programming GPUs in CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html">2.1. Intro to CUDA C++</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/writing-cuda-kernels.html">2.2. Writing CUDA SIMT Kernels</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/asynchronous-execution.html">2.3. Asynchronous Execution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/understanding-memory.html">2.4. Unified and System Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/nvcc.html">2.5. NVCC: The NVIDIA CUDA Compiler</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part2.html">2. 使用 CUDA 进行 GPU 编程</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html">2.1. CUDA C++ 入门</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/writing-cuda-kernels.html">2.2. 编写 CUDA SIMT 内核</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/asynchronous-execution.html">2.3. 异步执行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/understanding-memory.html">2.4. 统一内存与系统内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/nvcc.html">2.5. NVCC：NVIDIA CUDA 编译器</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. Advanced CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. Advanced CUDA APIs and Features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. Advanced Kernel Programming</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. The CUDA Driver API</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. Programming Systems with Multiple GPUs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. A Tour of CUDA Features</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. 高级 CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. 高级 CUDA API 与特性</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. 高级内核编程</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. CUDA Driver API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. 多 GPU 系统编程</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. CUDA 特性概览</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part4.html">4. CUDA Features</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/unified-memory.html">4.1. Unified Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cuda-graphs.html">4.2. CUDA Graphs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/stream-ordered-memory-allocation.html">4.3. Stream-Ordered Memory Allocator</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cooperative-groups.html">4.4. Cooperative Groups</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/programmatic-dependent-launch.html">4.5. Programmatic Dependent Launch and Synchronization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/green-contexts.html">4.6. Green Contexts</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/lazy-loading.html">4.7. Lazy Loading</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/error-log-management.html">4.8. Error Log Management</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/async-barriers.html">4.9. Asynchronous Barriers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/pipelines.html">4.10. Pipelines</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/async-copies.html">4.11. Asynchronous Data Copies</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cluster-launch-control.html">4.12. Work Stealing with Cluster Launch Control</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/l2-cache-control.html">4.13. L2 Cache Control</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/memory-sync-domains.html">4.14. Memory Synchronization Domains</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/inter-process-communication.html">4.15. Interprocess Communication</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/virtual-memory-management.html">4.16. Virtual Memory Management</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/extended-gpu-memory.html">4.17. Extended GPU Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/dynamic-parallelism.html">4.18. CUDA Dynamic Parallelism</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/graphics-interop.html">4.19. CUDA Interoperability with APIs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/driver-entry-point-access.html">4.20. Driver Entry Point Access</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part4.html">4. CUDA 特性</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/unified-memory.html">4.1. 统一内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cuda-graphs.html">4.2. CUDA Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/stream-ordered-memory-allocation.html">4.3. 流有序内存分配器</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cooperative-groups.html">4.4. 协作组</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/programmatic-dependent-launch.html">4.5. 程序化依赖启动与同步</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/green-contexts.html">4.6. 绿色上下文</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/lazy-loading.html">4.7. 延迟加载</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/error-log-management.html">4.8. 错误日志管理</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/async-barriers.html">4.9. 异步屏障</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/pipelines.html">4.10. 流水线</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/async-copies.html">4.11. 异步数据拷贝</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cluster-launch-control.html">4.12. 使用簇启动控制进行工作窃取</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/l2-cache-control.html">4.13. L2 缓存控制</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/memory-sync-domains.html">4.14. 内存同步域</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/inter-process-communication.html">4.15. 进程间通信</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/virtual-memory-management.html">4.16. 虚拟内存管理</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/extended-gpu-memory.html">4.17. 扩展 GPU 内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/dynamic-parallelism.html">4.18. CUDA 动态并行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/graphics-interop.html">4.19. CUDA 与 API 的互操作</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/driver-entry-point-access.html">4.20. 驱动入口点访问</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part5.html">5. Technical Appendices</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/compute-capabilities.html">5.1. Compute Capabilities</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/environment-variables.html">5.2. CUDA Environment Variables</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-support.html">5.3. C++ Language Support</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-extensions.html">5.4. C/C++ Language Extensions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/mathematical-functions.html">5.5. Floating-Point Computation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/device-callable-apis.html">5.6. Device-Callable APIs and Intrinsics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-memory-model.html">5.7. CUDA C++ Memory Model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-execution-model.html">5.8. CUDA C++ Execution model</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part5.html">5. 技术附录</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/compute-capabilities.html">5.1. 计算能力</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/environment-variables.html">5.2. CUDA 环境变量</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-support.html">5.3. C++ 语言支持</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-extensions.html">5.4. C/C++ 语言扩展</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/mathematical-functions.html">5.5. 浮点计算</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/device-callable-apis.html">5.6. 设备端可调用 API 与内建函数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-memory-model.html">5.7. CUDA C++ 内存模型</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-execution-model.html">5.8. CUDA C++ 执行模型</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. Notices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. 声明</a></li>
 </ul>
 </details></li>
 </ul>
 </div>
 </nav></div>
-    </div>
-  
-  
-  <div class="sidebar-primary-items__end sidebar-primary__section">
-  </div>
-
-
-
-      </div>
-      
-      <main id="main-content" class="bd-main" role="main">
-        
-        
-          <div class="bd-content">
-            <div class="bd-article-container">
-              
-              <div class="bd-header-article d-print-none">
+</div>
+<div class="sidebar-primary-items__end sidebar-primary__section">
+</div>
+</div>
+<main class="bd-main" id="main-content" role="main">
+<div class="bd-content">
+<div class="bd-article-container">
+<div class="bd-header-article d-print-none">
 <div class="header-article-items header-article__inner">
-  
-    <div class="header-article-items__start">
-      
-        <div class="header-article-item">
-
+<div class="header-article-items__start">
+<div class="header-article-item">
 <nav aria-label="Breadcrumb" class="d-print-none">
-  <ul class="bd-breadcrumbs">
-    
-    <li class="breadcrumb-item breadcrumb-home">
-      <a href="../contents.html" class="nav-link" aria-label="Home">
-        <i class="fa-solid fa-home"></i>
-      </a>
-    </li>
-    
-    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">CUDA 编程指南</a></li>
-    
-    
-    <li class="breadcrumb-item"><a href="../part1.html" class="nav-link"><span class="section-number">1. </span>CUDA 简介</a></li>
-    
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">1.2. </span>编程模型</span></li>
-  </ul>
+<ul class="bd-breadcrumbs">
+<li class="breadcrumb-item breadcrumb-home">
+<a aria-label="Home" class="nav-link" href="../contents.html">目录</a>
+</li>
+<li class="breadcrumb-item"><a class="nav-link" href="../index.html">CUDA 编程指南</a></li>
+<li class="breadcrumb-item"><a class="nav-link" href="../part1.html">1. CUDA 简介</a></li>
+<li aria-current="page" class="breadcrumb-item active"><span class="ellipsis"><span class="section-number">1.2. </span>编程模型</span></li>
+</ul>
 </nav>
 </div>
-      
-    </div>
-  
-  
-    <div class="header-article-items__end">
-      
-        <div class="header-article-item">
+</div>
+<div class="header-article-items__end">
 <div class="header-article-item">
-  <div class="d-flex justify-content-end w-100">
-    <a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">此页面是否有帮助？</a>
-  </div>
+<div class="header-article-item">
+<div class="d-flex justify-content-end w-100">
+<a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">此页面是否有帮助？</a>
+</div>
 </div></div>
-      
-    </div>
-  
 </div>
 </div>
-              
-              
-              
-                
+</div>
 <div id="searchbox"></div>
-                <article class="bd-article">
-                  
-  <section id="programming-model">
-<span id="id1"></span><h1><span class="section-number">1.2. </span>编程模型<a class="headerlink" href="programming-model.html#programming-model" title="跳转到此标题">#</a></h1>
+<article class="bd-article">
+<section id="programming-model">
+<span id="id1"></span><h1>1.2. 编程模型<a class="headerlink" href="programming-model.html#programming-model" title="跳转到此标题">#</a></h1>
 <p>本章从语言无关的角度，对 CUDA 编程模型进行高层介绍。这里引入的术语与概念适用于 CUDA 支持的所有编程语言。后续章节会使用 C++ 对这些概念进行说明。</p>
 <section id="heterogeneous-systems">
 <span id="programming-model-heterogeneous-systems"></span><h2><span class="section-number">1.2.1. </span>异构系统<a class="headerlink" href="programming-model.html#heterogeneous-systems" title="跳转到此标题">#</a></h2>
-<p>CUDA 编程模型基于异构计算系统，即系统同时包含 GPU 与 CPU。CPU 及其直连内存分别称为 <em>主机（host）</em> 与 <em>主机内存（host memory）</em>。GPU 及其直连内存分别称为 <em>设备（device）</em> 与 <em>设备内存（device memory）</em>。在某些 SoC 系统中，它们可能集成在同一封装内；在更大型系统中，则可能包含多个 CPU 或 GPU。</p>
+<p>CUDA 编程模型基于异构计算系统，即系统同时包含 GPU 与 CPU。CPU 及其直连内存分别称为 <em>主机（主机）</em> 与 <em>主机内存（主机内存）</em>。GPU 及其直连内存分别称为 <em>设备（device）</em> 与 <em>设备内存（设备内存）</em>。在某些 SoC 系统中，它们可能集成在同一封装内；在更大型系统中，则可能包含多个 CPU 或 GPU。</p>
 <p>CUDA 应用会将部分代码放在 GPU 上执行，但程序总是从 CPU 端开始运行。运行在 CPU 上的主机代码可通过 CUDA API 在主机内存与设备内存间复制数据、启动 GPU 代码执行，并等待数据传输或 GPU 代码完成。CPU 与 GPU 可以并行执行代码，通常通过同时提高两者利用率来获得最佳性能。</p>
-<p>应用在 GPU 上执行的代码称为 <em>设备代码（device code）</em>；出于历史原因，在 GPU 上执行的函数称为 <em>内核（kernel）</em>。启动内核执行这一动作称为内核 <em>launch</em>（启动）。可以把一次内核启动理解为：在 GPU 上并行启动大量线程来执行该内核代码。GPU 线程与 CPU 线程在形式上相似，但在正确性与性能相关行为上存在重要差异，后文会详细说明（见 <a class="reference internal" href="../03-advanced/advanced-kernel-programming.html#advanced-kernels-independent-thread-scheduling"><span class="std std-numref">第 3.2.2.1.1 节</span></a>）。</p>
+<p>应用在 GPU 上执行的代码称为 <em>设备代码（设备代码）</em>；出于历史原因，在 GPU 上执行的函数称为 <em>内核（kernel）</em>。启动内核执行这一动作称为内核 <em>launch</em>（启动）。可以把一次内核启动理解为：在 GPU 上并行启动大量线程来执行该内核代码。GPU 线程与 CPU 线程在形式上相似，但在正确性与性能相关行为上存在重要差异，后文会详细说明（见 <a class="reference internal" href="../03-advanced/advanced-kernel-programming.html#advanced-kernels-independent-thread-scheduling"><span class="std std-numref">第 3.2.2.1.1 节</span></a>）。</p>
 </section>
 <section id="gpu-hardware-model">
 <span id="programming-model-hardware-model"></span><h2><span class="section-number">1.2.2. </span>GPU 硬件模型<a class="headerlink" href="programming-model.html#gpu-hardware-model" title="跳转到此标题">#</a></h2>
-<p>Like any programming model, CUDA relies on a conceptual model of the underlying hardware. For the purposes of CUDA programming, the GPU can be considered to be a collection of <em>Streaming Multiprocessors</em> (SMs) which are organized into groups called <em>Graphics Processing Clusters</em> (GPCs). Each SM contains a local register file, a unified data cache, and a number of functional units that perform computations. The unified data cache provides the physical resources for <em>shared memory</em> and L1 cache. The allocation of the unified data cache to L1 and shared memory can be configured at runtime. The sizes of different types of memory and the number of functional units within an SM can vary across GPU architectures.</p>
+<p>与任何编程模型一样，CUDA 依赖于底层硬件的概念模型。出于 CUDA 编程的目的，GPU 可以被认为是一个集合 <em>流式多处理器</em> （SM）被组织成称为 <em>图形处理集群</em> （GPC）。每个SM包含一个本地寄存器文件、一个统一的数据缓存和许多执行计算的功能单元。统一的数据缓存提供物理资源 <em>共享内存</em> 和L1缓存。统一数据缓存到 L1 和共享内存的分配可以在运行时配置。不同类型内存的大小以及 SM 内功能单元的数量可能因 GPU 架构而异。</p>
 <div class="admonition note">
 <p class="admonition-title">注意</p>
 <p>GPU 的实际硬件布局以及底层执行编程模型的物理方式可能因架构而异。但这些差异不应影响按 CUDA 编程模型编写软件的正确性。</p>
 </div>
 <figure class="align-center" id="gpu-cpu-system-diagram">
-<a class="reference internal image-reference" href="../_images/gpu-cpu-system-diagram.png"><img alt="The CUDA programming model view of CPU and GPU components and connection" src="../_images/gpu-cpu-system-diagram.png" style="width: 454px;" />
+<a class="reference internal image-reference" href="../_images/gpu-cpu-system-diagram.png"><img alt="CPU和GPU组件及连接的CUDA编程模型视图" src="../_images/gpu-cpu-system-diagram.png" style="width: 454px;"/>
 </a>
 <figcaption>
-<p><span class="caption-number">图 2 </span><span class="caption-text">GPU 由多个流式多处理器（SM）组成，每个 SM 内包含多个功能单元。图形处理簇（GPC）由若干 SM 组成。一个 GPU 可看作连接至 GPU 内存的一组 GPC。CPU 通常包含多个核心及连接系统内存的内存控制器。CPU 与 GPU 通过 PCIe 或 NVLINK 等互连进行连接。</span><a class="headerlink" href="programming-model.html#gpu-cpu-system-diagram" title="跳转到此图片">#</a></p>
+<p><span class="caption-number">图 2 </span><span class="caption-text">GPU 由多个流式多处理器（SM）组成，每个 SM 内包含多个功能单元。图形处理簇（GPC）由若干 SM 组成。一个 GPU 可看作连接至 GPU 内存的一组 GPC。CPU 通常包含多个核心及连接系统内存的内存控制器。CPU 与 GPU 通过 PCIe 或 NVLINK 等互连进行连接。</span><a class="headerlink" href="programming-model.html#gpu-cpu-system-diagram" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
 <section id="thread-blocks-and-grids">
 <span id="programming-model-threads-grids"></span><h3><span class="section-number">1.2.2.1. </span>线程块与网格<a class="headerlink" href="programming-model.html#thread-blocks-and-grids" title="跳转到此标题">#</a></h3>
-<p>当应用启动内核时，通常会同时启动大量线程，很多情况下可达到数百万个。这些线程会被组织为多个块，一个线程块称为 <em>thread block</em>。线程块进一步组成 <em>grid</em>（网格）。同一网格中的所有线程块具有相同的大小与维度。 <a class="reference internal" href="programming-model.html#thread-hierarchy-grid-of-thread-blocks"><span class="std std-numref">Figure 3</span></a> shows an illustration of a grid of thread blocks.</p>
+<p>当应用启动内核时，通常会同时启动大量线程，很多情况下可达到数百万个。这些线程会被组织为多个块，一个线程块称为 <em>线程块</em>。线程块进一步组成 <em>grid</em>（网格）。同一网格中的所有线程块具有相同的大小与维度。 <a class="reference internal" href="programming-model.html#thread-hierarchy-grid-of-thread-blocks"><span class="std std-numref">图3</span></a> 显示了线程块网格的图示。</p>
 <figure class="align-center" id="thread-hierarchy-grid-of-thread-blocks">
-<a class="reference internal image-reference" href="../_images/grid-of-thread-blocks.png"><img alt="Grid of Thread Blocks" src="../_images/grid-of-thread-blocks.png" style="width: 454px;" />
+<a class="reference internal image-reference" href="../_images/grid-of-thread-blocks.png"><img alt="线程块网格" src="../_images/grid-of-thread-blocks.png" style="width: 454px;"/>
 </a>
 <figcaption>
-<p><span class="caption-number">图 3 </span><span class="caption-text">线程块网格。每个箭头表示一个线程（箭头数量不代表实际线程数）。</span><a class="headerlink" href="programming-model.html#thread-hierarchy-grid-of-thread-blocks" title="跳转到此图片">#</a></p>
+<p><span class="caption-number">图 3 </span><span class="caption-text">线程块网格。每个箭头表示一个线程（箭头数量不代表实际线程数）。</span><a class="headerlink" href="programming-model.html#thread-hierarchy-grid-of-thread-blocks" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
 <p>线程块和网格都可以是一维、二维或三维结构，这些维度有助于将单个线程映射到具体工作单元或数据元素。</p>
-<p>When a kernel is launched, it is launched using a specific <em>execution configuration</em> which specifies the grid and thread block dimensions. The execution configuration may also include optional parameters such as cluster size, stream, and SM configuration settings, which will be introduced in later sections.</p>
-<p>Using built-in variables, each thread executing the kernel can determine its location within its containing block and the location of its block within the containing grid. A thread can also use these built-in variables to determine the dimensions of the thread blocks and the grid on which the kernel was launched. This gives each thread a unique identity among all the threads running the kernel. This identity is frequently used to determine what data or operations a thread is responsible for.</p>
+<p>当内核启动时，它是使用特定的 <em>执行配置</em> 它指定网格和线程块尺寸。执行配置还可能包括可选参数，例如集群大小、流和 SM 配置设置，这些将在后面的部分中介绍。</p>
+<p>使用内置变量，执行内核的每个线程都可以确定其在其包含块内的位置以及其块在包含网格内的位置。线程还可以使用这些内置变量来确定线程块的尺寸以及启动内核的网格。这为每个线程在运行内核的所有线程中提供了唯一的标识。此标识经常用于确定线程负责哪些数据或操作。</p>
 <p>同一线程块内的所有线程都在同一个 SM 上执行，因此块内线程可以高效通信与同步。线程块内的所有线程都可访问片上共享内存，该内存可用于线程间交换信息。</p>
-<p>A grid may consist of millions of thread blocks, while the GPU executing the grid may have only tens or hundreds of SMs. All threads of a thread block are executed by a single SM and, in most cases <a class="footnote-reference brackets" href="programming-model.html#fn-non-completion" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>, run to completion on that SM. There is no guarantee of scheduling between thread blocks, so a thread block cannot rely on results from other thread blocks, as they may not be able to be scheduled until that thread block has completed. <a class="reference internal" href="programming-model.html#thread-block-scheduling"><span class="std std-numref">Figure 4</span></a> shows an example of how thread blocks from a grid are assigned to an SM.</p>
+<p>网格可能由数百万个线程块组成，而执行网格的 GPU 可能只有数十或数百个 SM。线程块的所有线程都由单个 SM 执行，并且在大多数情况下 <a class="footnote-reference brackets" href="programming-model.html#fn-non-completion" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>，在该 SM 上运行完成。无法保证线程块之间的调度，因此线程块不能依赖其他线程块的结果，因为在该线程块完成之前它们可能无法被调度。 <a class="reference internal" href="programming-model.html#thread-block-scheduling"><span class="std std-numref">图4</span></a> 显示了如何将网格中的线程块分配给 SM 的示例。</p>
 <figure class="align-center" id="thread-block-scheduling">
-<a class="reference internal image-reference" href="../_images/thread-block-scheduling.png"><img alt="Thread blocks scheduled on SMs" src="../_images/thread-block-scheduling.png" style="width: 454px;" />
+<a class="reference internal image-reference" href="../_images/thread-block-scheduling.png"><img alt="SM 上调度的线程块" src="../_images/thread-block-scheduling.png" style="width: 454px;"/>
 </a>
 <figcaption>
-<p><span class="caption-number">Figure 4 </span><span class="caption-text">Each SM has one or more active thread blocks. In this example, each SM has three thread blocks scheduled simultaneously. There are no guarantees about the order in which thread blocks from a grid are assigned to SMs.</span><a class="headerlink" href="programming-model.html#thread-block-scheduling" title="Link to this image">#</a></p>
+<p><span class="caption-number">图4 </span><span class="caption-text">每个 SM 都有一个或多个活动线程块。在此示例中，每个 SM 具有同时调度的三个线程块。无法保证网格中的线程块分配给 SM 的顺序。</span><a class="headerlink" href="programming-model.html#thread-block-scheduling" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
-<p>The CUDA programming model enables arbitrarily large grids to run on GPUs of any size, whether it has only one SM or thousands of SMs. To achieve this, the CUDA programming model, with some exceptions, requires that there be no data dependencies between threads in different thread blocks. That is, a thread should not depend on results from or synchronize with a thread in a different thread block of the same grid. All the threads within a thread block run on the same SM at the same time. Different thread blocks within the grid are scheduled among the available SMs and may be executed in any order. In short, the CUDA programming model requires that it be possible to execute thread blocks in any order, in parallel or in series.</p>
+<p>CUDA 编程模型使任意大的网格能够在任何大小的 GPU 上运行，无论它只有一个 SM 还是数千个 SM。为了实现这一点，除了一些例外，CUDA 编程模型要求不同线程块中的线程之间不存在数据依赖关系。也就是说，线程不应依赖于同一网格的不同线程块中的线程的结果或与其同步。线程块内的所有线程同时在同一个 SM 上运行。网格内的不同线程块在可用的SM之间进行调度，并且可以以任何顺序执行。简而言之，CUDA 编程模型要求能够以任何顺序（并行或串行）执行线程块。</p>
 <section id="thread-block-clusters">
 <span id="programming-model-thread-block-clusters"></span><h4><span class="section-number">1.2.2.1.1. </span>线程块簇<a class="headerlink" href="programming-model.html#thread-block-clusters" title="跳转到此标题">#</a></h4>
-<p>In addition to thread blocks, GPUs with compute capability 9.0 and higher have an optional level of grouping called <em>clusters</em>. Clusters are a group of thread blocks which, like thread blocks and grids, can be laid out in 1, 2, or 3 dimensions. <a class="reference internal" href="programming-model.html#figure-thread-block-clusters"><span class="std std-numref">Figure 5</span></a> illustrates a grid of thread blocks that is also organized into clusters. Specifying clusters does not change the grid dimensions or the indices of a thread block within a grid.</p>
+<p>除了线程块之外，计算能力 9.0 及更高版本的 GPU 还具有一个可选的分组级别，称为 <em>clusters</em>。集群是一组线程块，与线程块和网格一样，可以按 1、2 或 3 维布局。 <a class="reference internal" href="programming-model.html#figure-thread-block-clusters"><span class="std std-numref">图5</span></a> 说明了也组织成簇的线程块网格。指定簇不会更改网格尺寸或网格内线程块的索引。</p>
 <figure class="align-center" id="figure-thread-block-clusters">
-<a class="reference internal image-reference" href="../_images/grid-of-clusters.png"><img alt="Thread blocks scheduled on SMs" src="../_images/grid-of-clusters.png" style="width: 454px;" />
+<a class="reference internal image-reference" href="../_images/grid-of-clusters.png"><img alt="SM 上调度的线程块" src="../_images/grid-of-clusters.png" style="width: 454px;"/>
 </a>
 <figcaption>
-<p><span class="caption-number">Figure 5 </span><span class="caption-text">When clusters are specified, thread blocks are in the same location in the grid but also have a position within the containing cluster.</span><a class="headerlink" href="programming-model.html#figure-thread-block-clusters" title="Link to this image">#</a></p>
+<p><span class="caption-number">图5 </span><span class="caption-text">当指定簇时，线程块位于网格中的相同位置，但在包含簇中也有一个位置。</span><a class="headerlink" href="programming-model.html#figure-thread-block-clusters" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
-<p>Specifying clusters groups adjacent thread blocks into clusters and provides some additional opportunities for synchronization and communication at the cluster level. Specifically, all thread blocks in a cluster are executed in a single GPC. <a class="reference internal" href="programming-model.html#thread-block-scheduling-with-clusters"><span class="std std-numref">Figure 6</span></a> shows how thread blocks are scheduled to SMs in a GPC when clusters are specified. Because the thread blocks are scheduled simultaneously and within a single GPC, threads in different blocks but within the same cluster can communicate and synchronize with each other using software interfaces provided by <a class="reference internal" href="../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-cooperative-groups"><span class="std std-ref">Cooperative Groups</span></a>. Threads in clusters can access the shared memory of all blocks in the cluster, which is referred to as <a class="reference internal" href="../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-distributed-shared-memory"><span class="std std-ref">distributed shared memory</span></a>.The maximum size of a cluster is hardware dependent and varies between devices.</p>
-<p><a class="reference internal" href="programming-model.html#thread-block-scheduling-with-clusters"><span class="std std-numref">Figure 6</span></a> illustrates the how thread blocks within a cluster are scheduled simultaneously on SMs within a GPC. Thread blocks within a cluster are always adjacent to each other within the grid.</p>
+<p>指定集群将相邻的线程块分组为集群，并为集群级别的同步和通信提供一些额外的机会。具体来说，集群中的所有线程块都在单个 GPC 中执行。 <a class="reference internal" href="programming-model.html#thread-block-scheduling-with-clusters"><span class="std std-numref">图6</span></a> 显示指定集群时如何将线程块调度到 GPC 中的 SM。由于线程块是在单个 GPC 内同时调度的，因此同一集群内不同块中的线程可以使用以下提供的软件接口相互通信和同步： <a class="reference internal" href="../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-cooperative-groups"><span class="std std-ref">合作团体</span></a>。集群中的线程可以访问集群中所有块的共享内存，称为 <a class="reference internal" href="../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-distributed-shared-memory"><span class="std std-ref">分布式共享内存</span></a>集群的最大大小取决于硬件，并且因设备而异。</p>
+<p><a class="reference internal" href="programming-model.html#thread-block-scheduling-with-clusters"><span class="std std-numref">图6</span></a> 说明了如何在 GPC 内的 SM 上同时调度集群内的线程块。集群内的线程块在网格内始终彼此相邻。</p>
 <figure class="align-center" id="thread-block-scheduling-with-clusters">
-<a class="reference internal image-reference" href="../_images/thread-block-scheduling-with-clusters.png"><img alt="Thread blocks scheduled in clusters on GPCs" src="../_images/thread-block-scheduling-with-clusters.png" style="width: 454px;" />
+<a class="reference internal image-reference" href="../_images/thread-block-scheduling-with-clusters.png"><img alt="在 GPC 上的集群中调度的线程块" src="../_images/thread-block-scheduling-with-clusters.png" style="width: 454px;"/>
 </a>
 <figcaption>
-<p><span class="caption-number">Figure 6 </span><span class="caption-text">When clusters are specified, the thread blocks in a cluster are arranged in their cluster shape within the grid. The thread blocks of a cluster are scheduled simultaneously on the SMs of a single GPC.</span><a class="headerlink" href="programming-model.html#thread-block-scheduling-with-clusters" title="Link to this image">#</a></p>
+<p><span class="caption-number">图6 </span><span class="caption-text">当指定簇时，簇中的线程块在网格内以其簇形状排列。集群的线程块同时调度在单个GPC的SM上。</span><a class="headerlink" href="programming-model.html#thread-block-scheduling-with-clusters" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
 </section>
 </section>
 <section id="warps-and-simt">
 <span id="programming-model-warps-simt"></span><h3><span class="section-number">1.2.2.2. </span>Warp 与 SIMT<a class="headerlink" href="programming-model.html#warps-and-simt" title="跳转到此标题">#</a></h3>
-<p>在线程块内部，线程按 32 个一组组织，称为 <em>warp</em>。warp 按 <em>单指令多线程</em>（SIMT）方式执行内核代码。 In SIMT, all threads in the warp are executing the same kernel code, but each thread may follow different branches through the code. That is, though all threads of the program execute the same code, threads do not need to follow the same execution path.</p>
-<p>When threads are executed by a warp, they are assigned a warp lane. Warp lanes are numbered 0 to 31 and threads from a thread block are assigned to warps in a predictable fashion detailed in <a class="reference internal" href="../03-advanced/advanced-kernel-programming.html#advanced-kernels-hardware-implementation-hardware-multithreading"><span class="std std-ref">Hardware Multithreading</span></a>.</p>
-<p>All threads in the warp execute the same instruction simultaneously. If some threads within a warp follow a control flow branch in execution while others do not, the threads which do not follow the branch will be masked off while the threads which follow the branch are executed. For example, if a conditional is only true for half the threads in a warp, the other half of the warp would be masked off while the active threads execute those instructions. This situation is illustrated in <a class="reference internal" href="programming-model.html#active-warp-lanes"><span class="std std-numref">Figure 7</span></a>. When different threads in a warp follow different code paths, this is sometimes called warp divergence. It follows that utilization of the GPU is maximized when threads within a warp follow the same control flow path.</p>
+<p>在线程块内部，线程按 32 个一组组织，称为 <em>warp</em>。它们按 <em>单指令多线程</em>（SIMT）方式执行内核代码。在SIMT中，warp 中的所有线程都执行相同的内核代码，但每个线程可能遵循不同的代码分支。也就是说，虽然程序的所有线程都执行相同的代码，但线程不需要遵循相同的执行路径。</p>
+<p>当线程由 warp 执行时，它们会被分配一个 warp 通道。warp 通道编号为 0 到 31，线程块中的线程以可预测的方式分配给 warp，详细信息请参见 <a class="reference internal" href="../03-advanced/advanced-kernel-programming.html#advanced-kernels-hardware-implementation-hardware-multithreading"><span class="std std-ref">硬件多线程</span></a>.</p>
+<p>warp 中的所有线程同时执行相同的指令。如果 warp 中的某些线程在执行时遵循控制流分支，而其他线程则不遵循，则在执行遵循该分支的线程时，不遵循该分支的线程将被屏蔽。例如，如果条件仅对 warp 中的一半线程为真，则在活动线程执行这些指令时，warp 的另一半将被屏蔽。这种情况如图所示 <a class="reference internal" href="programming-model.html#active-warp-lanes"><span class="std std-numref">图7</span></a>。当 warp 中的不同线程遵循不同的代码路径时，有时称为warp 发散。由此可见，当 warp 内的线程遵循相同的控制流路径时，GPU 的利用率就会最大化。</p>
 <figure class="align-center" id="active-warp-lanes">
-<a class="reference internal image-reference" href="../_images/active-warp-lanes.png"><img alt="Warp lanes are masked off when not active" src="../_images/active-warp-lanes.png" style="width: 454px;" />
+<a class="reference internal image-reference" href="../_images/active-warp-lanes.png"><img alt="warp 通道在不活动时会被屏蔽" src="../_images/active-warp-lanes.png" style="width: 454px;"/>
 </a>
 <figcaption>
-<p><span class="caption-number">Figure 7 </span><span class="caption-text">In this example, only threads with even thread index execute the body of the if statement, the others are masked off while the body is executed.</span><a class="headerlink" href="programming-model.html#active-warp-lanes" title="Link to this image">#</a></p>
+<p><span class="caption-number">图7 </span><span class="caption-text">在此示例中，只有具有偶数线程索引的线程才会执行 if 语句的主体，其他线程在执行主体时会被屏蔽。</span><a class="headerlink" href="programming-model.html#active-warp-lanes" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
-<p>In the SIMT model, all threads in a warp progress through the kernel in lock step.  Hardware execution may differ. See the sections on <a class="reference internal" href="../03-advanced/advanced-kernel-programming.html#advanced-kernels-independent-thread-scheduling"><span class="std std-ref">Independent Thread Execution</span></a> for more information on where this distinction is important. Exploiting knowledge of how warp execution is actually mapped to real hardware is discouraged. The CUDA programming model and SIMT say that all threads in a warp progress through the code together. Hardware may optimize masked lanes in ways that are transparent to the program so long as the programming model is followed. If the program violates this model, this can result in undefined behavior that can be different in different GPU hardware.</p>
-<p>While it is not necessary to consider warps when writing CUDA code, understanding the warp execution model is helpful in understanding concepts such as <a class="reference internal" href="../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-coalesced-global-memory-access"><span class="std std-ref">global memory coalescing</span></a> and <a class="reference internal" href="../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-shared-memory-access-patterns"><span class="std std-ref">shared memory bank access patterns</span></a>. Some advanced programming techniques use specialization of warps within a thread block to limit thread divergence and maximize utilization. This and other optimizations make use of the knowledge that threads are grouped into warps when executing.</p>
-<p>One implication of warp execution is that thread blocks are best specified to have a total number of threads which is a multiple of 32. It is legal to use any number of threads, but when the total is not a multiple of 32, the last warp of the thread block will have some lanes that are unused throughout execution. This will likely lead to suboptimal functional units utilization and memory access for that warp.</p>
+<p>在 SIMT 模型中，warp 中的所有线程都以锁步方式通过内核。  硬件执行可能有所不同。请参阅以下部分 <a class="reference internal" href="../03-advanced/advanced-kernel-programming.html#advanced-kernels-independent-thread-scheduling"><span class="std std-ref">独立线程执行</span></a> 了解有关这种区别在哪些方面很重要的更多信息。不鼓励利用关于warp 执行如何实际映射到真实硬件的知识。 CUDA 编程模型和 SIMT 表示，warp 中的所有线程一起执行代码。只要遵循编程模型，硬件就可以以对程序透明的方式优化屏蔽通道。如果程序违反此模型，可能会导致未定义的行为，这些行为在不同的 GPU 硬件中可能会有所不同。</p>
+<p>虽然在编写 CUDA 代码时不必考虑warp，但了解warp 执行模型有助于理解以下概念： <a class="reference internal" href="../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-coalesced-global-memory-access"><span class="std std-ref">全局内存合并</span></a> 和 <a class="reference internal" href="../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-shared-memory-access-patterns"><span class="std std-ref">共享存储体访问模式</span></a>。一些高级编程技术使用线程块内的warp 专门化来限制线程发散并最大化利用率。此优化和其他优化利用了线程在执行时被分组为warp 的知识。</p>
+<p>Warp 执行的一个含义是，线程块最好指定线程总数为 32 的倍数。使用任意数量的线程是合法的，但当总数不是 32 的倍数时，线程块的最后一个 Warp 将有一些在整个执行过程中未使用的通道。这可能会导致该 warp 的功能单元利用率和内存访问不理想。</p>
 <blockquote>
-<div><p>SIMT is often compared to Single Instruction Multiple Data (SIMD) parallelism, but there are some important differences. In SIMD, execution follows a single control flow path, while in SIMT, each thread is allowed to follow its own control flow path. Because of this, SIMT does not have a fixed data-width like SIMD. A more detailed discussion of SIMT can be found in <a class="reference internal" href="../03-advanced/advanced-kernel-programming.html#advanced-kernels-hardware-implementation-simt-architecture"><span class="std std-ref">SIMT Execution Model</span></a>.</p>
+<div><p>SIMT 通常与单指令多数据 (SIMD) 并行性进行比较，但两者之间存在一些重要差异。在 SIMD 中，执行遵循单个控制流路径，而在 SIMT 中，允许每个线程遵循其自己的控制流路径。因此，SIMT 不像 SIMD 那样具有固定的数据宽度。 SIMT 的更详细讨论可以在 <a class="reference internal" href="../03-advanced/advanced-kernel-programming.html#advanced-kernels-hardware-implementation-simt-architecture"><span class="std std-ref">SIMT执行模型</span></a>.</p>
 </div></blockquote>
 </section>
 </section>
 <section id="gpu-memory">
-<span id="programming-model-memory"></span><h2><span class="section-number">1.2.3. </span>GPU 内存<a class="headerlink" href="programming-model.html#gpu-memory" title="跳转到此标题">#</a></h2>
+<span id="programming-model-memory"></span><h2><span class="section-number">1.2.3. </span>GPU内存<a class="headerlink" href="programming-model.html#gpu-memory" title="跳转到此标题">#</a></h2>
 <p>在现代计算系统中，高效利用内存与充分利用计算功能单元同样重要。异构系统包含多个内存空间，GPU 除缓存外还包含多种可编程片上内存。下文将更详细介绍这些内存空间。</p>
 <section id="dram-memory-in-heterogeneous-systems">
 <span id="programming-model-dram-memory"></span><h3><span class="section-number">1.2.3.1. </span>异构系统中的 DRAM 内存<a class="headerlink" href="programming-model.html#dram-memory-in-heterogeneous-systems" title="跳转到此标题">#</a></h3>
-<p>GPU 与 CPU 均连接有各自的 DRAM。在多 GPU 系统中，每个 GPU 都拥有自身独立的内存。 From the perspective of device code, the DRAM attached to the GPU is called <em>global memory</em>, because it is accessible to all SMs in the GPU. This terminology does not mean it is necessarily accessible everywhere within the system. The DRAM attached to the CPU(s) is called <em>system memory</em> or <em>host memory</em>.</p>
-<p>Like CPUs, GPUs use virtual memory addressing. On all currently-supported systems, the CPU and GPU use a single unified virtual memory space. This means that the virtual memory address range for each GPU in the system is unique and distinct from the CPU and every other GPU in the system. For a given virtual memory address, it is possible to determine whether that address is in GPU memory or system memory and, on systems with multiple GPUs, which GPU memory contains that address.</p>
-<p>There are CUDA APIs to allocate GPU memory, CPU memory, and to copy between allocations on the CPU and GPU, within a GPU, or between GPUs in multi-GPU systems. The locality of data can be explicitly controlled when desired. <a class="reference internal" href="programming-model.html#programming-model-unified-memory"><span class="std std-ref">Unified Memory</span></a>, discussed below, allows the placement of memory to be handled automatically by the CUDA runtime or system hardware.</p>
+<p>每个 GPU 与 CPU 均连接有各自的 DRAM。在多 GPU 系统中，GPU 都拥有自身独立的内存。从设备代码的角度来看，GPU 所挂接的 DRAM 称为 <em>全局内存</em>，因为 GPU 中的所有 SM 都可以访问它。该术语并不意味着它必须在系统内的任何地方都可以访问。连接到 CPU 的 DRAM 称为 <em>系统内存</em> 或 <em>主机内存</em>.</p>
+<p>与 CPU 一样，GPU 使用虚拟内存寻址。在当前支持的所有系统上，CPU 和 GPU 使用单个统一的虚拟内存空间。这意味着系统中每个 GPU 的虚拟内存地址范围都是唯一的，并且与系统中的 CPU 和每个其他 GPU 不同。对于给定的虚拟内存地址，可以确定该地址是在 GPU 内存还是系统内存中，并且在具有多个 GPU 的系统上，可以确定哪个 GPU 内存包含该地址。</p>
+<p>CUDA API 可用于分配 GPU 内存、CPU 内存，以及在 CPU 和 GPU 上的分配之间、GPU 内或多 GPU 系统中的 GPU 之间进行复制。需要时可以显式控制数据的局部性。 <a class="reference internal" href="programming-model.html#programming-model-unified-memory"><span class="std std-ref">统一内存</span></a>如下所述，允许 CUDA 运行时或系统硬件自动处理内存的放置。</p>
 </section>
 <section id="on-chip-memory-in-gpus">
 <span id="programming-model-on-chip-memory"></span><h3><span class="section-number">1.2.3.2. </span>GPU 片上内存<a class="headerlink" href="programming-model.html#on-chip-memory-in-gpus" title="跳转到此标题">#</a></h3>
-<p>除全局内存外，每个 GPU 还包含片上内存。每个 SM 都有自己的寄存器文件和共享内存。 These memories are part of the SM and can be accessed extremely quickly from threads executing within the SM, but they are not accessible to threads running in other SMs.</p>
-<p>The register file stores thread local variables which are usually allocated by the compiler. The shared memory is accessible by all threads within a thread block or cluster. Shared memory can be used for exchanging data between threads of a thread block or cluster.</p>
-<p>The register file and unified data cache in an SM have finite sizes. The size of an SM’s register file, unified data cache, and how the unified data cache can be configured for L1 and shared memory balance can be found in <a class="reference internal" href="../05-appendices/compute-capabilities.html#compute-capabilities-table-memory-information-per-compute-capability"><span class="std std-ref">Memory Information per Compute Capability</span></a>. The register file, shared memory space, and L1 cache are shared among all threads in a thread block.</p>
-<p>To schedule a thread block to an SM, the total number of registers needed for each thread multiplied by the number of threads in the thread block must be less than or equal to the available registers in the SM. If the number of registers required for a thread block exceeds the size of the register file, the kernel is not launchable and the number of threads in the thread block must be decreased to make the thread block launchable.</p>
-<p>Shared memory allocations are done at the thread block level. That is, unlike register allocations which are per thread, allocations of shared memory are common to the entire thread block.</p>
+<p>除全局内存外，每个GPU还包含片上内存。每个SM都有自己的寄存器文件和共享内存。这些内存是SM的一部分，可以从SM内执行的线程非常快速地访问，但其他SM中运行的线程无法访问它们。</p>
+<p>寄存器文件存储通常由编译器分配的线程局部变量。共享内存可由线程块或集群中的所有线程访问。共享内存可用于在线程块或集群的线程之间交换数据。</p>
+<p>SM 中的寄存器文件和统一数据缓存的大小是有限的。 SM寄存器文件的大小、统一数据缓存以及如何为L1和共享内存平衡配置统一数据缓存可以在 <a class="reference internal" href="../05-appendices/compute-capabilities.html#compute-capabilities-table-memory-information-per-compute-capability"><span class="std std-ref">每个计算能力的内存信息</span></a>。寄存器文件、共享内存空间和L1缓存在线程块中的所有线程之间共享。</p>
+<p>要将线程块调度到 SM，每个线程所需的寄存器总数乘以线程块中的线程数必须小于或等于 SM 中的可用寄存器。如果线程块所需的寄存器数量超过寄存器文件的大小，则内核不可启动，并且必须减少线程块中的线程数量以使线程块可启动。</p>
+<p>共享内存分配是在线程块级别完成的。也就是说，与每个线程的寄存器分配不同，共享内存的分配对于整个线程块是公共的。</p>
 <section id="caches">
 <span id="programming-model-caches"></span><h4><span class="section-number">1.2.3.2.1. </span>缓存<a class="headerlink" href="programming-model.html#caches" title="跳转到此标题">#</a></h4>
-<p>In addition to programmable memories, GPUs have both L1 and L2 caches. Each SM has an L1 cache which is part of the unified data cache. A larger L2 cache is shared by all SMs within a GPU. This can be seen in the GPU block diagram in <a class="reference internal" href="programming-model.html#gpu-cpu-system-diagram"><span class="std std-numref">Figure 2</span></a>. Each SM also has a separate <a class="reference internal" href="../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-constant-memory"><span class="std std-ref">constant cache</span></a>, which is used to cache values in global memory that have been declared to be constant over the life of a kernel. The compiler may place kernel parameters into constant memory as well. This can improve kernel performance by allowing kernel parameters to be cached in the SM separately from the L1 data cache.</p>
+<p>除了可编程内存之外，GPU 还具有 L1 和 L2 缓存。每个 SM 都有一个 L1 缓存，它是统一数据缓存的一部分。更大的 L2 缓存由 GPU 内的所有 SM 共享。这可以在 GPU 框图中看到 <a class="reference internal" href="programming-model.html#gpu-cpu-system-diagram"><span class="std std-numref">图2</span></a>。每个SM也有一个单独的 <a class="reference internal" href="../02-basics/writing-cuda-kernels.html#writing-cuda-kernels-constant-memory"><span class="std std-ref">常量缓存</span></a>，它用于缓存全局内存中已声明为在内核生命周期内恒定的值。编译器也可以将内核参数放入常量内存中。这可以通过允许内核参数与 L1 数据缓存分开缓存在 SM 中来提高内核性能。</p>
 </section>
 </section>
 <section id="unified-memory">
 <span id="programming-model-unified-memory"></span><h3><span class="section-number">1.2.3.3. </span>统一内存<a class="headerlink" href="programming-model.html#unified-memory" title="跳转到此标题">#</a></h3>
-<p>When an application allocates memory explicitly on the GPU or CPU, that memory is only accessible to code running on that device. That is, CPU memory can only be accessed from CPU code, and GPU memory can only be accessed from kernels running on the GPU<a class="footnote-reference brackets" href="programming-model.html#fn-mapped-memory-system-access" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> . CUDA APIs for copying memory between the CPU and GPU are used to explicitly copy data to the correct memory at the right time.</p>
-<p>CUDA 的 <em>统一内存</em> 功能允许应用分配可同时被 CPU 与 GPU 访问的内存。 The CUDA runtime or underlying hardware enables access or relocates the data to the correct place when needed. Even with unified memory, optimal performance is attained by keeping the migration of memory to a minimum and accessing data from the processor directly attached to the memory where it resides as much as possible.</p>
-<p>The hardware features of the system determine how access and exchange of data between memory spaces is achieved. Section <a class="reference internal" href="../02-basics/understanding-memory.html#memory-unified-memory"><span class="std std-ref">Unified Memory</span></a> introduces the different categories of unified memory systems. Section <a class="reference internal" href="../04-special-topics/unified-memory.html#um-details-intro"><span class="std std-ref">Unified Memory</span></a> contains many more details about use and behavior of unified memory in all situations.</p>
+<p>当应用程序在 GPU 或 CPU 上显式分配内存时，该内存只能由该设备上运行的代码访问。也就是说，CPU 内存只能从 CPU 代码访问，GPU 内存只能从 GPU 上运行的内核访问<a class="footnote-reference brackets" href="programming-model.html#fn-mapped-memory-system-access" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>。用于在 CPU 和 GPU 之间复制内存的 CUDA API 用于在正确的时间将数据显式复制到正确的内存。</p>
+<p>CUDA的 <em>统一内存</em> 功能允许应用分配可同时被 CPU 和 GPU 访问的内存。 CUDA 运行时或底层硬件可以在需要时启用访问或将数据重新定位到正确的位置。即使使用统一内存，也可以通过将内存迁移保持在最低限度并尽可能从直接连接到数据所在内存的处理器访问数据来获得最佳性能。</p>
+<p>系统的硬件特性决定了如何实现存储空间之间的数据访问和交换。部分 <a class="reference internal" href="../02-basics/understanding-memory.html#memory-unified-memory"><span class="std std-ref">统一内存</span></a> 介绍统一存储系统的不同类别。部分 <a class="reference internal" href="../04-special-topics/unified-memory.html#um-details-intro"><span class="std std-ref">统一内存</span></a> 包含有关所有情况下统一内存的使用和行为的更多详细信息。</p>
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="fn-non-completion" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="programming-model.html#id2">1</a><span class="fn-bracket">]</span></span>
-<p>In certain situations when using features such as <a class="reference internal" href="../04-special-topics/dynamic-parallelism.html#cuda-dynamic-parallelism"><span class="std std-ref">CUDA Dynamic Parallelism</span></a>, a thread block may be suspended to memory. This means the state of the SM is stored to a system-managed area of GPU memory and the SM is freed to execute other thread blocks. This is similar to context swapping on CPUs. This is not common.</p>
+<span class="label"><span class="fn-bracket">[</span><a href="programming-model.html#id2" role="doc-backlink">1</a><span class="fn-bracket">]</span></span>
+<p>在某些情况下，当使用诸如 <a class="reference internal" href="../04-special-topics/dynamic-parallelism.html#cuda-dynamic-parallelism"><span class="std std-ref">CUDA 动态并行性</span></a>，线程块可能会被挂起到内存中。这意味着 SM 的状态存储到 GPU 内存的系统管理区域，并且 SM 被释放以执行其他线程块。这类似于 CPU 上的上下文交换。这并不常见。</p>
 </aside>
 <aside class="footnote brackets" id="fn-mapped-memory-system-access" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="programming-model.html#id3">2</a><span class="fn-bracket">]</span></span>
-<p>An exception to this is <a class="reference internal" href="../02-basics/understanding-memory.html#memory-mapped-memory"><span class="std std-ref">mapped memory</span></a>, which is CPU memory allocated with properties that enable it to be directly accessed from the GPU. However, mapped access occurs over the PCIe or NVLINK connection. The GPU is unable to hide the higher latency and lower bandwidth behind parallelism, so mapped memory is not a performant replacement to unified memory or placing data in the appropriate memory space.</p>
+<span class="label"><span class="fn-bracket">[</span><a href="programming-model.html#id3" role="doc-backlink">2</a><span class="fn-bracket">]</span></span>
+<p>一个例外是 <a class="reference internal" href="../02-basics/understanding-memory.html#memory-mapped-memory"><span class="std std-ref">映射内存</span></a>，这是分配有使其可以从 GPU 直接访问的属性的 CPU 内存。但是，映射访问是通过 PCIe 或 NVLINK 连接进行的。 GPU 无法隐藏并行性背后的较高延迟和较低带宽，因此映射内存不能替代统一内存或将数据放置在适当的内存空间中。</p>
 </aside>
 </aside>
 </section>
 </section>
 </section>
-
-
-                </article>
-              
-              
-              
-              
-              
-                <footer class="prev-next-footer d-print-none">
-                  
+</article>
+<footer class="prev-next-footer d-print-none">
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="introduction.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">上一页</p>
-        <p class="prev-next-title"><span class="section-number">1.1. </span>引言</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="cuda-platform.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">下一页</p>
-        <p class="prev-next-title"><span class="section-number">1.3. </span>CUDA 平台</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
+<a class="left-prev" href="introduction.html" title="上一页">1.1. 引言</a>
+<a class="right-next" href="cuda-platform.html" title="下一页">1.3. CUDA 平台</a>
 </div>
-                </footer>
-              
-            </div>
-            
-            
-
-
-              
-                <dialog id="pst-secondary-sidebar-modal"></dialog>
-                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
-
-
-  <div class="sidebar-secondary-item">
-<div
-    id="pst-page-navigation-heading-2"
-    class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> 本页内容
+</footer>
+</div>
+<dialog id="pst-secondary-sidebar-modal"></dialog>
+<div class="bd-sidebar-secondary bd-toc" id="pst-secondary-sidebar"><div class="sidebar-secondary-items sidebar-secondary__inner">
+<div class="sidebar-secondary-item">
+<div class="page-toc tocsection onthispage" id="pst-page-navigation-heading-2">
+<i class="fa-solid fa-list"></i> 本页内容
   </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="programming-model.html#heterogeneous-systems">1.2.1. 异构系统</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="programming-model.html#gpu-hardware-model">1.2.2. GPU 硬件模型</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="programming-model.html#thread-blocks-and-grids">1.2.2.1. 线程块与网格</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="programming-model.html#thread-block-clusters">1.2.2.1.1. 线程块簇</a></li>
+<nav aria-labelledby="pst-page-navigation-heading-2" class="bd-toc-nav page-toc">
+<ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="programming-model.html#heterogeneous-systems">1.2. 编程模型</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="programming-model.html#gpu-hardware-model">1.2. 编程模型</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="programming-model.html#thread-blocks-and-grids">1.2. 编程模型</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="programming-model.html#thread-block-clusters">1.2. 编程模型</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="programming-model.html#warps-and-simt">1.2.2.2. Warp 与 SIMT</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="programming-model.html#warps-and-simt">1.2. 编程模型</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="programming-model.html#gpu-memory">1.2.3. GPU 内存</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="programming-model.html#dram-memory-in-heterogeneous-systems">1.2.3.1. 异构系统中的 DRAM 内存</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="programming-model.html#on-chip-memory-in-gpus">1.2.3.2. GPU 片上内存</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="programming-model.html#caches">1.2.3.2.1. 缓存</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="programming-model.html#gpu-memory">1.2. 编程模型</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="programming-model.html#dram-memory-in-heterogeneous-systems">1.2. 编程模型</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="programming-model.html#on-chip-memory-in-gpus">1.2. 编程模型</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="programming-model.html#caches">1.2. 编程模型</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="programming-model.html#unified-memory">1.2.3.3. 统一内存</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="programming-model.html#unified-memory">1.2. 编程模型</a></li>
 </ul>
 </li>
 </ul>
-  </nav></div>
-
+</nav></div>
 </div></div>
-              
-            
-
-          </div>
-          <footer class="bd-footer-content">
-            
-          </footer>
-        
-      </main>
-    </div>
-  </div>
-  
-
-  <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js"></script>
-
-
+</div>
+<footer class="bd-footer-content">
+</footer>
+</main>
+</div>
+</div>
+ 脚本在 &lt;body&gt; 之后加载，因此 DOM 不会被阻塞 
+<script defer="" src="../_static/scripts/bootstrap.js"></script>
+<script defer="" src="../_static/scripts/pydata-sphinx-theme.js"></script>
 <script type="text/javascript">if (typeof _satellite !== "undefined") {_satellite.pageBottom();}</script>
-
-  <footer class="bd-footer">
+<footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
-  
-    <div class="footer-items__start">
-      
-        <div class="footer-item">
+<div class="footer-items__start">
+<div class="footer-item">
 <a class="footer-brand logo" href="https://www.nvidia.com">
-  <img src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
-  <img src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+<img alt="NVIDIA" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg"/>
+<img alt="NVIDIA" class="logo__image only-dark" src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg"/>
 </a></div>
-      
-        <div class="footer-item">
-
+<div class="footer-item">
 <div class="footer-links">
-  
-  
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+<a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">隐私政策</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">您的隐私选择</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">服务条款</a>
    | 
   
   
@@ -741,47 +485,31 @@
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">公司政策</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">产品安全</a>
    | 
   
   
   
   <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
-  
-  
-  
 </div>
 </div>
-      
-        <div class="footer-item">
-
-
-
-
-  <p class="copyright">
+<div class="footer-item">
+<p class="copyright">
     
-      Copyright © 2007-2026, NVIDIA Corporation &amp; affiliates. All rights reserved.
+      版权所有 © 2007-2026，NVIDIA 公司及附属公司。版权所有。
       <br/>
-    
-  </p>
+</p>
 </div>
-      
-        <div class="footer-item"><p class="last-updated">
-  Last updated on Mar 04, 2026.
+<div class="footer-item"><p class="last-updated">
+  最后更新于 2026 年 3 月 4 日。
   <br/>
 </p></div>
-      
-    </div>
-  
-  
-  
 </div>
-
-  </footer>
-  </body>
-</html>
+</div>
+</footer>
+</body></html>

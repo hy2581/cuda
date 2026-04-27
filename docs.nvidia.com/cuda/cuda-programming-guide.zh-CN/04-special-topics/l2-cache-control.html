@@ -1,52 +1,37 @@
-
-
 <!DOCTYPE html>
-
-
-<html lang="en" data-content_root="../" >
-
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <title>4.13. L2 Cache Control &#8212; CUDA Programming Guide</title>
-  
-  
-  
-  <script data-cfasync="false">
+<html data-content_root="../" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>4.13. L2 缓存控制 — CUDA 编程指南</title>
+<script data-cfasync="false">
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
-  </script>
-  <!--
-    this give us a css class that will be invisible only if js is disabled
-  -->
-  <noscript>
-    <style>
+  </script></head><body><p>
+
+    这给了我们一个 css 类，只有在禁用 js 时才会不可见
+  
+<noscript>
+<style>
       .pst-js-only { display: none !important; }
 
     </style>
-  </noscript>
-  
-  <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css" rel="stylesheet" />
-
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/tables.css" />
-  
-  <!-- So that users can add custom icons -->
-  <script src="../_static/scripts/fontawesome.js"></script>
-  <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js" />
-
-
-<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript"
-  data-document-language="true" charset="UTF-8" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5">
+</noscript>
+ 在其他 Sphinx 资源之前加载 
+<link href="../_static/styles/theme.css" rel="stylesheet"/>
+<link href="../_static/styles/pydata-sphinx-theme.css" rel="stylesheet"/>
+<link href="../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/styles/nvidia-sphinx-theme.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/custom.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/copybutton.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx-design.min.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/tables.css" rel="stylesheet" type="text/css"/>
+ 以便用户可以添加自定义图标 
+<script src="../_static/scripts/fontawesome.js"></script>
+ 我们稍后将完全加载的预加载脚本 
+<link as="script" href="../_static/scripts/bootstrap.js" rel="preload"/>
+<link as="script" href="../_static/scripts/pydata-sphinx-theme.js" rel="preload"/>
+<script charset="UTF-8" data-document-language="true" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5" src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript">
 </script>
 <script type="text/javascript">
   function OptanonWrapper() {
@@ -56,695 +41,454 @@
 </script>
 <script src="https://images.nvidia.com/aem-dam/Solutions/ot-js/ot-custom.js" type="text/javascript">
 </script>
-
-
-    <script rel="preload" src="../_static/modal-table.js"></script>
-    <script src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/scrollspy-patch.js"></script>
-    <script src="../_static/clipboard.min.js"></script>
-    <script src="../_static/copybutton.js"></script>
-    <script src="../_static/design-tabs.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '04-special-topics/l2-cache-control';</script>
-    <script src="../_static/version-patch.js"></script>
-
-<script type="text/javascript" src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
-
-    <link rel="icon" href="../_static/favicon.ico"/>
-
-    <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="4.14. Memory Synchronization Domains" href="memory-sync-domains.html" />
-    <link rel="prev" title="4.12. Work Stealing with Cluster Launch Control" href="cluster-launch-control.html" />
-
-<link rel="preload" as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png">
-
-
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="" />
-    <meta name="docbuild:last-update" content="Mar 04, 2026"/>
-
-
-  </head>
-
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
-
-  
-  
-  <div id="pst-skip-link" class="skip-link d-print-none"><a href="l2-cache-control.html#main-content">Skip to main content</a></div>
-
-<img src="https://www.nvidia.com/content/dam/1x1-00000000.png" width="1" height="1" style="display:none;" alt="country_code">
-
-
-  
-  <div id="pst-scroll-pixel-helper"></div>
-  
-  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
-    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
-  
-  <dialog id="pst-search-dialog">
-    
-<form class="bd-search d-flex align-items-center"
-      action="../search.html"
-      method="get">
-  <i class="fa-solid fa-magnifying-glass"></i>
-  <input type="search"
-         class="form-control"
-         name="q"
-         placeholder="Search the docs ..."
-         aria-label="Search the docs ..."
-         autocomplete="off"
-         autocorrect="off"
-         autocapitalize="off"
-         spellcheck="false"/>
-  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+<script rel="preload" src="../_static/modal-table.js"></script>
+<script src="../_static/documentation_options.js"></script>
+<script src="../_static/doctools.js"></script>
+<script src="../_static/sphinx_highlight.js"></script>
+<script src="../_static/scrollspy-patch.js"></script>
+<script src="../_static/clipboard.min.js"></script>
+<script src="../_static/copybutton.js"></script>
+<script src="../_static/design-tabs.js"></script>
+<script>DOCUMENTATION_OPTIONS.pagename = '04-special-topics/l2-cache-control';</script>
+<script src="../_static/version-patch.js"></script>
+<script src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js" type="text/javascript"></script>
+<link href="../_static/favicon.ico" rel="icon"/>
+<link href="../genindex.html" rel="index" title="索引"/>
+<link href="../search.html" rel="search" title="搜索"/>
+<link href="memory-sync-domains.html" rel="next" title="4.14. 内存同步域"/>
+<link href="cluster-launch-control.html" rel="prev" title="4.12. 使用簇启动控制进行工作窃取"/>
+<link as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png" rel="preload"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="en" name="docsearch:language"/>
+<meta content="" name="docsearch:version"/>
+<meta content="Mar 04, 2026" name="docbuild:last-update"/>
+</p>
+<div class="skip-link d-print-none" id="pst-skip-link"><a href="l2-cache-control.html#main-content">跳到主要内容</a></div>
+<img alt="country_code" height="1" src="https://www.nvidia.com/content/dam/1x1-00000000.png" style="display:none;" width="1"/>
+<div id="pst-scroll-pixel-helper"></div>
+<button class="btn rounded-pill" id="pst-back-to-top" type="button">
+<i class="fa-solid fa-arrow-up"></i>返回顶部</button>
+<dialog id="pst-search-dialog">
+<form action="../search.html" class="bd-search d-flex align-items-center" method="get">
+<i class="fa-solid fa-magnifying-glass"></i>
+<input aria-label="搜索文档..." autocapitalize="off" autocomplete="off" autocorrect="off" class="form-control" name="q" placeholder="搜索文档..." spellcheck="false" type="search"/>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
 </form>
-  </dialog>
-
-  <div class="pst-async-banner-revealer d-none">
-  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</dialog>
+<div class="pst-async-banner-revealer d-none">
+<aside aria-label="版本警告" class="d-none d-print-none" id="bd-header-version-warning"></aside>
 </div>
-
-  
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
-    <span class="fa-solid fa-bars"></span>
-  </button>
-  
-  
-  <div class="col-lg-3 navbar-header-items__start">
-    
-      <div class="navbar-item">
-
-  
-    
-  
-
+<button aria-label="站点导航" class="pst-navbar-icon sidebar-toggle primary-toggle">
+<span class="fa-solid fa-bars"></span>
+</button>
+<div class="col-lg-3 navbar-header-items__start">
+<div class="navbar-item">
 <a class="navbar-brand logo" href="../contents.html">
-  
-  
-  
-  
-  
-    
-    
-      
-    
-    
-    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
-    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
-  
-  
-    <p class="title logo__title">CUDA Programming Guide</p>
-  
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg"/>
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-dark pst-js-only" src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg"/>
+<p class="title logo__title">CUDA 编程指南</p>
 </a></div>
-    
-  </div>
-  
-  <div class="col-lg-9 navbar-header-items">
-    
-    <div class="me-auto navbar-header-items__center">
-      
-        <div class="navbar-item">
-
-
+</div>
+<div class="col-lg-9 navbar-header-items">
+<div class="me-auto navbar-header-items__center">
+<div class="navbar-item">
 <div>
-  <ul class="bd-navbar-elements navbar-nav">
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>v13.2 |</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>|</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
-      
-    </li>
-  
-  </ul>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item pst-header-nav-item">
+<span>v13.2 |</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+</li>
+<li class="nav-item pst-header-nav-item">
+<span>|</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">warp</a>
+</li>
+</ul>
 </div>
 </div>
-      
-    </div>
-    
-    
-    <div class="navbar-header-items__end">
-      
-        <div class="navbar-item navbar-persistent--container">
-          
-
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
- <i class="fa-solid fa-magnifying-glass"></i>
- <span class="search-button__default-text">Search</span>
- <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</div>
+<div class="navbar-header-items__end">
+<div class="navbar-item navbar-persistent--container">
+<button aria-label="warp" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="warp">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">warp</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
 </button>
-        </div>
-      
-      
-        <div class="navbar-item">
-
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</div>
+<div class="navbar-item">
+<button aria-label="色彩模式" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="系统设置"></i>
 </button></div>
-      
-    </div>
-    
-  </div>
-  
-  
-    <div class="navbar-persistent--mobile">
-
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
- <i class="fa-solid fa-magnifying-glass"></i>
- <span class="search-button__default-text">Search</span>
- <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-</button>
-    </div>
-  
-
-  
-    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
-      <span class="fa-solid fa-outdent"></span>
-    </button>
-  
 </div>
-
-    </header>
-  
-
-  <div class="bd-container">
-    <div class="bd-container__inner bd-page-width">
-      
-      
-      
-      <dialog id="pst-primary-sidebar-modal"></dialog>
-      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
-        
-
-
-
-  
-    
-  
-
+</div>
+<div class="navbar-persistent--mobile">
+<button aria-label="warp" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="warp">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">warp</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+</div>
+<button aria-label="切换侧边栏" class="pst-navbar-icon sidebar-toggle secondary-toggle">
+<span class="fa-solid fa-outdent"></span>
+</button>
+</div>
+</header>
+<div class="bd-container">
+<div class="bd-container__inner bd-page-width">
+<dialog id="pst-primary-sidebar-modal"></dialog>
+<div class="bd-sidebar-primary bd-sidebar" id="pst-primary-sidebar">
 <a class="navbar-brand logo" href="../contents.html">
-  
-  
-  
-  
-  
-    
-    
-      
-    
-    
-    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
-    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
-  
-  
-    <p class="title logo__title">CUDA Programming Guide</p>
-  
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg"/>
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-dark pst-js-only" src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg"/>
+<p class="title logo__title">CUDA 编程指南</p>
 </a>
-
-
-  
-  <div class="sidebar-header-items sidebar-primary__section">
-    
-    
-      <div class="sidebar-header-items__center">
-        
-          
-          
-            <div class="navbar-item">
-
-
+<div class="sidebar-header-items sidebar-primary__section">
+<div class="sidebar-header-items__center">
+<div class="navbar-item">
 <div>
-  <ul class="bd-navbar-elements navbar-nav">
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>v13.2 |</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>|</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
-      
-    </li>
-  
-  </ul>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item pst-header-nav-item">
+<span>v13.2 |</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+</li>
+<li class="nav-item pst-header-nav-item">
+<span>|</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">warp</a>
+</li>
+</ul>
 </div>
 </div>
-          
-        
-      </div>
-    
-    
-    
-      <div class="sidebar-header-items__end">
-        
-          <div class="navbar-item">
-
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</div>
+<div class="sidebar-header-items__end">
+<div class="navbar-item">
+<button aria-label="色彩模式" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="系统设置"></i>
 </button></div>
-        
-      </div>
-    
-  </div>
-  
-    <div class="sidebar-primary-items__start sidebar-primary__section">
-        <div class="sidebar-primary-item">
-
-
-
-<nav class="bd-docs-nav bd-links"
-     aria-label="Table of Contents">
-  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
-  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA Programming Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. Introduction to CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../01-introduction/introduction.html">1.1. Introduction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../01-introduction/programming-model.html">1.2. Programming Model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../01-introduction/cuda-platform.html">1.3. The CUDA platform</a></li>
+</div>
+</div>
+<div class="sidebar-primary-items__start sidebar-primary__section">
+<div class="sidebar-primary-item">
+<nav aria-label="目录" class="bd-docs-nav bd-links">
+<p aria-level="1" class="bd-links__title" role="heading">目录</p>
+<div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA 编程指南</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. CUDA 简介</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/introduction.html">1.1. 引言</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/programming-model.html">1.2. 编程模型</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/cuda-platform.html">1.3. CUDA 平台</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part2.html">2. Programming GPUs in CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html">2.1. Intro to CUDA C++</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/writing-cuda-kernels.html">2.2. Writing CUDA SIMT Kernels</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/asynchronous-execution.html">2.3. Asynchronous Execution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/understanding-memory.html">2.4. Unified and System Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/nvcc.html">2.5. NVCC: The NVIDIA CUDA Compiler</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part2.html">2. 使用 CUDA 进行 GPU 编程</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html">2.1. CUDA C++ 入门</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/writing-cuda-kernels.html">2.2. 编写 CUDA SIMT 内核</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/asynchronous-execution.html">2.3. 异步执行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/understanding-memory.html">2.4. 统一内存与系统内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/nvcc.html">2.5. NVCC：NVIDIA CUDA 编译器</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. Advanced CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. Advanced CUDA APIs and Features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. Advanced Kernel Programming</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. The CUDA Driver API</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. Programming Systems with Multiple GPUs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. A Tour of CUDA Features</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. 高级 CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. 高级 CUDA API 与特性</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. 高级内核编程</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. CUDA Driver API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. 多 GPU 系统编程</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. CUDA 特性概览</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="../part4.html">4. CUDA Features</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="unified-memory.html">4.1. Unified Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cuda-graphs.html">4.2. CUDA Graphs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="stream-ordered-memory-allocation.html">4.3. Stream-Ordered Memory Allocator</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cooperative-groups.html">4.4. Cooperative Groups</a></li>
-<li class="toctree-l3"><a class="reference internal" href="programmatic-dependent-launch.html">4.5. Programmatic Dependent Launch and Synchronization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="green-contexts.html">4.6. Green Contexts</a></li>
-<li class="toctree-l3"><a class="reference internal" href="lazy-loading.html">4.7. Lazy Loading</a></li>
-<li class="toctree-l3"><a class="reference internal" href="error-log-management.html">4.8. Error Log Management</a></li>
-<li class="toctree-l3"><a class="reference internal" href="async-barriers.html">4.9. Asynchronous Barriers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pipelines.html">4.10. Pipelines</a></li>
-<li class="toctree-l3"><a class="reference internal" href="async-copies.html">4.11. Asynchronous Data Copies</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cluster-launch-control.html">4.12. Work Stealing with Cluster Launch Control</a></li>
-<li class="toctree-l3 current active"><a class="current reference internal" href="l2-cache-control.html#">4.13. L2 Cache Control</a></li>
-<li class="toctree-l3"><a class="reference internal" href="memory-sync-domains.html">4.14. Memory Synchronization Domains</a></li>
-<li class="toctree-l3"><a class="reference internal" href="inter-process-communication.html">4.15. Interprocess Communication</a></li>
-<li class="toctree-l3"><a class="reference internal" href="virtual-memory-management.html">4.16. Virtual Memory Management</a></li>
-<li class="toctree-l3"><a class="reference internal" href="extended-gpu-memory.html">4.17. Extended GPU Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dynamic-parallelism.html">4.18. CUDA Dynamic Parallelism</a></li>
-<li class="toctree-l3"><a class="reference internal" href="graphics-interop.html">4.19. CUDA Interoperability with APIs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="driver-entry-point-access.html">4.20. Driver Entry Point Access</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../part4.html">4. CUDA 特性</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="unified-memory.html">4.1. 统一内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda-graphs.html">4.2. CUDA Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stream-ordered-memory-allocation.html">4.3. 流有序内存分配器</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cooperative-groups.html">4.4. 协作组</a></li>
+<li class="toctree-l3"><a class="reference internal" href="programmatic-dependent-launch.html">4.5. 程序化依赖启动与同步</a></li>
+<li class="toctree-l3"><a class="reference internal" href="green-contexts.html">4.6. 绿色上下文</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lazy-loading.html">4.7. 延迟加载</a></li>
+<li class="toctree-l3"><a class="reference internal" href="error-log-management.html">4.8. 错误日志管理</a></li>
+<li class="toctree-l3"><a class="reference internal" href="async-barriers.html">4.9. 异步屏障</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pipelines.html">4.10. 流水线</a></li>
+<li class="toctree-l3"><a class="reference internal" href="async-copies.html">4.11. 异步数据拷贝</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cluster-launch-control.html">4.12. 使用簇启动控制进行工作窃取</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="l2-cache-control.html#">4.13. L2 缓存控制</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory-sync-domains.html">4.14. 内存同步域</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inter-process-communication.html">4.15. 进程间通信</a></li>
+<li class="toctree-l3"><a class="reference internal" href="virtual-memory-management.html">4.16. 虚拟内存管理</a></li>
+<li class="toctree-l3"><a class="reference internal" href="extended-gpu-memory.html">4.17. 扩展 GPU 内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamic-parallelism.html">4.18. CUDA 动态并行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graphics-interop.html">4.19. CUDA 与 API 的互操作</a></li>
+<li class="toctree-l3"><a class="reference internal" href="driver-entry-point-access.html">4.20. 驱动入口点访问</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part5.html">5. Technical Appendices</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/compute-capabilities.html">5.1. Compute Capabilities</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/environment-variables.html">5.2. CUDA Environment Variables</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-support.html">5.3. C++ Language Support</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-extensions.html">5.4. C/C++ Language Extensions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/mathematical-functions.html">5.5. Floating-Point Computation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/device-callable-apis.html">5.6. Device-Callable APIs and Intrinsics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-memory-model.html">5.7. CUDA C++ Memory Model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-execution-model.html">5.8. CUDA C++ Execution model</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part5.html">5. 技术附录</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/compute-capabilities.html">5.1. 计算能力</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/environment-variables.html">5.2. CUDA 环境变量</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-support.html">5.3. C++ 语言支持</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-extensions.html">5.4. C/C++ 语言扩展</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/mathematical-functions.html">5.5. 浮点计算</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/device-callable-apis.html">5.6. 设备端可调用 API 与内建函数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-memory-model.html">5.7. CUDA C++ 内存模型</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-execution-model.html">5.8. CUDA C++ 执行模型</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. Notices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. 声明</a></li>
 </ul>
 </details></li>
 </ul>
 </div>
 </nav></div>
-    </div>
-  
-  
-  <div class="sidebar-primary-items__end sidebar-primary__section">
-  </div>
-
-
-
-      </div>
-      
-      <main id="main-content" class="bd-main" role="main">
-        
-        
-          <div class="bd-content">
-            <div class="bd-article-container">
-              
-              <div class="bd-header-article d-print-none">
+</div>
+<div class="sidebar-primary-items__end sidebar-primary__section">
+</div>
+</div>
+<main class="bd-main" id="main-content" role="main">
+<div class="bd-content">
+<div class="bd-article-container">
+<div class="bd-header-article d-print-none">
 <div class="header-article-items header-article__inner">
-  
-    <div class="header-article-items__start">
-      
-        <div class="header-article-item">
-
+<div class="header-article-items__start">
+<div class="header-article-item">
 <nav aria-label="Breadcrumb" class="d-print-none">
-  <ul class="bd-breadcrumbs">
-    
-    <li class="breadcrumb-item breadcrumb-home">
-      <a href="../contents.html" class="nav-link" aria-label="Home">
-        <i class="fa-solid fa-home"></i>
-      </a>
-    </li>
-    
-    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">CUDA Programming Guide</a></li>
-    
-    
-    <li class="breadcrumb-item"><a href="../part4.html" class="nav-link"><span class="section-number">4. </span>CUDA Features</a></li>
-    
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">4.13. </span>L2 Cache Control</span></li>
-  </ul>
+<ul class="bd-breadcrumbs">
+<li class="breadcrumb-item breadcrumb-home">
+<a aria-label="Home" class="nav-link" href="../contents.html">目录</a>
+</li>
+<li class="breadcrumb-item"><a class="nav-link" href="../index.html">CUDA 编程指南</a></li>
+<li class="breadcrumb-item"><a class="nav-link" href="../part4.html">4. CUDA 特性</a></li>
+<li aria-current="page" class="breadcrumb-item active"><span class="ellipsis"><span class="section-number">4.13. </span>L2 缓存控制</span></li>
+</ul>
 </nav>
 </div>
-      
-    </div>
-  
-  
-    <div class="header-article-items__end">
-      
-        <div class="header-article-item">
+</div>
+<div class="header-article-items__end">
 <div class="header-article-item">
-  <div class="d-flex justify-content-end w-100">
-    <a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">Is this page helpful?</a>
-  </div>
+<div class="header-article-item">
+<div class="d-flex justify-content-end w-100">
+<a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">此页面有帮助吗？</a>
+</div>
 </div></div>
-      
-    </div>
-  
 </div>
 </div>
-              
-              
-              
-                
+</div>
 <div id="searchbox"></div>
-                <article class="bd-article">
-                  
-  <section id="l2-cache-control">
-<span id="advanced-kernels-l2-control"></span><h1><span class="section-number">4.13. </span>L2 Cache Control<a class="headerlink" href="l2-cache-control.html#l2-cache-control" title="Link to this heading">#</a></h1>
-<p>When a CUDA kernel accesses a data region in the global memory repeatedly, such data accesses can be considered to be persisting. On the other hand, if the data is only accessed once, such data accesses can be considered to be streaming.</p>
-<p>Devices of compute capability 8.0 and above have the capability to influence persistence of data in the L2 cache, potentially providing higher bandwidth and lower latency accesses to global memory.</p>
-<p>This functionality is exposed through two main APIs:</p>
+<article class="bd-article">
+<section id="l2-cache-control">
+<span id="advanced-kernels-l2-control"></span><h1>4.13. L2 缓存控制<a class="headerlink" href="l2-cache-control.html#l2-cache-control" title="跳转到此标题">#</a></h1>
+<p>当 CUDA内核重复访问全局内存中的数据区域时，这种数据访问可以被认为是持久的。另一方面，如果数据仅被访问一次，则这样的数据访问可以被认为是流式的。</p>
+<p>计算能力 8.0 及以上的设备能够影响 L2 缓存中数据的持久性，从而有可能为全局内存提供更高的带宽和更低的延迟访问。</p>
+<p>此功能通过两个主要 API 公开：</p>
 <ul class="simple">
-<li><p>The CUDA runtime API (starting with CUDA 11.0) provides programmatic control over L2 cache persistence.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">cuda::annotated_ptr</span></code> API in the <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_access_properties/annotated_ptr.html">libcu++</a> library (starting with CUDA 11.5) annotates pointers in CUDA kernels with memory access properties to achieve a similar effect..</p></li>
+<li><p>CUDA 运行时 API（从 CUDA 11.0 开始）提供对 L2 缓存持久性的编程控制。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cuda::annotated_ptr</span></code> API 在 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_access_properties/annotated_ptr.html">libcu++</a> 库（从 CUDA 11.5 开始）使用内存访问属性注释 CUDA 内核中的指针，以实现类似的效果。</p></li>
 </ul>
-<p>The following sections focus on the CUDA runtime API. For detailed information about the <code class="docutils literal notranslate"><span class="pre">cuda::annotated_ptr</span></code> approach, please refer to the <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_access_properties/annotated_ptr.html">libcu++ documentation</a>.</p>
+<p>以下部分重点介绍 CUDA 运行时 API。有关详细信息 <code class="docutils literal notranslate"><span class="pre">cuda::annotated_ptr</span></code> 方法请参考 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/extended_api/memory_access_properties/annotated_ptr.html">libcu++ 文档</a>.</p>
 <section id="l2-cache-set-aside-for-persisting-accesses">
-<span id="l2-set-aside"></span><h2><span class="section-number">4.13.1. </span>L2 Cache Set-Aside for Persisting Accesses<a class="headerlink" href="l2-cache-control.html#l2-cache-set-aside-for-persisting-accesses" title="Link to this heading">#</a></h2>
-<p>A portion of the L2 cache can be set aside to be used for persisting data accesses to global memory. Persisting accesses have prioritized use of this set-aside portion of L2 cache, whereas normal or streaming accesses to global memory can only utilize this portion of L2 when it is unused by persisting accesses.</p>
-<p>The L2 cache set-aside size for persisting accesses may be adjusted, within limits:</p>
+<span id="l2-set-aside"></span><h2><span class="section-number">4.13.1. </span>用于持久访问的 L2 缓存预留<a class="headerlink" href="l2-cache-control.html#l2-cache-set-aside-for-persisting-accesses" title="跳转到此标题">#</a></h2>
+<p>L2 高速缓存的一部分可以留出用于对全局内存进行持久数据访问。持久访问优先使用 L2 缓存的此预留部分，而对全局内存的正常或流式访问只能在持久访问未使用 L2 的这部分时使用。</p>
+<p>用于持久访问的 L2 缓存预留大小可以在限制范围内进行调整：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaGetDeviceProperties</span><span class="p">(</span><span class="o">&amp;</span><span class="n">prop</span><span class="p">,</span><span class="w"> </span><span class="n">device_id</span><span class="p">);</span>
 <span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">min</span><span class="p">(</span><span class="kt">int</span><span class="p">(</span><span class="n">prop</span><span class="p">.</span><span class="n">l2CacheSize</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.75</span><span class="p">),</span><span class="w"> </span><span class="n">prop</span><span class="p">.</span><span class="n">persistingL2CacheMaxSize</span><span class="p">);</span>
-<span class="n">cudaDeviceSetLimit</span><span class="p">(</span><span class="n">cudaLimitPersistingL2CacheSize</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span><span class="w"> </span><span class="cm">/* set-aside 3/4 of L2 cache for persisting accesses or the max allowed*/</span>
+<span class="n">cudaDeviceSetLimit</span><span class="p">(</span><span class="n">cudaLimitPersistingL2CacheSize</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span><span class="w"> </span><span class="cm">/* 预留 3/4 的 L2 缓存用于持久访问或允许的最大值 */</span>
 </pre></div>
 </div>
-<p>When the GPU is configured in Multi-Instance GPU (MIG) mode, the L2 cache set-aside functionality is disabled.</p>
-<p>When using the Multi-Process Service (MPS), the L2 cache set-aside size cannot be changed by <code class="docutils literal notranslate"><span class="pre">cudaDeviceSetLimit</span></code>. Instead, the set-aside size can only be specified at start up of MPS server through the environment variable <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_DEFAULT_PERSISTING_L2_CACHE_PERCENTAGE_LIMIT</span></code>.</p>
+<p>当 GPU 配置为多实例 GPU (MIG) 模式时，L2 缓存预留功能将被禁用。</p>
+<p>使用多进程服务 (MPS) 时，无法通过以下方式更改 L2 缓存预留大小： <code class="docutils literal notranslate"><span class="pre">cudaDeviceSetLimit</span></code>。相反，预留大小只能在 MPS 服务器启动时通过环境变量指定 <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_DEFAULT_PERSISTING_L2_CACHE_PERCENTAGE_LIMIT</span></code>.</p>
 </section>
 <section id="l2-policy-for-persisting-accesses">
-<span id="l2-access-policy"></span><h2><span class="section-number">4.13.2. </span>L2 Policy for Persisting Accesses<a class="headerlink" href="l2-cache-control.html#l2-policy-for-persisting-accesses" title="Link to this heading">#</a></h2>
-<p>An access policy window specifies a contiguous region of global memory and a persistence property in the L2 cache for accesses within that region.</p>
-<p>The code example below shows how to set an L2 persisting access window using a CUDA Stream.</p>
-<p><strong>CUDA Stream Example</strong></p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaStreamAttrValue</span><span class="w"> </span><span class="n">stream_attribute</span><span class="p">;</span><span class="w">                                         </span><span class="c1">// Stream level attributes data structure</span>
-<span class="n">stream_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">base_ptr</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">);</span><span class="w"> </span><span class="c1">// Global Memory data pointer</span>
-<span class="n">stream_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">num_bytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">num_bytes</span><span class="p">;</span><span class="w">                    </span><span class="c1">// Number of bytes for persistence access.</span>
-<span class="w">                                                                              </span><span class="c1">// (Must be less than cudaDeviceProp::accessPolicyMaxWindowSize)</span>
-<span class="n">stream_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">hitRatio</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mf">0.6</span><span class="p">;</span><span class="w">                          </span><span class="c1">// Hint for cache hit ratio</span>
-<span class="n">stream_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">hitProp</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">cudaAccessPropertyPersisting</span><span class="p">;</span><span class="w"> </span><span class="c1">// Type of access property on cache hit</span>
-<span class="n">stream_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">missProp</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">cudaAccessPropertyStreaming</span><span class="p">;</span><span class="w">  </span><span class="c1">// Type of access property on cache miss.</span>
+<span id="l2-access-policy"></span><h2><span class="section-number">4.13.2. </span>持久访问的 L2 策略<a class="headerlink" href="l2-cache-control.html#l2-policy-for-persisting-accesses" title="跳转到此标题">#</a></h2>
+<p>访问策略窗口指定全局内存的连续区域以及 L2 缓存中用于该区域内访问的持久性属性。</p>
+<p>下面的代码示例展示了如何使用 CUDA Stream 设置 L2 持久访问窗口。</p>
+<p><strong>CUDA 流示例</strong></p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaStreamAttrValue</span><span class="w"> </span><span class="n">stream_attribute</span><span class="p">;</span><span class="w">                                         </span><span class="c1">// 流级属性数据结构</span>
+<span class="n">stream_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">base_ptr</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">);</span><span class="w"> </span><span class="c1">// 全局内存数据指针</span>
+<span class="n">stream_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">num_bytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">num_bytes</span><span class="p">;</span><span class="w">                    </span><span class="c1">// 用于持久访问的字节数。</span>
+<span class="w">                                                                              </span><span class="c1">// （必须小于 cudaDeviceProp::accessPolicyMaxWindowSize）</span>
+<span class="n">stream_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">hitRatio</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mf">0.6</span><span class="p">;</span><span class="w">                          </span><span class="c1">// 缓存命中率提示</span>
+<span class="n">stream_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">hitProp</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">cudaAccessPropertyPersisting</span><span class="p">;</span><span class="w"> </span><span class="c1">// 缓存命中时的访问属性类型</span>
+<span class="n">stream_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">missProp</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">cudaAccessPropertyStreaming</span><span class="p">;</span><span class="w">  </span><span class="c1">// 缓存未命中时的访问属性类型。</span>
 
-<span class="c1">//Set the attributes to a CUDA stream of type cudaStream_t</span>
+<span class="c1">// 将属性设置为 cudaStream_t 类型的 CUDA 流</span>
 <span class="n">cudaStreamSetAttribute</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamAttributeAccessPolicyWindow</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">stream_attribute</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>When a kernel subsequently executes in CUDA <code class="docutils literal notranslate"><span class="pre">stream</span></code>, memory accesses within the global memory extent <code class="docutils literal notranslate"><span class="pre">[ptr..ptr+num_bytes)</span></code> are more likely to persist in the L2 cache than accesses to other global memory locations.</p>
-<p>L2 persistence can also be set for a CUDA Graph Kernel Node as shown in the example below:</p>
-<p><strong>CUDA GraphKernelNode Example</strong></p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaKernelNodeAttrValue</span><span class="w"> </span><span class="n">node_attribute</span><span class="p">;</span><span class="w">                                     </span><span class="c1">// Kernel level attributes data structure</span>
-<span class="n">node_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">base_ptr</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">);</span><span class="w"> </span><span class="c1">// Global Memory data pointer</span>
-<span class="n">node_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">num_bytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">num_bytes</span><span class="p">;</span><span class="w">                    </span><span class="c1">// Number of bytes for persistence access.</span>
-<span class="w">                                                                            </span><span class="c1">// (Must be less than cudaDeviceProp::accessPolicyMaxWindowSize)</span>
-<span class="n">node_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">hitRatio</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mf">0.6</span><span class="p">;</span><span class="w">                          </span><span class="c1">// Hint for cache hit ratio</span>
-<span class="n">node_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">hitProp</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">cudaAccessPropertyPersisting</span><span class="p">;</span><span class="w"> </span><span class="c1">// Type of access property on cache hit</span>
-<span class="n">node_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">missProp</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">cudaAccessPropertyStreaming</span><span class="p">;</span><span class="w">  </span><span class="c1">// Type of access property on cache miss.</span>
+<p>当内核随后在 CUDA 中执行时 <code class="docutils literal notranslate"><span class="pre">stream</span></code>，全局内存范围内的内存访问 <code class="docutils literal notranslate"><span class="pre">[ptr..ptr+num_bytes)</span></code> 与访问其他全局内存位置相比，更有可能保留在 L2 缓存中。</p>
+<p>还可以为 CUDA 图形内核节点设置 L2 持久性，如下例所示：</p>
+<p><strong>CUDA GraphKernelNode 示例</strong></p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaKernelNodeAttrValue</span><span class="w"> </span><span class="n">node_attribute</span><span class="p">;</span><span class="w">                                     </span><span class="c1">// 内核级属性数据结构</span>
+<span class="n">node_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">base_ptr</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">);</span><span class="w"> </span><span class="c1">// 全局内存数据指针</span>
+<span class="n">node_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">num_bytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">num_bytes</span><span class="p">;</span><span class="w">                    </span><span class="c1">// 用于持久访问的字节数。</span>
+<span class="w">                                                                            </span><span class="c1">// （必须小于 cudaDeviceProp::accessPolicyMaxWindowSize）</span>
+<span class="n">node_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">hitRatio</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mf">0.6</span><span class="p">;</span><span class="w">                          </span><span class="c1">// 缓存命中率提示</span>
+<span class="n">node_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">hitProp</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">cudaAccessPropertyPersisting</span><span class="p">;</span><span class="w"> </span><span class="c1">// 缓存命中时的访问属性类型</span>
+<span class="n">node_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">missProp</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">cudaAccessPropertyStreaming</span><span class="p">;</span><span class="w">  </span><span class="c1">// 缓存未命中时的访问属性类型。</span>
 
-<span class="c1">//Set the attributes to a CUDA Graph Kernel node of type cudaGraphNode_t</span>
+<span class="c1">// 将属性设置为 cudaGraphNode_t 类型的 CUDA Graph Kernel 节点</span>
 <span class="n">cudaGraphKernelNodeSetAttribute</span><span class="p">(</span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="n">cudaKernelNodeAttributeAccessPolicyWindow</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">node_attribute</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>The <code class="docutils literal notranslate"><span class="pre">hitRatio</span></code> parameter can be used to specify the fraction of accesses that receive the <code class="docutils literal notranslate"><span class="pre">hitProp</span></code> property. In both of the examples above, 60% of the memory accesses in the global memory region <code class="docutils literal notranslate"><span class="pre">[ptr..ptr+num_bytes)</span></code> have the persisting property and 40% of the memory accesses have the streaming property. Which specific memory accesses are classified as persisting (the <code class="docutils literal notranslate"><span class="pre">hitProp</span></code>) is random with a probability of approximately <code class="docutils literal notranslate"><span class="pre">hitRatio</span></code>; the probability distribution depends upon the hardware architecture and the memory extent.</p>
-<p>For example, if the L2 set-aside cache size is 16KB and the <code class="docutils literal notranslate"><span class="pre">num_bytes</span></code> in the <code class="docutils literal notranslate"><span class="pre">accessPolicyWindow</span></code> is 32KB:</p>
+<p><code class="docutils literal notranslate"><span class="pre">hitRatio</span></code> 参数可用于指定接收到的访问的比例 <code class="docutils literal notranslate"><span class="pre">hitProp</span></code> 财产。在上面的两个例子中，60%的内存访问都在全局内存区域 <code class="docutils literal notranslate"><span class="pre">[ptr..ptr+num_bytes)</span></code> 具有持久性，40%的内存访问具有流式性。哪些特定的内存访问被归类为持久性（<code class="docutils literal notranslate"><span class="pre">hitProp</span></code>) 是随机的，概率约为 <code class="docutils literal notranslate"><span class="pre">hitRatio</span></code>;概率分布取决于硬件架构和内存范围。</p>
+<p>例如，如果二级预留缓存大小为 16KB， <code class="docutils literal notranslate"><span class="pre">num_bytes</span></code> 在 <code class="docutils literal notranslate"><span class="pre">accessPolicyWindow</span></code> 是 32KB：</p>
 <ul class="simple">
-<li><p>With a <code class="docutils literal notranslate"><span class="pre">hitRatio</span></code> of 0.5, the hardware will select, at random, 16KB of the 32KB window to be designated as persisting and cached in the set-aside L2 cache area.</p></li>
-<li><p>With a <code class="docutils literal notranslate"><span class="pre">hitRatio</span></code> of 1.0, the hardware will attempt to cache the whole 32KB window in the set-aside L2 cache area. Since the set-aside area is smaller than the window, cache lines will be evicted to keep the most recently used 16KB of the 32KB data in the set-aside portion of the L2 cache.</p></li>
+<li><p>与一个 <code class="docutils literal notranslate"><span class="pre">hitRatio</span></code> 0.5 时，硬件将随机选择 32KB 窗口中的 16KB 指定为持久并缓存在预留的二级缓存区域中。</p></li>
+<li><p>与一个 <code class="docutils literal notranslate"><span class="pre">hitRatio</span></code> 在 1.0 版本中，硬件将尝试将整个 32KB 窗口缓存在预留的二级缓存区域中。由于预留区域小于窗口，缓存行将被逐出，以将 32KB 数据中最近使用的 16KB 保留在 L2 缓存的预留部分中。</p></li>
 </ul>
-<p>The <code class="docutils literal notranslate"><span class="pre">hitRatio</span></code> can therefore be used to avoid thrashing of cache lines and overall reduce the amount of data moved into and out of the L2 cache.</p>
-<p>A <code class="docutils literal notranslate"><span class="pre">hitRatio</span></code> value below 1.0 can be used to manually control the amount of data different <code class="docutils literal notranslate"><span class="pre">accessPolicyWindow</span></code>s from concurrent CUDA streams can cache in L2. For example, let the L2 set-aside cache size be 16KB; two concurrent kernels in two different CUDA streams, each with a 16KB <code class="docutils literal notranslate"><span class="pre">accessPolicyWindow</span></code>, and both with <code class="docutils literal notranslate"><span class="pre">hitRatio</span></code> value 1.0, might evict each others’ cache lines when competing for the shared L2 resource. However, if both <code class="docutils literal notranslate"><span class="pre">accessPolicyWindows</span></code> have a hitRatio value of 0.5, they will be less likely to evict their own or each others’ persisting cache lines.</p>
+<p><code class="docutils literal notranslate"><span class="pre">hitRatio</span></code> 因此，可以用来避免缓存行的颠簸，并总体减少移入和移出 L2 缓存的数据量。</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">hitRatio</span></code> 1.0以下的值可用于手动控制数据量的不同 <code class="docutils literal notranslate"><span class="pre">accessPolicyWindow</span></code>来自并发 CUDA 流的数据可以缓存在 L2 中。例如，设L2预留缓存大小为16KB；两个不同 CUDA 流中的两个并发内核，每个都有 16KB <code class="docutils literal notranslate"><span class="pre">accessPolicyWindow</span></code>，并且两者都与 <code class="docutils literal notranslate"><span class="pre">hitRatio</span></code> 值 1.0，在竞争共享 L2 资源时可能会逐出彼此的缓存线。然而，如果两者 <code class="docutils literal notranslate"><span class="pre">accessPolicyWindows</span></code> 如果 hitRatio 值为 0.5，则它们驱逐自己或彼此的持久缓存行的可能性较小。</p>
 </section>
 <section id="l2-access-properties">
-<span id="l2-access-prop"></span><h2><span class="section-number">4.13.3. </span>L2 Access Properties<a class="headerlink" href="l2-cache-control.html#l2-access-properties" title="Link to this heading">#</a></h2>
-<p>Three types of access properties are defined for different global memory data accesses:</p>
+<span id="l2-access-prop"></span><h2><span class="section-number">4.13.3. </span>L2 访问属性<a class="headerlink" href="l2-cache-control.html#l2-access-properties" title="跳转到此标题">#</a></h2>
+<p>为不同的全局内存数据访问定义了三种类型的访问属性：</p>
 <ol class="arabic simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">cudaAccessPropertyStreaming</span></code>: Memory accesses that occur with the streaming property are less likely to persist in the L2 cache because these accesses are preferentially evicted.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cudaAccessPropertyPersisting</span></code>: Memory accesses that occur with the persisting property are more likely to persist in the L2 cache because these accesses are preferentially retained in the set-aside portion of L2 cache.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cudaAccessPropertyNormal</span></code>: This access property forcibly resets previously applied persisting access property to a normal status. Memory accesses with the persisting property from previous CUDA kernels may be retained in L2 cache long after their intended use. This persistence-after-use reduces the amount of L2 cache available to subsequent kernels that do not use the persisting property. Resetting an access property window with the <code class="docutils literal notranslate"><span class="pre">cudaAccessPropertyNormal</span></code> property removes the persisting (preferential retention) status of the prior access, as if the prior access had been without an access property.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaAccessPropertyStreaming</span></code>：与流属性一起发生的内存访问不太可能保留在 L2 缓存中，因为这些访问会被优先逐出。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaAccessPropertyPersisting</span></code>：具有持久属性的内存访问更有可能保留在 L2 缓存中，因为这些访问优先保留在 L2 缓存的预留部分中。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaAccessPropertyNormal</span></code>：此访问属性将先前应用的持久访问属性强制重置为正常状态。来自先前 CUDA 内核的具有持久属性的内存访问可能会在其预期使用后很长时间内保留在 L2 缓存中。这种使用后持久性减少了不使用持久性属性的后续内核可用的 L2 缓存量。使用以下命令重置访问属性窗口 <code class="docutils literal notranslate"><span class="pre">cudaAccessPropertyNormal</span></code> 属性删除先前访问的持久（优先保留）状态，就好像先前访问没有访问属性一样。</p></li>
 </ol>
 </section>
 <section id="l2-persistence-example">
-<span id="l2-simple-example"></span><h2><span class="section-number">4.13.4. </span>L2 Persistence Example<a class="headerlink" href="l2-cache-control.html#l2-persistence-example" title="Link to this heading">#</a></h2>
-<p>The following example shows how to set-aside L2 cache for persistent accesses, use the set-aside L2 cache in CUDA kernels via CUDA Stream and then reset the L2 cache.</p>
+<span id="l2-simple-example"></span><h2><span class="section-number">4.13.4. </span>L2 持久化示例<a class="headerlink" href="l2-cache-control.html#l2-persistence-example" title="跳转到此标题">#</a></h2>
+<p>以下示例演示如何为持久访问预留二级缓存，通过 CUDA Stream 在 CUDA 内核中使用预留的二级缓存，然后重置二级缓存。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">;</span>
-<span class="n">cudaStreamCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream</span><span class="p">);</span><span class="w">                                                                  </span><span class="c1">// Create CUDA stream</span>
+<span class="n">cudaStreamCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream</span><span class="p">);</span><span class="w">                                                                  </span><span class="c1">// 创建 CUDA 流</span>
 
-<span class="n">cudaDeviceProp</span><span class="w"> </span><span class="n">prop</span><span class="p">;</span><span class="w">                                                                        </span><span class="c1">// CUDA device properties variable</span>
-<span class="n">cudaGetDeviceProperties</span><span class="p">(</span><span class="w"> </span><span class="o">&amp;</span><span class="n">prop</span><span class="p">,</span><span class="w"> </span><span class="n">device_id</span><span class="p">);</span><span class="w">                                                 </span><span class="c1">// Query GPU properties</span>
+<span class="n">cudaDeviceProp</span><span class="w"> </span><span class="n">prop</span><span class="p">;</span><span class="w">                                                                        </span><span class="c1">// CUDA 设备属性变量</span>
+<span class="n">cudaGetDeviceProperties</span><span class="p">(</span><span class="w"> </span><span class="o">&amp;</span><span class="n">prop</span><span class="p">,</span><span class="w"> </span><span class="n">device_id</span><span class="p">);</span><span class="w">                                                 </span><span class="c1">// 查询GPU属性</span>
 <span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">min</span><span class="p">(</span><span class="w"> </span><span class="kt">int</span><span class="p">(</span><span class="n">prop</span><span class="p">.</span><span class="n">l2CacheSize</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.75</span><span class="p">)</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="n">prop</span><span class="p">.</span><span class="n">persistingL2CacheMaxSize</span><span class="w"> </span><span class="p">);</span>
-<span class="n">cudaDeviceSetLimit</span><span class="p">(</span><span class="w"> </span><span class="n">cudaLimitPersistingL2CacheSize</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span><span class="w">                                  </span><span class="c1">// set-aside 3/4 of L2 cache for persisting accesses or the max allowed</span>
+<span class="n">cudaDeviceSetLimit</span><span class="p">(</span><span class="w"> </span><span class="n">cudaLimitPersistingL2CacheSize</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span><span class="w">                                  </span><span class="c1">// 预留 3/4 的 L2 缓存用于持久访问或允许的最大值</span>
 
-<span class="kt">size_t</span><span class="w"> </span><span class="n">window_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">min</span><span class="p">(</span><span class="n">prop</span><span class="p">.</span><span class="n">accessPolicyMaxWindowSize</span><span class="p">,</span><span class="w"> </span><span class="n">num_bytes</span><span class="p">);</span><span class="w">                        </span><span class="c1">// Select minimum of user defined num_bytes and max window size.</span>
+<span class="kt">size_t</span><span class="w"> </span><span class="n">window_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">min</span><span class="p">(</span><span class="n">prop</span><span class="p">.</span><span class="n">accessPolicyMaxWindowSize</span><span class="p">,</span><span class="w"> </span><span class="n">num_bytes</span><span class="p">);</span><span class="w">                        </span><span class="c1">// 选择用户定义的最小值 num_bytes 和最大窗口大小。</span>
 
-<span class="n">cudaStreamAttrValue</span><span class="w"> </span><span class="n">stream_attribute</span><span class="p">;</span><span class="w">                                                       </span><span class="c1">// Stream level attributes data structure</span>
-<span class="n">stream_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">base_ptr</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">data1</span><span class="p">);</span><span class="w">               </span><span class="c1">// Global Memory data pointer</span>
-<span class="n">stream_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">num_bytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">window_size</span><span class="p">;</span><span class="w">                                </span><span class="c1">// Number of bytes for persistence access</span>
-<span class="n">stream_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">hitRatio</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mf">0.6</span><span class="p">;</span><span class="w">                                        </span><span class="c1">// Hint for cache hit ratio</span>
-<span class="n">stream_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">hitProp</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">cudaAccessPropertyPersisting</span><span class="p">;</span><span class="w">               </span><span class="c1">// Persistence Property</span>
-<span class="n">stream_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">missProp</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">cudaAccessPropertyStreaming</span><span class="p">;</span><span class="w">                </span><span class="c1">// Type of access property on cache miss</span>
+<span class="n">cudaStreamAttrValue</span><span class="w"> </span><span class="n">stream_attribute</span><span class="p">;</span><span class="w">                                                       </span><span class="c1">// 流级属性数据结构</span>
+<span class="n">stream_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">base_ptr</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">data1</span><span class="p">);</span><span class="w">               </span><span class="c1">// 全局内存数据指针</span>
+<span class="n">stream_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">num_bytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">window_size</span><span class="p">;</span><span class="w">                                </span><span class="c1">// 持久访问的字节数</span>
+<span class="n">stream_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">hitRatio</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mf">0.6</span><span class="p">;</span><span class="w">                                        </span><span class="c1">// 缓存命中率提示</span>
+<span class="n">stream_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">hitProp</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">cudaAccessPropertyPersisting</span><span class="p">;</span><span class="w">               </span><span class="c1">// 持久性属性</span>
+<span class="n">stream_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">missProp</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">cudaAccessPropertyStreaming</span><span class="p">;</span><span class="w">                </span><span class="c1">// 缓存未命中时的访问属性类型</span>
 
-<span class="n">cudaStreamSetAttribute</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamAttributeAccessPolicyWindow</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">stream_attribute</span><span class="p">);</span><span class="w">   </span><span class="c1">// Set the attributes to a CUDA Stream</span>
+<span class="n">cudaStreamSetAttribute</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamAttributeAccessPolicyWindow</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">stream_attribute</span><span class="p">);</span><span class="w">   </span><span class="c1">// 将属性设置为 CUDA Stream</span>
 
 <span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">cuda_kernelA</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid_size</span><span class="p">,</span><span class="n">block_size</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">data1</span><span class="p">);</span><span class="w">                                 </span><span class="c1">// This data1 is used by a kernel multiple times</span>
-<span class="p">}</span><span class="w">                                                                                           </span><span class="c1">// [data1 + num_bytes) benefits from L2 persistence</span>
-<span class="n">cuda_kernelB</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid_size</span><span class="p">,</span><span class="n">block_size</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">data1</span><span class="p">);</span><span class="w">                                     </span><span class="c1">// A different kernel in the same stream can also benefit</span>
-<span class="w">                                                                                            </span><span class="c1">// from the persistence of data1</span>
+<span class="w">    </span><span class="n">cuda_kernelA</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid_size</span><span class="p">,</span><span class="n">block_size</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">data1</span><span class="p">);</span><span class="w">                                 </span><span class="c1">// 该 data1 被内核多次使用</span>
+<span class="p">}</span><span class="w">                                                                                           </span><span class="c1">// [data1 + num_bytes) 从 L2 持久性中受益</span>
+<span class="n">cuda_kernelB</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid_size</span><span class="p">,</span><span class="n">block_size</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">data1</span><span class="p">);</span><span class="w">                                     </span><span class="c1">// 同一流中的不同内核也可以受益</span>
+<span class="w">                                                                                            </span><span class="c1">// 来自数据的持久性1</span>
 
-<span class="n">stream_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">num_bytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">                                          </span><span class="c1">// Setting the window size to 0 disable it</span>
-<span class="n">cudaStreamSetAttribute</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamAttributeAccessPolicyWindow</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">stream_attribute</span><span class="p">);</span><span class="w">   </span><span class="c1">// Overwrite the access policy attribute to a CUDA Stream</span>
-<span class="n">cudaCtxResetPersistingL2Cache</span><span class="p">();</span><span class="w">                                                            </span><span class="c1">// Remove any persistent lines in L2</span>
+<span class="n">stream_attribute</span><span class="p">.</span><span class="n">accessPolicyWindow</span><span class="p">.</span><span class="n">num_bytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">                                          </span><span class="c1">// 将窗口大小设置为 0 禁用它</span>
+<span class="n">cudaStreamSetAttribute</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamAttributeAccessPolicyWindow</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">stream_attribute</span><span class="p">);</span><span class="w">   </span><span class="c1">// 将访问策略属性覆盖到 CUDA Stream</span>
+<span class="n">cudaCtxResetPersistingL2Cache</span><span class="p">();</span><span class="w">                                                            </span><span class="c1">// 删除 L2 中所有持久的行</span>
 
-<span class="n">cuda_kernelC</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid_size</span><span class="p">,</span><span class="n">block_size</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">data2</span><span class="p">);</span><span class="w">                                     </span><span class="c1">// data2 can now benefit from full L2 in normal mode</span>
+<span class="n">cuda_kernelC</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid_size</span><span class="p">,</span><span class="n">block_size</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">data2</span><span class="p">);</span><span class="w">                                     </span><span class="c1">// data2 现在可以在正常模式下受益于完整的 L2</span>
 </pre></div>
 </div>
 </section>
 <section id="reset-l2-access-to-normal">
-<span id="l2-reset-to-normal"></span><h2><span class="section-number">4.13.5. </span>Reset L2 Access to Normal<a class="headerlink" href="l2-cache-control.html#reset-l2-access-to-normal" title="Link to this heading">#</a></h2>
-<p>A persisting L2 cache line from a previous CUDA kernel may persist in L2 long after it has been used. Hence, a reset to normal for L2 cache is important for streaming or normal memory accesses to utilize the L2 cache with normal priority. There are three ways a persisting access can be reset to normal status.</p>
+<span id="l2-reset-to-normal"></span><h2><span class="section-number">4.13.5. </span>将 L2 访问重置为正常<a class="headerlink" href="l2-cache-control.html#reset-l2-access-to-normal" title="跳转到此标题">#</a></h2>
+<p>来自先前 CUDA 内核的持久 L2 缓存行可能在使用后很长一段时间内仍保留在 L2 中。因此，将 L2 高速缓存重置为正常对于流式或正常存储器访问以利用具有正常优先级的 L2 高速缓存非常重要。可通过三种方式将持久访问重置为正常状态。</p>
 <ol class="arabic simple">
-<li><p>Reset a previous persisting memory region with the access property, <code class="docutils literal notranslate"><span class="pre">cudaAccessPropertyNormal</span></code>.</p></li>
-<li><p>Reset all persisting L2 cache lines to normal by calling <code class="docutils literal notranslate"><span class="pre">cudaCtxResetPersistingL2Cache()</span></code>.</p></li>
-<li><p><strong>Eventually</strong> untouched lines are automatically reset to normal. Reliance on automatic reset is strongly discouraged because of the undetermined length of time required for automatic reset to occur.</p></li>
+<li><p>使用访问属性重置先前的持久内存区域， <code class="docutils literal notranslate"><span class="pre">cudaAccessPropertyNormal</span></code>.</p></li>
+<li><p>通过调用将所有持久的 L2 缓存行重置为正常状态 <code class="docutils literal notranslate"><span class="pre">cudaCtxResetPersistingL2Cache()</span></code>.</p></li>
+<li><p><strong>Eventually</strong> 未触及的线路会自动重置为正常。强烈建议不要依赖自动重置，因为自动重置发生所需的时间长度不确定。</p></li>
 </ol>
 </section>
 <section id="manage-utilization-of-l2-set-aside-cache">
-<span id="l2-managing-utilization"></span><h2><span class="section-number">4.13.6. </span>Manage Utilization of L2 set-aside cache<a class="headerlink" href="l2-cache-control.html#manage-utilization-of-l2-set-aside-cache" title="Link to this heading">#</a></h2>
-<p>Multiple CUDA kernels executing concurrently in different CUDA streams may have a different access policy window assigned to their streams. However, the L2 set-aside cache portion is shared among all these concurrent CUDA kernels. As a result, the net utilization of this set-aside cache portion is the sum of all the concurrent kernels’ individual use. The benefits of designating memory accesses as persisting diminish as the volume of persisting accesses exceeds the set-aside L2 cache capacity.</p>
-<p>To manage utilization of the set-aside L2 cache portion, an application must consider the following:</p>
+<span id="l2-managing-utilization"></span><h2><span class="section-number">4.13.6. </span>管理 L2 预留缓存的使用<a class="headerlink" href="l2-cache-control.html#manage-utilization-of-l2-set-aside-cache" title="跳转到此标题">#</a></h2>
+<p>在不同 CUDA 流中同时执行的多个 CUDA 内核可能会为其流分配不同的访问策略窗口。然而，L2 预留缓存部分在所有这些并发 CUDA 内核之间共享。因此，该预留缓存部分的净利用率是所有并发内核单独使用的总和。当持久访问量超过预留的 L2 高速缓存容量时，将内存访问指定为持久访问的好处就会减弱。</p>
+<p>要管理预留 L2 缓存部分的利用率，应用程序必须考虑以下因素：</p>
 <ul class="simple">
-<li><p>Size of L2 set-aside cache.</p></li>
-<li><p>CUDA kernels that may concurrently execute.</p></li>
-<li><p>The access policy window for all the CUDA kernels that may concurrently execute.</p></li>
-<li><p>When and how L2 reset is required to allow normal or streaming accesses to utilize the previously set-aside L2 cache with equal priority.</p></li>
+<li><p>L2 预留缓存的大小。</p></li>
+<li><p>可以同时执行的 CUDA 内核。</p></li>
+<li><p>所有可以同时执行的 CUDA 内核的访问策略窗口。</p></li>
+<li><p>何时以及如何需要 L2 重置，以允许正常或流式访问以相同的优先级利用先前预留的 L2 缓存。</p></li>
 </ul>
 </section>
 <section id="query-l2-cache-properties">
-<span id="l2-cache-query"></span><h2><span class="section-number">4.13.7. </span>Query L2 cache Properties<a class="headerlink" href="l2-cache-control.html#query-l2-cache-properties" title="Link to this heading">#</a></h2>
-<p>Properties related to L2 cache are a part of <code class="docutils literal notranslate"><span class="pre">cudaDeviceProp</span></code> struct and can be queried using CUDA runtime API <code class="docutils literal notranslate"><span class="pre">cudaGetDeviceProperties</span></code></p>
-<p>CUDA Device Properties include:</p>
+<span id="l2-cache-query"></span><h2><span class="section-number">4.13.7. </span>查询二级缓存属性<a class="headerlink" href="l2-cache-control.html#query-l2-cache-properties" title="跳转到此标题">#</a></h2>
+<p>与 L2 缓存相关的属性是 <code class="docutils literal notranslate"><span class="pre">cudaDeviceProp</span></code> struct 并可以使用 CUDA 运行时 API 进行查询 <code class="docutils literal notranslate"><span class="pre">cudaGetDeviceProperties</span></code></p>
+<p>CUDA 设备属性包括：</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">l2CacheSize</span></code>: The amount of available L2 cache on the GPU.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">persistingL2CacheMaxSize</span></code>: The maximum amount of L2 cache that can be set-aside for persisting memory accesses.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">accessPolicyMaxWindowSize</span></code>: The maximum size of the access policy window.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">l2CacheSize</span></code>：GPU 上可用的二级缓存数量。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">persistingL2CacheMaxSize</span></code>：可以为持久内存访问预留的 L2 缓存的最大数量。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">accessPolicyMaxWindowSize</span></code>：访问策略窗口的最大大小。</p></li>
 </ul>
 </section>
 <section id="control-l2-cache-set-aside-size-for-persisting-memory-access">
-<span id="l2-cache-getset-size"></span><h2><span class="section-number">4.13.8. </span>Control L2 Cache Set-Aside Size for Persisting Memory Access<a class="headerlink" href="l2-cache-control.html#control-l2-cache-set-aside-size-for-persisting-memory-access" title="Link to this heading">#</a></h2>
-<p>The L2 set-aside cache size for persisting memory accesses is queried using CUDA runtime API <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetLimit</span></code> and set using CUDA runtime API <code class="docutils literal notranslate"><span class="pre">cudaDeviceSetLimit</span></code> as a <code class="docutils literal notranslate"><span class="pre">cudaLimit</span></code>. The maximum value for setting this limit is <code class="docutils literal notranslate"><span class="pre">cudaDeviceProp::persistingL2CacheMaxSize</span></code>.</p>
+<span id="l2-cache-getset-size"></span><h2><span class="section-number">4.13.8. </span>控制持久内存访问的 L2 缓存预留大小<a class="headerlink" href="l2-cache-control.html#control-l2-cache-set-aside-size-for-persisting-memory-access" title="跳转到此标题">#</a></h2>
+<p>使用 CUDA 运行时 API 查询用于持久内存访问的 L2 预留缓存大小 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetLimit</span></code> 并使用 CUDA 运行时 API 进行设置 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSetLimit</span></code> 作为 <code class="docutils literal notranslate"><span class="pre">cudaLimit</span></code>。设置此限制的最大值为 <code class="docutils literal notranslate"><span class="pre">cudaDeviceProp::persistingL2CacheMaxSize</span></code>.</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">enum</span><span class="w"> </span><span class="nc">cudaLimit</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="cm">/* other fields not shown */</span>
+<span class="w">    </span><span class="cm">/* 其他未显示的字段 */</span>
 <span class="w">    </span><span class="n">cudaLimitPersistingL2CacheSize</span>
 <span class="p">};</span>
 </pre></div>
 </div>
 </section>
 </section>
-
-
-                </article>
-              
-              
-              
-              
-              
-                <footer class="prev-next-footer d-print-none">
-                  
+</article>
+<footer class="prev-next-footer d-print-none">
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="cluster-launch-control.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><span class="section-number">4.12. </span>Work Stealing with Cluster Launch Control</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="memory-sync-domains.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><span class="section-number">4.14. </span>Memory Synchronization Domains</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
+<a class="left-prev" href="cluster-launch-control.html" title="上一页">4.12. 使用簇启动控制进行工作窃取</a>
+<a class="right-next" href="memory-sync-domains.html" title="下一页">4.14. 内存同步域</a>
 </div>
-                </footer>
-              
-            </div>
-            
-            
-
-
-              
-                <dialog id="pst-secondary-sidebar-modal"></dialog>
-                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
-
-
-  <div class="sidebar-secondary-item">
-<div
-    id="pst-page-navigation-heading-2"
-    class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
+</footer>
+</div>
+<dialog id="pst-secondary-sidebar-modal"></dialog>
+<div class="bd-sidebar-secondary bd-toc" id="pst-secondary-sidebar"><div class="sidebar-secondary-items sidebar-secondary__inner">
+<div class="sidebar-secondary-item">
+<div class="page-toc tocsection onthispage" id="pst-page-navigation-heading-2">
+<i class="fa-solid fa-list"></i>本页内容
   </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="l2-cache-control.html#l2-cache-set-aside-for-persisting-accesses">4.13.1. L2 Cache Set-Aside for Persisting Accesses</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="l2-cache-control.html#l2-policy-for-persisting-accesses">4.13.2. L2 Policy for Persisting Accesses</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="l2-cache-control.html#l2-access-properties">4.13.3. L2 Access Properties</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="l2-cache-control.html#l2-persistence-example">4.13.4. L2 Persistence Example</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="l2-cache-control.html#reset-l2-access-to-normal">4.13.5. Reset L2 Access to Normal</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="l2-cache-control.html#manage-utilization-of-l2-set-aside-cache">4.13.6. Manage Utilization of L2 set-aside cache</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="l2-cache-control.html#query-l2-cache-properties">4.13.7. Query L2 cache Properties</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="l2-cache-control.html#control-l2-cache-set-aside-size-for-persisting-memory-access">4.13.8. Control L2 Cache Set-Aside Size for Persisting Memory Access</a></li>
+<nav aria-labelledby="pst-page-navigation-heading-2" class="bd-toc-nav page-toc">
+<ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="l2-cache-control.html#l2-cache-set-aside-for-persisting-accesses">4.13. L2 缓存控制</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="l2-cache-control.html#l2-policy-for-persisting-accesses">4.13. L2 缓存控制</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="l2-cache-control.html#l2-access-properties">4.13. L2 缓存控制</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="l2-cache-control.html#l2-persistence-example">4.13. L2 缓存控制</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="l2-cache-control.html#reset-l2-access-to-normal">4.13. L2 缓存控制</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="l2-cache-control.html#manage-utilization-of-l2-set-aside-cache">4.13. L2 缓存控制</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="l2-cache-control.html#query-l2-cache-properties">4.13. L2 缓存控制</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="l2-cache-control.html#control-l2-cache-set-aside-size-for-persisting-memory-access">4.13. L2 缓存控制</a></li>
 </ul>
-  </nav></div>
-
+</nav></div>
 </div></div>
-              
-            
-
-          </div>
-          <footer class="bd-footer-content">
-            
-          </footer>
-        
-      </main>
-    </div>
-  </div>
-  
-
-  <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js"></script>
-
-
+</div>
+<footer class="bd-footer-content">
+</footer>
+</main>
+</div>
+</div>
+ 脚本在 &lt;body&gt; 之后加载，因此 DOM 不会被阻塞 
+<script defer="" src="../_static/scripts/bootstrap.js"></script>
+<script defer="" src="../_static/scripts/pydata-sphinx-theme.js"></script>
 <script type="text/javascript">if (typeof _satellite !== "undefined") {_satellite.pageBottom();}</script>
-
-  <footer class="bd-footer">
+<footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
-  
-    <div class="footer-items__start">
-      
-        <div class="footer-item">
+<div class="footer-items__start">
+<div class="footer-item">
 <a class="footer-brand logo" href="https://www.nvidia.com">
-  <img src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
-  <img src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+<img alt="NVIDIA" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg"/>
+<img alt="NVIDIA" class="logo__image only-dark" src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg"/>
 </a></div>
-      
-        <div class="footer-item">
-
+<div class="footer-item">
 <div class="footer-links">
-  
-  
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+<a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">隐私政策</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">您的隐私选择</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">服务条款</a>
    | 
   
   
@@ -754,47 +498,31 @@
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">公司政策</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">产品安全</a>
    | 
   
   
   
   <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
-  
-  
-  
 </div>
 </div>
-      
-        <div class="footer-item">
-
-
-
-
-  <p class="copyright">
+<div class="footer-item">
+<p class="copyright">
     
-      Copyright © 2007-2026, NVIDIA Corporation &amp; affiliates. All rights reserved.
+      版权所有 © 2007-2026，NVIDIA 公司及附属公司。版权所有。
       <br/>
-    
-  </p>
+</p>
 </div>
-      
-        <div class="footer-item"><p class="last-updated">
-  Last updated on Mar 04, 2026.
+<div class="footer-item"><p class="last-updated">
+  最后更新于 2026 年 3 月 4 日。
   <br/>
 </p></div>
-      
-    </div>
-  
-  
-  
 </div>
-
-  </footer>
-  </body>
-</html>
+</div>
+</footer>
+</body></html>

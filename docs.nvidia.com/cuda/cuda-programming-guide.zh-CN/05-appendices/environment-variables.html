@@ -1,52 +1,37 @@
-
-
 <!DOCTYPE html>
-
-
-<html lang="en" data-content_root="../" >
-
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <title>5.2. CUDA Environment Variables &#8212; CUDA Programming Guide</title>
-  
-  
-  
-  <script data-cfasync="false">
+<html data-content_root="../" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>5.2. CUDA 环境变量 — CUDA 编程指南</title>
+<script data-cfasync="false">
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
-  </script>
-  <!--
-    this give us a css class that will be invisible only if js is disabled
-  -->
-  <noscript>
-    <style>
+  </script></head><body><p>
+
+    这给了我们一个 css 类，只有在禁用 js 时才会不可见
+  
+<noscript>
+<style>
       .pst-js-only { display: none !important; }
 
     </style>
-  </noscript>
-  
-  <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css" rel="stylesheet" />
-
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/tables.css" />
-  
-  <!-- So that users can add custom icons -->
-  <script src="../_static/scripts/fontawesome.js"></script>
-  <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js" />
-
-
-<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript"
-  data-document-language="true" charset="UTF-8" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5">
+</noscript>
+ 在其他 Sphinx 资源之前加载 
+<link href="../_static/styles/theme.css" rel="stylesheet"/>
+<link href="../_static/styles/pydata-sphinx-theme.css" rel="stylesheet"/>
+<link href="../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/styles/nvidia-sphinx-theme.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/custom.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/copybutton.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx-design.min.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/tables.css" rel="stylesheet" type="text/css"/>
+ 以便用户可以添加自定义图标 
+<script src="../_static/scripts/fontawesome.js"></script>
+ 我们稍后将完全加载的预加载脚本 
+<link as="script" href="../_static/scripts/bootstrap.js" rel="preload"/>
+<link as="script" href="../_static/scripts/pydata-sphinx-theme.js" rel="preload"/>
+<script charset="UTF-8" data-document-language="true" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5" src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript">
 </script>
 <script type="text/javascript">
   function OptanonWrapper() {
@@ -56,786 +41,596 @@
 </script>
 <script src="https://images.nvidia.com/aem-dam/Solutions/ot-js/ot-custom.js" type="text/javascript">
 </script>
-
-
-    <script rel="preload" src="../_static/modal-table.js"></script>
-    <script src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/scrollspy-patch.js"></script>
-    <script src="../_static/clipboard.min.js"></script>
-    <script src="../_static/copybutton.js"></script>
-    <script src="../_static/design-tabs.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '05-appendices/environment-variables';</script>
-    <script src="../_static/version-patch.js"></script>
-
-<script type="text/javascript" src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
-
-    <link rel="icon" href="../_static/favicon.ico"/>
-
-    <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="5.3. C++ Language Support" href="cpp-language-support.html" />
-    <link rel="prev" title="5.1. Compute Capabilities" href="compute-capabilities.html" />
-
-<link rel="preload" as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png">
-
-
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="" />
-    <meta name="docbuild:last-update" content="Mar 04, 2026"/>
-
-
-  </head>
-
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
-
-  
-  
-  <div id="pst-skip-link" class="skip-link d-print-none"><a href="environment-variables.html#main-content">Skip to main content</a></div>
-
-<img src="https://www.nvidia.com/content/dam/1x1-00000000.png" width="1" height="1" style="display:none;" alt="country_code">
-
-
-  
-  <div id="pst-scroll-pixel-helper"></div>
-  
-  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
-    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
-  
-  <dialog id="pst-search-dialog">
-    
-<form class="bd-search d-flex align-items-center"
-      action="../search.html"
-      method="get">
-  <i class="fa-solid fa-magnifying-glass"></i>
-  <input type="search"
-         class="form-control"
-         name="q"
-         placeholder="Search the docs ..."
-         aria-label="Search the docs ..."
-         autocomplete="off"
-         autocorrect="off"
-         autocapitalize="off"
-         spellcheck="false"/>
-  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+<script rel="preload" src="../_static/modal-table.js"></script>
+<script src="../_static/documentation_options.js"></script>
+<script src="../_static/doctools.js"></script>
+<script src="../_static/sphinx_highlight.js"></script>
+<script src="../_static/scrollspy-patch.js"></script>
+<script src="../_static/clipboard.min.js"></script>
+<script src="../_static/copybutton.js"></script>
+<script src="../_static/design-tabs.js"></script>
+<script>DOCUMENTATION_OPTIONS.pagename = '05-appendices/environment-variables';</script>
+<script src="../_static/version-patch.js"></script>
+<script src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js" type="text/javascript"></script>
+<link href="../_static/favicon.ico" rel="icon"/>
+<link href="../genindex.html" rel="index" title="索引"/>
+<link href="../search.html" rel="search" title="搜索"/>
+<link href="cpp-language-support.html" rel="next" title="5.3. C++ 语言支持"/>
+<link href="compute-capabilities.html" rel="prev" title="5.1. 计算能力"/>
+<link as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png" rel="preload"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="en" name="docsearch:language"/>
+<meta content="" name="docsearch:version"/>
+<meta content="Mar 04, 2026" name="docbuild:last-update"/>
+</p>
+<div class="skip-link d-print-none" id="pst-skip-link"><a href="environment-variables.html#main-content">跳到主要内容</a></div>
+<img alt="country_code" height="1" src="https://www.nvidia.com/content/dam/1x1-00000000.png" style="display:none;" width="1"/>
+<div id="pst-scroll-pixel-helper"></div>
+<button class="btn rounded-pill" id="pst-back-to-top" type="button">
+<i class="fa-solid fa-arrow-up"></i>返回顶部</button>
+<dialog id="pst-search-dialog">
+<form action="../search.html" class="bd-search d-flex align-items-center" method="get">
+<i class="fa-solid fa-magnifying-glass"></i>
+<input aria-label="搜索文档..." autocapitalize="off" autocomplete="off" autocorrect="off" class="form-control" name="q" placeholder="搜索文档..." spellcheck="false" type="search"/>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
 </form>
-  </dialog>
-
-  <div class="pst-async-banner-revealer d-none">
-  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</dialog>
+<div class="pst-async-banner-revealer d-none">
+<aside aria-label="版本警告" class="d-none d-print-none" id="bd-header-version-warning"></aside>
 </div>
-
-  
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
-    <span class="fa-solid fa-bars"></span>
-  </button>
-  
-  
-  <div class="col-lg-3 navbar-header-items__start">
-    
-      <div class="navbar-item">
-
-  
-    
-  
-
+<button aria-label="站点导航" class="pst-navbar-icon sidebar-toggle primary-toggle">
+<span class="fa-solid fa-bars"></span>
+</button>
+<div class="col-lg-3 navbar-header-items__start">
+<div class="navbar-item">
 <a class="navbar-brand logo" href="../contents.html">
-  
-  
-  
-  
-  
-    
-    
-      
-    
-    
-    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
-    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
-  
-  
-    <p class="title logo__title">CUDA Programming Guide</p>
-  
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg"/>
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-dark pst-js-only" src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg"/>
+<p class="title logo__title">CUDA 编程指南</p>
 </a></div>
-    
-  </div>
-  
-  <div class="col-lg-9 navbar-header-items">
-    
-    <div class="me-auto navbar-header-items__center">
-      
-        <div class="navbar-item">
-
-
+</div>
+<div class="col-lg-9 navbar-header-items">
+<div class="me-auto navbar-header-items__center">
+<div class="navbar-item">
 <div>
-  <ul class="bd-navbar-elements navbar-nav">
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>v13.2 |</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>|</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
-      
-    </li>
-  
-  </ul>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item pst-header-nav-item">
+<span>v13.2 |</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+</li>
+<li class="nav-item pst-header-nav-item">
+<span>|</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">warp</a>
+</li>
+</ul>
 </div>
 </div>
-      
-    </div>
-    
-    
-    <div class="navbar-header-items__end">
-      
-        <div class="navbar-item navbar-persistent--container">
-          
-
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
- <i class="fa-solid fa-magnifying-glass"></i>
- <span class="search-button__default-text">Search</span>
- <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</div>
+<div class="navbar-header-items__end">
+<div class="navbar-item navbar-persistent--container">
+<button aria-label="warp" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="warp">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">warp</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
 </button>
-        </div>
-      
-      
-        <div class="navbar-item">
-
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</div>
+<div class="navbar-item">
+<button aria-label="色彩模式" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="系统设置"></i>
 </button></div>
-      
-    </div>
-    
-  </div>
-  
-  
-    <div class="navbar-persistent--mobile">
-
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
- <i class="fa-solid fa-magnifying-glass"></i>
- <span class="search-button__default-text">Search</span>
- <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-</button>
-    </div>
-  
-
-  
-    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
-      <span class="fa-solid fa-outdent"></span>
-    </button>
-  
 </div>
-
-    </header>
-  
-
-  <div class="bd-container">
-    <div class="bd-container__inner bd-page-width">
-      
-      
-      
-      <dialog id="pst-primary-sidebar-modal"></dialog>
-      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
-        
-
-
-
-  
-    
-  
-
+</div>
+<div class="navbar-persistent--mobile">
+<button aria-label="warp" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="warp">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">warp</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+</div>
+<button aria-label="切换侧边栏" class="pst-navbar-icon sidebar-toggle secondary-toggle">
+<span class="fa-solid fa-outdent"></span>
+</button>
+</div>
+</header>
+<div class="bd-container">
+<div class="bd-container__inner bd-page-width">
+<dialog id="pst-primary-sidebar-modal"></dialog>
+<div class="bd-sidebar-primary bd-sidebar" id="pst-primary-sidebar">
 <a class="navbar-brand logo" href="../contents.html">
-  
-  
-  
-  
-  
-    
-    
-      
-    
-    
-    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
-    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
-  
-  
-    <p class="title logo__title">CUDA Programming Guide</p>
-  
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg"/>
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-dark pst-js-only" src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg"/>
+<p class="title logo__title">CUDA 编程指南</p>
 </a>
-
-
-  
-  <div class="sidebar-header-items sidebar-primary__section">
-    
-    
-      <div class="sidebar-header-items__center">
-        
-          
-          
-            <div class="navbar-item">
-
-
+<div class="sidebar-header-items sidebar-primary__section">
+<div class="sidebar-header-items__center">
+<div class="navbar-item">
 <div>
-  <ul class="bd-navbar-elements navbar-nav">
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>v13.2 |</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>|</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
-      
-    </li>
-  
-  </ul>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item pst-header-nav-item">
+<span>v13.2 |</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+</li>
+<li class="nav-item pst-header-nav-item">
+<span>|</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">warp</a>
+</li>
+</ul>
 </div>
 </div>
-          
-        
-      </div>
-    
-    
-    
-      <div class="sidebar-header-items__end">
-        
-          <div class="navbar-item">
-
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</div>
+<div class="sidebar-header-items__end">
+<div class="navbar-item">
+<button aria-label="色彩模式" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="系统设置"></i>
 </button></div>
-        
-      </div>
-    
-  </div>
-  
-    <div class="sidebar-primary-items__start sidebar-primary__section">
-        <div class="sidebar-primary-item">
-
-
-
-<nav class="bd-docs-nav bd-links"
-     aria-label="Table of Contents">
-  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
-  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA Programming Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. Introduction to CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../01-introduction/introduction.html">1.1. Introduction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../01-introduction/programming-model.html">1.2. Programming Model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../01-introduction/cuda-platform.html">1.3. The CUDA platform</a></li>
+</div>
+</div>
+<div class="sidebar-primary-items__start sidebar-primary__section">
+<div class="sidebar-primary-item">
+<nav aria-label="目录" class="bd-docs-nav bd-links">
+<p aria-level="1" class="bd-links__title" role="heading">目录</p>
+<div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA 编程指南</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. CUDA 简介</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/introduction.html">1.1. 引言</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/programming-model.html">1.2. 编程模型</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/cuda-platform.html">1.3. CUDA 平台</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part2.html">2. Programming GPUs in CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html">2.1. Intro to CUDA C++</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/writing-cuda-kernels.html">2.2. Writing CUDA SIMT Kernels</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/asynchronous-execution.html">2.3. Asynchronous Execution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/understanding-memory.html">2.4. Unified and System Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/nvcc.html">2.5. NVCC: The NVIDIA CUDA Compiler</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part2.html">2. 使用 CUDA 进行 GPU 编程</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html">2.1. CUDA C++ 入门</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/writing-cuda-kernels.html">2.2. 编写 CUDA SIMT 内核</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/asynchronous-execution.html">2.3. 异步执行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/understanding-memory.html">2.4. 统一内存与系统内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/nvcc.html">2.5. NVCC：NVIDIA CUDA 编译器</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. Advanced CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. Advanced CUDA APIs and Features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. Advanced Kernel Programming</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. The CUDA Driver API</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. Programming Systems with Multiple GPUs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. A Tour of CUDA Features</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. 高级 CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. 高级 CUDA API 与特性</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. 高级内核编程</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. CUDA Driver API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. 多 GPU 系统编程</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. CUDA 特性概览</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part4.html">4. CUDA Features</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/unified-memory.html">4.1. Unified Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cuda-graphs.html">4.2. CUDA Graphs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/stream-ordered-memory-allocation.html">4.3. Stream-Ordered Memory Allocator</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cooperative-groups.html">4.4. Cooperative Groups</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/programmatic-dependent-launch.html">4.5. Programmatic Dependent Launch and Synchronization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/green-contexts.html">4.6. Green Contexts</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/lazy-loading.html">4.7. Lazy Loading</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/error-log-management.html">4.8. Error Log Management</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/async-barriers.html">4.9. Asynchronous Barriers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/pipelines.html">4.10. Pipelines</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/async-copies.html">4.11. Asynchronous Data Copies</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cluster-launch-control.html">4.12. Work Stealing with Cluster Launch Control</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/l2-cache-control.html">4.13. L2 Cache Control</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/memory-sync-domains.html">4.14. Memory Synchronization Domains</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/inter-process-communication.html">4.15. Interprocess Communication</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/virtual-memory-management.html">4.16. Virtual Memory Management</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/extended-gpu-memory.html">4.17. Extended GPU Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/dynamic-parallelism.html">4.18. CUDA Dynamic Parallelism</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/graphics-interop.html">4.19. CUDA Interoperability with APIs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/driver-entry-point-access.html">4.20. Driver Entry Point Access</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part4.html">4. CUDA 特性</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/unified-memory.html">4.1. 统一内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cuda-graphs.html">4.2. CUDA Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/stream-ordered-memory-allocation.html">4.3. 流有序内存分配器</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cooperative-groups.html">4.4. 协作组</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/programmatic-dependent-launch.html">4.5. 程序化依赖启动与同步</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/green-contexts.html">4.6. 绿色上下文</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/lazy-loading.html">4.7. 延迟加载</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/error-log-management.html">4.8. 错误日志管理</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/async-barriers.html">4.9. 异步屏障</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/pipelines.html">4.10. 流水线</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/async-copies.html">4.11. 异步数据拷贝</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cluster-launch-control.html">4.12. 使用簇启动控制进行工作窃取</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/l2-cache-control.html">4.13. L2 缓存控制</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/memory-sync-domains.html">4.14. 内存同步域</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/inter-process-communication.html">4.15. 进程间通信</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/virtual-memory-management.html">4.16. 虚拟内存管理</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/extended-gpu-memory.html">4.17. 扩展 GPU 内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/dynamic-parallelism.html">4.18. CUDA 动态并行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/graphics-interop.html">4.19. CUDA 与 API 的互操作</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/driver-entry-point-access.html">4.20. 驱动入口点访问</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="../part5.html">5. Technical Appendices</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="compute-capabilities.html">5.1. Compute Capabilities</a></li>
-<li class="toctree-l3 current active"><a class="current reference internal" href="environment-variables.html#">5.2. CUDA Environment Variables</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cpp-language-support.html">5.3. C++ Language Support</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cpp-language-extensions.html">5.4. C/C++ Language Extensions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="mathematical-functions.html">5.5. Floating-Point Computation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="device-callable-apis.html">5.6. Device-Callable APIs and Intrinsics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cuda-cpp-memory-model.html">5.7. CUDA C++ Memory Model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cuda-cpp-execution-model.html">5.8. CUDA C++ Execution model</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../part5.html">5. 技术附录</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="compute-capabilities.html">5.1. 计算能力</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="environment-variables.html#">5.2. CUDA 环境变量</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpp-language-support.html">5.3. C++ 语言支持</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpp-language-extensions.html">5.4. C/C++ 语言扩展</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mathematical-functions.html">5.5. 浮点计算</a></li>
+<li class="toctree-l3"><a class="reference internal" href="device-callable-apis.html">5.6. 设备端可调用 API 与内建函数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda-cpp-memory-model.html">5.7. CUDA C++ 内存模型</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda-cpp-execution-model.html">5.8. CUDA C++ 执行模型</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. Notices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. 声明</a></li>
 </ul>
 </details></li>
 </ul>
 </div>
 </nav></div>
-    </div>
-  
-  
-  <div class="sidebar-primary-items__end sidebar-primary__section">
-  </div>
-
-
-
-      </div>
-      
-      <main id="main-content" class="bd-main" role="main">
-        
-        
-          <div class="bd-content">
-            <div class="bd-article-container">
-              
-              <div class="bd-header-article d-print-none">
+</div>
+<div class="sidebar-primary-items__end sidebar-primary__section">
+</div>
+</div>
+<main class="bd-main" id="main-content" role="main">
+<div class="bd-content">
+<div class="bd-article-container">
+<div class="bd-header-article d-print-none">
 <div class="header-article-items header-article__inner">
-  
-    <div class="header-article-items__start">
-      
-        <div class="header-article-item">
-
+<div class="header-article-items__start">
+<div class="header-article-item">
 <nav aria-label="Breadcrumb" class="d-print-none">
-  <ul class="bd-breadcrumbs">
-    
-    <li class="breadcrumb-item breadcrumb-home">
-      <a href="../contents.html" class="nav-link" aria-label="Home">
-        <i class="fa-solid fa-home"></i>
-      </a>
-    </li>
-    
-    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">CUDA Programming Guide</a></li>
-    
-    
-    <li class="breadcrumb-item"><a href="../part5.html" class="nav-link"><span class="section-number">5. </span>Technical Appendices</a></li>
-    
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">5.2. </span>CUDA Environment Variables</span></li>
-  </ul>
+<ul class="bd-breadcrumbs">
+<li class="breadcrumb-item breadcrumb-home">
+<a aria-label="Home" class="nav-link" href="../contents.html">目录</a>
+</li>
+<li class="breadcrumb-item"><a class="nav-link" href="../index.html">CUDA 编程指南</a></li>
+<li class="breadcrumb-item"><a class="nav-link" href="../part5.html">5. 技术附录</a></li>
+<li aria-current="page" class="breadcrumb-item active"><span class="ellipsis"><span class="section-number">5.2. </span>CUDA 环境变量</span></li>
+</ul>
 </nav>
 </div>
-      
-    </div>
-  
-  
-    <div class="header-article-items__end">
-      
-        <div class="header-article-item">
+</div>
+<div class="header-article-items__end">
 <div class="header-article-item">
-  <div class="d-flex justify-content-end w-100">
-    <a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">Is this page helpful?</a>
-  </div>
+<div class="header-article-item">
+<div class="d-flex justify-content-end w-100">
+<a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">此页面有帮助吗？</a>
+</div>
 </div></div>
-      
-    </div>
-  
 </div>
 </div>
-              
-              
-              
-                
+</div>
 <div id="searchbox"></div>
-                <article class="bd-article">
-                  
-  <section id="cuda-environment-variables">
-<span id="id1"></span><h1><span class="section-number">5.2. </span>CUDA Environment Variables<a class="headerlink" href="environment-variables.html#cuda-environment-variables" title="Link to this heading">#</a></h1>
-<p>The following section lists the CUDA environment variables. Those related to the Multi-Process Service (MPS) are documented in the <a class="reference external" href="https://docs.nvidia.com/deploy/mps/index.html#environment-variables">GPU Deployment and Management Guide</a>.</p>
+<article class="bd-article">
+<section id="cuda-environment-variables">
+<span id="id1"></span><h1>5.2. CUDA 环境变量<a class="headerlink" href="environment-variables.html#cuda-environment-variables" title="跳转到此标题">#</a></h1>
+<p>以下部分列出了 CUDA 环境变量。与多进程服务 (MPS) 相关的内容记录在 <a class="reference external" href="https://docs.nvidia.com/deploy/mps/index.html#environment-variables">GPU部署与管理指南</a>.</p>
 <section id="device-enumeration-and-properties">
-<h2><span class="section-number">5.2.1. </span>Device Enumeration and Properties<a class="headerlink" href="environment-variables.html#device-enumeration-and-properties" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">5.2.1. </span>设备枚举和属性<a class="headerlink" href="environment-variables.html#device-enumeration-and-properties" title="跳转到此标题">#</a></h2>
 <section id="cuda-visible-devices">
-<h3><span class="section-number">5.2.1.1. </span><code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES</span></code><a class="headerlink" href="environment-variables.html#cuda-visible-devices" title="Link to this heading">#</a></h3>
-<p>The environment variable controls which GPU devices are visible to a CUDA application and in what order they are enumerated.</p>
+<h3><span class="section-number">5.2.1.1. </span><code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES</span></code><a class="headerlink" href="environment-variables.html#cuda-visible-devices" title="跳转到此标题">#</a></h3>
+<p>环境变量控制哪些 GPU 设备对 CUDA 应用程序可见以及它们的枚举顺序。</p>
 <ul class="simple">
-<li><p>If the variable is not set, all GPU devices are visible.</p></li>
-<li><p>If the variable is set to an empty string, no GPU devices are visible.</p></li>
+<li><p>如果未设置该变量，则所有 GPU 设备均可见。</p></li>
+<li><p>如果该变量设置为空字符串，则没有 GPU 设备可见。</p></li>
 </ul>
-<p><strong>Possible Values</strong>: A comma-separated sequence of GPU identifiers.</p>
-<p>GPU identifiers are provided as:</p>
+<p><strong>可能的值</strong>：以逗号分隔的 GPU 标识符序列。</p>
+<p>GPU 标识符提供为：</p>
 <ul class="simple">
-<li><p><strong>Integer indices</strong>: These correspond to the ordinal number of the GPU in the system, as determined by <code class="docutils literal notranslate"><span class="pre">nvidia-smi</span></code>, starting from 0. For example, setting <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES=2,1</span></code> makes device 0 not visible and enumerates device 2 before device 1.</p>
+<li><p><strong>整数索引</strong>：这些对应于系统中 GPU 的序号，由下式确定 <code class="docutils literal notranslate"><span class="pre">nvidia-smi</span></code>，从0开始。例如设置 <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES=2,1</span></code> 使设备 0 不可见，并在设备 1 之前枚举设备 2。</p>
 <ul>
-<li><p>If an invalid index is encountered, only devices with indices that appear before the invalid index in the list are visible. For example, setting <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES=0,2,-1,1</span></code> makes devices 0 and 2 visible, while device 1 is not visible because it appears after the invalid index <code class="docutils literal notranslate"><span class="pre">-1</span></code>.</p></li>
+<li><p>如果遇到无效索引，则仅可见列表中索引出现在无效索引之前的设备。例如，设置 <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES=0,2,-1,1</span></code> 使设备 0 和 2 可见，而设备 1 不可见，因为它出现在无效索引之后 <code class="docutils literal notranslate"><span class="pre">-1</span></code>.</p></li>
 </ul>
 </li>
-<li><p><strong>GPU UUID strings</strong>: These should follow the same format as given by <code class="docutils literal notranslate"><span class="pre">nvidia-smi</span> <span class="pre">-L</span></code>, such as <code class="docutils literal notranslate"><span class="pre">GPU-8932f937-d72c-4106-c12f-20bd9faed9f6</span></code>. However, for convenience, abbreviated forms are allowed; simply specify enough digits from the beginning of the GPU UUID to uniquely identify that GPU in the target system. For example, <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES=GPU-8932f937</span></code> may be a valid way to refer to the above GPU UUID, assuming no other GPU in the system shares this prefix.</p></li>
-<li><p><a class="reference external" href="https://docs.nvidia.com/datacenter/tesla/mig-user-guide/">Multi-Instance GPU (MIG)</a> support: <code class="docutils literal notranslate"><span class="pre">MIG-&lt;GPU-UUID&gt;/&lt;GPU</span> <span class="pre">instance</span> <span class="pre">ID&gt;/&lt;compute</span> <span class="pre">instance</span> <span class="pre">ID&gt;</span></code>. For example, <code class="docutils literal notranslate"><span class="pre">MIG-GPU-8932f937-d72c-4106-c12f-20bd9faed9f6/1/2</span></code>. Only single MIG instance enumeration is supported.</p></li>
+<li><p><strong>GPU UUID 字符串</strong>：这些应遵循与给出的格式相同的格式 <code class="docutils literal notranslate"><span class="pre">nvidia-smi</span> <span class="pre">-L</span></code>，例如 <code class="docutils literal notranslate"><span class="pre">GPU-8932f937-d72c-4106-c12f-20bd9faed9f6</span></code>。然而，为了方便起见，允许使用缩写形式；只需从 GPU UUID 的开头指定足够的数字即可唯一标识目标系统中的该 GPU。例如， <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES=GPU-8932f937</span></code> 可能是引用上述 GPU UUID 的有效方法，假设系统中没有其他 GPU 共享此前缀。</p></li>
+<li><p><a class="reference external" href="https://docs.nvidia.com/datacenter/tesla/mig-user-guide/">多实例 GPU (MIG)</a> support: <code class="docutils literal notranslate"><span class="pre">MIG-&lt;GPU-UUID&gt;/&lt;GPU</span> <span class="pre">instance</span> <span class="pre">ID&gt;/&lt;compute</span> <span class="pre">instance</span> <span class="pre">ID&gt;</span></code>。例如， <code class="docutils literal notranslate"><span class="pre">MIG-GPU-8932f937-d72c-4106-c12f-20bd9faed9f6/1/2</span></code>。仅支持单个 MIG 实例枚举。</p></li>
 </ul>
-<p>The device count returned by the <code class="docutils literal notranslate"><span class="pre">cudaGetDeviceCount()</span></code> API includes only the visible devices, so CUDA APIs that use integer device identifiers only support ordinals in the range [0, visible device count - 1]. The enumeration order of the GPU devices determines the ordinal values. For example, with <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES=2,1</span></code>, calling <code class="docutils literal notranslate"><span class="pre">cudaSetDevice(0)</span></code> will set device 2 as the current device, as it is enumerated first and assigned an ordinal of 0. Calling <code class="docutils literal notranslate"><span class="pre">cudaGetDevice(&amp;device_ordinal)</span></code> after that will also set <code class="docutils literal notranslate"><span class="pre">device_ordinal</span></code> to 0, which corresponds to device 2.</p>
-<p><strong>Examples</strong>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nvidia-smi<span class="w"> </span>-L<span class="w"> </span><span class="c1"># Get list of GPU UUIDs</span>
+<p>返回的设备计数 <code class="docutils literal notranslate"><span class="pre">cudaGetDeviceCount()</span></code> API 仅包含可见设备，因此使用整数设备标识符的 CUDA API 仅支持 [0，可见设备计数 - 1] 范围内的序数。 GPU 设备的枚举顺序决定序数值。例如，与 <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES=2,1</span></code>, 呼叫 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice(0)</span></code> 会将设备 2 设置为当前设备，因为它首先被枚举并分配序数 0。 <code class="docutils literal notranslate"><span class="pre">cudaGetDevice(&amp;device_ordinal)</span></code> 之后还将设置 <code class="docutils literal notranslate"><span class="pre">device_ordinal</span></code> 为 0，对应设备 2。</p>
+<p><strong>warp</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nvidia-smi<span class="w"> </span>-L<span class="w"> </span><span class="c1"># 获取 GPU UUID 列表</span>
 <span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1
 <span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span>GPU-8932f937-d72c-4106-c12f-20bd9faed9f6
 <span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span>MIG-GPU-8932f937-d72c-4106-c12f-20bd9faed9f6/1/2
 </pre></div>
 </div>
 </section>
-<hr class="docutils" />
+<hr class="docutils"/>
 <section id="cuda-device-order">
-<h3><span class="section-number">5.2.1.2. </span><code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_ORDER</span></code><a class="headerlink" href="environment-variables.html#cuda-device-order" title="Link to this heading">#</a></h3>
-<p>The environment variable controls the order in which CUDA enumerates the available devices.</p>
-<p><strong>Possible Values</strong>:</p>
+<h3><span class="section-number">5.2.1.2. </span><code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_ORDER</span></code><a class="headerlink" href="environment-variables.html#cuda-device-order" title="跳转到此标题">#</a></h3>
+<p>环境变量控制 CUDA 枚举可用设备的顺序。</p>
+<p><strong>可能的值</strong>:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">FASTEST_FIRST</span></code>: The available devices are enumerated from fastest to slowest using a simple heuristic (default).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">PCI_BUS_ID</span></code>: The available devices are enumerated by PCI bus ID in ascending order. The PCI bus IDs can be obtained with <code class="docutils literal notranslate"><span class="pre">nvidia-smi</span> <span class="pre">--query-gpu=name,pci.bus_id</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FASTEST_FIRST</span></code>：使用简单的启发式（默认）从最快到最慢的方式枚举可用设备。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PCI_BUS_ID</span></code>：可用的设备按 PCI 总线 ID 按升序排列。 PCI 总线 ID 可以通过以下方式获取 <code class="docutils literal notranslate"><span class="pre">nvidia-smi</span> <span class="pre">--query-gpu=name,pci.bus_id</span></code>.</p></li>
 </ul>
-<p><strong>Examples</strong>:</p>
+<p><strong>warp</strong>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_DEVICE_ORDER</span><span class="o">=</span>FASTEST_FIRST
 <span class="nv">CUDA_DEVICE_ORDER</span><span class="o">=</span>PCI_BUS_ID
-nvidia-smi<span class="w"> </span>--query-gpu<span class="o">=</span>name,pci.bus_id<span class="w"> </span><span class="c1"># Get list of PCI bus IDs</span>
+nvidia-smi<span class="w"> </span>--query-gpu<span class="o">=</span>name,pci.bus_id<span class="w"> </span><span class="c1"># 获取 PCI 总线 ID 列表</span>
 </pre></div>
 </div>
 </section>
-<hr class="docutils" />
+<hr class="docutils"/>
 <section id="cuda-managed-force-device-alloc">
-<h3><span class="section-number">5.2.1.3. </span><code class="docutils literal notranslate"><span class="pre">CUDA_MANAGED_FORCE_DEVICE_ALLOC</span></code><a class="headerlink" href="environment-variables.html#cuda-managed-force-device-alloc" title="Link to this heading">#</a></h3>
-<p>The environment variable alters how <a class="reference internal" href="../02-basics/understanding-memory.html#memory-unified-memory"><span class="std std-ref">Unified Memory</span></a> is physically stored in multi-GPU systems.</p>
-<p><strong>Possible Values</strong>: Numerical value, either zero or non-zero.</p>
+<h3><span class="section-number">5.2.1.3. </span><code class="docutils literal notranslate"><span class="pre">CUDA_MANAGED_FORCE_DEVICE_ALLOC</span></code><a class="headerlink" href="environment-variables.html#cuda-managed-force-device-alloc" title="跳转到此标题">#</a></h3>
+<p>环境变量如何改变 <a class="reference internal" href="../02-basics/understanding-memory.html#memory-unified-memory"><span class="std std-ref">统一内存</span></a> 物理存储在多 GPU 系统中。</p>
+<p><strong>可能的值</strong>：数值，零或非零。</p>
 <ul class="simple">
-<li><p><strong>Non-zero value</strong>: Forces the driver to use device memory for physical storage. All devices used in the process that support managed memory must be peer-to-peer compatible. Otherwise, <code class="docutils literal notranslate"><span class="pre">cudaErrorInvalidDevice</span></code> is returned.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: Default behavior.</p></li>
+<li><p><strong>非零值</strong>：强制驱动程序使用设备内存进行物理存储。支持托管内存的进程中使用的所有设备都必须是对等兼容的。否则， <code class="docutils literal notranslate"><span class="pre">cudaErrorInvalidDevice</span></code> 被返回。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>：默认行为。</p></li>
 </ul>
-<p><strong>Examples</strong>:</p>
+<p><strong>warp</strong>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_MANAGED_FORCE_DEVICE_ALLOC</span><span class="o">=</span><span class="m">0</span>
-<span class="nv">CUDA_MANAGED_FORCE_DEVICE_ALLOC</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># force device memory</span>
+<span class="nv">CUDA_MANAGED_FORCE_DEVICE_ALLOC</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># 强制设备内存</span>
 </pre></div>
 </div>
-<hr class="docutils" />
+<hr class="docutils"/>
 </section>
 </section>
 <section id="jit-compilation">
-<span id="cuda-environment-variables-compilation"></span><h2><span class="section-number">5.2.2. </span>JIT Compilation<a class="headerlink" href="environment-variables.html#jit-compilation" title="Link to this heading">#</a></h2>
+<span id="cuda-environment-variables-compilation"></span><h2><span class="section-number">5.2.2. </span>即时编译<a class="headerlink" href="environment-variables.html#jit-compilation" title="跳转到此标题">#</a></h2>
 <section id="cuda-cache-disable">
-<h3><span class="section-number">5.2.2.1. </span><code class="docutils literal notranslate"><span class="pre">CUDA_CACHE_DISABLE</span></code><a class="headerlink" href="environment-variables.html#cuda-cache-disable" title="Link to this heading">#</a></h3>
-<p>The environment variable controls the behavior of the on-disk <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-just-in-time-compilation"><span class="std std-ref">Just-In-Time (JIT) compilation</span></a> cache.
-Disabling the JIT cache forces PTX to CUBIN compilation for a CUDA application each time it is executed, unless the CUBIN code for the running architecture is found in the binary.</p>
-<p>Disabling the JIT cache increases an application’s load time during initial execution. However, it can be useful for reducing the application’s disk space and for diagnosing differences across driver versions or build flags.</p>
-<p><strong>Possible Values</strong>:</p>
+<h3><span class="section-number">5.2.2.1. </span><code class="docutils literal notranslate"><span class="pre">CUDA_CACHE_DISABLE</span></code><a class="headerlink" href="environment-variables.html#cuda-cache-disable" title="跳转到此标题">#</a></h3>
+<p>环境变量控制磁盘上的行为 <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-just-in-time-compilation"><span class="std std-ref">即时 (JIT) 编译</span></a> 缓存。
+禁用 JIT 缓存会在每次执行 CUDA 应用程序时强制 PTX 对其进行 CUBIN 编译，除非在二进制文件中找到正在运行的架构的 CUBIN 代码。</p>
+<p>禁用 JIT 缓存会增加应用程序在初始执行期间的加载时间。但是，它对于减少应用程序的磁盘空间以及诊断驱动程序版本或构建标志之间的差异非常有用。</p>
+<p><strong>可能的值</strong>:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>: Disables PTX JIT caching.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: Enables PTX JIT caching (default).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>：禁用 PTX JIT 缓存。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>：启用 PTX JIT 缓存（默认）。</p></li>
 </ul>
-<p><strong>Examples</strong>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_CACHE_DISABLE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># disables caching</span>
-<span class="nv">CUDA_CACHE_DISABLE</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="c1"># enables caching</span>
+<p><strong>warp</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_CACHE_DISABLE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># 禁用缓存</span>
+<span class="nv">CUDA_CACHE_DISABLE</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="c1"># 启用缓存</span>
 </pre></div>
 </div>
 </section>
-<hr class="docutils" />
+<hr class="docutils"/>
 <section id="cuda-cache-path">
-<h3><span class="section-number">5.2.2.2. </span><code class="docutils literal notranslate"><span class="pre">CUDA_CACHE_PATH</span></code><a class="headerlink" href="environment-variables.html#cuda-cache-path" title="Link to this heading">#</a></h3>
-<p>The environment variable specifies the directory path for the <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-just-in-time-compilation"><span class="std std-ref">Just-In-Time (JIT) compilation</span></a> cache.</p>
-<p><strong>Possible Values</strong>: The absolute path to the cache directory (with appropriate access permissions). The default values are:</p>
+<h3><span class="section-number">5.2.2.2. </span><code class="docutils literal notranslate"><span class="pre">CUDA_CACHE_PATH</span></code><a class="headerlink" href="environment-variables.html#cuda-cache-path" title="跳转到此标题">#</a></h3>
+<p>环境变量指定了目录路径 <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-just-in-time-compilation"><span class="std std-ref">即时 (JIT) 编译</span></a> cache.</p>
+<p><strong>可能的值</strong>：缓存目录的绝对路径（具有适当的访问权限）。默认值为：</p>
 <ul class="simple">
-<li><p>on Windows, <code class="docutils literal notranslate"><span class="pre">%APPDATA%\NVIDIA\ComputeCache</span></code></p></li>
-<li><p>on Linux, <code class="docutils literal notranslate"><span class="pre">~/.nv/ComputeCache</span></code></p></li>
+<li><p>在 Windows 上， <code class="docutils literal notranslate"><span class="pre">%APPDATA%\NVIDIA\ComputeCache</span></code></p></li>
+<li><p>在Linux上， <code class="docutils literal notranslate"><span class="pre">~/.nv/ComputeCache</span></code></p></li>
 </ul>
-<p><strong>Example</strong>:</p>
+<p><strong>warp</strong>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_CACHE_PATH</span><span class="o">=</span>~/tmp
 </pre></div>
 </div>
 </section>
-<hr class="docutils" />
+<hr class="docutils"/>
 <section id="cuda-cache-maxsize">
-<h3><span class="section-number">5.2.2.3. </span><code class="docutils literal notranslate"><span class="pre">CUDA_CACHE_MAXSIZE</span></code><a class="headerlink" href="environment-variables.html#cuda-cache-maxsize" title="Link to this heading">#</a></h3>
-<p>The environment variable specifies the <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-just-in-time-compilation"><span class="std std-ref">Just-In-Time (JIT) compilation</span></a> cache size in bytes. Binaries that exceed this size are not cached. If needed, older binaries are evicted from the cache to make room for newer ones.</p>
-<p><strong>Possible Values</strong>: Number of bytes. The default values are:</p>
+<h3><span class="section-number">5.2.2.3. </span><code class="docutils literal notranslate"><span class="pre">CUDA_CACHE_MAXSIZE</span></code><a class="headerlink" href="environment-variables.html#cuda-cache-maxsize" title="跳转到此标题">#</a></h3>
+<p>环境变量指定 <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-just-in-time-compilation"><span class="std std-ref">即时 (JIT) 编译</span></a> 缓存大小（以字节为单位）。超过此大小的二进制文件不会被缓存。如果需要，旧的二进制文件将从缓存中逐出，为新的二进制文件腾出空间。</p>
+<p><strong>可能的值</strong>：字节数。默认值为：</p>
 <ul class="simple">
-<li><p>On desktop/server platforms, <code class="docutils literal notranslate"><span class="pre">1073741824</span></code> (1 GiB)</p></li>
-<li><p>On embedded platforms, <code class="docutils literal notranslate"><span class="pre">268435456</span></code> (256 MiB)</p></li>
+<li><p>在桌面/服务器平台上， <code class="docutils literal notranslate"><span class="pre">1073741824</span></code> （1 GiB）</p></li>
+<li><p>在嵌入式平台上， <code class="docutils literal notranslate"><span class="pre">268435456</span></code> (256 MiB)</p></li>
 </ul>
-<p><code class="docutils literal notranslate"><span class="pre">4294967296</span></code> (4 GiB) is the maximum size.</p>
-<p><strong>Example</strong>:</p>
+<p><code class="docutils literal notranslate"><span class="pre">4294967296</span></code> (4 GiB) 是最大大小。</p>
+<p><strong>warp</strong>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_CACHE_MAXSIZE</span><span class="o">=</span><span class="m">268435456</span><span class="w"> </span><span class="c1"># 256 MiB</span>
 </pre></div>
 </div>
 </section>
-<hr class="docutils" />
+<hr class="docutils"/>
 <section id="cuda-force-ptx-jit-and-cuda-force-jit">
-<h3><span class="section-number">5.2.2.4. </span><code class="docutils literal notranslate"><span class="pre">CUDA_FORCE_PTX_JIT</span></code> and <code class="docutils literal notranslate"><span class="pre">CUDA_FORCE_JIT</span></code><a class="headerlink" href="environment-variables.html#cuda-force-ptx-jit-and-cuda-force-jit" title="Link to this heading">#</a></h3>
-<p>The environment variables instruct the CUDA driver to ignore any CUBIN embedded in an application and perform <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-just-in-time-compilation"><span class="std std-ref">Just-In-Time (JIT) compilation</span></a> of the embedded PTX code instead.</p>
-<p>Forcing JIT compilation increases an application’s load time during initial execution. However, it can be used to validate that PTX code is embedded in an application and that its Just-In-Time compilation is functioning properly.
-This ensures <a class="reference external" href="https://docs.nvidia.com/deploy/cuda-compatibility/">forward compatibility</a> with future architectures.</p>
+<h3><span class="section-number">5.2.2.4. </span><code class="docutils literal notranslate"><span class="pre">CUDA_FORCE_PTX_JIT</span></code> 或 <code class="docutils literal notranslate"><span class="pre">CUDA_FORCE_JIT</span></code><a class="headerlink" href="environment-variables.html#cuda-force-ptx-jit-and-cuda-force-jit" title="跳转到此标题">#</a></h3>
+<p>环境变量指示 CUDA 驱动程序忽略应用程序中嵌入的任何 CUBIN 并执行 <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-just-in-time-compilation"><span class="std std-ref">即时 (JIT) 编译</span></a> 而是嵌入的 PTX 代码。</p>
+<p>强制 JIT 编译会增加应用程序在初始执行期间的加载时间。但是，它可用于验证 PTX 代码是否嵌入到应用程序中以及其即时编译是否正常运行。
+这确保了 <a class="reference external" href="https://docs.nvidia.com/deploy/cuda-compatibility/">向前兼容性</a> 与未来的架构。</p>
 <p><code class="docutils literal notranslate"><span class="pre">CUDA_FORCE_PTX_JIT</span></code> overrides <code class="docutils literal notranslate"><span class="pre">CUDA_FORCE_JIT</span></code>.</p>
-<p><strong>Possible Values</strong>:</p>
+<p><strong>可能的值</strong>:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>: Forces PTX JIT compilation.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: Default behavior.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>：强制 PTX JIT 编译。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>：默认行为。</p></li>
 </ul>
-<p><strong>Example</strong>:</p>
+<p><strong>warp</strong>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_FORCE_PTX_JIT</span><span class="o">=</span><span class="m">1</span>
 </pre></div>
 </div>
 </section>
-<hr class="docutils" />
+<hr class="docutils"/>
 <section id="cuda-disable-ptx-jit-and-cuda-disable-jit">
-<h3><span class="section-number">5.2.2.5. </span><code class="docutils literal notranslate"><span class="pre">CUDA_DISABLE_PTX_JIT</span></code> and <code class="docutils literal notranslate"><span class="pre">CUDA_DISABLE_JIT</span></code><a class="headerlink" href="environment-variables.html#cuda-disable-ptx-jit-and-cuda-disable-jit" title="Link to this heading">#</a></h3>
-<p>The environment variables disable the <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-just-in-time-compilation"><span class="std std-ref">Just-In-Time (JIT) compilation</span></a> of embedded PTX code and use the compatible CUBIN embedded in an application.</p>
-<p>A kernel will fail to load if it does not have embedded binary code, or if the embedded binary was compiled for an incompatible architecture. These environment variables can be used to validate that an application has compatible CUBIN code generated for each kernel. See the <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-compute-binary-compatibility"><span class="std std-ref">Binary Compatibility</span></a> section for more details.</p>
+<h3><span class="section-number">5.2.2.5. </span><code class="docutils literal notranslate"><span class="pre">CUDA_DISABLE_PTX_JIT</span></code> 或 <code class="docutils literal notranslate"><span class="pre">CUDA_DISABLE_JIT</span></code><a class="headerlink" href="environment-variables.html#cuda-disable-ptx-jit-and-cuda-disable-jit" title="跳转到此标题">#</a></h3>
+<p>环境变量禁用 <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-just-in-time-compilation"><span class="std std-ref">即时 (JIT) 编译</span></a> 嵌入式 PTX 代码并使用应用程序中嵌入的兼容 CUBIN。</p>
+<p>如果内核没有嵌入的二进制代码，或者嵌入的二进制代码是为不兼容的体系结构编译的，则内核将无法加载。这些环境变量可用于验证应用程序是否具有为每个内核生成的兼容 CUBIN 代码。请参阅 <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-compute-binary-compatibility"><span class="std std-ref">二进制兼容性</span></a> 部分了解更多详细信息。</p>
 <p><code class="docutils literal notranslate"><span class="pre">CUDA_DISABLE_PTX_JIT</span></code> overrides <code class="docutils literal notranslate"><span class="pre">CUDA_DISABLE_JIT</span></code>.</p>
-<p><strong>Possible Values</strong>:</p>
+<p><strong>可能的值</strong>:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>: Disables PTX JIT compilation.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: Default behavior.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>：禁用 PTX JIT 编译。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>：默认行为。</p></li>
 </ul>
-<p><strong>Example</strong>:</p>
+<p><strong>warp</strong>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_DISABLE_PTX_JIT</span><span class="o">=</span><span class="m">1</span>
 </pre></div>
 </div>
 </section>
-<hr class="docutils" />
+<hr class="docutils"/>
 <section id="cuda-force-preload-libraries">
-<h3><span class="section-number">5.2.2.6. </span><code class="docutils literal notranslate"><span class="pre">CUDA_FORCE_PRELOAD_LIBRARIES</span></code><a class="headerlink" href="environment-variables.html#cuda-force-preload-libraries" title="Link to this heading">#</a></h3>
-<p>The environment variable affects the preloading of libraries required for <a class="reference external" href="https://docs.nvidia.com/cuda/nvvm-ir-spec/">NVVM</a> and <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-just-in-time-compilation"><span class="std std-ref">Just-In-Time (JIT) compilation</span></a>.</p>
-<p><strong>Possible Values</strong>:</p>
+<h3><span class="section-number">5.2.2.6. </span><code class="docutils literal notranslate"><span class="pre">CUDA_FORCE_PRELOAD_LIBRARIES</span></code><a class="headerlink" href="environment-variables.html#cuda-force-preload-libraries" title="跳转到此标题">#</a></h3>
+<p>环境变量会影响所需库的预加载 <a class="reference external" href="https://docs.nvidia.com/cuda/nvvm-ir-spec/">NVVM</a> 和 <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-just-in-time-compilation"><span class="std std-ref">即时 (JIT) 编译</span></a>.</p>
+<p><strong>可能的值</strong>:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>: This forces the driver to preload the libraries required for <a class="reference external" href="https://docs.nvidia.com/cuda/nvvm-ir-spec/">NVVM</a> and <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-just-in-time-compilation"><span class="std std-ref">Just-In-Time (JIT) compilation</span></a> during initialization. This increases the memory footprint and the time required for CUDA driver initialization. Setting this environment variable is necessary to avoid certain deadlock situations involving multiple threads.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: Default behavior.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>：这会强制驱动程序预加载所需的库 <a class="reference external" href="https://docs.nvidia.com/cuda/nvvm-ir-spec/">NVVM</a> 和 <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-just-in-time-compilation"><span class="std std-ref">即时 (JIT) 编译</span></a> 在初始化期间。这会增加内存占用以及 CUDA 驱动程序初始化所需的时间。设置此环境变量对于避免涉及多个线程的某些死锁情况是必要的。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>：默认行为。</p></li>
 </ul>
-<p><strong>Example</strong>:</p>
+<p><strong>warp</strong>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_FORCE_PRELOAD_LIBRARIES</span><span class="o">=</span><span class="m">1</span>
 </pre></div>
 </div>
 </section>
 </section>
-<hr class="docutils" />
+<hr class="docutils"/>
 <section id="execution">
-<h2><span class="section-number">5.2.3. </span>Execution<a class="headerlink" href="environment-variables.html#execution" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">5.2.3. </span>执行<a class="headerlink" href="environment-variables.html#execution" title="跳转到此标题">#</a></h2>
 <section id="cuda-launch-blocking">
-<h3><span class="section-number">5.2.3.1. </span><code class="docutils literal notranslate"><span class="pre">CUDA_LAUNCH_BLOCKING</span></code><a class="headerlink" href="environment-variables.html#cuda-launch-blocking" title="Link to this heading">#</a></h3>
-<p>The environment variable specifies whether to disable or enable asynchronous kernel launches.</p>
-<p>Disabling asynchronous execution results in slower execution but is useful for debugging. It forces GPU work to run synchronously from the CPU’s perspective. This allows CUDA API errors to be observed at the exact API call that triggered them, rather than later in the execution. Synchronous execution is useful for debugging purposes.</p>
-<p><strong>Possible Values</strong>:</p>
+<h3><span class="section-number">5.2.3.1. </span><code class="docutils literal notranslate"><span class="pre">CUDA_LAUNCH_BLOCKING</span></code><a class="headerlink" href="environment-variables.html#cuda-launch-blocking" title="跳转到此标题">#</a></h3>
+<p>环境变量指定是否禁用或启用异步内核启动。</p>
+<p>禁用异步执行会导致执行速度变慢，但对于调试很有用。它强制 GPU 工作从 CPU 的角度同步运行。这允许在触发 CUDA API 错误的确切 API 调用时观察到 CUDA API 错误，而不是在执行后期。同步执行对于调试目的很有用。</p>
+<p><strong>可能的值</strong>:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>: Disables asynchronous execution.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: Asynchronous execution (default).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>：禁用异步执行。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>：异步执行（默认）。</p></li>
 </ul>
-<p><strong>Example</strong>:</p>
+<p><strong>warp</strong>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_LAUNCH_BLOCKING</span><span class="o">=</span><span class="m">1</span>
 </pre></div>
 </div>
 </section>
-<hr class="docutils" />
+<hr class="docutils"/>
 <section id="cuda-device-max-connections">
-<h3><span class="section-number">5.2.3.2. </span><code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_CONNECTIONS</span></code><a class="headerlink" href="environment-variables.html#cuda-device-max-connections" title="Link to this heading">#</a></h3>
-<p>The environment variable controls the number of concurrent compute and copy engine connections (work queues), setting both to the specified value.
-If independent GPU tasks, namely kernels or copy operations launched from different CUDA streams, map to the same work queue, a false dependency is created which can lead to GPU work serialization, since the same underlying resource(s) are used.
-To reduce the probability of such false dependencies, it is recommended that the work queue count, controlled via this environment variable, be greater than or equal to the number of active CUDA streams per context.</p>
-<p>Setting this environment variable also modifies the number of copy connections, unless they are explicitly set via the <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_COPY_CONNECTIONS</span></code> environment variable.</p>
-<p><strong>Possible Values</strong>: <code class="docutils literal notranslate"><span class="pre">1</span></code> to <code class="docutils literal notranslate"><span class="pre">32</span></code> connections, default is <code class="docutils literal notranslate"><span class="pre">8</span></code> (assumes no MPS)</p>
-<p><strong>Example</strong>:</p>
+<h3><span class="section-number">5.2.3.2. </span><code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_CONNECTIONS</span></code><a class="headerlink" href="environment-variables.html#cuda-device-max-connections" title="跳转到此标题">#</a></h3>
+<p>环境变量控制并发计算和复制引擎连接（工作队列）的数量，将两者设置为指定值。
+如果独立的 GPU 任务（即从不同 CUDA 流启动的内核或复制操作）映射到同一工作队列，则会创建错误的依赖关系，这可能导致 GPU 工作序列化，因为使用相同的底层资源。
+为了减少这种错误依赖关系的可能性，建议通过此环境变量控制的工作队列计数大于或等于每个上下文的活动 CUDA 流的数量。</p>
+<p>设置此环境变量还会修改复制连接的数量，除非通过显式设置 <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_COPY_CONNECTIONS</span></code> 环境变量。</p>
+<p><strong>可能的值</strong>: <code class="docutils literal notranslate"><span class="pre">1</span></code> 或 <code class="docutils literal notranslate"><span class="pre">32</span></code> 连接数，默认为 <code class="docutils literal notranslate"><span class="pre">8</span></code> （假设没有 MPS）</p>
+<p><strong>warp</strong>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_DEVICE_MAX_CONNECTIONS</span><span class="o">=</span><span class="m">16</span>
 </pre></div>
 </div>
 </section>
-<hr class="docutils" />
+<hr class="docutils"/>
 <section id="cuda-device-max-copy-connections">
-<h3><span class="section-number">5.2.3.3. </span><code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_COPY_CONNECTIONS</span></code><a class="headerlink" href="environment-variables.html#cuda-device-max-copy-connections" title="Link to this heading">#</a></h3>
-<p>The environment variable controls the number of concurrent copy connections (work queues) involved in copy operations.
-It affects only devices of <a class="reference internal" href="compute-capabilities.html#compute-capabilities"><span class="std std-ref">compute capability</span></a> 8.0 and above.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_COPY_CONNECTIONS</span></code> overrides the value of copy connections set via <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_CONNECTIONS</span></code>, if both were set.</p>
-<p><strong>Possible Values</strong>: <code class="docutils literal notranslate"><span class="pre">1</span></code> to <code class="docutils literal notranslate"><span class="pre">32</span></code> connections, default is <code class="docutils literal notranslate"><span class="pre">8</span></code> (assumes no MPS)</p>
-<p><strong>Example</strong>:</p>
+<h3><span class="section-number">5.2.3.3. </span><code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_COPY_CONNECTIONS</span></code><a class="headerlink" href="environment-variables.html#cuda-device-max-copy-connections" title="跳转到此标题">#</a></h3>
+<p>环境变量控制复制操作中涉及的并发复制连接（工作队列）的数量。
+它仅影响以下设备 <a class="reference internal" href="compute-capabilities.html#compute-capabilities"><span class="std std-ref">计算能力</span></a> 8.0及以上。</p>
+<p><code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_COPY_CONNECTIONS</span></code> 覆盖通过设置的复制连接的值 <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_CONNECTIONS</span></code>，如果两者都设置了。</p>
+<p><strong>可能的值</strong>: <code class="docutils literal notranslate"><span class="pre">1</span></code> 或 <code class="docutils literal notranslate"><span class="pre">32</span></code> 连接数，默认为 <code class="docutils literal notranslate"><span class="pre">8</span></code> （假设没有 MPS）</p>
+<p><strong>warp</strong>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_DEVICE_MAX_COPY_CONNECTIONS</span><span class="o">=</span><span class="m">16</span>
 </pre></div>
 </div>
 </section>
-<hr class="docutils" />
+<hr class="docutils"/>
 <section id="cuda-scale-launch-queues">
-<h3><span class="section-number">5.2.3.4. </span><code class="docutils literal notranslate"><span class="pre">CUDA_SCALE_LAUNCH_QUEUES</span></code><a class="headerlink" href="environment-variables.html#cuda-scale-launch-queues" title="Link to this heading">#</a></h3>
-<p>The environment variable specifies the scaling factor for the size of the queues available for launching work (command buffer), namely the total number of pending kernels or host/device copy operations that can be enqueued on a device.</p>
-<p><strong>Possible Values</strong>: <code class="docutils literal notranslate"><span class="pre">0.25x</span></code>, <code class="docutils literal notranslate"><span class="pre">0.5x</span></code>, <code class="docutils literal notranslate"><span class="pre">2x</span></code>, <code class="docutils literal notranslate"><span class="pre">4x</span></code></p>
+<h3><span class="section-number">5.2.3.4. </span><code class="docutils literal notranslate"><span class="pre">CUDA_SCALE_LAUNCH_QUEUES</span></code><a class="headerlink" href="environment-variables.html#cuda-scale-launch-queues" title="跳转到此标题">#</a></h3>
+<p>该环境变量指定可用于启动工作的队列（命令缓冲区）大小的比例因子，即可以在设备上排队的待处理内核或主机/设备复制操作的总数。</p>
+<p><strong>可能的值</strong>: <code class="docutils literal notranslate"><span class="pre">0.25x</span></code>, <code class="docutils literal notranslate"><span class="pre">0.5x</span></code>, <code class="docutils literal notranslate"><span class="pre">2x</span></code>, <code class="docutils literal notranslate"><span class="pre">4x</span></code></p>
 <ul class="simple">
-<li><p>Any value other than <code class="docutils literal notranslate"><span class="pre">0.25x</span></code>, <code class="docutils literal notranslate"><span class="pre">0.5x</span></code>, <code class="docutils literal notranslate"><span class="pre">2x</span></code> or <code class="docutils literal notranslate"><span class="pre">4x</span></code> is interpreted as <code class="docutils literal notranslate"><span class="pre">1x</span></code>.</p></li>
+<li><p>除以下以外的任何值 <code class="docutils literal notranslate"><span class="pre">0.25x</span></code>, <code class="docutils literal notranslate"><span class="pre">0.5x</span></code>, <code class="docutils literal notranslate"><span class="pre">2x</span></code> 或 <code class="docutils literal notranslate"><span class="pre">4x</span></code> 被解释为 <code class="docutils literal notranslate"><span class="pre">1x</span></code>.</p></li>
 </ul>
-<p><strong>Example</strong>:</p>
+<p><strong>warp</strong>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_SCALE_LAUNCH_QUEUES</span><span class="o">=</span>2x
 </pre></div>
 </div>
 </section>
-<hr class="docutils" />
+<hr class="docutils"/>
 <section id="cuda-graphs-use-node-priority">
-<h3><span class="section-number">5.2.3.5. </span><code class="docutils literal notranslate"><span class="pre">CUDA_GRAPHS_USE_NODE_PRIORITY</span></code><a class="headerlink" href="environment-variables.html#cuda-graphs-use-node-priority" title="Link to this heading">#</a></h3>
-<p>The environment variable controls the CUDA graph’s execution priority relative to the stream priority it inherits from the stream in which it is launched.</p>
-<p><code class="docutils literal notranslate"><span class="pre">CUDA_GRAPHS_USE_NODE_PRIORITY</span></code> overrides the <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH_1gd4d586536547040944c05249ee26bc62">cudaGraphInstantiateFlagUseNodePriority</a> flag on graph instantiation.</p>
-<p><strong>Possible Values</strong>:</p>
+<h3><span class="section-number">5.2.3.5. </span><code class="docutils literal notranslate"><span class="pre">CUDA_GRAPHS_USE_NODE_PRIORITY</span></code><a class="headerlink" href="environment-variables.html#cuda-graphs-use-node-priority" title="跳转到此标题">#</a></h3>
+<p>环境变量控制 CUDA 图相对于它从启动它的流继承的流优先级的执行优先级。</p>
+<p><code class="docutils literal notranslate"><span class="pre">CUDA_GRAPHS_USE_NODE_PRIORITY</span></code> 覆盖 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH_1gd4d586536547040944c05249ee26bc62">cudaGraphInstantiateFlagUseNodePriority</a> 图实例化上的标志。</p>
+<p><strong>可能的值</strong>:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: Inherit the priority of the stream the graph is launched into (default).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>: Honor per-node launch priorities. The CUDA runtime treats node-level priorities as a scheduling hint for ready-to-run graph nodes.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>：继承图形启动到的流的优先级（默认）。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>：尊重每个节点的启动优先级。 CUDA 运行时将节点级优先级视为准备运行的图形节点的调度提示。</p></li>
 </ul>
-<p><strong>Example</strong>:</p>
+<p><strong>warp</strong>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_GRAPHS_USE_NODE_PRIORITY</span><span class="o">=</span><span class="m">1</span>
 </pre></div>
 </div>
 </section>
-<hr class="docutils" />
+<hr class="docutils"/>
 <section id="cuda-device-waits-on-exception">
-<h3><span class="section-number">5.2.3.6. </span><code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_WAITS_ON_EXCEPTION</span></code><a class="headerlink" href="environment-variables.html#cuda-device-waits-on-exception" title="Link to this heading">#</a></h3>
-<p>The environment variable controls the behavior of a CUDA application when an exception (error) occurs.</p>
-<p>When enabled, a CUDA application will halt and wait when a device-side exception occurs, allowing a debugger, such as  <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-gdb/index.html">cuda-gdb</a>, to be attached to inspect the live GPU state before the process exits or continues.</p>
-<p><strong>Possible Values</strong>:</p>
+<h3><span class="section-number">5.2.3.6. </span><code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_WAITS_ON_EXCEPTION</span></code><a class="headerlink" href="environment-variables.html#cuda-device-waits-on-exception" title="跳转到此标题">#</a></h3>
+<p>环境变量控制发生异常（错误）时 CUDA 应用程序的行为。</p>
+<p>启用后，当发生设备端异常时，CUDA 应用程序将停止并等待，从而允许调试器，例如  <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-gdb/index.html">cuda-gdb</a>，在进程退出或继续之前附加以检查实时 GPU 状态。</p>
+<p><strong>可能的值</strong>:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: Default behavior.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>: Halt when a device exception occurs.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>：默认行为。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>：设备异常时停止。</p></li>
 </ul>
-<p><strong>Example</strong>:</p>
+<p><strong>warp</strong>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_DEVICE_WAITS_ON_EXCEPTION</span><span class="o">=</span><span class="m">1</span>
 </pre></div>
 </div>
 </section>
-<hr class="docutils" />
+<hr class="docutils"/>
 <section id="cuda-device-default-persisting-l2-cache-percentage-limit">
-<h3><span class="section-number">5.2.3.7. </span><code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_DEFAULT_PERSISTING_L2_CACHE_PERCENTAGE_LIMIT</span></code><a class="headerlink" href="environment-variables.html#cuda-device-default-persisting-l2-cache-percentage-limit" title="Link to this heading">#</a></h3>
-<p>The environment variable controls the default “set-aside” portion of the GPU’s L2 cache reserved for <a class="reference internal" href="../04-special-topics/l2-cache-control.html#l2-set-aside"><span class="std std-ref">persisting accesses</span></a>, expressed as a percentage of the L2 size.</p>
-<p>It is relevant for GPUs that support persistent L2 cache, specifically devices with <a class="reference internal" href="compute-capabilities.html#compute-capabilities"><span class="std std-ref">compute capability</span></a> 8.0 or higher when using the <a class="reference external" href="https://docs.nvidia.com/deploy/mps/index.html">CUDA Multi-Process Service (MPS)</a>. The environment variable must be set before starting the CUDA MPS Control Daemon, namely before running the <code class="docutils literal notranslate"><span class="pre">nvidia-cuda-mps-control</span> <span class="pre">-d</span></code> command.</p>
-<p><strong>Possible Values</strong>: Percentage value between 0 and 100, default is 0.</p>
-<p><strong>Example</strong>:</p>
+<h3><span class="section-number">5.2.3.7. </span><code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_DEFAULT_PERSISTING_L2_CACHE_PERCENTAGE_LIMIT</span></code><a class="headerlink" href="environment-variables.html#cuda-device-default-persisting-l2-cache-percentage-limit" title="跳转到此标题">#</a></h3>
+<p>该环境变量控制 GPU L2 缓存的默认“预留”部分，保留用于 <a class="reference internal" href="../04-special-topics/l2-cache-control.html#l2-set-aside"><span class="std std-ref">持久访问</span></a>，表示为 L2 大小的百分比。</p>
+<p>它与支持持久 L2 缓存的 GPU 相关，特别是具有 <a class="reference internal" href="compute-capabilities.html#compute-capabilities"><span class="std std-ref">计算能力</span></a> 使用时8.0或更高 <a class="reference external" href="https://docs.nvidia.com/deploy/mps/index.html">CUDA 多进程服务 (MPS)</a>。必须在启动 CUDA MPS Control Daemon 之前（即运行之前）设置环境变量 <code class="docutils literal notranslate"><span class="pre">nvidia-cuda-mps-control</span> <span class="pre">-d</span></code> command.</p>
+<p><strong>可能的值</strong>：0 到 100 之间的百分比值，默认为 0。</p>
+<p><strong>warp</strong>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_DEVICE_DEFAULT_PERSISTING_L2_CACHE_PERCENTAGE_LIMIT</span><span class="o">=</span><span class="m">25</span><span class="w"> </span><span class="c1"># 25%</span>
 </pre></div>
 </div>
 </section>
-<hr class="docutils" />
+<hr class="docutils"/>
 <section id="cuda-disable-perf-boost">
-<h3><span class="section-number">5.2.3.8. </span><code class="docutils literal notranslate"><span class="pre">CUDA_DISABLE_PERF_BOOST</span></code><a class="headerlink" href="environment-variables.html#cuda-disable-perf-boost" title="Link to this heading">#</a></h3>
-<p>On Linux hosts, setting this environment variable to 1 prevents boosting the device performance state, instead pstate can be selected implicitly based on various heuristics.  This option can potentially be used to reduce power consumption, but may result in higher latency in certain scenarios due to dynamic performance state selection.</p>
-<p><strong>Example</strong>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_DISABLE_PERF_BOOST</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># perf boost disabled, Linux only.</span>
-<span class="nv">CUDA_DISABLE_PERF_BOOST</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="c1"># default behavior</span>
+<h3><span class="section-number">5.2.3.8. </span><code class="docutils literal notranslate"><span class="pre">CUDA_DISABLE_PERF_BOOST</span></code><a class="headerlink" href="environment-variables.html#cuda-disable-perf-boost" title="跳转到此标题">#</a></h3>
+<p>在 Linux 主机上，将此环境变量设置为 1 可防止提升设备性能状态，而是可以根据各种启发法隐式选择 pstate。  此选项可潜在地用于降低功耗，但由于动态性能状态选择，在某些情况下可能会导致更高的延迟。</p>
+<p><strong>warp</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_DISABLE_PERF_BOOST</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># perf boost 已禁用，仅限 Linux。</span>
+<span class="nv">CUDA_DISABLE_PERF_BOOST</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="c1"># 默认行为</span>
 </pre></div>
 </div>
 </section>
 <section id="cuda-auto-boost-deprecated">
-<h3><span class="section-number">5.2.3.9. </span><code class="docutils literal notranslate"><span class="pre">CUDA_AUTO_BOOST</span></code> [[deprecated]]<a class="headerlink" href="environment-variables.html#cuda-auto-boost-deprecated" title="Link to this heading">#</a></h3>
-<p>The environment variable affects the GPU clock “auto boost” behavior, namely dynamic clock boosting.
-It overrides the “auto boost” option of the <code class="docutils literal notranslate"><span class="pre">nvidia-smi</span></code> tool, namely <code class="docutils literal notranslate"><span class="pre">nvidia-smi</span> <span class="pre">--auto-boost-default=0</span></code>.</p>
+<h3><span class="section-number">5.2.3.9. </span><code class="docutils literal notranslate"><span class="pre">CUDA_AUTO_BOOST</span></code> [[deprecated]]<a class="headerlink" href="environment-variables.html#cuda-auto-boost-deprecated" title="跳转到此标题">#</a></h3>
+<p>环境变量影响 GPU 时钟“自动提升”行为，即动态时钟提升。
+它覆盖了“自动增强”选项 <code class="docutils literal notranslate"><span class="pre">nvidia-smi</span></code> 工具，即 <code class="docutils literal notranslate"><span class="pre">nvidia-smi</span> <span class="pre">--auto-boost-default=0</span></code>.</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This environment variable is deprecated. It is strongly suggested to use <code class="docutils literal notranslate"><span class="pre">nvidia-smi</span> <span class="pre">--applications-clocks=&lt;memory,graphics&gt;</span></code> or the <a class="reference external" href="https://docs.nvidia.com/deploy/nvml-api/group__nvmlDeviceCommands.html#group__nvmlDeviceCommands">NVML API</a> instead of the <code class="docutils literal notranslate"><span class="pre">CUDA_AUTO_BOOST</span></code> environment variable.</p>
+<p class="admonition-title">注</p>
+<p>此环境变量已弃用。强烈建议使用 <code class="docutils literal notranslate"><span class="pre">nvidia-smi</span> <span class="pre">--applications-clocks=&lt;memory,graphics&gt;</span></code> 或 <a class="reference external" href="https://docs.nvidia.com/deploy/nvml-api/group__nvmlDeviceCommands.html#group__nvmlDeviceCommands">NVML API</a> 而不是 <code class="docutils literal notranslate"><span class="pre">CUDA_AUTO_BOOST</span></code> 环境变量。</p>
 </div>
 </section>
 </section>
-<hr class="docutils" />
+<hr class="docutils"/>
 <section id="module-loading">
-<h2><span class="section-number">5.2.4. </span>Module Loading<a class="headerlink" href="environment-variables.html#module-loading" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">5.2.4. </span>模块加载<a class="headerlink" href="environment-variables.html#module-loading" title="跳转到此标题">#</a></h2>
 <section id="cuda-module-loading">
-<h3><span class="section-number">5.2.4.1. </span><code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_LOADING</span></code><a class="headerlink" href="environment-variables.html#cuda-module-loading" title="Link to this heading">#</a></h3>
-<p>The environment variable affects how the CUDA runtime loads modules, specifically how it initializes the device code.</p>
-<p><strong>Possible Values</strong>:</p>
+<h3><span class="section-number">5.2.4.1. </span><code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_LOADING</span></code><a class="headerlink" href="environment-variables.html#cuda-module-loading" title="跳转到此标题">#</a></h3>
+<p>环境变量会影响 CUDA 运行时加载模块的方式，特别是它初始化设备代码的方式。</p>
+<p><strong>可能的值</strong>:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">DEFAULT</span></code>: Default behavior, equivalent to <code class="docutils literal notranslate"><span class="pre">LAZY</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">LAZY</span></code>: The loading of specific kernels is delayed until a CUDA function handle, <code class="docutils literal notranslate"><span class="pre">CUfunc</span></code>,  is extracted using the <code class="docutils literal notranslate"><span class="pre">cuModuleGetFunction()</span></code> or <code class="docutils literal notranslate"><span class="pre">cuKernelGetFunction()</span></code> API calls. In this case, the data from the CUBIN is loaded when the first kernel in the CUBIN is loaded or when the first variable in the CUBIN is accessed.</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">DEFAULT</span></code>：默认行为，相当于 <code class="docutils literal notranslate"><span class="pre">LAZY</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LAZY</span></code>：特定内核的加载被延迟，直到 CUDA 函数句柄为止， <code class="docutils literal notranslate"><span class="pre">CUfunc</span></code>，使用提取 <code class="docutils literal notranslate"><span class="pre">cuModuleGetFunction()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cuKernelGetFunction()</span></code> API 调用。在这种情况下，当加载 CUBIN 中的第一个内核或访问 CUBIN 中的第一个变量时，会加载来自 CUBIN 的数据。</p>
 <ul>
-<li><p>The driver loads the required code on the first call to a kernel; subsequent calls incur no extra overhead. This reduces startup time and GPU memory footprint.</p></li>
+<li><p>驱动程序在第一次调用内核时加载所需的代码；后续调用不会产生额外的开销。这减少了启动时间和 GPU 内存占用。</p></li>
 </ul>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">EAGER</span></code>: Fully loads CUDA modules and kernels at program initialization. All kernels and data from a CUBIN, FATBIN, or PTX file are fully loaded upon the corresponding <code class="docutils literal notranslate"><span class="pre">cuModuleLoad*</span></code> and <code class="docutils literal notranslate"><span class="pre">cuLibraryLoad*</span></code> driver API call.</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">EAGER</span></code>：在程序初始化时完全加载 CUDA 模块和内核。 CUBIN、FATBIN 或 PTX 文件中的所有内核和数据都完全加载到相应的 <code class="docutils literal notranslate"><span class="pre">cuModuleLoad*</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cuLibraryLoad*</span></code> 驱动程序 API 调用。</p>
 <ul>
-<li><p>Higher startup time and GPU memory footprint. Kernel launch overhead is predictable.</p></li>
+<li><p>更高的启动时间和 GPU 内存占用。内核启动开销是可以预测的。</p></li>
 </ul>
 </li>
 </ul>
-<p><strong>Examples</strong>:</p>
+<p><strong>warp</strong>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_MODULE_LOADING</span><span class="o">=</span>EAGER
 <span class="nv">CUDA_MODULE_LOADING</span><span class="o">=</span>LAZY
 </pre></div>
 </div>
 </section>
-<hr class="docutils" />
+<hr class="docutils"/>
 <section id="cuda-module-data-loading">
-<h3><span class="section-number">5.2.4.2. </span><code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_DATA_LOADING</span></code><a class="headerlink" href="environment-variables.html#cuda-module-data-loading" title="Link to this heading">#</a></h3>
-<p>The environment variable affects how the CUDA runtime loads data associated to modules.</p>
-<p>This is a complementary setting to the kernel-focused setting in <code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_LOADING</span></code>. This environment variable does not affect the <code class="docutils literal notranslate"><span class="pre">LAZY</span></code> or <code class="docutils literal notranslate"><span class="pre">EAGER</span></code> loading of kernels.
-Data loading behavior is inherited from <code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_LOADING</span></code> if this environment variable is not set.</p>
-<p><strong>Possible Values</strong>:</p>
+<h3><span class="section-number">5.2.4.2. </span><code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_DATA_LOADING</span></code><a class="headerlink" href="environment-variables.html#cuda-module-data-loading" title="跳转到此标题">#</a></h3>
+<p>环境变量会影响 CUDA 运行时加载与模块关联的数据的方式。</p>
+<p>这是对以内核为中心的设置的补充 <code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_LOADING</span></code>。该环境变量不影响 <code class="docutils literal notranslate"><span class="pre">LAZY</span></code> 或 <code class="docutils literal notranslate"><span class="pre">EAGER</span></code> 加载内核。
+数据加载行为继承自 <code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_LOADING</span></code> 如果这个环境变量没有设置。</p>
+<p><strong>可能的值</strong>:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">DEFAULT</span></code>: Default behavior, equivalent to <code class="docutils literal notranslate"><span class="pre">LAZY</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">LAZY</span></code>: The loading of module data is delayed until a CUDA function handle, <code class="docutils literal notranslate"><span class="pre">CUfunc</span></code>, is required. In this case, the data from the CUBIN is loaded when the first kernel in the CUBIN is loaded or when the first variable in the CUBIN is accessed.</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">DEFAULT</span></code>：默认行为，相当于 <code class="docutils literal notranslate"><span class="pre">LAZY</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LAZY</span></code>：模块数据的加载被延迟到CUDA函数句柄为止， <code class="docutils literal notranslate"><span class="pre">CUfunc</span></code>，为必填项。在这种情况下，当加载 CUBIN 中的第一个内核或访问 CUBIN 中的第一个变量时，会加载来自 CUBIN 的数据。</p>
 <ul>
-<li><p>Lazy data loads can require context synchronization, which can slow down concurrent execution.</p></li>
+<li><p>延迟数据加载可能需要上下文同步，这会减慢并发执行速度。</p></li>
 </ul>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">EAGER</span></code>: All data from a CUBIN, FATBIN, or PTX file are fully loaded upon the corresponding <code class="docutils literal notranslate"><span class="pre">cuModuleLoad*</span></code> and <code class="docutils literal notranslate"><span class="pre">cuLibraryLoad*</span></code> API call.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">EAGER</span></code>：CUBIN、FATBIN 或 PTX 文件中的所有数据都完全加载到相应的 <code class="docutils literal notranslate"><span class="pre">cuModuleLoad*</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cuLibraryLoad*</span></code> API 调用。</p></li>
 </ul>
-<p><strong>Example</strong>:</p>
+<p><strong>warp</strong>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_MODULE_DATA_LOADING</span><span class="o">=</span>EAGER
 </pre></div>
 </div>
 </section>
 <section id="cuda-binary-loader-thread-count">
-<h3><span class="section-number">5.2.4.3. </span><code class="docutils literal notranslate"><span class="pre">CUDA_BINARY_LOADER_THREAD_COUNT</span></code><a class="headerlink" href="environment-variables.html#cuda-binary-loader-thread-count" title="Link to this heading">#</a></h3>
-<p>Sets the number of CPU threads to use when loading device binaries. When set to 0, the number of CPU threads used is set to a default value of 1.</p>
-<p><strong>Possible Values</strong>:</p>
+<h3><span class="section-number">5.2.4.3. </span><code class="docutils literal notranslate"><span class="pre">CUDA_BINARY_LOADER_THREAD_COUNT</span></code><a class="headerlink" href="environment-variables.html#cuda-binary-loader-thread-count" title="跳转到此标题">#</a></h3>
+<p>设置加载设备二进制文件时要使用的 CPU 线程数。当设置为 0 时，使用的 CPU 线程数设置为默认值 1。</p>
+<p><strong>可能的值</strong>:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>Integer number of threads to use. Defaults to 0, which uses 1 thread.</p></li>
+<li><p>要使用的整数线程数。默认为 0，即使用 1 个线程。</p></li>
 </ul>
 </div></blockquote>
-<p><strong>Example</strong>:</p>
+<p><strong>warp</strong>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_BINARY_LOADER_THREAD_COUNT</span><span class="o">=</span><span class="m">4</span>
 </pre></div>
 </div>
 </section>
 </section>
-<hr class="docutils" />
+<hr class="docutils"/>
 <section id="cuda-error-log-management">
-<h2><span class="section-number">5.2.5. </span>CUDA Error Log Management<a class="headerlink" href="environment-variables.html#cuda-error-log-management" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">5.2.5. </span>CUDA错误日志管理<a class="headerlink" href="environment-variables.html#cuda-error-log-management" title="跳转到此标题">#</a></h2>
 <section id="cuda-log-file">
-<span id="env-vars-cuda-log-file"></span><h3><span class="section-number">5.2.5.1. </span><code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code><a class="headerlink" href="environment-variables.html#cuda-log-file" title="Link to this heading">#</a></h3>
-<p>The environment variable specifies a location where descriptive error log messages will be printed as they occur
-for supported CUDA API calls that returned an error.</p>
-<p>For example, if one attempts to launch a kernel with an invalid grid configuration, such as <code class="docutils literal notranslate"><span class="pre">kernel&lt;&lt;&lt;1,</span> <span class="pre">dim3(1,1,128)&gt;&gt;&gt;(...)</span></code>, that kernel will fail to launch and <code class="docutils literal notranslate"><span class="pre">cudaGetLastError()</span></code> will return a generic <code class="docutils literal notranslate"><span class="pre">invalid</span> <span class="pre">configuration</span> <span class="pre">argument</span></code> error. <br />
-If the <code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code> environment variable is set, the user can see the following descriptive error message in the log: <code class="docutils literal notranslate"><span class="pre">[CUDA][E]</span> <span class="pre">Block</span> <span class="pre">Dimensions</span> <span class="pre">(1,1,128)</span> <span class="pre">include</span> <span class="pre">one</span> <span class="pre">or</span> <span class="pre">more</span> <span class="pre">values</span> <span class="pre">that</span> <span class="pre">exceed</span> <span class="pre">the</span> <span class="pre">device</span> <span class="pre">limit</span> <span class="pre">of</span> <span class="pre">(1024,1024,64)</span></code> and easily determine that the specified z-dimension of the block was invalid. See <a class="reference internal" href="../04-special-topics/error-log-management.html#error-log-management"><span class="std std-ref">Error Log Management</span></a> for more details.</p>
-<p><strong>Possible Values</strong>: <code class="docutils literal notranslate"><span class="pre">stdout</span></code>, <code class="docutils literal notranslate"><span class="pre">stderr</span></code>, or a valid file path (with appropriate access permissions)</p>
-<p><strong>Examples</strong>:</p>
+<span id="env-vars-cuda-log-file"></span><h3><span class="section-number">5.2.5.1. </span><code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code><a class="headerlink" href="environment-variables.html#cuda-log-file" title="跳转到此标题">#</a></h3>
+<p>环境变量指定描述性错误日志消息发生时将打印的位置
+对于返回错误的受支持 CUDA API 调用。</p>
+<p>例如，如果尝试启动具有无效网格配置的内核，例如 <code class="docutils literal notranslate"><span class="pre">kernel&lt;&lt;&lt;1,</span> <span class="pre">dim3(1,1,128)&gt;&gt;&gt;(...)</span></code>，该内核将无法启动并且 <code class="docutils literal notranslate"><span class="pre">cudaGetLastError()</span></code> 将返回一个泛型 <code class="docutils literal notranslate"><span class="pre">invalid</span> <span class="pre">configuration</span> <span class="pre">argument</span></code> error. <br/>
+如果 <code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code> 设置环境变量后，用户可以在日志中看到以下描述性错误消息： <code class="docutils literal notranslate"><span class="pre">[CUDA][E]</span> <span class="pre">Block</span> <span class="pre">Dimensions</span> <span class="pre">(1,1,128)</span> <span class="pre">include</span> <span class="pre">one</span> <span class="pre">or</span> <span class="pre">more</span> <span class="pre">values</span> <span class="pre">that</span> <span class="pre">exceed</span> <span class="pre">the</span> <span class="pre">device</span> <span class="pre">limit</span> <span class="pre">of</span> <span class="pre">(1024,1024,64)</span></code> 并轻松确定块的指定 z 维度无效。参见 <a class="reference internal" href="../04-special-topics/error-log-management.html#error-log-management"><span class="std std-ref">错误日志管理</span></a> 了解更多详情。</p>
+<p><strong>可能的值</strong>: <code class="docutils literal notranslate"><span class="pre">stdout</span></code>, <code class="docutils literal notranslate"><span class="pre">stderr</span></code>，或有效的文件路径（具有适当的访问权限）</p>
+<p><strong>warp</strong>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_LOG_FILE</span><span class="o">=</span>stdout
 <span class="nv">CUDA_LOG_FILE</span><span class="o">=</span>/tmp/dbg_cuda_log
 </pre></div>
@@ -843,144 +638,93 @@ If the <code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FIL
 </section>
 </section>
 </section>
-
-
-                </article>
-              
-              
-              
-              
-              
-                <footer class="prev-next-footer d-print-none">
-                  
+</article>
+<footer class="prev-next-footer d-print-none">
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="compute-capabilities.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><span class="section-number">5.1. </span>Compute Capabilities</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="cpp-language-support.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><span class="section-number">5.3. </span>C++ Language Support</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
+<a class="left-prev" href="compute-capabilities.html" title="上一页">5.1. 计算能力</a>
+<a class="right-next" href="cpp-language-support.html" title="下一页">5.3. C++ 语言支持</a>
 </div>
-                </footer>
-              
-            </div>
-            
-            
-
-
-              
-                <dialog id="pst-secondary-sidebar-modal"></dialog>
-                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
-
-
-  <div class="sidebar-secondary-item">
-<div
-    id="pst-page-navigation-heading-2"
-    class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
+</footer>
+</div>
+<dialog id="pst-secondary-sidebar-modal"></dialog>
+<div class="bd-sidebar-secondary bd-toc" id="pst-secondary-sidebar"><div class="sidebar-secondary-items sidebar-secondary__inner">
+<div class="sidebar-secondary-item">
+<div class="page-toc tocsection onthispage" id="pst-page-navigation-heading-2">
+<i class="fa-solid fa-list"></i>本页内容
   </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#device-enumeration-and-properties">5.2.1. Device Enumeration and Properties</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-visible-devices">5.2.1.1. <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-device-order">5.2.1.2. <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_ORDER</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-managed-force-device-alloc">5.2.1.3. <code class="docutils literal notranslate"><span class="pre">CUDA_MANAGED_FORCE_DEVICE_ALLOC</span></code></a></li>
+<nav aria-labelledby="pst-page-navigation-heading-2" class="bd-toc-nav page-toc">
+<ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#device-enumeration-and-properties">5.2. CUDA 环境变量</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-visible-devices">5.2. CUDA 环境变量</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-device-order">5.2. CUDA 环境变量</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-managed-force-device-alloc">5.2. CUDA 环境变量</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#jit-compilation">5.2.2. JIT Compilation</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-cache-disable">5.2.2.1. <code class="docutils literal notranslate"><span class="pre">CUDA_CACHE_DISABLE</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-cache-path">5.2.2.2. <code class="docutils literal notranslate"><span class="pre">CUDA_CACHE_PATH</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-cache-maxsize">5.2.2.3. <code class="docutils literal notranslate"><span class="pre">CUDA_CACHE_MAXSIZE</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-force-ptx-jit-and-cuda-force-jit">5.2.2.4. <code class="docutils literal notranslate"><span class="pre">CUDA_FORCE_PTX_JIT</span></code> and <code class="docutils literal notranslate"><span class="pre">CUDA_FORCE_JIT</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-disable-ptx-jit-and-cuda-disable-jit">5.2.2.5. <code class="docutils literal notranslate"><span class="pre">CUDA_DISABLE_PTX_JIT</span></code> and <code class="docutils literal notranslate"><span class="pre">CUDA_DISABLE_JIT</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-force-preload-libraries">5.2.2.6. <code class="docutils literal notranslate"><span class="pre">CUDA_FORCE_PRELOAD_LIBRARIES</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#jit-compilation">5.2. CUDA 环境变量</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-cache-disable">5.2. CUDA 环境变量</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-cache-path">5.2. CUDA 环境变量</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-cache-maxsize">5.2. CUDA 环境变量</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-force-ptx-jit-and-cuda-force-jit">5.2. CUDA 环境变量</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-disable-ptx-jit-and-cuda-disable-jit">5.2. CUDA 环境变量</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-force-preload-libraries">5.2. CUDA 环境变量</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#execution">5.2.3. Execution</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-launch-blocking">5.2.3.1. <code class="docutils literal notranslate"><span class="pre">CUDA_LAUNCH_BLOCKING</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-device-max-connections">5.2.3.2. <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_CONNECTIONS</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-device-max-copy-connections">5.2.3.3. <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_COPY_CONNECTIONS</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-scale-launch-queues">5.2.3.4. <code class="docutils literal notranslate"><span class="pre">CUDA_SCALE_LAUNCH_QUEUES</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-graphs-use-node-priority">5.2.3.5. <code class="docutils literal notranslate"><span class="pre">CUDA_GRAPHS_USE_NODE_PRIORITY</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-device-waits-on-exception">5.2.3.6. <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_WAITS_ON_EXCEPTION</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-device-default-persisting-l2-cache-percentage-limit">5.2.3.7. <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_DEFAULT_PERSISTING_L2_CACHE_PERCENTAGE_LIMIT</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-disable-perf-boost">5.2.3.8. <code class="docutils literal notranslate"><span class="pre">CUDA_DISABLE_PERF_BOOST</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-auto-boost-deprecated">5.2.3.9. <code class="docutils literal notranslate"><span class="pre">CUDA_AUTO_BOOST</span></code> [[deprecated]]</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#execution">5.2. CUDA 环境变量</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-launch-blocking">5.2. CUDA 环境变量</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-device-max-connections">5.2. CUDA 环境变量</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-device-max-copy-connections">5.2. CUDA 环境变量</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-scale-launch-queues">5.2. CUDA 环境变量</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-graphs-use-node-priority">5.2. CUDA 环境变量</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-device-waits-on-exception">5.2. CUDA 环境变量</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-device-default-persisting-l2-cache-percentage-limit">5.2. CUDA 环境变量</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-disable-perf-boost">5.2. CUDA 环境变量</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-auto-boost-deprecated">5.2. CUDA 环境变量</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#module-loading">5.2.4. Module Loading</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-module-loading">5.2.4.1. <code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_LOADING</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-module-data-loading">5.2.4.2. <code class="docutils literal notranslate"><span class="pre">CUDA_MODULE_DATA_LOADING</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-binary-loader-thread-count">5.2.4.3. <code class="docutils literal notranslate"><span class="pre">CUDA_BINARY_LOADER_THREAD_COUNT</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#module-loading">5.2. CUDA 环境变量</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-module-loading">5.2. CUDA 环境变量</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-module-data-loading">5.2. CUDA 环境变量</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-binary-loader-thread-count">5.2. CUDA 环境变量</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-error-log-management">5.2.5. CUDA Error Log Management</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-log-file">5.2.5.1. <code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-error-log-management">5.2. CUDA 环境变量</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="environment-variables.html#cuda-log-file">5.2. CUDA 环境变量</a></li>
 </ul>
 </li>
 </ul>
-  </nav></div>
-
+</nav></div>
 </div></div>
-              
-            
-
-          </div>
-          <footer class="bd-footer-content">
-            
-          </footer>
-        
-      </main>
-    </div>
-  </div>
-  
-
-  <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js"></script>
-
-
+</div>
+<footer class="bd-footer-content">
+</footer>
+</main>
+</div>
+</div>
+ 脚本在 &lt;body&gt; 之后加载，因此 DOM 不会被阻塞 
+<script defer="" src="../_static/scripts/bootstrap.js"></script>
+<script defer="" src="../_static/scripts/pydata-sphinx-theme.js"></script>
 <script type="text/javascript">if (typeof _satellite !== "undefined") {_satellite.pageBottom();}</script>
-
-  <footer class="bd-footer">
+<footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
-  
-    <div class="footer-items__start">
-      
-        <div class="footer-item">
+<div class="footer-items__start">
+<div class="footer-item">
 <a class="footer-brand logo" href="https://www.nvidia.com">
-  <img src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
-  <img src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+<img alt="NVIDIA" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg"/>
+<img alt="NVIDIA" class="logo__image only-dark" src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg"/>
 </a></div>
-      
-        <div class="footer-item">
-
+<div class="footer-item">
 <div class="footer-links">
-  
-  
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+<a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">隐私政策</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">您的隐私选择</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">服务条款</a>
    | 
   
   
@@ -990,47 +734,31 @@ If the <code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FIL
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">公司政策</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">产品安全</a>
    | 
   
   
   
   <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
-  
-  
-  
 </div>
 </div>
-      
-        <div class="footer-item">
-
-
-
-
-  <p class="copyright">
+<div class="footer-item">
+<p class="copyright">
     
-      Copyright © 2007-2026, NVIDIA Corporation &amp; affiliates. All rights reserved.
+      版权所有 © 2007-2026，NVIDIA 公司及附属公司。版权所有。
       <br/>
-    
-  </p>
+</p>
 </div>
-      
-        <div class="footer-item"><p class="last-updated">
-  Last updated on Mar 04, 2026.
+<div class="footer-item"><p class="last-updated">
+  最后更新于 2026 年 3 月 4 日。
   <br/>
 </p></div>
-      
-    </div>
-  
-  
-  
 </div>
-
-  </footer>
-  </body>
-</html>
+</div>
+</footer>
+</body></html>

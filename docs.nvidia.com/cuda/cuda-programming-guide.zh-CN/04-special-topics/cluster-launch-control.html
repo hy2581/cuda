@@ -1,52 +1,37 @@
-
-
 <!DOCTYPE html>
-
-
-<html lang="en" data-content_root="../" >
-
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <title>4.12. Work Stealing with Cluster Launch Control &#8212; CUDA Programming Guide</title>
-  
-  
-  
-  <script data-cfasync="false">
+<html data-content_root="../" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>4.12. 使用簇启动控制进行工作窃取 — CUDA 编程指南</title>
+<script data-cfasync="false">
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
-  </script>
-  <!--
-    this give us a css class that will be invisible only if js is disabled
-  -->
-  <noscript>
-    <style>
+  </script></head><body><p>
+
+    这给了我们一个 css 类，只有在禁用 js 时才会不可见
+  
+<noscript>
+<style>
       .pst-js-only { display: none !important; }
 
     </style>
-  </noscript>
-  
-  <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css" rel="stylesheet" />
-
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/tables.css" />
-  
-  <!-- So that users can add custom icons -->
-  <script src="../_static/scripts/fontawesome.js"></script>
-  <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js" />
-
-
-<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript"
-  data-document-language="true" charset="UTF-8" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5">
+</noscript>
+ 在其他 Sphinx 资源之前加载 
+<link href="../_static/styles/theme.css" rel="stylesheet"/>
+<link href="../_static/styles/pydata-sphinx-theme.css" rel="stylesheet"/>
+<link href="../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/styles/nvidia-sphinx-theme.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/custom.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/copybutton.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx-design.min.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/tables.css" rel="stylesheet" type="text/css"/>
+ 以便用户可以添加自定义图标 
+<script src="../_static/scripts/fontawesome.js"></script>
+ 我们稍后将完全加载的预加载脚本 
+<link as="script" href="../_static/scripts/bootstrap.js" rel="preload"/>
+<link as="script" href="../_static/scripts/pydata-sphinx-theme.js" rel="preload"/>
+<script charset="UTF-8" data-document-language="true" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5" src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript">
 </script>
 <script type="text/javascript">
   function OptanonWrapper() {
@@ -56,588 +41,398 @@
 </script>
 <script src="https://images.nvidia.com/aem-dam/Solutions/ot-js/ot-custom.js" type="text/javascript">
 </script>
-
-
-    <script rel="preload" src="../_static/modal-table.js"></script>
-    <script src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/scrollspy-patch.js"></script>
-    <script src="../_static/clipboard.min.js"></script>
-    <script src="../_static/copybutton.js"></script>
-    <script src="../_static/design-tabs.js"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '04-special-topics/cluster-launch-control';</script>
-    <script src="../_static/version-patch.js"></script>
-
-<script type="text/javascript" src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
-
-    <link rel="icon" href="../_static/favicon.ico"/>
-
-    <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="4.13. L2 Cache Control" href="l2-cache-control.html" />
-    <link rel="prev" title="4.11. Asynchronous Data Copies" href="async-copies.html" />
-
-<link rel="preload" as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png">
-
-
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="" />
-    <meta name="docbuild:last-update" content="Mar 04, 2026"/>
-
-
-  </head>
-
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
-
-  
-  
-  <div id="pst-skip-link" class="skip-link d-print-none"><a href="cluster-launch-control.html#main-content">Skip to main content</a></div>
-
-<img src="https://www.nvidia.com/content/dam/1x1-00000000.png" width="1" height="1" style="display:none;" alt="country_code">
-
-
-  
-  <div id="pst-scroll-pixel-helper"></div>
-  
-  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
-    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
-  
-  <dialog id="pst-search-dialog">
-    
-<form class="bd-search d-flex align-items-center"
-      action="../search.html"
-      method="get">
-  <i class="fa-solid fa-magnifying-glass"></i>
-  <input type="search"
-         class="form-control"
-         name="q"
-         placeholder="Search the docs ..."
-         aria-label="Search the docs ..."
-         autocomplete="off"
-         autocorrect="off"
-         autocapitalize="off"
-         spellcheck="false"/>
-  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+<script rel="preload" src="../_static/modal-table.js"></script>
+<script src="../_static/documentation_options.js"></script>
+<script src="../_static/doctools.js"></script>
+<script src="../_static/sphinx_highlight.js"></script>
+<script src="../_static/scrollspy-patch.js"></script>
+<script src="../_static/clipboard.min.js"></script>
+<script src="../_static/copybutton.js"></script>
+<script src="../_static/design-tabs.js"></script>
+<script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>DOCUMENTATION_OPTIONS.pagename = '04-special-topics/cluster-launch-control';</script>
+<script src="../_static/version-patch.js"></script>
+<script src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js" type="text/javascript"></script>
+<link href="../_static/favicon.ico" rel="icon"/>
+<link href="../genindex.html" rel="index" title="索引"/>
+<link href="../search.html" rel="search" title="搜索"/>
+<link href="l2-cache-control.html" rel="next" title="4.13. L2 缓存控制"/>
+<link href="async-copies.html" rel="prev" title="4.11. 异步数据拷贝"/>
+<link as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png" rel="preload"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="en" name="docsearch:language"/>
+<meta content="" name="docsearch:version"/>
+<meta content="Mar 04, 2026" name="docbuild:last-update"/>
+</p>
+<div class="skip-link d-print-none" id="pst-skip-link"><a href="cluster-launch-control.html#main-content">跳到主要内容</a></div>
+<img alt="country_code" height="1" src="https://www.nvidia.com/content/dam/1x1-00000000.png" style="display:none;" width="1"/>
+<div id="pst-scroll-pixel-helper"></div>
+<button class="btn rounded-pill" id="pst-back-to-top" type="button">
+<i class="fa-solid fa-arrow-up"></i>返回顶部</button>
+<dialog id="pst-search-dialog">
+<form action="../search.html" class="bd-search d-flex align-items-center" method="get">
+<i class="fa-solid fa-magnifying-glass"></i>
+<input aria-label="搜索文档..." autocapitalize="off" autocomplete="off" autocorrect="off" class="form-control" name="q" placeholder="搜索文档..." spellcheck="false" type="search"/>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
 </form>
-  </dialog>
-
-  <div class="pst-async-banner-revealer d-none">
-  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</dialog>
+<div class="pst-async-banner-revealer d-none">
+<aside aria-label="版本警告" class="d-none d-print-none" id="bd-header-version-warning"></aside>
 </div>
-
-  
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
-    <span class="fa-solid fa-bars"></span>
-  </button>
-  
-  
-  <div class="col-lg-3 navbar-header-items__start">
-    
-      <div class="navbar-item">
-
-  
-    
-  
-
+<button aria-label="站点导航" class="pst-navbar-icon sidebar-toggle primary-toggle">
+<span class="fa-solid fa-bars"></span>
+</button>
+<div class="col-lg-3 navbar-header-items__start">
+<div class="navbar-item">
 <a class="navbar-brand logo" href="../contents.html">
-  
-  
-  
-  
-  
-    
-    
-      
-    
-    
-    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
-    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
-  
-  
-    <p class="title logo__title">CUDA Programming Guide</p>
-  
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg"/>
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-dark pst-js-only" src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg"/>
+<p class="title logo__title">CUDA 编程指南</p>
 </a></div>
-    
-  </div>
-  
-  <div class="col-lg-9 navbar-header-items">
-    
-    <div class="me-auto navbar-header-items__center">
-      
-        <div class="navbar-item">
-
-
+</div>
+<div class="col-lg-9 navbar-header-items">
+<div class="me-auto navbar-header-items__center">
+<div class="navbar-item">
 <div>
-  <ul class="bd-navbar-elements navbar-nav">
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>v13.2 |</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>|</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
-      
-    </li>
-  
-  </ul>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item pst-header-nav-item">
+<span>v13.2 |</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+</li>
+<li class="nav-item pst-header-nav-item">
+<span>|</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">warp</a>
+</li>
+</ul>
 </div>
 </div>
-      
-    </div>
-    
-    
-    <div class="navbar-header-items__end">
-      
-        <div class="navbar-item navbar-persistent--container">
-          
-
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
- <i class="fa-solid fa-magnifying-glass"></i>
- <span class="search-button__default-text">Search</span>
- <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</div>
+<div class="navbar-header-items__end">
+<div class="navbar-item navbar-persistent--container">
+<button aria-label="warp" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="warp">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">warp</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
 </button>
-        </div>
-      
-      
-        <div class="navbar-item">
-
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</div>
+<div class="navbar-item">
+<button aria-label="色彩模式" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="系统设置"></i>
 </button></div>
-      
-    </div>
-    
-  </div>
-  
-  
-    <div class="navbar-persistent--mobile">
-
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
- <i class="fa-solid fa-magnifying-glass"></i>
- <span class="search-button__default-text">Search</span>
- <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-</button>
-    </div>
-  
-
-  
-    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
-      <span class="fa-solid fa-outdent"></span>
-    </button>
-  
 </div>
-
-    </header>
-  
-
-  <div class="bd-container">
-    <div class="bd-container__inner bd-page-width">
-      
-      
-      
-      <dialog id="pst-primary-sidebar-modal"></dialog>
-      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
-        
-
-
-
-  
-    
-  
-
+</div>
+<div class="navbar-persistent--mobile">
+<button aria-label="warp" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="warp">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">warp</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+</div>
+<button aria-label="切换侧边栏" class="pst-navbar-icon sidebar-toggle secondary-toggle">
+<span class="fa-solid fa-outdent"></span>
+</button>
+</div>
+</header>
+<div class="bd-container">
+<div class="bd-container__inner bd-page-width">
+<dialog id="pst-primary-sidebar-modal"></dialog>
+<div class="bd-sidebar-primary bd-sidebar" id="pst-primary-sidebar">
 <a class="navbar-brand logo" href="../contents.html">
-  
-  
-  
-  
-  
-    
-    
-      
-    
-    
-    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
-    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
-  
-  
-    <p class="title logo__title">CUDA Programming Guide</p>
-  
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg"/>
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-dark pst-js-only" src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg"/>
+<p class="title logo__title">CUDA 编程指南</p>
 </a>
-
-
-  
-  <div class="sidebar-header-items sidebar-primary__section">
-    
-    
-      <div class="sidebar-header-items__center">
-        
-          
-          
-            <div class="navbar-item">
-
-
+<div class="sidebar-header-items sidebar-primary__section">
+<div class="sidebar-header-items__center">
+<div class="navbar-item">
 <div>
-  <ul class="bd-navbar-elements navbar-nav">
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>v13.2 |</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>|</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
-      
-    </li>
-  
-  </ul>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item pst-header-nav-item">
+<span>v13.2 |</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+</li>
+<li class="nav-item pst-header-nav-item">
+<span>|</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">warp</a>
+</li>
+</ul>
 </div>
 </div>
-          
-        
-      </div>
-    
-    
-    
-      <div class="sidebar-header-items__end">
-        
-          <div class="navbar-item">
-
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</div>
+<div class="sidebar-header-items__end">
+<div class="navbar-item">
+<button aria-label="色彩模式" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="系统设置"></i>
 </button></div>
-        
-      </div>
-    
-  </div>
-  
-    <div class="sidebar-primary-items__start sidebar-primary__section">
-        <div class="sidebar-primary-item">
-
-
-
-<nav class="bd-docs-nav bd-links"
-     aria-label="Table of Contents">
-  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
-  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA Programming Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. Introduction to CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../01-introduction/introduction.html">1.1. Introduction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../01-introduction/programming-model.html">1.2. Programming Model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../01-introduction/cuda-platform.html">1.3. The CUDA platform</a></li>
+</div>
+</div>
+<div class="sidebar-primary-items__start sidebar-primary__section">
+<div class="sidebar-primary-item">
+<nav aria-label="目录" class="bd-docs-nav bd-links">
+<p aria-level="1" class="bd-links__title" role="heading">目录</p>
+<div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA 编程指南</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. CUDA 简介</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/introduction.html">1.1. 引言</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/programming-model.html">1.2. 编程模型</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/cuda-platform.html">1.3. CUDA 平台</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part2.html">2. Programming GPUs in CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html">2.1. Intro to CUDA C++</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/writing-cuda-kernels.html">2.2. Writing CUDA SIMT Kernels</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/asynchronous-execution.html">2.3. Asynchronous Execution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/understanding-memory.html">2.4. Unified and System Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/nvcc.html">2.5. NVCC: The NVIDIA CUDA Compiler</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part2.html">2. 使用 CUDA 进行 GPU 编程</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html">2.1. CUDA C++ 入门</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/writing-cuda-kernels.html">2.2. 编写 CUDA SIMT 内核</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/asynchronous-execution.html">2.3. 异步执行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/understanding-memory.html">2.4. 统一内存与系统内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/nvcc.html">2.5. NVCC：NVIDIA CUDA 编译器</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. Advanced CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. Advanced CUDA APIs and Features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. Advanced Kernel Programming</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. The CUDA Driver API</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. Programming Systems with Multiple GPUs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. A Tour of CUDA Features</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. 高级 CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. 高级 CUDA API 与特性</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. 高级内核编程</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. CUDA Driver API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. 多 GPU 系统编程</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. CUDA 特性概览</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="../part4.html">4. CUDA Features</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="unified-memory.html">4.1. Unified Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cuda-graphs.html">4.2. CUDA Graphs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="stream-ordered-memory-allocation.html">4.3. Stream-Ordered Memory Allocator</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cooperative-groups.html">4.4. Cooperative Groups</a></li>
-<li class="toctree-l3"><a class="reference internal" href="programmatic-dependent-launch.html">4.5. Programmatic Dependent Launch and Synchronization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="green-contexts.html">4.6. Green Contexts</a></li>
-<li class="toctree-l3"><a class="reference internal" href="lazy-loading.html">4.7. Lazy Loading</a></li>
-<li class="toctree-l3"><a class="reference internal" href="error-log-management.html">4.8. Error Log Management</a></li>
-<li class="toctree-l3"><a class="reference internal" href="async-barriers.html">4.9. Asynchronous Barriers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pipelines.html">4.10. Pipelines</a></li>
-<li class="toctree-l3"><a class="reference internal" href="async-copies.html">4.11. Asynchronous Data Copies</a></li>
-<li class="toctree-l3 current active"><a class="current reference internal" href="cluster-launch-control.html#">4.12. Work Stealing with Cluster Launch Control</a></li>
-<li class="toctree-l3"><a class="reference internal" href="l2-cache-control.html">4.13. L2 Cache Control</a></li>
-<li class="toctree-l3"><a class="reference internal" href="memory-sync-domains.html">4.14. Memory Synchronization Domains</a></li>
-<li class="toctree-l3"><a class="reference internal" href="inter-process-communication.html">4.15. Interprocess Communication</a></li>
-<li class="toctree-l3"><a class="reference internal" href="virtual-memory-management.html">4.16. Virtual Memory Management</a></li>
-<li class="toctree-l3"><a class="reference internal" href="extended-gpu-memory.html">4.17. Extended GPU Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dynamic-parallelism.html">4.18. CUDA Dynamic Parallelism</a></li>
-<li class="toctree-l3"><a class="reference internal" href="graphics-interop.html">4.19. CUDA Interoperability with APIs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="driver-entry-point-access.html">4.20. Driver Entry Point Access</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../part4.html">4. CUDA 特性</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="unified-memory.html">4.1. 统一内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda-graphs.html">4.2. CUDA Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stream-ordered-memory-allocation.html">4.3. 流有序内存分配器</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cooperative-groups.html">4.4. 协作组</a></li>
+<li class="toctree-l3"><a class="reference internal" href="programmatic-dependent-launch.html">4.5. 程序化依赖启动与同步</a></li>
+<li class="toctree-l3"><a class="reference internal" href="green-contexts.html">4.6. 绿色上下文</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lazy-loading.html">4.7. 延迟加载</a></li>
+<li class="toctree-l3"><a class="reference internal" href="error-log-management.html">4.8. 错误日志管理</a></li>
+<li class="toctree-l3"><a class="reference internal" href="async-barriers.html">4.9. 异步屏障</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pipelines.html">4.10. 流水线</a></li>
+<li class="toctree-l3"><a class="reference internal" href="async-copies.html">4.11. 异步数据拷贝</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="cluster-launch-control.html#">4.12. 使用簇启动控制进行工作窃取</a></li>
+<li class="toctree-l3"><a class="reference internal" href="l2-cache-control.html">4.13. L2 缓存控制</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory-sync-domains.html">4.14. 内存同步域</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inter-process-communication.html">4.15. 进程间通信</a></li>
+<li class="toctree-l3"><a class="reference internal" href="virtual-memory-management.html">4.16. 虚拟内存管理</a></li>
+<li class="toctree-l3"><a class="reference internal" href="extended-gpu-memory.html">4.17. 扩展 GPU 内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamic-parallelism.html">4.18. CUDA 动态并行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graphics-interop.html">4.19. CUDA 与 API 的互操作</a></li>
+<li class="toctree-l3"><a class="reference internal" href="driver-entry-point-access.html">4.20. 驱动入口点访问</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part5.html">5. Technical Appendices</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/compute-capabilities.html">5.1. Compute Capabilities</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/environment-variables.html">5.2. CUDA Environment Variables</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-support.html">5.3. C++ Language Support</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-extensions.html">5.4. C/C++ Language Extensions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/mathematical-functions.html">5.5. Floating-Point Computation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/device-callable-apis.html">5.6. Device-Callable APIs and Intrinsics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-memory-model.html">5.7. CUDA C++ Memory Model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-execution-model.html">5.8. CUDA C++ Execution model</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part5.html">5. 技术附录</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/compute-capabilities.html">5.1. 计算能力</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/environment-variables.html">5.2. CUDA 环境变量</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-support.html">5.3. C++ 语言支持</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-extensions.html">5.4. C/C++ 语言扩展</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/mathematical-functions.html">5.5. 浮点计算</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/device-callable-apis.html">5.6. 设备端可调用 API 与内建函数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-memory-model.html">5.7. CUDA C++ 内存模型</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-execution-model.html">5.8. CUDA C++ 执行模型</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. Notices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. 声明</a></li>
 </ul>
 </details></li>
 </ul>
 </div>
 </nav></div>
-    </div>
-  
-  
-  <div class="sidebar-primary-items__end sidebar-primary__section">
-  </div>
-
-
-
-      </div>
-      
-      <main id="main-content" class="bd-main" role="main">
-        
-        
-          <div class="bd-content">
-            <div class="bd-article-container">
-              
-              <div class="bd-header-article d-print-none">
+</div>
+<div class="sidebar-primary-items__end sidebar-primary__section">
+</div>
+</div>
+<main class="bd-main" id="main-content" role="main">
+<div class="bd-content">
+<div class="bd-article-container">
+<div class="bd-header-article d-print-none">
 <div class="header-article-items header-article__inner">
-  
-    <div class="header-article-items__start">
-      
-        <div class="header-article-item">
-
+<div class="header-article-items__start">
+<div class="header-article-item">
 <nav aria-label="Breadcrumb" class="d-print-none">
-  <ul class="bd-breadcrumbs">
-    
-    <li class="breadcrumb-item breadcrumb-home">
-      <a href="../contents.html" class="nav-link" aria-label="Home">
-        <i class="fa-solid fa-home"></i>
-      </a>
-    </li>
-    
-    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">CUDA Programming Guide</a></li>
-    
-    
-    <li class="breadcrumb-item"><a href="../part4.html" class="nav-link"><span class="section-number">4. </span>CUDA Features</a></li>
-    
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">4.12. </span>Work Stealing with Cluster Launch Control</span></li>
-  </ul>
+<ul class="bd-breadcrumbs">
+<li class="breadcrumb-item breadcrumb-home">
+<a aria-label="Home" class="nav-link" href="../contents.html">目录</a>
+</li>
+<li class="breadcrumb-item"><a class="nav-link" href="../index.html">CUDA 编程指南</a></li>
+<li class="breadcrumb-item"><a class="nav-link" href="../part4.html">4. CUDA 特性</a></li>
+<li aria-current="page" class="breadcrumb-item active"><span class="ellipsis"><span class="section-number">4.12. </span>使用集群启动控制窃取工作</span></li>
+</ul>
 </nav>
 </div>
-      
-    </div>
-  
-  
-    <div class="header-article-items__end">
-      
-        <div class="header-article-item">
+</div>
+<div class="header-article-items__end">
 <div class="header-article-item">
-  <div class="d-flex justify-content-end w-100">
-    <a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">Is this page helpful?</a>
-  </div>
+<div class="header-article-item">
+<div class="d-flex justify-content-end w-100">
+<a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">此页面有帮助吗？</a>
+</div>
 </div></div>
-      
-    </div>
-  
 </div>
 </div>
-              
-              
-              
-                
+</div>
 <div id="searchbox"></div>
-                <article class="bd-article">
-                  
-  <section id="work-stealing-with-cluster-launch-control">
-<span id="cluster-launch-control"></span><h1><span class="section-number">4.12. </span>Work Stealing with Cluster Launch Control<a class="headerlink" href="cluster-launch-control.html#work-stealing-with-cluster-launch-control" title="Link to this heading">#</a></h1>
-<p>Dealing with problems of variable data and computation sizes is essential when developing CUDA applications. Traditionally, CUDA developers have used two main approaches to determine the number of kernel thread blocks to launch: <em>fixed work per thread block</em> and <em>fixed number of thread blocks</em>. Both approaches have their advantages and disadvantages.</p>
-<p><strong>Fixed Work per Thread Block:</strong> In this approach, the number of thread blocks is determined by the problem size, while the amount of work done by each thread block remains constant.</p>
-<p>Key advantages of this approach:</p>
+<article class="bd-article">
+<section id="work-stealing-with-cluster-launch-control">
+<span id="cluster-launch-control"></span><h1>4.12. 使用簇启动控制进行工作窃取<a class="headerlink" href="cluster-launch-control.html#work-stealing-with-cluster-launch-control" title="跳转到此标题">#</a></h1>
+<p>在开发 CUDA 应用程序时，处理可变数据和计算量的问题至关重要。传统上，CUDA 开发人员使用两种主要方法来确定要启动的内核线程块的数量： <em>每个线程块的固定工作</em> 或 <em>固定数量的线程块</em>。两种方法都有其优点和缺点。</p>
+<p><strong>每个线程块的固定工作：</strong> 在这种方法中，线程块的数量由问题的大小决定，而每个线程块完成的工作量保持不变。</p>
+<p>这种方法的主要优点：</p>
 <ul>
-<li><p><em>Load balancing between SMs</em></p>
-<p>When thread block run-times exhibit variability
-and/or when the number of thread blocks is much larger than what
-the GPU can execute simultaneously (resulting in a low-tail effect),
-this approach allows the GPU scheduler to run more thread blocks
-on some SMs than others.</p>
+<li><p><em>SM之间的负载均衡</em></p>
+<p>当线程块运行时间表现出可变性时
+和/或当线程块的数量远大于线程块的数量时
+GPU可以同时执行（产生低尾效应），
+这种方法允许 GPU 调度程序运行更多线程块
+在某些短信上比其他短信更重要。</p>
 </li>
 <li><p><em>Preemption</em></p>
-<p>The GPU scheduler can start executing a
-<a class="reference internal" href="../02-basics/asynchronous-execution.html#async-execution-stream-priorities"><span class="std std-ref">higher-priority kernel</span></a>,
-even if it is launched after a lower-priority kernel has
-already begun executing, by scheduling its thread blocks
-as thread blocks of the lower-priority kernel complete.
-It can then resume execution of the lower-priority kernel once the higher-priority
-kernel has finished executing.</p>
+<p>GPU调度器可以开始执行
+<a class="reference internal" href="../02-basics/asynchronous-execution.html#async-execution-stream-priorities"><span class="std std-ref">更高优先级的内核</span></a>,
+即使它是在较低优先级内核启动后启动的
+已经开始执行，通过调度其线程块
+当较低优先级内核的线程块完成时。
+一旦较高优先级的内核被执行，它就可以恢复执行较低优先级的内核。
+内核已经执行完毕。</p>
 </li>
 </ul>
-<p><strong>Fixed Number of Thread Blocks:</strong> In this approach, often
-implemented as a block-stride or grid-stride loop,
-the number of thread blocks does not depend
-on the problem size. Instead, the amount of work done by each thread block
-is a function of the problem size. Typically, the number of thread blocks is
-based on the number of SMs on the GPU where the kernel is executed
-and the desired occupancy.</p>
-<p>Key advantages of this approach:</p>
+<p><strong>固定数量的线程块：</strong> 在这种方法中，常常
+实现为块跨步或网格跨步循环，
+线程块的数量不依赖于
+关于问题的大小。相反，每个线程块完成的工作量
+是问题大小的函数。通常，线程块的数量是
+基于执行内核的 GPU 上的 SM 数量
+以及所需的入住率。</p>
+<p>这种方法的主要优点：</p>
 <ul>
-<li><p><em>Reduced thread block overheads</em></p>
-<p>This approach not only reduces amortized thread block launch latency
-but also minimizes the computational overhead associated with shared
-operations across all thread blocks.
-These overheads can be significantly higher than launch latency overheads.</p>
-<p>For example, in convolution kernels, a prologue for calculating
-convolution coefficients – independent of the thread block index –
-can be computed fewer times due to the fixed number of thread blocks,
-thus reducing redundant computations.</p>
+<li><p><em>减少线程块开销</em></p>
+<p>这种方法不仅减少了分摊线程块启动延迟
+而且还最大限度地减少了与共享相关的计算开销
+跨所有线程块的操作。
+这些开销可能明显高于启动延迟开销。</p>
+<p>例如，在卷积核中，用于计算的序言
+卷积系数 – 独立于线程块索引 –
+由于线程块的数量固定，计算次数可以减少，
+从而减少冗余计算。</p>
 </li>
 </ul>
-<p><strong>Cluster Launch Control</strong> is a feature introduced in the NVIDIA Blackwell GPU architecture (compute capability 10.0) that aims to combine the benefits of the previous two approaches. It provides developers with more control over thread block scheduling by allowing them to cancel thread blocks or thread block clusters.
-This mechanism enables work stealing. Work stealing is a dynamic load-balancing technique in parallel computing
-where idle processors actively “steal” tasks from the work queues of busy
-processors, rather than wait for work to be assigned.</p>
+<p><strong>集群启动控制</strong> 是 NVIDIA Blackwell GPU 架构（计算能力 10.0）中引入的一项功能，旨在结合前两种方法的优点。它允许开发人员取消线程块或线程块集群，从而为开发人员提供对线程块调度的更多控制。
+这种机制可以实现工作窃取。工作窃取是并行计算中的一种动态负载平衡技术
+空闲处理器主动从繁忙的工作队列中“窃取”任务
+处理器，而不是等待分配工作。</p>
 <figure class="align-center" id="cluster-launch-control-diagram">
-<a class="reference internal image-reference" href="../_images/cluster_launch_control.png"><img alt="Cluster Launch Control Flow" src="../_images/cluster_launch_control.png" style="width: 600px;" />
+<a class="reference internal image-reference" href="../_images/cluster_launch_control.png"><img alt="集群启动控制流程" src="../_images/cluster_launch_control.png" style="width: 600px;"/>
 </a>
 <figcaption>
-<p><span class="caption-number">Figure 51 </span><span class="caption-text">Cluster Launch Control Flow</span><a class="headerlink" href="cluster-launch-control.html#cluster-launch-control-diagram" title="Link to this image">#</a></p>
+<p><span class="caption-number">图51 </span><span class="caption-text">集群启动控制流程</span><a class="headerlink" href="cluster-launch-control.html#cluster-launch-control-diagram" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
-<p>With cluster launch control, a thread block attempts to cancel the launch of
-another thread block that has not started executing yet. If the cancellation request
-succeeds, it “steals” the other thread block’s work by using its
-index to perform the task. The cancellation will fail if there are no more
-thread block indices available or for other reasons, such as a
-higher-priority kernel being scheduled. In the latter case, if a thread block
-exits after a cancellation failure, the scheduler can start executing the
-higher-priority kernel, after which it will continue scheduling the remaining
-thread blocks of the current kernel for execution. The
-<a class="reference internal" href="cluster-launch-control.html#cluster-launch-control-diagram"><span class="std std-ref">figure</span></a> above presents the execution
-flow of this procedure.</p>
-<p>The table below summarizes advantages and disadvantages of the three
-approaches:</p>
+<p>通过集群启动控制，线程块尝试取消启动
+另一个尚未开始执行的线程块。如果取消请求
+成功后，它通过使用其“窃取”另一个线程块的工作
+执行任务的索引。如果没有更多则取消失败
+线程块索引可用或出于其他原因，例如
+正在调度更高优先级的内核。在后一种情况下，如果线程阻塞
+取消失败后退出，调度程序可以开始执行
+优先级较高的内核，之后它将继续调度剩余的内核
+当前内核执行的线程块。的
+<a class="reference internal" href="cluster-launch-control.html#cluster-launch-control-diagram"><span class="std std-ref">figure</span></a> 上面介绍了执行
+该程序的流程。</p>
+<p>下表总结了三者的优缺点
+方法：</p>
 <div class="pst-scrollable-table-container"><table class="table-no-stripes table">
 <colgroup>
-<col style="width: 40.0%" />
-<col style="width: 20.0%" />
-<col style="width: 20.0%" />
-<col style="width: 20.0%" />
+<col style="width: 40.0%"/>
+<col style="width: 20.0%"/>
+<col style="width: 20.0%"/>
+<col style="width: 20.0%"/>
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"></th>
 <th class="head"><p class="centered">
-<strong>Fixed Work per Thread Block</strong></p></th>
+<strong>每个线程块的固定工作</strong></p></th>
 <th class="head"><p class="centered">
-<strong>Fixed Number of Thread Blocks</strong></p></th>
+<strong>固定数量的线程块</strong></p></th>
 <th class="head"><p class="centered">
-<strong>Cluster Launch Control</strong></p></th>
+<strong>集群启动控制</strong></p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>Reduced overheads</p></td>
+<tr class="row-even"><td><p>减少管理费用</p></td>
 <td><p class="centered">
-<strong><span class="math notranslate nohighlight">\(\textcolor{red}{\textbf{X}}\)</span></strong></p></td>
+<strong><span class="math notranslate nohighlight">\(\textcolor{红色}{\textbf{X}}\)</span></strong></p></td>
 <td><p class="centered">
-<strong><span class="math notranslate nohighlight">\(\textcolor{lime}{\textbf{V}}\)</span></strong></p></td>
+<strong><span class="math notranslate nohighlight">\(\textcolor{石灰}{\textbf{V}}\)</span></strong></p></td>
 <td><p class="centered">
-<strong><span class="math notranslate nohighlight">\(\textcolor{lime}{\textbf{V}}\)</span></strong></p></td>
+<strong><span class="math notranslate nohighlight">\(\textcolor{石灰}{\textbf{V}}\)</span></strong></p></td>
 </tr>
 <tr class="row-odd"><td><p>Preemption</p></td>
 <td><p class="centered">
-<strong><span class="math notranslate nohighlight">\(\textcolor{lime}{\textbf{V}}\)</span></strong></p></td>
+<strong><span class="math notranslate nohighlight">\(\textcolor{石灰}{\textbf{V}}\)</span></strong></p></td>
 <td><p class="centered">
-<strong><span class="math notranslate nohighlight">\(\textcolor{red}{\textbf{X}}\)</span></strong></p></td>
+<strong><span class="math notranslate nohighlight">\(\textcolor{红色}{\textbf{X}}\)</span></strong></p></td>
 <td><p class="centered">
-<strong><span class="math notranslate nohighlight">\(\textcolor{lime}{\textbf{V}}\)</span></strong></p></td>
+<strong><span class="math notranslate nohighlight">\(\textcolor{石灰}{\textbf{V}}\)</span></strong></p></td>
 </tr>
-<tr class="row-even"><td><p>Load balancing</p></td>
+<tr class="row-even"><td><p>负载均衡</p></td>
 <td><p class="centered">
-<strong><span class="math notranslate nohighlight">\(\textcolor{lime}{\textbf{V}}\)</span></strong></p></td>
+<strong><span class="math notranslate nohighlight">\(\textcolor{石灰}{\textbf{V}}\)</span></strong></p></td>
 <td><p class="centered">
-<strong><span class="math notranslate nohighlight">\(\textcolor{red}{\textbf{X}}\)</span></strong></p></td>
+<strong><span class="math notranslate nohighlight">\(\textcolor{红色}{\textbf{X}}\)</span></strong></p></td>
 <td><p class="centered">
-<strong><span class="math notranslate nohighlight">\(\textcolor{lime}{\textbf{V}}\)</span></strong></p></td>
+<strong><span class="math notranslate nohighlight">\(\textcolor{石灰}{\textbf{V}}\)</span></strong></p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <section id="api-details">
-<span id="advanced-kernels-clc-api-details"></span><h2><span class="section-number">4.12.1. </span>API Details<a class="headerlink" href="cluster-launch-control.html#api-details" title="Link to this heading">#</a></h2>
-<p>Cancelling a thread block via the cluster launch control API is done
-asynchronously and synchronized using a shared memory barrier,
-following a programming pattern similar
-to <a class="reference internal" href="../03-advanced/advanced-kernel-programming.html#advanced-kernels-async-copies"><span class="std std-ref">asynchronous data copies</span></a>.</p>
-<p>The API, available through <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/ptx_api.html">libcu++</a>, provides:</p>
+<span id="advanced-kernels-clc-api-details"></span><h2><span class="section-number">4.12.1. </span>接口详情<a class="headerlink" href="cluster-launch-control.html#api-details" title="跳转到此标题">#</a></h2>
+<p>通过集群启动控制 API 取消线程块已完成
+使用共享内存屏障进行异步和同步，
+遵循类似的编程模式
+到 <a class="reference internal" href="../03-advanced/advanced-kernel-programming.html#advanced-kernels-async-copies"><span class="std std-ref">异步数据复制</span></a>.</p>
+<p>API，可通过 <a class="reference external" href="https://nvidia.github.io/cccl/libcudacxx/ptx_api.html">libcu++</a>，提供：</p>
 <ul class="simple">
-<li><p>A request instruction that writes encoded cancellation results to a <code class="docutils literal notranslate"><span class="pre">__shared__</span></code> variable.</p></li>
-<li><p>Decoding instructions that extract success/failure status and the cancelled thread block index.</p></li>
+<li><p>将编码的取消结果写入到的请求指令 <code class="docutils literal notranslate"><span class="pre">__shared__</span></code> variable.</p></li>
+<li><p>解码提取成功/失败状态和取消的线程块索引的指令。</p></li>
 </ul>
-<p>Note that cluster launch control operations are modeled as async proxy operations (see <a class="reference internal" href="../03-advanced/advanced-kernel-programming.html#advanced-kernels-hardware-implementation-asynchronous-execution-features-async-thread-proxy"><span class="std std-ref">Async Thread and Async Proxy</span></a>).</p>
+<p>请注意，集群启动控制操作被建模为异步代理操作（请参阅 <a class="reference internal" href="../03-advanced/advanced-kernel-programming.html#advanced-kernels-hardware-implementation-asynchronous-execution-features-async-thread-proxy"><span class="std std-ref">异步线程和异步代理</span></a>).</p>
 <section id="thread-block-cancellation">
-<h3><span class="section-number">4.12.1.1. </span>Thread Block Cancellation<a class="headerlink" href="cluster-launch-control.html#thread-block-cancellation" title="Link to this heading">#</a></h3>
-<p>The preferred way to use Cluster Launch Control is from a single thread,
-i.e., one request at a time.</p>
-<p>The cancellation process involves five steps:</p>
+<h3><span class="section-number">4.12.1.1. </span>线程块取消<a class="headerlink" href="cluster-launch-control.html#thread-block-cancellation" title="跳转到此标题">#</a></h3>
+<p>使用集群启动控制的首选方法是从单个线程，
+即一次一个请求。</p>
+<p>取消过程包括五个步骤：</p>
 <ul class="simple">
-<li><p><strong>Setup Phase</strong> (Steps 1-2): Declare and initialize cancellation result and synchronization variables.</p></li>
-<li><p><strong>Work-Stealing Loop</strong> (Steps 3-5): Execute repeatedly to request, synchronize, and process cancellation results.</p></li>
+<li><p><strong>设置阶段</strong> （步骤1-2）：声明并初始化取消结果和同步变量。</p></li>
+<li><p><strong>工作窃取循环</strong> （步骤3-5）：重复执行以请求、同步和处理取消结果。</p></li>
 </ul>
 <ol class="arabic">
-<li><p>Declare variables for thread block cancellation:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">__shared__</span><span class="w"> </span><span class="n">uint4</span><span class="w"> </span><span class="n">result</span><span class="p">;</span><span class="w"> </span><span class="c1">// Request result.</span>
-<span class="n">__shared__</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">bar</span><span class="p">;</span><span class="w"> </span><span class="c1">// Synchronization barrier.</span>
-<span class="kt">int</span><span class="w"> </span><span class="n">phase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">           </span><span class="c1">// Synchronization barrier phase.</span>
+<li><p>声明线程块取消的变量：</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">__shared__</span><span class="w"> </span><span class="n">uint4</span><span class="w"> </span><span class="n">result</span><span class="p">;</span><span class="w"> </span><span class="c1">// 请求结果。</span>
+<span class="n">__shared__</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">bar</span><span class="p">;</span><span class="w"> </span><span class="c1">// 同步障碍。</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">phase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">           </span><span class="c1">// 同步屏障阶段。</span>
 </pre></div>
 </div>
 </li>
-<li><p>Initialize shared memory barrier with a single arrival count:</p>
+<li><p>使用单个到达计数初始化共享内存屏障：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cg</span><span class="o">::</span><span class="n">thread_block</span><span class="o">::</span><span class="n">thread_rank</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
 <span class="w">    </span><span class="n">ptx</span><span class="o">::</span><span class="n">mbarrier_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">bar</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
 <span class="n">__syncthreads</span><span class="p">();</span>
 </pre></div>
 </div>
 </li>
-<li><p>Submit asynchronous cancellation request by a single thread and
-set transaction count:</p>
+<li><p>单线程提交异步取消请求并
+设置交易数量：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cg</span><span class="o">::</span><span class="n">thread_block</span><span class="o">::</span><span class="n">thread_rank</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">cg</span><span class="o">::</span><span class="n">invoke_one</span><span class="p">(</span><span class="n">cg</span><span class="o">::</span><span class="n">coalesced_threads</span><span class="p">(),</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">](){</span><span class="n">ptx</span><span class="o">::</span><span class="n">clusterlaunchcontrol_try_cancel</span><span class="p">(</span><span class="o">&amp;</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">bar</span><span class="p">);});</span>
 <span class="w">    </span><span class="n">ptx</span><span class="o">::</span><span class="n">mbarrier_arrive_expect_tx</span><span class="p">(</span><span class="n">ptx</span><span class="o">::</span><span class="n">sem_relaxed</span><span class="p">,</span><span class="w"> </span><span class="n">ptx</span><span class="o">::</span><span class="n">scope_cta</span><span class="p">,</span><span class="w"> </span><span class="n">ptx</span><span class="o">::</span><span class="n">space_shared</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">bar</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">uint4</span><span class="p">));</span>
@@ -645,24 +440,24 @@ set transaction count:</p>
 </pre></div>
 </div>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Since thread block cancellation is a uniform instruction,
-it is recommended to submit it inside
-<a class="reference internal" href="cooperative-groups.html#cooperative-groups-invoke-one"><span class="std std-ref">invoke_one</span></a> thread selector.
-This allows the compiler to optimize out the peeling loop.</p>
+<p class="admonition-title">注</p>
+<p>由于线程块取消是统一指令，
+建议在里面提交
+<a class="reference internal" href="cooperative-groups.html#cooperative-groups-invoke-one"><span class="std std-ref">invoke_one</span></a> 线程选择器。
+这允许编译器优化剥离循环。</p>
 </div>
 </li>
-<li><p>Synchronize (complete) asynchronous cancellation request:</p>
+<li><p>同步（完成）异步取消请求：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">ptx</span><span class="o">::</span><span class="n">mbarrier_try_wait_parity</span><span class="p">(</span><span class="o">&amp;</span><span class="n">bar</span><span class="p">,</span><span class="w"> </span><span class="n">phase</span><span class="p">))</span>
 <span class="p">{}</span>
 <span class="n">phase</span><span class="w"> </span><span class="o">^=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 </pre></div>
 </div>
 </li>
-<li><p>Retrieve cancellation status and cancelled thread block index:</p>
+<li><p>检索取消状态和取消的线程块索引：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">bool</span><span class="w"> </span><span class="n">success</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ptx</span><span class="o">::</span><span class="n">clusterlaunchcontrol_query_cancel_is_canceled</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
 <span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">success</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="c1">// Don&#39;t need all three for 1D/2D thread blocks:</span>
+<span class="w">    </span><span class="c1">// 1D/2D 线程块不需要全部三个：</span>
 <span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">bx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ptx</span><span class="o">::</span><span class="n">clusterlaunchcontrol_query_cancel_get_first_ctaid_x</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
 <span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ptx</span><span class="o">::</span><span class="n">clusterlaunchcontrol_query_cancel_get_first_ctaid_y</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
 <span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">bz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ptx</span><span class="o">::</span><span class="n">clusterlaunchcontrol_query_cancel_get_first_ctaid_z</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
@@ -670,99 +465,99 @@ This allows the compiler to optimize out the peeling loop.</p>
 </pre></div>
 </div>
 </li>
-<li><p>Ensure visibility of shared memory operations between async and generic
+<li><p>确保异步和通用之间共享内存操作的可见性
 <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#proxies">proxies</a>,
-and protect against data races between iterations of the work-stealing loop.</p></li>
+并防止工作窃取循环迭代之间的数据竞争。</p></li>
 </ol>
 </section>
 <section id="constraints-on-thread-block-cancellation">
-<h3><span class="section-number">4.12.1.2. </span>Constraints on Thread Block Cancellation<a class="headerlink" href="cluster-launch-control.html#constraints-on-thread-block-cancellation" title="Link to this heading">#</a></h3>
-<p>The constraints are related to failed cancellation requests:</p>
+<h3><span class="section-number">4.12.1.2. </span>线程块取消的约束<a class="headerlink" href="cluster-launch-control.html#constraints-on-thread-block-cancellation" title="跳转到此标题">#</a></h3>
+<p>这些限制与失败的取消请求相关：</p>
 <ul>
-<li><p>Submitting another cancellation request after <strong>observing</strong> a
-previously failed request is <em>undefined behavior</em>.</p>
-<p>In the two code examples below, assuming the first cancellation request
-fails, only the first example exhibits undefined behavior.
-The second example is correct because there is no observation between the
-cancellation requests:</p>
-<p><strong>Invalid code:</strong></p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// First request:</span>
+<li><p>之后再次提交取消请求 <strong>observing</strong> 一个
+之前失败的请求是 <em>未定义的行为</em>.</p>
+<p>在下面的两个代码示例中，假设第一个取消请求
+失败，只有第一个示例表现出未定义的行为。
+第二个例子是正确的，因为在
+取消请求：</p>
+<p><strong>无效代码：</strong></p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 第一个请求：</span>
 <span class="n">ptx</span><span class="o">::</span><span class="n">clusterlaunchcontrol_try_cancel</span><span class="p">(</span><span class="o">&amp;</span><span class="n">result0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">bar0</span><span class="p">);</span>
 
-<span class="c1">// First request query:</span>
+<span class="c1">// 第一个请求查询：</span>
 <span class="p">[</span><span class="n">Synchronize</span><span class="w"> </span><span class="n">bar0</span><span class="w"> </span><span class="n">code</span><span class="w"> </span><span class="n">here</span><span class="p">.]</span>
 <span class="kt">bool</span><span class="w"> </span><span class="n">success0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ptx</span><span class="o">::</span><span class="n">clusterlaunchcontrol_query_cancel_is_canceled</span><span class="p">(</span><span class="n">result0</span><span class="p">);</span>
-<span class="n">assert</span><span class="p">(</span><span class="o">!</span><span class="n">success0</span><span class="p">);</span><span class="w"> </span><span class="c1">// Observed failure; second cancellation will be invalid.</span>
+<span class="n">assert</span><span class="p">(</span><span class="o">!</span><span class="n">success0</span><span class="p">);</span><span class="w"> </span><span class="c1">// 观察到的故障；第二次取消将无效。</span>
 
-<span class="c1">// Second request - next line is Undefined Behavior:</span>
+<span class="c1">// 第二个请求 - 下一行是未定义的行为：</span>
 <span class="n">ptx</span><span class="o">::</span><span class="n">clusterlaunchcontrol_try_cancel</span><span class="p">(</span><span class="o">&amp;</span><span class="n">result1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">bar1</span><span class="p">);</span>
 </pre></div>
 </div>
-<p><strong>Valid code:</strong></p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// First request:</span>
+<p><strong>有效代码：</strong></p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 第一个请求：</span>
 <span class="n">ptx</span><span class="o">::</span><span class="n">clusterlaunchcontrol_try_cancel</span><span class="p">(</span><span class="o">&amp;</span><span class="n">result0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">bar0</span><span class="p">);</span>
 
-<span class="c1">// Second request:</span>
+<span class="c1">// 第二个请求：</span>
 <span class="n">ptx</span><span class="o">::</span><span class="n">clusterlaunchcontrol_try_cancel</span><span class="p">(</span><span class="o">&amp;</span><span class="n">result1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">bar1</span><span class="p">);</span>
 
-<span class="c1">// First request query:</span>
+<span class="c1">// 第一个请求查询：</span>
 <span class="p">[</span><span class="n">Synchronize</span><span class="w"> </span><span class="n">bar0</span><span class="w"> </span><span class="n">code</span><span class="w"> </span><span class="n">here</span><span class="p">.]</span>
 <span class="kt">bool</span><span class="w"> </span><span class="n">success0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ptx</span><span class="o">::</span><span class="n">clusterlaunchcontrol_query_cancel_is_canceled</span><span class="p">(</span><span class="n">result0</span><span class="p">);</span>
-<span class="n">assert</span><span class="p">(</span><span class="o">!</span><span class="n">success0</span><span class="p">);</span><span class="w"> </span><span class="c1">// Observed failure; second cancellation was valid.</span>
+<span class="n">assert</span><span class="p">(</span><span class="o">!</span><span class="n">success0</span><span class="p">);</span><span class="w"> </span><span class="c1">// 观察到的故障；第二次取消有效。</span>
 </pre></div>
 </div>
 </li>
-<li><p>Retrieving the thread block index of a failed cancellation request
-is Undefined Behavior.</p></li>
-<li><p>Submitting a cancellation request from multiple threads is not recommended.
-It results in the cancellation of multiple thread blocks
-and requires careful handling,
-such as:</p>
+<li><p>检索失败的取消请求的线程块索引
+是未定义的行为。</p></li>
+<li><p>不建议从多个线程提交取消请求。
+导致多个线程块被取消
+并且需要小心处理，
+如：</p>
 <ul class="simple">
-<li><p>Each submitting thread must provide a unique <code class="docutils literal notranslate"><span class="pre">__shared__</span></code> result
-pointer to avoid data races.</p></li>
-<li><p>If the same barrier is used for synchronization, the arrival and
-transaction counts must be adjusted accordingly.</p></li>
+<li><p>每个提交线程必须提供唯一的 <code class="docutils literal notranslate"><span class="pre">__shared__</span></code> 结果
+避免数据竞争的指针。</p></li>
+<li><p>如果使用相同的屏障进行同步，则到达和
+交易数量必须相应调整。</p></li>
 </ul>
 </li>
 </ul>
 </section>
 </section>
 <section id="example-vector-scalar-multiplication">
-<h2><span class="section-number">4.12.2. </span>Example: Vector-Scalar Multiplication<a class="headerlink" href="cluster-launch-control.html#example-vector-scalar-multiplication" title="Link to this heading">#</a></h2>
-<p>In the following subsections, we demonstrate work stealing through cluster launch control with a vector-scalar multiplication kernel. We show two variants of the same problem: one using thread blocks and one using thread block clusters.</p>
+<h2><span class="section-number">4.12.2. </span>示例：矢量标量乘法<a class="headerlink" href="cluster-launch-control.html#example-vector-scalar-multiplication" title="跳转到此标题">#</a></h2>
+<p>在以下小节中，我们将演示通过使用向量标量乘法内核的集群启动控制来窃取工作。我们展示了同一问题的两种变体：一种使用线程块，一种使用线程块集群。</p>
 <section id="use-case-thread-blocks">
-<h3><span class="section-number">4.12.2.1. </span>Use-case: Thread Blocks<a class="headerlink" href="cluster-launch-control.html#use-case-thread-blocks" title="Link to this heading">#</a></h3>
-<p>The three kernels below demonstrate the <em>Fixed Work per Thread Block</em>,
-<em>Fixed Number of Thread Blocks</em>, and <em>Cluster Launch Control</em> approaches
-for vector-scalar multiplication
+<h3><span class="section-number">4.12.2.1. </span>用例：线程块<a class="headerlink" href="cluster-launch-control.html#use-case-thread-blocks" title="跳转到此标题">#</a></h3>
+<p>下面的三个内核演示了 <em>每个线程块的固定工作</em>,
+<em>固定数量的线程块</em>, 和 <em>集群启动控制</em> 方法
+用于矢量标量乘法
 <span class="math notranslate nohighlight">\(\overline{v} := \alpha \overline{v}\)</span>.</p>
 <ul>
-<li><p>Fixed Work per Thread Block:</p>
+<li><p>每个线程块的固定工作：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">__global__</span>
 <span class="kt">void</span><span class="w"> </span><span class="n">kernel_fixed_work</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span>
 <span class="p">{</span>
-<span class="w">    </span><span class="c1">// Prologue:</span>
+<span class="w">    </span><span class="c1">// 序言：</span>
 <span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">compute_scalar</span><span class="p">();</span>
 
-<span class="w">    </span><span class="c1">// Computation:</span>
+<span class="w">    </span><span class="c1">// 计算：</span>
 <span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">blockDim</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">)</span>
 <span class="w">        </span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="n">alpha</span><span class="p">;</span>
 <span class="p">}</span>
 
-<span class="c1">// Launch: kernel_fixed_work&lt;&lt;&lt;1024, (n + 1023) / 1024&gt;&gt;&gt;(data, n);</span>
+<span class="c1">// 启动：kernel_fixed_work&lt;&lt;&lt;1024, (n + 1023) / 1024&gt;&gt;&gt;(数据, n);</span>
 </pre></div>
 </div>
 </li>
-<li><p>Fixed Number of Thread Blocks:</p>
+<li><p>固定数量的线程块：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">__global__</span>
 <span class="kt">void</span><span class="w"> </span><span class="n">kernel_fixed_blocks</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span>
 <span class="p">{</span>
-<span class="w">    </span><span class="c1">// Prologue:</span>
+<span class="w">    </span><span class="c1">// 序言：</span>
 <span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">compute_scalar</span><span class="p">();</span>
 
-<span class="w">    </span><span class="c1">// Computation:</span>
+<span class="w">    </span><span class="c1">// 计算：</span>
 <span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">blockDim</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
 <span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="n">alpha</span><span class="p">;</span>
@@ -770,11 +565,11 @@ for vector-scalar multiplication
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 
-<span class="c1">// Launch: kernel_fixed_blocks&lt;&lt;&lt;1024, SM_COUNT&gt;&gt;&gt;(data, n);</span>
+<span class="c1">// 启动：kernel_fixed_blocks&lt;&lt;&lt;1024，SM_COUNT&gt;&gt;&gt;（数据，n）；</span>
 </pre></div>
 </div>
 </li>
-<li><p>Cluster Launch Control:</p>
+<li><p>集群启动控制：</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cooperative_groups.h&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cuda/ptx&gt;</span>
 
@@ -784,7 +579,7 @@ for vector-scalar multiplication
 <span class="n">__global__</span>
 <span class="kt">void</span><span class="w"> </span><span class="n">kernel_cluster_launch_control</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span>
 <span class="p">{</span>
-<span class="w">    </span><span class="c1">// Cluster launch control initialization:</span>
+<span class="w">    </span><span class="c1">// 集群启动控制初始化：</span>
 <span class="w">    </span><span class="n">__shared__</span><span class="w"> </span><span class="n">uint4</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
 <span class="w">    </span><span class="n">__shared__</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">bar</span><span class="p">;</span>
 <span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">phase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
@@ -792,79 +587,79 @@ for vector-scalar multiplication
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cg</span><span class="o">::</span><span class="n">thread_block</span><span class="o">::</span><span class="n">thread_rank</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
 <span class="w">        </span><span class="n">ptx</span><span class="o">::</span><span class="n">mbarrier_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">bar</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
 
-<span class="w">    </span><span class="c1">// Prologue:</span>
-<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">compute_scalar</span><span class="p">();</span><span class="w"> </span><span class="c1">// Device function not shown in this code snippet.</span>
+<span class="w">    </span><span class="c1">// 序言：</span>
+<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">compute_scalar</span><span class="p">();</span><span class="w"> </span><span class="c1">// 此代码片段中未显示设备功能。</span>
 
-<span class="w">    </span><span class="c1">// Work-stealing loop:</span>
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">bx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span><span class="w"> </span><span class="c1">// Assuming 1D x-axis thread blocks.</span>
+<span class="w">    </span><span class="c1">// 工作窃取循环：</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">bx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span><span class="w"> </span><span class="c1">// 假设 1D x 轴线程块。</span>
 
 <span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nb">true</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="c1">// Protect result from overwrite in the next iteration,</span>
-<span class="w">        </span><span class="c1">// (also ensure barrier initialization at 1st iteration):</span>
+<span class="w">        </span><span class="c1">// 保护结果在下一次迭代中不被覆盖，</span>
+<span class="w">        </span><span class="c1">// （还确保第一次迭代时的屏障初始化）：</span>
 <span class="w">        </span><span class="n">__syncthreads</span><span class="p">();</span>
 
-<span class="w">        </span><span class="c1">// Cancellation request:</span>
+<span class="w">        </span><span class="c1">// 取消请求：</span>
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cg</span><span class="o">::</span><span class="n">thread_block</span><span class="o">::</span><span class="n">thread_rank</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="c1">// Acquire write of result in the async proxy:</span>
+<span class="w">            </span><span class="c1">// 获取异步代理中结果的写入：</span>
 <span class="w">            </span><span class="n">ptx</span><span class="o">::</span><span class="n">fence_proxy_async_generic_sync_restrict</span><span class="p">(</span><span class="n">ptx</span><span class="o">::</span><span class="n">sem_acquire</span><span class="p">,</span><span class="w"> </span><span class="n">ptx</span><span class="o">::</span><span class="n">space_cluster</span><span class="p">,</span><span class="w"> </span><span class="n">ptx</span><span class="o">::</span><span class="n">scope_cluster</span><span class="p">);</span>
 
 <span class="w">            </span><span class="n">cg</span><span class="o">::</span><span class="n">invoke_one</span><span class="p">(</span><span class="n">cg</span><span class="o">::</span><span class="n">coalesced_threads</span><span class="p">(),</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">](){</span><span class="n">ptx</span><span class="o">::</span><span class="n">clusterlaunchcontrol_try_cancel</span><span class="p">(</span><span class="o">&amp;</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">bar</span><span class="p">);});</span>
 <span class="w">            </span><span class="n">ptx</span><span class="o">::</span><span class="n">mbarrier_arrive_expect_tx</span><span class="p">(</span><span class="n">ptx</span><span class="o">::</span><span class="n">sem_relaxed</span><span class="p">,</span><span class="w"> </span><span class="n">ptx</span><span class="o">::</span><span class="n">scope_cta</span><span class="p">,</span><span class="w"> </span><span class="n">ptx</span><span class="o">::</span><span class="n">space_shared</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">bar</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">uint4</span><span class="p">));</span>
 <span class="w">        </span><span class="p">}</span>
 
-<span class="w">        </span><span class="c1">// Computation:</span>
+<span class="w">        </span><span class="c1">// 计算：</span>
 <span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bx</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">blockDim</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">)</span>
 <span class="w">            </span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="n">alpha</span><span class="p">;</span>
 
-<span class="w">        </span><span class="c1">// Cancellation request synchronization:</span>
+<span class="w">        </span><span class="c1">// 取消请求同步：</span>
 <span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">ptx</span><span class="o">::</span><span class="n">mbarrier_try_wait_parity</span><span class="p">(</span><span class="n">ptx</span><span class="o">::</span><span class="n">sem_acquire</span><span class="p">,</span><span class="w"> </span><span class="n">ptx</span><span class="o">::</span><span class="n">scope_cta</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">bar</span><span class="p">,</span><span class="w"> </span><span class="n">phase</span><span class="p">))</span>
 <span class="w">        </span><span class="p">{}</span>
 <span class="w">        </span><span class="n">phase</span><span class="w"> </span><span class="o">^=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 
-<span class="w">        </span><span class="c1">// Cancellation request decoding:</span>
+<span class="w">        </span><span class="c1">// 取消请求解码：</span>
 <span class="w">        </span><span class="kt">bool</span><span class="w"> </span><span class="n">success</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ptx</span><span class="o">::</span><span class="n">clusterlaunchcontrol_query_cancel_is_canceled</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">success</span><span class="p">)</span>
 <span class="w">            </span><span class="k">break</span><span class="p">;</span>
 
 <span class="w">        </span><span class="n">bx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ptx</span><span class="o">::</span><span class="n">clusterlaunchcontrol_query_cancel_get_first_ctaid_x</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
 
-<span class="w">        </span><span class="c1">// Release read of result to the async proxy:</span>
+<span class="w">        </span><span class="c1">// 将结果读取释放到异步代理：</span>
 <span class="w">        </span><span class="n">ptx</span><span class="o">::</span><span class="n">fence_proxy_async_generic_sync_restrict</span><span class="p">(</span><span class="n">ptx</span><span class="o">::</span><span class="n">sem_release</span><span class="p">,</span><span class="w"> </span><span class="n">ptx</span><span class="o">::</span><span class="n">space_shared</span><span class="p">,</span><span class="w"> </span><span class="n">ptx</span><span class="o">::</span><span class="n">scope_cluster</span><span class="p">);</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 
-<span class="c1">// Launch: kernel_cluster_launch_control&lt;&lt;&lt;1024, (n + 1023) / 1024&gt;&gt;&gt;(data, n);</span>
+<span class="c1">// 启动：kernel_cluster_launch_control&lt;&lt;&lt;1024, (n + 1023) / 1024&gt;&gt;&gt;(数据, n);</span>
 </pre></div>
 </div>
 </li>
 </ul>
 </section>
 <section id="use-case-thread-block-clusters">
-<h3><span class="section-number">4.12.2.2. </span>Use-case: Thread Block Clusters<a class="headerlink" href="cluster-launch-control.html#use-case-thread-block-clusters" title="Link to this heading">#</a></h3>
-<p>In the case of a <a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html#thread-block-clusters"><span class="std std-ref">thread block clusters</span></a>,
-the thread block cancellation steps are the same as in a non-cluster setting,
-with minor adjustments.
-As in the non-cluster case, submitting a cancellation request from multiple
-threads <strong>within a cluster</strong> is not recommended,
-as this will attempt to cancel multiple clusters.</p>
+<h3><span class="section-number">4.12.2.2. </span>用例：线程块集群<a class="headerlink" href="cluster-launch-control.html#use-case-thread-block-clusters" title="跳转到此标题">#</a></h3>
+<p>如果是 <a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html#thread-block-clusters"><span class="std std-ref">线程块簇</span></a>,
+线程块取消步骤与非集群设置中的相同，
+进行细微调整。
+与非集群情况一样，从多个提交取消请求
+线程 <strong>簇内</strong> 不推荐，
+因为这将尝试取消多个集群。</p>
 <ul class="simple">
-<li><p>The cancellation is submitted by a single cluster thread.</p></li>
-<li><p>The shared memory result of each cluster’s thread block will receive
-the same (encoded) value of the cancelled thread block index
-(i.e., the result value is multicasted).
-The result received by all thread blocks corresponds to the local
-block index <code class="docutils literal notranslate"><span class="pre">{0,</span> <span class="pre">0,</span> <span class="pre">0}</span></code> within a cluster.
-Therefore, thread blocks within the cluster need to add
-the local block index.</p></li>
-<li><p>Synchronization is performed by each cluster’s thread block using
-a local <code class="docutils literal notranslate"><span class="pre">__shared__</span></code> memory barrier. Barrier operations must be performed
-with the <code class="docutils literal notranslate"><span class="pre">ptx::scope_cluster</span></code> scope.</p></li>
-<li><p>Cancelling in the cluster case requires all the thread blocks to exist.
-A user can guarantee that all thread blocks are running by using
-<code class="docutils literal notranslate"><span class="pre">cg::cluster_group::sync()</span></code> from <a class="reference internal" href="../05-appendices/device-callable-apis.html#cg-api-sync-function"><span class="std std-ref">sync</span></a> API.</p></li>
+<li><p>取消由单个集群线程提交。</p></li>
+<li><p>每个集群的线程块的共享内存结果将收到
+已取消线程块索引的相同（编码）值
+（即，结果值被多播）。
+所有线程块收到的结果都对应本地
+块索引 <code class="docutils literal notranslate"><span class="pre">{0,</span> <span class="pre">0,</span> <span class="pre">0}</span></code> 在一个集群内。
+因此，集群内的线程块需要添加
+本地块索引。</p></li>
+<li><p>同步是由每个集群的线程块使用
+本地人 <code class="docutils literal notranslate"><span class="pre">__shared__</span></code> 内存障碍。必须进行屏障操作
+与 <code class="docutils literal notranslate"><span class="pre">ptx::scope_cluster</span></code> scope.</p></li>
+<li><p>在集群情况下取消需要所有线程块都存在。
+用户可以通过使用来保证所有线程块都在运行
+<code class="docutils literal notranslate"><span class="pre">cg::cluster_group::sync()</span></code> from <a class="reference internal" href="../05-appendices/device-callable-apis.html#cg-api-sync-function"><span class="std std-ref">sync</span></a> API。</p></li>
 </ul>
-<p>The kernel below demonstrates the cluster launch control approach using thread block clusters.</p>
+<p>下面的内核演示了使用线程块集群的集群启动控制方法。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cooperative_groups.h&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cuda/ptx&gt;</span>
 
@@ -874,179 +669,128 @@ A user can guarantee that all thread blocks are running by using
 <span class="n">__global__</span><span class="w"> </span><span class="nf">__cluster_dims__</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
 <span class="kt">void</span><span class="w"> </span><span class="n">kernel_cluster_launch_control</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span>
 <span class="p">{</span>
-<span class="w">    </span><span class="c1">// Cluster launch control initialization:</span>
+<span class="w">    </span><span class="c1">// 集群启动控制初始化：</span>
 <span class="w">    </span><span class="n">__shared__</span><span class="w"> </span><span class="n">uint4</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
 <span class="w">    </span><span class="n">__shared__</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">bar</span><span class="p">;</span>
 <span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">phase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cg</span><span class="o">::</span><span class="n">thread_block</span><span class="o">::</span><span class="n">thread_rank</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="n">ptx</span><span class="o">::</span><span class="n">mbarrier_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">bar</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
-<span class="w">        </span><span class="n">ptx</span><span class="o">::</span><span class="n">fence_mbarrier_init</span><span class="p">(</span><span class="n">ptx</span><span class="o">::</span><span class="n">sem_release</span><span class="p">,</span><span class="w"> </span><span class="n">ptx</span><span class="o">::</span><span class="n">scope_cluster</span><span class="p">);</span><span class="w"> </span><span class="c1">// CGA-level fence.</span>
+<span class="w">        </span><span class="n">ptx</span><span class="o">::</span><span class="n">fence_mbarrier_init</span><span class="p">(</span><span class="n">ptx</span><span class="o">::</span><span class="n">sem_release</span><span class="p">,</span><span class="w"> </span><span class="n">ptx</span><span class="o">::</span><span class="n">scope_cluster</span><span class="p">);</span><span class="w"> </span><span class="c1">// CGA级围栏。</span>
 <span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="c1">// Prologue:</span>
-<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">compute_scalar</span><span class="p">();</span><span class="w"> </span><span class="c1">// Device function not shown in this code snippet.</span>
+<span class="w">    </span><span class="c1">// 序言：</span>
+<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">compute_scalar</span><span class="p">();</span><span class="w"> </span><span class="c1">// 此代码片段中未显示设备功能。</span>
 
-<span class="w">    </span><span class="c1">// Work-stealing loop:</span>
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">bx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span><span class="w"> </span><span class="c1">// Assuming 1D x-axis thread blocks.</span>
+<span class="w">    </span><span class="c1">// 工作窃取循环：</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">bx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">blockIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span><span class="w"> </span><span class="c1">// 假设 1D x 轴线程块。</span>
 
 <span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nb">true</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="c1">// Protect result from overwrite in the next iteration,</span>
-<span class="w">        </span><span class="c1">// (also ensure all thread blocks have started at 1st iteration):</span>
+<span class="w">        </span><span class="c1">// 保护结果在下一次迭代中不被覆盖，</span>
+<span class="w">        </span><span class="c1">// （还要确保所有线程块已在第一次迭代时启动）：</span>
 <span class="w">        </span><span class="n">cg</span><span class="o">::</span><span class="n">cluster_group</span><span class="o">::</span><span class="n">sync</span><span class="p">();</span>
 
-<span class="w">        </span><span class="c1">// Cancellation request by a single cluster thread:</span>
+<span class="w">        </span><span class="c1">// 单个集群线程的取消请求：</span>
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cg</span><span class="o">::</span><span class="n">cluster_group</span><span class="o">::</span><span class="n">thread_rank</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="c1">// Acquire write of result in the async proxy:</span>
+<span class="w">            </span><span class="c1">// 获取异步代理中结果的写入：</span>
 <span class="w">            </span><span class="n">ptx</span><span class="o">::</span><span class="n">fence_proxy_async_generic_sync_restrict</span><span class="p">(</span><span class="n">ptx</span><span class="o">::</span><span class="n">sem_acquire</span><span class="p">,</span><span class="w"> </span><span class="n">ptx</span><span class="o">::</span><span class="n">space_cluster</span><span class="p">,</span><span class="w"> </span><span class="n">ptx</span><span class="o">::</span><span class="n">scope_cluster</span><span class="p">);</span>
 
 <span class="w">            </span><span class="n">cg</span><span class="o">::</span><span class="n">invoke_one</span><span class="p">(</span><span class="n">cg</span><span class="o">::</span><span class="n">coalesced_threads</span><span class="p">(),</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">](){</span><span class="n">ptx</span><span class="o">::</span><span class="n">clusterlaunchcontrol_try_cancel_multicast</span><span class="p">(</span><span class="o">&amp;</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">bar</span><span class="p">);});</span>
 <span class="w">        </span><span class="p">}</span>
 
-<span class="w">        </span><span class="c1">// Cancellation completion tracked by each thread block:</span>
+<span class="w">        </span><span class="c1">// 每个线程块跟踪的取消完成：</span>
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cg</span><span class="o">::</span><span class="n">thread_block</span><span class="o">::</span><span class="n">thread_rank</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
 <span class="w">            </span><span class="n">ptx</span><span class="o">::</span><span class="n">mbarrier_arrive_expect_tx</span><span class="p">(</span><span class="n">ptx</span><span class="o">::</span><span class="n">sem_relaxed</span><span class="p">,</span><span class="w"> </span><span class="n">ptx</span><span class="o">::</span><span class="n">scope_cluster</span><span class="p">,</span><span class="w"> </span><span class="n">ptx</span><span class="o">::</span><span class="n">space_shared</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">bar</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">uint4</span><span class="p">));</span>
 
-<span class="w">        </span><span class="c1">// Computation:</span>
+<span class="w">        </span><span class="c1">// 计算：</span>
 <span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bx</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">blockDim</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">)</span>
 <span class="w">            </span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="n">alpha</span><span class="p">;</span>
 
-<span class="w">        </span><span class="c1">// Cancellation request synchronization:</span>
+<span class="w">        </span><span class="c1">// 取消请求同步：</span>
 <span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">ptx</span><span class="o">::</span><span class="n">mbarrier_try_wait_parity</span><span class="p">(</span><span class="n">ptx</span><span class="o">::</span><span class="n">sem_acquire</span><span class="p">,</span><span class="w"> </span><span class="n">ptx</span><span class="o">::</span><span class="n">scope_cluster</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">bar</span><span class="p">,</span><span class="w"> </span><span class="n">phase</span><span class="p">))</span>
 <span class="w">        </span><span class="p">{}</span>
 <span class="w">        </span><span class="n">phase</span><span class="w"> </span><span class="o">^=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 
-<span class="w">        </span><span class="c1">// Cancellation request decoding:</span>
+<span class="w">        </span><span class="c1">// 取消请求解码：</span>
 <span class="w">        </span><span class="kt">bool</span><span class="w"> </span><span class="n">success</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ptx</span><span class="o">::</span><span class="n">clusterlaunchcontrol_query_cancel_is_canceled</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">success</span><span class="p">)</span>
 <span class="w">            </span><span class="k">break</span><span class="p">;</span>
 
 <span class="w">        </span><span class="n">bx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ptx</span><span class="o">::</span><span class="n">clusterlaunchcontrol_query_cancel_get_first_ctaid_x</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
-<span class="w">        </span><span class="n">bx</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">cg</span><span class="o">::</span><span class="n">cluster_group</span><span class="o">::</span><span class="n">block_index</span><span class="p">().</span><span class="n">x</span><span class="p">;</span><span class="w"> </span><span class="c1">// Add local offset.</span>
+<span class="w">        </span><span class="n">bx</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">cg</span><span class="o">::</span><span class="n">cluster_group</span><span class="o">::</span><span class="n">block_index</span><span class="p">().</span><span class="n">x</span><span class="p">;</span><span class="w"> </span><span class="c1">// 添加局部偏移。</span>
 
-<span class="w">        </span><span class="c1">// Release read of result to the async proxy:</span>
+<span class="w">        </span><span class="c1">// 将结果读取释放到异步代理：</span>
 <span class="w">        </span><span class="n">ptx</span><span class="o">::</span><span class="n">fence_proxy_async_generic_sync_restrict</span><span class="p">(</span><span class="n">ptx</span><span class="o">::</span><span class="n">sem_release</span><span class="p">,</span><span class="w"> </span><span class="n">ptx</span><span class="o">::</span><span class="n">space_shared</span><span class="p">,</span><span class="w"> </span><span class="n">ptx</span><span class="o">::</span><span class="n">scope_cluster</span><span class="p">);</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 
-<span class="c1">// Launch: kernel_cluster_launch_control&lt;&lt;&lt;1024, (n + 1023) / 1024&gt;&gt;&gt;(data, n);</span>
+<span class="c1">// 启动：kernel_cluster_launch_control&lt;&lt;&lt;1024, (n + 1023) / 1024&gt;&gt;&gt;(数据, n);</span>
 </pre></div>
 </div>
 </section>
 </section>
 </section>
-
-
-                </article>
-              
-              
-              
-              
-              
-                <footer class="prev-next-footer d-print-none">
-                  
+</article>
+<footer class="prev-next-footer d-print-none">
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="async-copies.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><span class="section-number">4.11. </span>Asynchronous Data Copies</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="l2-cache-control.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><span class="section-number">4.13. </span>L2 Cache Control</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
+<a class="left-prev" href="async-copies.html" title="上一页">4.11. 异步数据拷贝</a>
+<a class="right-next" href="l2-cache-control.html" title="下一页">4.13. L2 缓存控制</a>
 </div>
-                </footer>
-              
-            </div>
-            
-            
-
-
-              
-                <dialog id="pst-secondary-sidebar-modal"></dialog>
-                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
-
-
-  <div class="sidebar-secondary-item">
-<div
-    id="pst-page-navigation-heading-2"
-    class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
+</footer>
+</div>
+<dialog id="pst-secondary-sidebar-modal"></dialog>
+<div class="bd-sidebar-secondary bd-toc" id="pst-secondary-sidebar"><div class="sidebar-secondary-items sidebar-secondary__inner">
+<div class="sidebar-secondary-item">
+<div class="page-toc tocsection onthispage" id="pst-page-navigation-heading-2">
+<i class="fa-solid fa-list"></i>本页内容
   </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cluster-launch-control.html#api-details">4.12.1. API Details</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cluster-launch-control.html#thread-block-cancellation">4.12.1.1. Thread Block Cancellation</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cluster-launch-control.html#constraints-on-thread-block-cancellation">4.12.1.2. Constraints on Thread Block Cancellation</a></li>
+<nav aria-labelledby="pst-page-navigation-heading-2" class="bd-toc-nav page-toc">
+<ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cluster-launch-control.html#api-details">4.12. 使用簇启动控制进行工作窃取</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cluster-launch-control.html#thread-block-cancellation">4.12. 使用簇启动控制进行工作窃取</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cluster-launch-control.html#constraints-on-thread-block-cancellation">4.12. 使用簇启动控制进行工作窃取</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cluster-launch-control.html#example-vector-scalar-multiplication">4.12.2. Example: Vector-Scalar Multiplication</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cluster-launch-control.html#use-case-thread-blocks">4.12.2.1. Use-case: Thread Blocks</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cluster-launch-control.html#use-case-thread-block-clusters">4.12.2.2. Use-case: Thread Block Clusters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cluster-launch-control.html#example-vector-scalar-multiplication">4.12. 使用簇启动控制进行工作窃取</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cluster-launch-control.html#use-case-thread-blocks">4.12. 使用簇启动控制进行工作窃取</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cluster-launch-control.html#use-case-thread-block-clusters">4.12. 使用簇启动控制进行工作窃取</a></li>
 </ul>
 </li>
 </ul>
-  </nav></div>
-
+</nav></div>
 </div></div>
-              
-            
-
-          </div>
-          <footer class="bd-footer-content">
-            
-          </footer>
-        
-      </main>
-    </div>
-  </div>
-  
-
-  <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js"></script>
-
-
+</div>
+<footer class="bd-footer-content">
+</footer>
+</main>
+</div>
+</div>
+ 脚本在 &lt;body&gt; 之后加载，因此 DOM 不会被阻塞 
+<script defer="" src="../_static/scripts/bootstrap.js"></script>
+<script defer="" src="../_static/scripts/pydata-sphinx-theme.js"></script>
 <script type="text/javascript">if (typeof _satellite !== "undefined") {_satellite.pageBottom();}</script>
-
-  <footer class="bd-footer">
+<footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
-  
-    <div class="footer-items__start">
-      
-        <div class="footer-item">
+<div class="footer-items__start">
+<div class="footer-item">
 <a class="footer-brand logo" href="https://www.nvidia.com">
-  <img src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
-  <img src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+<img alt="NVIDIA" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg"/>
+<img alt="NVIDIA" class="logo__image only-dark" src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg"/>
 </a></div>
-      
-        <div class="footer-item">
-
+<div class="footer-item">
 <div class="footer-links">
-  
-  
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+<a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">隐私政策</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">您的隐私选择</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">服务条款</a>
    | 
   
   
@@ -1056,47 +800,31 @@ A user can guarantee that all thread blocks are running by using
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">公司政策</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">产品安全</a>
    | 
   
   
   
   <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
-  
-  
-  
 </div>
 </div>
-      
-        <div class="footer-item">
-
-
-
-
-  <p class="copyright">
+<div class="footer-item">
+<p class="copyright">
     
-      Copyright © 2007-2026, NVIDIA Corporation &amp; affiliates. All rights reserved.
+      版权所有 © 2007-2026，NVIDIA 公司及附属公司。版权所有。
       <br/>
-    
-  </p>
+</p>
 </div>
-      
-        <div class="footer-item"><p class="last-updated">
-  Last updated on Mar 04, 2026.
+<div class="footer-item"><p class="last-updated">
+  最后更新于 2026 年 3 月 4 日。
   <br/>
 </p></div>
-      
-    </div>
-  
-  
-  
 </div>
-
-  </footer>
-  </body>
-</html>
+</div>
+</footer>
+</body></html>

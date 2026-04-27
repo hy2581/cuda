@@ -1,52 +1,37 @@
-
-
 <!DOCTYPE html>
-
-
-<html lang="en" data-content_root="../" >
-
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <title>5.8. CUDA C++ Execution model &#8212; CUDA Programming Guide</title>
-  
-  
-  
-  <script data-cfasync="false">
+<html data-content_root="../" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>5.8. CUDA C++ 执行模型 — CUDA 编程指南</title>
+<script data-cfasync="false">
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
-  </script>
-  <!--
-    this give us a css class that will be invisible only if js is disabled
-  -->
-  <noscript>
-    <style>
+  </script></head><body><p>
+
+    这给了我们一个 css 类，只有在禁用 js 时才会不可见
+  
+<noscript>
+<style>
       .pst-js-only { display: none !important; }
 
     </style>
-  </noscript>
-  
-  <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css" rel="stylesheet" />
-
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/tables.css" />
-  
-  <!-- So that users can add custom icons -->
-  <script src="../_static/scripts/fontawesome.js"></script>
-  <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js" />
-
-
-<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript"
-  data-document-language="true" charset="UTF-8" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5">
+</noscript>
+ 在其他 Sphinx 资源之前加载 
+<link href="../_static/styles/theme.css" rel="stylesheet"/>
+<link href="../_static/styles/pydata-sphinx-theme.css" rel="stylesheet"/>
+<link href="../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/styles/nvidia-sphinx-theme.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/custom.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/copybutton.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx-design.min.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/tables.css" rel="stylesheet" type="text/css"/>
+ 以便用户可以添加自定义图标 
+<script src="../_static/scripts/fontawesome.js"></script>
+ 我们稍后将完全加载的预加载脚本 
+<link as="script" href="../_static/scripts/bootstrap.js" rel="preload"/>
+<link as="script" href="../_static/scripts/pydata-sphinx-theme.js" rel="preload"/>
+<script charset="UTF-8" data-document-language="true" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5" src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript">
 </script>
 <script type="text/javascript">
   function OptanonWrapper() {
@@ -56,531 +41,341 @@
 </script>
 <script src="https://images.nvidia.com/aem-dam/Solutions/ot-js/ot-custom.js" type="text/javascript">
 </script>
-
-
-    <script rel="preload" src="../_static/modal-table.js"></script>
-    <script src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/scrollspy-patch.js"></script>
-    <script src="../_static/clipboard.min.js"></script>
-    <script src="../_static/copybutton.js"></script>
-    <script src="../_static/design-tabs.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '05-appendices/cuda-cpp-execution-model';</script>
-    <script src="../_static/version-patch.js"></script>
-
-<script type="text/javascript" src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
-
-    <link rel="icon" href="../_static/favicon.ico"/>
-
-    <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="6. Notices" href="../notices.html" />
-    <link rel="prev" title="5.7. CUDA C++ Memory Model" href="cuda-cpp-memory-model.html" />
-
-<link rel="preload" as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png">
-
-
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="" />
-    <meta name="docbuild:last-update" content="Mar 04, 2026"/>
-
-
-  </head>
-
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
-
-  
-  
-  <div id="pst-skip-link" class="skip-link d-print-none"><a href="cuda-cpp-execution-model.html#main-content">Skip to main content</a></div>
-
-<img src="https://www.nvidia.com/content/dam/1x1-00000000.png" width="1" height="1" style="display:none;" alt="country_code">
-
-
-  
-  <div id="pst-scroll-pixel-helper"></div>
-  
-  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
-    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
-  
-  <dialog id="pst-search-dialog">
-    
-<form class="bd-search d-flex align-items-center"
-      action="../search.html"
-      method="get">
-  <i class="fa-solid fa-magnifying-glass"></i>
-  <input type="search"
-         class="form-control"
-         name="q"
-         placeholder="Search the docs ..."
-         aria-label="Search the docs ..."
-         autocomplete="off"
-         autocorrect="off"
-         autocapitalize="off"
-         spellcheck="false"/>
-  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+<script rel="preload" src="../_static/modal-table.js"></script>
+<script src="../_static/documentation_options.js"></script>
+<script src="../_static/doctools.js"></script>
+<script src="../_static/sphinx_highlight.js"></script>
+<script src="../_static/scrollspy-patch.js"></script>
+<script src="../_static/clipboard.min.js"></script>
+<script src="../_static/copybutton.js"></script>
+<script src="../_static/design-tabs.js"></script>
+<script>DOCUMENTATION_OPTIONS.pagename = '05-appendices/cuda-cpp-execution-model';</script>
+<script src="../_static/version-patch.js"></script>
+<script src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js" type="text/javascript"></script>
+<link href="../_static/favicon.ico" rel="icon"/>
+<link href="../genindex.html" rel="index" title="索引"/>
+<link href="../search.html" rel="search" title="搜索"/>
+<link href="../notices.html" rel="next" title="6. 声明"/>
+<link href="cuda-cpp-memory-model.html" rel="prev" title="5.7. CUDA C++ 内存模型"/>
+<link as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png" rel="preload"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="en" name="docsearch:language"/>
+<meta content="" name="docsearch:version"/>
+<meta content="Mar 04, 2026" name="docbuild:last-update"/>
+</p>
+<div class="skip-link d-print-none" id="pst-skip-link"><a href="cuda-cpp-execution-model.html#main-content">跳到主要内容</a></div>
+<img alt="country_code" height="1" src="https://www.nvidia.com/content/dam/1x1-00000000.png" style="display:none;" width="1"/>
+<div id="pst-scroll-pixel-helper"></div>
+<button class="btn rounded-pill" id="pst-back-to-top" type="button">
+<i class="fa-solid fa-arrow-up"></i>返回顶部</button>
+<dialog id="pst-search-dialog">
+<form action="../search.html" class="bd-search d-flex align-items-center" method="get">
+<i class="fa-solid fa-magnifying-glass"></i>
+<input aria-label="搜索文档..." autocapitalize="off" autocomplete="off" autocorrect="off" class="form-control" name="q" placeholder="搜索文档..." spellcheck="false" type="search"/>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
 </form>
-  </dialog>
-
-  <div class="pst-async-banner-revealer d-none">
-  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</dialog>
+<div class="pst-async-banner-revealer d-none">
+<aside aria-label="版本警告" class="d-none d-print-none" id="bd-header-version-warning"></aside>
 </div>
-
-  
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
-    <span class="fa-solid fa-bars"></span>
-  </button>
-  
-  
-  <div class="col-lg-3 navbar-header-items__start">
-    
-      <div class="navbar-item">
-
-  
-    
-  
-
+<button aria-label="站点导航" class="pst-navbar-icon sidebar-toggle primary-toggle">
+<span class="fa-solid fa-bars"></span>
+</button>
+<div class="col-lg-3 navbar-header-items__start">
+<div class="navbar-item">
 <a class="navbar-brand logo" href="../contents.html">
-  
-  
-  
-  
-  
-    
-    
-      
-    
-    
-    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
-    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
-  
-  
-    <p class="title logo__title">CUDA Programming Guide</p>
-  
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg"/>
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-dark pst-js-only" src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg"/>
+<p class="title logo__title">CUDA 编程指南</p>
 </a></div>
-    
-  </div>
-  
-  <div class="col-lg-9 navbar-header-items">
-    
-    <div class="me-auto navbar-header-items__center">
-      
-        <div class="navbar-item">
-
-
+</div>
+<div class="col-lg-9 navbar-header-items">
+<div class="me-auto navbar-header-items__center">
+<div class="navbar-item">
 <div>
-  <ul class="bd-navbar-elements navbar-nav">
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>v13.2 |</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>|</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
-      
-    </li>
-  
-  </ul>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item pst-header-nav-item">
+<span>v13.2 |</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+</li>
+<li class="nav-item pst-header-nav-item">
+<span>|</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">warp</a>
+</li>
+</ul>
 </div>
 </div>
-      
-    </div>
-    
-    
-    <div class="navbar-header-items__end">
-      
-        <div class="navbar-item navbar-persistent--container">
-          
-
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
- <i class="fa-solid fa-magnifying-glass"></i>
- <span class="search-button__default-text">Search</span>
- <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</div>
+<div class="navbar-header-items__end">
+<div class="navbar-item navbar-persistent--container">
+<button aria-label="warp" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="warp">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">warp</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
 </button>
-        </div>
-      
-      
-        <div class="navbar-item">
-
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</div>
+<div class="navbar-item">
+<button aria-label="色彩模式" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="系统设置"></i>
 </button></div>
-      
-    </div>
-    
-  </div>
-  
-  
-    <div class="navbar-persistent--mobile">
-
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
- <i class="fa-solid fa-magnifying-glass"></i>
- <span class="search-button__default-text">Search</span>
- <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-</button>
-    </div>
-  
-
-  
-    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
-      <span class="fa-solid fa-outdent"></span>
-    </button>
-  
 </div>
-
-    </header>
-  
-
-  <div class="bd-container">
-    <div class="bd-container__inner bd-page-width">
-      
-      
-      
-      <dialog id="pst-primary-sidebar-modal"></dialog>
-      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
-        
-
-
-
-  
-    
-  
-
+</div>
+<div class="navbar-persistent--mobile">
+<button aria-label="warp" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="warp">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">warp</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+</div>
+<button aria-label="切换侧边栏" class="pst-navbar-icon sidebar-toggle secondary-toggle">
+<span class="fa-solid fa-outdent"></span>
+</button>
+</div>
+</header>
+<div class="bd-container">
+<div class="bd-container__inner bd-page-width">
+<dialog id="pst-primary-sidebar-modal"></dialog>
+<div class="bd-sidebar-primary bd-sidebar" id="pst-primary-sidebar">
 <a class="navbar-brand logo" href="../contents.html">
-  
-  
-  
-  
-  
-    
-    
-      
-    
-    
-    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
-    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
-  
-  
-    <p class="title logo__title">CUDA Programming Guide</p>
-  
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg"/>
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-dark pst-js-only" src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg"/>
+<p class="title logo__title">CUDA 编程指南</p>
 </a>
-
-
-  
-  <div class="sidebar-header-items sidebar-primary__section">
-    
-    
-      <div class="sidebar-header-items__center">
-        
-          
-          
-            <div class="navbar-item">
-
-
+<div class="sidebar-header-items sidebar-primary__section">
+<div class="sidebar-header-items__center">
+<div class="navbar-item">
 <div>
-  <ul class="bd-navbar-elements navbar-nav">
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>v13.2 |</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>|</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
-      
-    </li>
-  
-  </ul>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item pst-header-nav-item">
+<span>v13.2 |</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+</li>
+<li class="nav-item pst-header-nav-item">
+<span>|</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">warp</a>
+</li>
+</ul>
 </div>
 </div>
-          
-        
-      </div>
-    
-    
-    
-      <div class="sidebar-header-items__end">
-        
-          <div class="navbar-item">
-
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</div>
+<div class="sidebar-header-items__end">
+<div class="navbar-item">
+<button aria-label="色彩模式" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="系统设置"></i>
 </button></div>
-        
-      </div>
-    
-  </div>
-  
-    <div class="sidebar-primary-items__start sidebar-primary__section">
-        <div class="sidebar-primary-item">
-
-
-
-<nav class="bd-docs-nav bd-links"
-     aria-label="Table of Contents">
-  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
-  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA Programming Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. Introduction to CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../01-introduction/introduction.html">1.1. Introduction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../01-introduction/programming-model.html">1.2. Programming Model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../01-introduction/cuda-platform.html">1.3. The CUDA platform</a></li>
+</div>
+</div>
+<div class="sidebar-primary-items__start sidebar-primary__section">
+<div class="sidebar-primary-item">
+<nav aria-label="目录" class="bd-docs-nav bd-links">
+<p aria-level="1" class="bd-links__title" role="heading">目录</p>
+<div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA 编程指南</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. CUDA 简介</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/introduction.html">1.1. 引言</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/programming-model.html">1.2. 编程模型</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/cuda-platform.html">1.3. CUDA 平台</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part2.html">2. Programming GPUs in CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html">2.1. Intro to CUDA C++</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/writing-cuda-kernels.html">2.2. Writing CUDA SIMT Kernels</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/asynchronous-execution.html">2.3. Asynchronous Execution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/understanding-memory.html">2.4. Unified and System Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/nvcc.html">2.5. NVCC: The NVIDIA CUDA Compiler</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part2.html">2. 使用 CUDA 进行 GPU 编程</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html">2.1. CUDA C++ 入门</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/writing-cuda-kernels.html">2.2. 编写 CUDA SIMT 内核</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/asynchronous-execution.html">2.3. 异步执行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/understanding-memory.html">2.4. 统一内存与系统内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/nvcc.html">2.5. NVCC：NVIDIA CUDA 编译器</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. Advanced CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. Advanced CUDA APIs and Features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. Advanced Kernel Programming</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. The CUDA Driver API</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. Programming Systems with Multiple GPUs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. A Tour of CUDA Features</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. 高级 CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. 高级 CUDA API 与特性</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. 高级内核编程</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. CUDA Driver API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. 多 GPU 系统编程</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. CUDA 特性概览</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part4.html">4. CUDA Features</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/unified-memory.html">4.1. Unified Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cuda-graphs.html">4.2. CUDA Graphs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/stream-ordered-memory-allocation.html">4.3. Stream-Ordered Memory Allocator</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cooperative-groups.html">4.4. Cooperative Groups</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/programmatic-dependent-launch.html">4.5. Programmatic Dependent Launch and Synchronization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/green-contexts.html">4.6. Green Contexts</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/lazy-loading.html">4.7. Lazy Loading</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/error-log-management.html">4.8. Error Log Management</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/async-barriers.html">4.9. Asynchronous Barriers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/pipelines.html">4.10. Pipelines</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/async-copies.html">4.11. Asynchronous Data Copies</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cluster-launch-control.html">4.12. Work Stealing with Cluster Launch Control</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/l2-cache-control.html">4.13. L2 Cache Control</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/memory-sync-domains.html">4.14. Memory Synchronization Domains</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/inter-process-communication.html">4.15. Interprocess Communication</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/virtual-memory-management.html">4.16. Virtual Memory Management</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/extended-gpu-memory.html">4.17. Extended GPU Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/dynamic-parallelism.html">4.18. CUDA Dynamic Parallelism</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/graphics-interop.html">4.19. CUDA Interoperability with APIs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/driver-entry-point-access.html">4.20. Driver Entry Point Access</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part4.html">4. CUDA 特性</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/unified-memory.html">4.1. 统一内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cuda-graphs.html">4.2. CUDA Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/stream-ordered-memory-allocation.html">4.3. 流有序内存分配器</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cooperative-groups.html">4.4. 协作组</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/programmatic-dependent-launch.html">4.5. 程序化依赖启动与同步</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/green-contexts.html">4.6. 绿色上下文</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/lazy-loading.html">4.7. 延迟加载</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/error-log-management.html">4.8. 错误日志管理</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/async-barriers.html">4.9. 异步屏障</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/pipelines.html">4.10. 流水线</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/async-copies.html">4.11. 异步数据拷贝</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/cluster-launch-control.html">4.12. 使用簇启动控制进行工作窃取</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/l2-cache-control.html">4.13. L2 缓存控制</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/memory-sync-domains.html">4.14. 内存同步域</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/inter-process-communication.html">4.15. 进程间通信</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/virtual-memory-management.html">4.16. 虚拟内存管理</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/extended-gpu-memory.html">4.17. 扩展 GPU 内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/dynamic-parallelism.html">4.18. CUDA 动态并行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/graphics-interop.html">4.19. CUDA 与 API 的互操作</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../04-special-topics/driver-entry-point-access.html">4.20. 驱动入口点访问</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="../part5.html">5. Technical Appendices</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="compute-capabilities.html">5.1. Compute Capabilities</a></li>
-<li class="toctree-l3"><a class="reference internal" href="environment-variables.html">5.2. CUDA Environment Variables</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cpp-language-support.html">5.3. C++ Language Support</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cpp-language-extensions.html">5.4. C/C++ Language Extensions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="mathematical-functions.html">5.5. Floating-Point Computation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="device-callable-apis.html">5.6. Device-Callable APIs and Intrinsics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cuda-cpp-memory-model.html">5.7. CUDA C++ Memory Model</a></li>
-<li class="toctree-l3 current active"><a class="current reference internal" href="cuda-cpp-execution-model.html#">5.8. CUDA C++ Execution model</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../part5.html">5. 技术附录</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="compute-capabilities.html">5.1. 计算能力</a></li>
+<li class="toctree-l3"><a class="reference internal" href="environment-variables.html">5.2. CUDA 环境变量</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpp-language-support.html">5.3. C++ 语言支持</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpp-language-extensions.html">5.4. C/C++ 语言扩展</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mathematical-functions.html">5.5. 浮点计算</a></li>
+<li class="toctree-l3"><a class="reference internal" href="device-callable-apis.html">5.6. 设备端可调用 API 与内建函数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda-cpp-memory-model.html">5.7. CUDA C++ 内存模型</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="cuda-cpp-execution-model.html#">5.8. CUDA C++ 执行模型</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. Notices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. 声明</a></li>
 </ul>
 </details></li>
 </ul>
 </div>
 </nav></div>
-    </div>
-  
-  
-  <div class="sidebar-primary-items__end sidebar-primary__section">
-  </div>
-
-
-
-      </div>
-      
-      <main id="main-content" class="bd-main" role="main">
-        
-        
-          <div class="bd-content">
-            <div class="bd-article-container">
-              
-              <div class="bd-header-article d-print-none">
+</div>
+<div class="sidebar-primary-items__end sidebar-primary__section">
+</div>
+</div>
+<main class="bd-main" id="main-content" role="main">
+<div class="bd-content">
+<div class="bd-article-container">
+<div class="bd-header-article d-print-none">
 <div class="header-article-items header-article__inner">
-  
-    <div class="header-article-items__start">
-      
-        <div class="header-article-item">
-
+<div class="header-article-items__start">
+<div class="header-article-item">
 <nav aria-label="Breadcrumb" class="d-print-none">
-  <ul class="bd-breadcrumbs">
-    
-    <li class="breadcrumb-item breadcrumb-home">
-      <a href="../contents.html" class="nav-link" aria-label="Home">
-        <i class="fa-solid fa-home"></i>
-      </a>
-    </li>
-    
-    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">CUDA Programming Guide</a></li>
-    
-    
-    <li class="breadcrumb-item"><a href="../part5.html" class="nav-link"><span class="section-number">5. </span>Technical Appendices</a></li>
-    
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">5.8. </span>CUDA C++ Execution model</span></li>
-  </ul>
+<ul class="bd-breadcrumbs">
+<li class="breadcrumb-item breadcrumb-home">
+<a aria-label="Home" class="nav-link" href="../contents.html">目录</a>
+</li>
+<li class="breadcrumb-item"><a class="nav-link" href="../index.html">CUDA 编程指南</a></li>
+<li class="breadcrumb-item"><a class="nav-link" href="../part5.html">5. 技术附录</a></li>
+<li aria-current="page" class="breadcrumb-item active"><span class="ellipsis"><span class="section-number">5.8. </span>CUDA C++ 执行模型</span></li>
+</ul>
 </nav>
 </div>
-      
-    </div>
-  
-  
-    <div class="header-article-items__end">
-      
-        <div class="header-article-item">
+</div>
+<div class="header-article-items__end">
 <div class="header-article-item">
-  <div class="d-flex justify-content-end w-100">
-    <a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">Is this page helpful?</a>
-  </div>
+<div class="header-article-item">
+<div class="d-flex justify-content-end w-100">
+<a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">此页面有帮助吗？</a>
+</div>
 </div></div>
-      
-    </div>
-  
 </div>
 </div>
-              
-              
-              
-                
+</div>
 <div id="searchbox"></div>
-                <article class="bd-article">
-                  
-  <section id="cuda-c-execution-model">
-<span id="cuda-cplusplus-execution-model"></span><h1><span class="section-number">5.8. </span>CUDA C++ Execution model<a class="headerlink" href="cuda-cpp-execution-model.html#cuda-c-execution-model" title="Link to this heading">#</a></h1>
-<p>CUDA C++ aims to provide <a class="reference external" href="https://eel.is/c++draft/intro.progress#9">parallel forward progress [intro.progress.9]</a>
-for all device threads of execution, facilitating the parallelization of pre-existing C++ applications with CUDA C++.</p>
+<article class="bd-article">
+<section id="cuda-c-execution-model">
+<span id="cuda-cplusplus-execution-model"></span><h1>5.8. CUDA C++ 执行模型<a class="headerlink" href="cuda-cpp-execution-model.html#cuda-c-execution-model" title="跳转到此标题">#</a></h1>
+<p>CUDA C++ 旨在提供 <a class="reference external" href="https://eel.is/c++draft/intro.progress#9">并行前进 [intro.progress.9]</a>
+对于所有执行的设备线程，促进预先存在的 C++ 应用程序与 CUDA C++ 的并行化。</p>
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
 <summary class="sd-summary-title sd-card-header">
-<span class="sd-summary-text"><a class="reference external" href="https://eel.is/c++draft/intro.progress">[intro.progress]</a></span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<span class="sd-summary-text"><a class="reference external" href="https://eel.is/c++draft/intro.progress">[intro.progress]</a></span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg aria-hidden="true" class="sd-octicon sd-octicon-chevron-right" height="1.5em" version="1.1" viewbox="0 0 24 24" width="1.5em"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
 <ul>
-<li><p class="sd-card-text"><a class="reference external" href="https://eel.is/c++draft/intro.progress#7">[intro.progress.7]</a>: For a thread of execution
-providing <a class="reference external" href="https://eel.is/c++draft/intro.progress#def:concurrent_forward_progress_guarantees">concurrent forward progress guarantees</a>,
-the implementation ensures that the thread will eventually make progress for as long as it has not terminated.</p>
-<p class="sd-card-text">[Note 5: This applies regardless of whether or not other threads of execution (if any) have been or are making progress.
-To eventually fulfill this requirement means that this will happen in an unspecified but finite amount of time. — end note]</p>
+<li><p class="sd-card-text"><a class="reference external" href="https://eel.is/c++draft/intro.progress#7">[intro.progress.7]</a>：对于执行线程
+提供 <a class="reference external" href="https://eel.is/c++draft/intro.progress#def:concurrent_forward_progress_guarantees">并发前进进度保证</a>,
+该实现确保线程只要没有终止，最终就会取得进展。</p>
+<p class="sd-card-text">[注 5：无论其他执行线程（如果有）是否已经或正在取得进展，这都适用。
+最终满足这一要求意味着这将在未指定但有限的时间内发生。 ——尾注]</p>
 </li>
-<li><p class="sd-card-text"><a class="reference external" href="https://eel.is/c++draft/intro.progress#9">[intro.progress.9]</a>: For a thread of execution providing
-<a class="reference external" href="https://eel.is/c++draft/intro.progress#9">parallel forward progress guarantees</a>, the implementation is not required to ensure that
-the thread will eventually make progress if it has not yet executed any execution step; once this thread has executed a step,
-it provides <a class="reference external" href="https://eel.is/c++draft/intro.progress#def:concurrent_forward_progress_guarantees">concurrent forward progress guarantees</a>.</p>
+<li><p class="sd-card-text"><a class="reference external" href="https://eel.is/c++draft/intro.progress#9">[intro.progress.9]</a>：对于提供的执行线程
+<a class="reference external" href="https://eel.is/c++draft/intro.progress#9">并行推进进度保证</a>，实施不需要确保
+如果线程还没有执行任何执行步骤，那么它最终将取得进展；一旦该线程执行了一个步骤，
+它提供 <a class="reference external" href="https://eel.is/c++draft/intro.progress#def:concurrent_forward_progress_guarantees">并发前进进度保证</a>.</p>
 <blockquote>
-<div><p class="sd-card-text">[Note 6: This does not specify a requirement for when to start this thread of execution, which will typically be specified by the entity
-that creates this thread of execution. For example, a thread of execution that provides concurrent forward progress guarantees and executes
-tasks from a set of tasks in an arbitrary order, one after the other, satisfies the requirements of parallel forward progress for these
-tasks. — end note]</p>
+<div><p class="sd-card-text">[注6：这并没有指定何时启动该执行线程的要求，这通常由实体指定
+创建这个执行线程。例如，提供并发前进进度保证并执行的执行线程
+一组任务中任意顺序的任务，一个接一个，满足这些任务并行前进的要求
+任务。 ——尾注]</p>
 </div></blockquote>
 </li>
 </ul>
 </div>
-</details><p>The CUDA C++ Programming Language is an extension of the C++ Programming Language.
-This section documents the modifications and extensions to the <a class="reference external" href="https://eel.is/c++draft/intro.progress">[intro.progress]</a> section of the current <a class="reference external" href="https://eel.is/c++draft/">ISO International Standard ISO/IEC 14882 – Programming Language C++</a> draft.
-Modified sections are called out explicitly and their diff is shown in <strong>bold</strong>.
-All other sections are additions.</p>
+</details><p>CUDA C++ 编程语言是 C++ 编程语言的扩展。
+本节记录了对 <a class="reference external" href="https://eel.is/c++draft/intro.progress">[intro.progress]</a> 当前的部分 <a class="reference external" href="https://eel.is/c++draft/">ISO 国际标准 ISO/IEC 14882 – 编程语言 C++</a> 草稿。
+修改的部分被显式地调用，它们的差异显示在 <strong>bold</strong>。
+所有其他部分都是补充。</p>
 <section id="host-threads">
-<span id="cuda-cplusplus-execution-model-host-threads"></span><h2><span class="section-number">5.8.1. </span>Host threads<a class="headerlink" href="cuda-cpp-execution-model.html#host-threads" title="Link to this heading">#</a></h2>
-<p>The forward progress provided by threads of execution created by the host implementation to
-execute <a class="reference external" href="https://en.cppreference.com/w/cpp/language/main_function">main</a>, <a class="reference external" href="https://en.cppreference.com/w/cpp/thread/thread">std::thread</a>,
-and <a class="reference external" href="https://en.cppreference.com/w/cpp/thread/jthread">std::jthread</a> is implementation-defined behavior of the host
-implementation <a class="reference external" href="https://eel.is/c++draft/intro.progress">[intro.progress]</a>.
-General-purpose host implementations should provide concurrent forward progress.</p>
-<p>If the host implementation provides <a class="reference external" href="https://eel.is/c++draft/intro.progress#7">concurrent forward progress [intro.progress.7]</a>,
-then CUDA C++ provides <a class="reference external" href="https://eel.is/c++draft/intro.progress#9">parallel forward progress [intro.progress.9]</a> for device threads.</p>
+<span id="cuda-cplusplus-execution-model-host-threads"></span><h2><span class="section-number">5.8.1. </span>主机线程<a class="headerlink" href="cuda-cpp-execution-model.html#host-threads" title="跳转到此标题">#</a></h2>
+<p>由主机实现创建的执行线程提供的前进进度
+执行 <a class="reference external" href="https://en.cppreference.com/w/cpp/language/main_function">main</a>, <a class="reference external" href="https://en.cppreference.com/w/cpp/thread/thread">std::thread</a>,
+和 <a class="reference external" href="https://en.cppreference.com/w/cpp/thread/jthread">std::jthread</a> 是主机的实现定义的行为
+实施 <a class="reference external" href="https://eel.is/c++draft/intro.progress">[intro.progress]</a>。
+通用主机实现应该提供并发的前进进度。</p>
+<p>如果主机实现提供 <a class="reference external" href="https://eel.is/c++draft/intro.progress#7">并发前进进度 [intro.progress.7]</a>,
+那么CUDA C++提供 <a class="reference external" href="https://eel.is/c++draft/intro.progress#9">并行前进 [intro.progress.9]</a> 对于设备线程。</p>
 </section>
 <section id="device-threads">
-<span id="cuda-cplusplus-execution-model-device-threads"></span><h2><span class="section-number">5.8.2. </span>Device threads<a class="headerlink" href="cuda-cpp-execution-model.html#device-threads" title="Link to this heading">#</a></h2>
-<p>Once a device thread makes progress:</p>
+<span id="cuda-cplusplus-execution-model-device-threads"></span><h2><span class="section-number">5.8.2. </span>设备线程<a class="headerlink" href="cuda-cpp-execution-model.html#device-threads" title="跳转到此标题">#</a></h2>
+<p>一旦设备线程取得进展：</p>
 <ul>
-<li><p>If it is part of a <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__EXECUTION.html#group__CUDART__EXECUTION_1g504b94170f83285c71031be6d5d15f73">Cooperative Grid</a>,
-all device threads in its grid shall eventually make progress.</p></li>
-<li><p>Otherwise, all device threads in its <a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html#thread-block-clusters"><span class="std std-ref">thread-block cluster</span></a>
-shall eventually make progress.</p>
+<li><p>如果它是一个 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__EXECUTION.html#group__CUDART__EXECUTION_1g504b94170f83285c71031be6d5d15f73">合作网格</a>,
+其网格中的所有设备线程最终都将取得进展。</p></li>
+<li><p>否则，其中的所有设备线程 <a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html#thread-block-clusters"><span class="std std-ref">线程块簇</span></a>
+最终会取得进步。</p>
 <blockquote>
-<div><p>[Note: Threads in other thread-block clusters are not guaranteed to eventually make progress. - end note.]</p>
-<p>[Note: This implies that all device threads within its thread block shall eventually make progress. - end note.]</p>
+<div><p>[注意：不保证其他线程块集群中的线程最终取得进展。 - 结束语。]</p>
+<p>[注意：这意味着其线程块内的所有设备线程最终都将取得进展。 - 结束语。]</p>
 </div></blockquote>
 </li>
 </ul>
-<p>Modify <a class="reference external" href="https://eel.is/c++draft/intro.progress#1">[intro.progress.1]</a> as follows (modifications in <strong>bold</strong>):</p>
-<p>The implementation may assume that any <strong>host</strong> thread will eventually do one of the following:</p>
+<p>Modify <a class="reference external" href="https://eel.is/c++draft/intro.progress#1">[intro.progress.1]</a> 如下（修改为 <strong>bold</strong>):</p>
+<p>该实现可以假设任何 <strong>host</strong> 线程最终将执行以下操作之一：</p>
 <blockquote>
 <div><ol class="arabic simple">
-<li><p>terminate,</p></li>
-<li><p>invoke the function <a class="reference external" href="https://en.cppreference.com/w/cpp/thread/yield">std::this_thread::yield</a> (<a class="reference external" href="http://eel.is/c++draft/thread.thread.this">[thread.thread.this]</a>),</p></li>
-<li><p>make a call to a library I/O function,</p></li>
-<li><p>perform an access through a volatile glvalue,</p></li>
-<li><p>perform a synchronization operation or an atomic operation, or</p></li>
-<li><p>continue execution of a trivial infinite loop (<a class="reference external" href="http://eel.is/c++draft/stmt.iter.general">[stmt.iter.general]</a>).</p></li>
+<li><p>终止，</p></li>
+<li><p>调用函数 <a class="reference external" href="https://en.cppreference.com/w/cpp/thread/yield">std::this_thread::yield</a> (<a class="reference external" href="http://eel.is/c++draft/thread.thread.this">[thread.thread.this]</a>),</p></li>
+<li><p>调用库 I/O 函数，</p></li>
+<li><p>通过易失性左值执行访问，</p></li>
+<li><p>执行同步操作或原子操作，或者</p></li>
+<li><p>继续执行一个简单的无限循环（<a class="reference external" href="http://eel.is/c++draft/stmt.iter.general">[stmt.iter.general]</a>).</p></li>
 </ol>
 </div></blockquote>
-<p><strong>The implementation may assume that any device thread will eventually do one of the following:</strong></p>
+<p><strong>该实现可以假设任何设备线程最终都会执行以下操作之一：</strong></p>
 <blockquote>
 <div><ol class="arabic simple">
 <li><p><strong>terminate</strong>,</p></li>
-<li><p><strong>make a call to a library I/O function</strong>,</p></li>
-<li><p><strong>perform an access through a volatile glvalue except if the designated object has automatic storage duration, or</strong></p></li>
-<li><p><strong>perform a synchronization operation or an atomic read operation except if the designated object has automatic storage duration.</strong></p></li>
+<li><p><strong>调用库 I/O 函数</strong>,</p></li>
+<li><p><strong>通过易失性左值执行访问，除非指定对象具有自动存储持续时间，或者</strong></p></li>
+<li><p><strong>执行同步操作或原子读取操作，除非指定对象具有自动存储持续时间。</strong></p></li>
 </ol>
-<p>[Note: Some current limitations of device threads relative to host threads
-are implementation defects known to us, that we may fix over time.
-Examples include the undefined behavior that arises from device threads
-that eventually only perform volatile or atomic operations
-on automatic storage duration objects.
-However, other limitations of device threads relative to host threads
-are intentional choices.  They enable performance optimizations
-that would not be possible if device threads followed the C++ Standard strictly.
-For example, providing forward progress to programs
-that eventually only perform atomic writes or fences
-would degrade overall performance for little practical benefit. - end note.]</p>
+<p>[注意：设备线程相对于主机线程的一些当前限制
+是我们已知的实施缺陷，我们可能会随着时间的推移进行修复。
+示例包括设备线程产生的未定义行为
+最终只执行易失性或原子操作
+关于自动存储持续时间的对象。
+然而，设备线程相对于主机线程的其他限制
+都是有意的选择。  它们可以实现性能优化
+如果设备线程严格遵循 C++ 标准，这是不可能的。
+例如，为项目提供前进的进展
+最终只执行原子写入或栅栏
+会降低整体性能，但几乎没有什么实际好处。 - 结束语。]</p>
 </div></blockquote>
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
 <summary class="sd-summary-title sd-card-header">
-<span class="sd-summary-text">Examples of forward progress guarantee differences between host and device threads due to modifications to <a class="reference external" href="https://eel.is/c++draft/intro.progress#1">[intro.progress.1]</a>.</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<p class="sd-card-text">The following examples refer to the itemized sub-clauses of the implementation assumptions for host and device threads above
-using “host.threads.&lt;id&gt;” and “device.threads.&lt;id&gt;”, respectively.</p>
-<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="c1">// Example: Execution.Model.Device.0</span>
-<span class="linenos">2</span><span class="c1">// Outcome: grid eventually terminates per device.threads.4 because the atomic object does not have automatic storage duration.</span>
+<span class="sd-summary-text">向前进度的示例保证了主机和设备线程之间由于修改而存在差异 <a class="reference external" href="https://eel.is/c++draft/intro.progress#1">[intro.progress.1]</a>.</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg aria-hidden="true" class="sd-octicon sd-octicon-chevron-right" height="1.5em" version="1.1" viewbox="0 0 24 24" width="1.5em"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<p class="sd-card-text">以下示例引用了上述主机和设备线程的实现假设的逐项子条款
+分别使用“host.threads.&lt;id&gt;”和“device.threads.&lt;id&gt;”。</p>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="c1">// 示例：Execution.Model.Device.0</span>
+<span class="linenos">2</span><span class="c1">// 结果：网格最终按 device.threads.4 终止，因为原子对象没有自动存储持续时间。</span>
 <span class="linenos">3</span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">ex0</span><span class="p">(</span><span class="n">cuda</span><span class="o">::</span><span class="n">atomic_ref</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">thread_scope_device</span><span class="o">&gt;</span><span class="w"> </span><span class="n">atom</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="linenos">4</span><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="linenos">5</span><span class="w">        </span><span class="k">while</span><span class="p">(</span><span class="n">atom</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">cuda</span><span class="o">::</span><span class="n">memory_order_relaxed</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
@@ -590,64 +385,64 @@ using “host.threads.&lt;id&gt;” and “device.threads.&lt;id&gt;”, respect
 <span class="linenos">9</span><span class="p">}</span>
 </pre></div>
 </div>
-<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="c1">// Example: Execution.Model.Device.1</span>
-<span class="linenos">2</span><span class="c1">// Allowed outcome: No thread makes progress because device threads don&#39;t support host.threads.2.</span>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="c1">// 示例：Execution.Model.Device.1</span>
+<span class="linenos">2</span><span class="c1">// 允许的结果：没有线程取得进展，因为设备线程不支持 host.threads.2。</span>
 <span class="linenos">3</span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">ex1</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="linenos">4</span><span class="w">    </span><span class="k">while</span><span class="p">(</span><span class="nb">true</span><span class="p">)</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">yield</span><span class="p">();</span>
 <span class="linenos">5</span><span class="p">}</span>
 </pre></div>
 </div>
-<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="c1">// Example: Execution.Model.Device.2</span>
-<span class="linenos">2</span><span class="c1">// Allowed outcome: No thread makes progress because device threads don&#39;t support host.threads.4</span>
-<span class="linenos">3</span><span class="c1">// for objects with automatic storage duration (see exception in device.threads.3).</span>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="c1">// 示例：Execution.Model.Device.2</span>
+<span class="linenos">2</span><span class="c1">// 允许的结果：没有线程取得进展，因为设备线程不支持 host.threads.4</span>
+<span class="linenos">3</span><span class="c1">// 对于具有自动存储持续时间的对象（请参阅 device.threads.3 中的异常）。</span>
 <span class="linenos">4</span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">ex2</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="linenos">5</span><span class="w">    </span><span class="k">volatile</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">True</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
 <span class="linenos">6</span><span class="w">    </span><span class="k">while</span><span class="p">(</span><span class="n">True</span><span class="p">);</span>
 <span class="linenos">7</span><span class="p">}</span>
 </pre></div>
 </div>
-<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="c1">// Example: Execution.Model.Device.3</span>
-<span class="linenos">2</span><span class="c1">// Allowed outcome: No thread makes progress because device threads don&#39;t support host.threads.5</span>
-<span class="linenos">3</span><span class="c1">// for objects with automatic storage duration (see exception in device.threads.4).</span>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="c1">// 示例：Execution.Model.Device.3</span>
+<span class="linenos">2</span><span class="c1">// 允许的结果：没有线程取得进展，因为设备线程不支持 host.threads.5</span>
+<span class="linenos">3</span><span class="c1">// 对于具有自动存储持续时间的对象（请参阅 device.threads.4 中的异常）。</span>
 <span class="linenos">4</span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">ex3</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="linenos">5</span><span class="w">    </span><span class="n">cuda</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="kt">bool</span><span class="p">,</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">thread_scope_thread</span><span class="o">&gt;</span><span class="w"> </span><span class="n">True</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
 <span class="linenos">6</span><span class="w">    </span><span class="k">while</span><span class="p">(</span><span class="n">True</span><span class="p">.</span><span class="n">load</span><span class="p">());</span>
 <span class="linenos">7</span><span class="p">}</span>
 </pre></div>
 </div>
-<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="c1">// Example: Execution.Model.Device.4</span>
-<span class="linenos">2</span><span class="c1">// Allowed outcome: No thread makes progress because device threads don&#39;t support host.thread.6.</span>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="c1">// 示例：Execution.Model.Device.4</span>
+<span class="linenos">2</span><span class="c1">// 允许的结果：没有线程取得进展，因为设备线程不支持 host.thread.6。</span>
 <span class="linenos">3</span><span class="n">__global</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">ex4</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="linenos">4</span><span class="w">    </span><span class="k">while</span><span class="p">(</span><span class="nb">true</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* empty */</span><span class="w"> </span><span class="p">}</span>
+<span class="linenos">4</span><span class="w">    </span><span class="k">while</span><span class="p">(</span><span class="nb">true</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* 空的 */</span><span class="w"> </span><span class="p">}</span>
 <span class="linenos">5</span><span class="p">}</span>
 </pre></div>
 </div>
 </div>
 </details></section>
 <section id="cuda-apis">
-<span id="cuda-cplusplus-execution-model-cuda-apis"></span><h2><span class="section-number">5.8.3. </span>CUDA APIs<a class="headerlink" href="cuda-cpp-execution-model.html#cuda-apis" title="Link to this heading">#</a></h2>
-<p>A CUDA API call shall eventually either return or ensure at least one device thread makes progress.</p>
-<p>CUDA query functions (e.g. <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__STREAM.html#group__CUDART__STREAM_1g2021adeb17905c7ec2a3c1bf125c5435">cudaStreamQuery</a>,
-<a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__EVENT.html#group__CUDART__EVENT_1g2bf738909b4a059023537eaa29d8a5b7">cudaEventQuery</a>, etc.) shall not consistently
-return <code class="docutils literal notranslate"><span class="pre">cudaErrorNotReady</span></code> without a device thread making progress.</p>
+<span id="cuda-cplusplus-execution-model-cuda-apis"></span><h2><span class="section-number">5.8.3. </span>CUDA API<a class="headerlink" href="cuda-cpp-execution-model.html#cuda-apis" title="跳转到此标题">#</a></h2>
+<p>CUDA API 调用最终应返回或确保至少一个设备线程取得进展。</p>
+<p>CUDA 查询函数（例如 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__STREAM.html#group__CUDART__STREAM_1g2021adeb17905c7ec2a3c1bf125c5435">cudaStreamQuery</a>,
+<a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__EVENT.html#group__CUDART__EVENT_1g2bf738909b4a059023537eaa29d8a5b7">cudaEventQuery</a>等）不得一致
+返回 <code class="docutils literal notranslate"><span class="pre">cudaErrorNotReady</span></code> 没有设备线程取得进展。</p>
 <blockquote>
-<div><p>[Note: The device thread need not be “related” to the API call, e.g., an API operating on one stream or process may ensure progress of a device thread on another stream or process. - end note.]</p>
-<p>[Note: A simple but not sufficient method to test a program for CUDA API Forward Progress conformance is to run them with following environment variables set: <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_CONNECTIONS=1</span> <span class="pre">CUDA_LAUNCH_BLOCKING=1</span></code>, and then check that the program still terminates.
-If it does not, the program has a bug.
-This method is not sufficient because it does not catch all Forward Progress bugs, but it does catch many such bugs. - end note.]</p>
+<div><p>[注意：设备线程不需要与 API 调用“相关”，例如，在一个流或进程上操作的 API 可以确保设备线程在另一流或进程上的进度。 - 结束语。]</p>
+<p>[注意：测试程序是否符合 CUDA API Forward Progress 一致性的简单但不够的方法是使用以下环境变量集运行它们： <code class="docutils literal notranslate"><span class="pre">CUDA_DEVICE_MAX_CONNECTIONS=1</span> <span class="pre">CUDA_LAUNCH_BLOCKING=1</span></code>，然后检查程序是否仍然终止。
+如果没有，则程序有错误。
+此方法还不够，因为它不能捕获所有前进进度错误，但它确实捕获了许多此类错误。 - 结束语。]</p>
 </div></blockquote>
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
 <summary class="sd-summary-title sd-card-header">
-<span class="sd-summary-text">Examples of CUDA API forward progress guarantees.</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1">// Example: Execution.Model.API.1</span>
-<span class="linenos"> 2</span><span class="c1">// Outcome: if no other device threads (e.g., from other processes) are making progress,</span>
-<span class="linenos"> 3</span><span class="c1">// this program terminates and returns cudaSuccess.</span>
-<span class="linenos"> 4</span><span class="c1">// Rationale: CUDA guarantees that if the device is empty:</span>
-<span class="linenos"> 5</span><span class="c1">// - `cudaDeviceSynchronize` eventually ensures that at least one device-thread makes progress, which implies that eventually `hello_world` grid and one of its device-threads start.</span>
-<span class="linenos"> 6</span><span class="c1">// - All thread-block threads eventually start (due to &quot;if a device thread makes progress, all other threads in its thread-block cluster eventually make progress&quot;).</span>
-<span class="linenos"> 7</span><span class="c1">// - Once all threads in thread-block arrive at `__syncthreads` barrier, all waiting threads are unblocked.</span>
-<span class="linenos"> 8</span><span class="c1">// - Therefore all device threads eventually exit the `hello_world`` grid.</span>
-<span class="linenos"> 9</span><span class="c1">// - And `cudaDeviceSynchronize`` eventually unblocks.</span>
+<span class="sd-summary-text">CUDA API 向前进度保证的示例。</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg aria-hidden="true" class="sd-octicon sd-octicon-chevron-right" height="1.5em" version="1.1" viewbox="0 0 24 24" width="1.5em"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1">// 示例：Execution.Model.API.1</span>
+<span class="linenos"> 2</span><span class="c1">// 结果：如果没有其他设备线程（例如，来自其他进程的）正在取得进展，</span>
+<span class="linenos"> 3</span><span class="c1">// 该程序终止并返回 cudaSuccess。</span>
+<span class="linenos"> 4</span><span class="c1">// 理由：CUDA 保证如果设备为空：</span>
+<span class="linenos"> 5</span><span class="c1">// - `cudaDeviceSynchronize` 最终确保至少一个设备线程取得进展，这意味着最终 `hello_world` 网格及其设备线程之一启动。</span>
+<span class="linenos"> 6</span><span class="c1">// - 所有线程块线程最终都会启动（由于“如果设备线程取得进展，则其线程块集群中的所有其他线程最终都会取得进展”）。</span>
+<span class="linenos"> 7</span><span class="c1">// - 一旦线程块中的所有线程到达“__syncthreads”屏障，所有等待线程都将被解除阻塞。</span>
+<span class="linenos"> 8</span><span class="c1">// - 因此所有设备线程最终都会退出“hello_world”网格。</span>
+<span class="linenos"> 9</span><span class="c1">// -“cudaDeviceSynchronize”最终解除阻塞。</span>
 <span class="linenos">10</span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">hello_world</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nf">__syncthreads</span><span class="p">();</span><span class="w"> </span><span class="p">}</span>
 <span class="linenos">11</span><span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="linenos">12</span><span class="w">    </span><span class="n">hello_world</span><span class="o">&lt;&lt;&lt;</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span>
@@ -655,11 +450,11 @@ This method is not sufficient because it does not catch all Forward Progress bug
 <span class="linenos">14</span><span class="p">}</span>
 </pre></div>
 </div>
-<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1">// Example: Execution.Model.API.2</span>
-<span class="linenos"> 2</span><span class="c1">// Allowed outcome: eventually, no thread makes progress.</span>
-<span class="linenos"> 3</span><span class="c1">// Rationale: the `cudaDeviceSynchronize` API below is only called if a device thread eventually makes progress and sets the flag.</span>
-<span class="linenos"> 4</span><span class="c1">// However, CUDA only guarantees that `producer` device thread eventually starts if the synchronization API is called.</span>
-<span class="linenos"> 5</span><span class="c1">// Therefore, the host thread may never be unblocked from the flag spin-loop.</span>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1">// 示例：Execution.Model.API.2</span>
+<span class="linenos"> 2</span><span class="c1">// 允许的结果：最终，没有线程取得进展。</span>
+<span class="linenos"> 3</span><span class="c1">// 基本原理：只有当设备线程最终取得进展并设置标志时，才会调用下面的“cudaDeviceSynchronize” API。</span>
+<span class="linenos"> 4</span><span class="c1">// 但是，CUDA 仅保证调用同步 API 时“生产者”设备线程最终启动。</span>
+<span class="linenos"> 5</span><span class="c1">// 因此，主机线程可能永远不会从标志自旋循环中解除阻塞。</span>
 <span class="linenos"> 6</span><span class="n">cuda</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">thread_scope_system</span><span class="o">&gt;</span><span class="w"> </span><span class="n">flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="linenos"> 7</span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">producer</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">flag</span><span class="p">.</span><span class="n">store</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
 <span class="linenos"> 8</span><span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
@@ -670,10 +465,10 @@ This method is not sufficient because it does not catch all Forward Progress bug
 <span class="linenos">13</span><span class="p">}</span>
 </pre></div>
 </div>
-<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1">// Example: Execution.Model.API.3</span>
-<span class="linenos"> 2</span><span class="c1">// Allowed outcome: eventually, no thread makes progress.</span>
-<span class="linenos"> 3</span><span class="c1">// Rationale: same as Example.Model.API.2, with the addition that a single CUDA query API call does not guarantee</span>
-<span class="linenos"> 4</span><span class="c1">// the device thread eventually starts, only repeated CUDA query API calls do (see Execution.Model.API.4).</span>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1">// 示例：Execution.Model.API.3</span>
+<span class="linenos"> 2</span><span class="c1">// 允许的结果：最终，没有线程取得进展。</span>
+<span class="linenos"> 3</span><span class="c1">// 基本原理：与Example.Model.API.2相同，但单个CUDA查询API调用不能保证</span>
+<span class="linenos"> 4</span><span class="c1">// 设备线程最终启动，仅重复 CUDA 查询 API 调用（请参阅 Execution.Model.API.4）。</span>
 <span class="linenos"> 5</span><span class="n">cuda</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">thread_scope_system</span><span class="o">&gt;</span><span class="w"> </span><span class="n">flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="linenos"> 6</span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">producer</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">flag</span><span class="p">.</span><span class="n">store</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
 <span class="linenos"> 7</span><span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
@@ -685,11 +480,11 @@ This method is not sufficient because it does not catch all Forward Progress bug
 <span class="linenos">13</span><span class="p">}</span>
 </pre></div>
 </div>
-<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1">// Example: Execution.Model.API.4</span>
-<span class="linenos"> 2</span><span class="c1">// Outcome: terminates.</span>
-<span class="linenos"> 3</span><span class="c1">// Rationale: same as Execution.Model.API.3, but this example repeatedly calls</span>
-<span class="linenos"> 4</span><span class="c1">// a CUDA query API in within the flag spin-loop, which guarantees that the device thread</span>
-<span class="linenos"> 5</span><span class="c1">// eventually makes progress.</span>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1">// 示例：Execution.Model.API.4</span>
+<span class="linenos"> 2</span><span class="c1">// 结果：终止。</span>
+<span class="linenos"> 3</span><span class="c1">// 原理：与Execution.Model.API.3相同，但此示例重复调用</span>
+<span class="linenos"> 4</span><span class="c1">// CUDA 查询 API 位于标志自旋循环内，这保证了设备线程</span>
+<span class="linenos"> 5</span><span class="c1">// 最终取得进步。</span>
 <span class="linenos"> 6</span><span class="n">cuda</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">thread_scope_system</span><span class="o">&gt;</span><span class="w"> </span><span class="n">flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="linenos"> 7</span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">producer</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">flag</span><span class="p">.</span><span class="n">store</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
 <span class="linenos"> 8</span><span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
@@ -704,22 +499,22 @@ This method is not sufficient because it does not catch all Forward Progress bug
 </div>
 </div>
 </details><section id="dependencies">
-<span id="cuda-cplusplus-execution-model-cuda-dependencies"></span><h3><span class="section-number">5.8.3.1. </span>Dependencies<a class="headerlink" href="cuda-cpp-execution-model.html#dependencies" title="Link to this heading">#</a></h3>
-<p>A device thread shall not start until all its dependencies have completed.</p>
+<span id="cuda-cplusplus-execution-model-cuda-dependencies"></span><h3><span class="section-number">5.8.3.1. </span>依赖项<a class="headerlink" href="cuda-cpp-execution-model.html#dependencies" title="跳转到此标题">#</a></h3>
+<p>设备线程在其所有依赖项完成之前不得启动。</p>
 <blockquote>
-<div><p>[Note: Dependencies that prevent device threads from starting to make progress can be created, for example, via <a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-streams"><span class="std std-ref">CUDA Stream Commands</span></a>.
-These may include dependencies on the completion of, among others, <a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-events"><span class="std std-ref">CUDA Events</span></a> and <a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html#kernels"><span class="std std-ref">CUDA Kernels</span></a>. - end note.]</p>
+<div><p>[注意：可以创建阻止设备线程开始取得进展的依赖关系，例如，通过 <a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-streams"><span class="std std-ref">CUDA 流命令</span></a>。
+其中可能包括对以下事项的完成的依赖： <a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-events"><span class="std std-ref">CUDA 活动</span></a> 和 <a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html#kernels"><span class="std std-ref">CUDA 内核</span></a>。 - 结束语。]</p>
 </div></blockquote>
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
 <summary class="sd-summary-title sd-card-header">
-<span class="sd-summary-text">Examples of CUDA API forward progress guarantees due to dependencies</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1">// Example: Execution.Model.Stream.0</span>
-<span class="linenos"> 2</span><span class="c1">// Allowed outcome: eventually, no thread makes progress.</span>
-<span class="linenos"> 3</span><span class="c1">// Rationale: while CUDA guarantees that one device thread makes progress, since there</span>
-<span class="linenos"> 4</span><span class="c1">// is no dependency between `first` and `second`, it does not guarantee which thread,</span>
-<span class="linenos"> 5</span><span class="c1">// and therefore it could always pick the device thread from `second`, which then never</span>
-<span class="linenos"> 6</span><span class="c1">// unblocks from the spin-loop.</span>
-<span class="linenos"> 7</span><span class="c1">// That is, `second` may starve `first`.</span>
+<span class="sd-summary-text">CUDA API 由于依赖关系而向前进度保证的示例</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg aria-hidden="true" class="sd-octicon sd-octicon-chevron-right" height="1.5em" version="1.1" viewbox="0 0 24 24" width="1.5em"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1">// 示例：Execution.Model.Stream.0</span>
+<span class="linenos"> 2</span><span class="c1">// 允许的结果：最终，没有线程取得进展。</span>
+<span class="linenos"> 3</span><span class="c1">// 理由：虽然 CUDA 保证一个设备线程取得进展，但因为</span>
+<span class="linenos"> 4</span><span class="c1">// “first”和“second”之间没有依赖关系，它不保证是哪个线程，</span>
+<span class="linenos"> 5</span><span class="c1">// 因此它总是可以从“第二个”中选择设备线程，而第二个线程永远不会</span>
+<span class="linenos"> 6</span><span class="c1">// 从自旋循环中解锁。</span>
+<span class="linenos"> 7</span><span class="c1">// 也就是说，“第二”可能会导致“第一”挨饿。</span>
 <span class="linenos"> 8</span><span class="n">cuda</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">thread_scope_system</span><span class="o">&gt;</span><span class="w"> </span><span class="n">flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="linenos"> 9</span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">first</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">flag</span><span class="p">.</span><span class="n">store</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">memory_order_relaxed</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
 <span class="linenos">10</span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">second</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">while</span><span class="p">(</span><span class="n">flag</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">cuda</span><span class="o">::</span><span class="n">memory_order_relaxed</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span><span class="w"> </span><span class="p">}</span>
@@ -734,10 +529,10 @@ These may include dependencies on the completion of, among others, <a class="ref
 <span class="linenos">19</span><span class="p">}</span>
 </pre></div>
 </div>
-<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1">// Example: Execution.Model.Stream.1</span>
-<span class="linenos"> 2</span><span class="c1">// Outcome: terminates.</span>
-<span class="linenos"> 3</span><span class="c1">// Rationale: same as Execution.Model.Stream.0, but this example has a stream dependency</span>
-<span class="linenos"> 4</span><span class="c1">// between first and second, which requires CUDA to run the grids in order.</span>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1">// 示例：Execution.Model.Stream.1</span>
+<span class="linenos"> 2</span><span class="c1">// 结果：终止。</span>
+<span class="linenos"> 3</span><span class="c1">// 基本原理：与 Execution.Model.Stream.0 相同，但此示例具有流依赖性</span>
+<span class="linenos"> 4</span><span class="c1">// 在第一个和第二个之间，这需要 CUDA 按顺序运行网格。</span>
 <span class="linenos"> 5</span><span class="n">cuda</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">thread_scope_system</span><span class="o">&gt;</span><span class="w"> </span><span class="n">flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="linenos"> 6</span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">first</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">flag</span><span class="p">.</span><span class="n">store</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">memory_order_relaxed</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
 <span class="linenos"> 7</span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">second</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">while</span><span class="p">(</span><span class="n">flag</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">cuda</span><span class="o">::</span><span class="n">memory_order_relaxed</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span><span class="w"> </span><span class="p">}</span>
@@ -755,113 +550,62 @@ These may include dependencies on the completion of, among others, <a class="ref
 </details></section>
 </section>
 </section>
-
-
-                </article>
-              
-              
-              
-              
-              
-                <footer class="prev-next-footer d-print-none">
-                  
+</article>
+<footer class="prev-next-footer d-print-none">
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="cuda-cpp-memory-model.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><span class="section-number">5.7. </span>CUDA C++ Memory Model</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="../notices.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><span class="section-number">6. </span>Notices</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
+<a class="left-prev" href="cuda-cpp-memory-model.html" title="上一页">5.7. CUDA C++ 内存模型</a>
+<a class="right-next" href="../notices.html" title="下一页">6. 声明</a>
 </div>
-                </footer>
-              
-            </div>
-            
-            
-
-
-              
-                <dialog id="pst-secondary-sidebar-modal"></dialog>
-                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
-
-
-  <div class="sidebar-secondary-item">
-<div
-    id="pst-page-navigation-heading-2"
-    class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
+</footer>
+</div>
+<dialog id="pst-secondary-sidebar-modal"></dialog>
+<div class="bd-sidebar-secondary bd-toc" id="pst-secondary-sidebar"><div class="sidebar-secondary-items sidebar-secondary__inner">
+<div class="sidebar-secondary-item">
+<div class="page-toc tocsection onthispage" id="pst-page-navigation-heading-2">
+<i class="fa-solid fa-list"></i>本页内容
   </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-cpp-execution-model.html#host-threads">5.8.1. Host threads</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-cpp-execution-model.html#device-threads">5.8.2. Device threads</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-cpp-execution-model.html#cuda-apis">5.8.3. CUDA APIs</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-cpp-execution-model.html#dependencies">5.8.3.1. Dependencies</a></li>
+<nav aria-labelledby="pst-page-navigation-heading-2" class="bd-toc-nav page-toc">
+<ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-cpp-execution-model.html#host-threads">5.8. CUDA C++ 执行模型</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-cpp-execution-model.html#device-threads">5.8. CUDA C++ 执行模型</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-cpp-execution-model.html#cuda-apis">5.8. CUDA C++ 执行模型</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-cpp-execution-model.html#dependencies">5.8. CUDA C++ 执行模型</a></li>
 </ul>
 </li>
 </ul>
-  </nav></div>
-
+</nav></div>
 </div></div>
-              
-            
-
-          </div>
-          <footer class="bd-footer-content">
-            
-          </footer>
-        
-      </main>
-    </div>
-  </div>
-  
-
-  <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js"></script>
-
-
+</div>
+<footer class="bd-footer-content">
+</footer>
+</main>
+</div>
+</div>
+ 脚本在 &lt;body&gt; 之后加载，因此 DOM 不会被阻塞 
+<script defer="" src="../_static/scripts/bootstrap.js"></script>
+<script defer="" src="../_static/scripts/pydata-sphinx-theme.js"></script>
 <script type="text/javascript">if (typeof _satellite !== "undefined") {_satellite.pageBottom();}</script>
-
-  <footer class="bd-footer">
+<footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
-  
-    <div class="footer-items__start">
-      
-        <div class="footer-item">
+<div class="footer-items__start">
+<div class="footer-item">
 <a class="footer-brand logo" href="https://www.nvidia.com">
-  <img src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
-  <img src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+<img alt="NVIDIA" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg"/>
+<img alt="NVIDIA" class="logo__image only-dark" src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg"/>
 </a></div>
-      
-        <div class="footer-item">
-
+<div class="footer-item">
 <div class="footer-links">
-  
-  
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+<a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">隐私政策</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">您的隐私选择</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">服务条款</a>
    | 
   
   
@@ -871,47 +615,31 @@ These may include dependencies on the completion of, among others, <a class="ref
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">公司政策</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">产品安全</a>
    | 
   
   
   
   <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
-  
-  
-  
 </div>
 </div>
-      
-        <div class="footer-item">
-
-
-
-
-  <p class="copyright">
+<div class="footer-item">
+<p class="copyright">
     
-      Copyright © 2007-2026, NVIDIA Corporation &amp; affiliates. All rights reserved.
+      版权所有 © 2007-2026，NVIDIA 公司及附属公司。版权所有。
       <br/>
-    
-  </p>
+</p>
 </div>
-      
-        <div class="footer-item"><p class="last-updated">
-  Last updated on Mar 04, 2026.
+<div class="footer-item"><p class="last-updated">
+  最后更新于 2026 年 3 月 4 日。
   <br/>
 </p></div>
-      
-    </div>
-  
-  
-  
 </div>
-
-  </footer>
-  </body>
-</html>
+</div>
+</footer>
+</body></html>

@@ -1,52 +1,37 @@
-
-
 <!DOCTYPE html>
-
-
-<html lang="en" data-content_root="../" >
-
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <title>4.10. Pipelines &#8212; CUDA Programming Guide</title>
-  
-  
-  
-  <script data-cfasync="false">
+<html data-content_root="../" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>4.10. 流水线 — CUDA 编程指南</title>
+<script data-cfasync="false">
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
-  </script>
-  <!--
-    this give us a css class that will be invisible only if js is disabled
-  -->
-  <noscript>
-    <style>
+  </script></head><body><p>
+
+    这给了我们一个 css 类，只有在禁用 js 时才会不可见
+  
+<noscript>
+<style>
       .pst-js-only { display: none !important; }
 
     </style>
-  </noscript>
-  
-  <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css" rel="stylesheet" />
-
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/tables.css" />
-  
-  <!-- So that users can add custom icons -->
-  <script src="../_static/scripts/fontawesome.js"></script>
-  <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js" />
-
-
-<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript"
-  data-document-language="true" charset="UTF-8" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5">
+</noscript>
+ 在其他 Sphinx 资源之前加载 
+<link href="../_static/styles/theme.css" rel="stylesheet"/>
+<link href="../_static/styles/pydata-sphinx-theme.css" rel="stylesheet"/>
+<link href="../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/styles/nvidia-sphinx-theme.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/custom.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/copybutton.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx-design.min.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/tables.css" rel="stylesheet" type="text/css"/>
+ 以便用户可以添加自定义图标 
+<script src="../_static/scripts/fontawesome.js"></script>
+ 我们稍后将完全加载的预加载脚本 
+<link as="script" href="../_static/scripts/bootstrap.js" rel="preload"/>
+<link as="script" href="../_static/scripts/pydata-sphinx-theme.js" rel="preload"/>
+<script charset="UTF-8" data-document-language="true" data-domain-script="3e2b62ff-7ae7-4ac5-87c8-d5949ecafff5" src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" type="text/javascript">
 </script>
 <script type="text/javascript">
   function OptanonWrapper() {
@@ -56,458 +41,268 @@
 </script>
 <script src="https://images.nvidia.com/aem-dam/Solutions/ot-js/ot-custom.js" type="text/javascript">
 </script>
-
-
-    <script rel="preload" src="../_static/modal-table.js"></script>
-    <script src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/scrollspy-patch.js"></script>
-    <script src="../_static/clipboard.min.js"></script>
-    <script src="../_static/copybutton.js"></script>
-    <script src="../_static/design-tabs.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '04-special-topics/pipelines';</script>
-    <script src="../_static/version-patch.js"></script>
-
-<script type="text/javascript" src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
-
-    <link rel="icon" href="../_static/favicon.ico"/>
-
-    <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="4.11. Asynchronous Data Copies" href="async-copies.html" />
-    <link rel="prev" title="4.9. Asynchronous Barriers" href="async-barriers.html" />
-
-<link rel="preload" as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png">
-
-
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="" />
-    <meta name="docbuild:last-update" content="Mar 04, 2026"/>
-
-
-  </head>
-
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
-
-  
-  
-  <div id="pst-skip-link" class="skip-link d-print-none"><a href="pipelines.html#main-content">Skip to main content</a></div>
-
-<img src="https://www.nvidia.com/content/dam/1x1-00000000.png" width="1" height="1" style="display:none;" alt="country_code">
-
-
-  
-  <div id="pst-scroll-pixel-helper"></div>
-  
-  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
-    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
-  
-  <dialog id="pst-search-dialog">
-    
-<form class="bd-search d-flex align-items-center"
-      action="../search.html"
-      method="get">
-  <i class="fa-solid fa-magnifying-glass"></i>
-  <input type="search"
-         class="form-control"
-         name="q"
-         placeholder="Search the docs ..."
-         aria-label="Search the docs ..."
-         autocomplete="off"
-         autocorrect="off"
-         autocapitalize="off"
-         spellcheck="false"/>
-  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+<script rel="preload" src="../_static/modal-table.js"></script>
+<script src="../_static/documentation_options.js"></script>
+<script src="../_static/doctools.js"></script>
+<script src="../_static/sphinx_highlight.js"></script>
+<script src="../_static/scrollspy-patch.js"></script>
+<script src="../_static/clipboard.min.js"></script>
+<script src="../_static/copybutton.js"></script>
+<script src="../_static/design-tabs.js"></script>
+<script>DOCUMENTATION_OPTIONS.pagename = '04-special-topics/pipelines';</script>
+<script src="../_static/version-patch.js"></script>
+<script src="https://assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js" type="text/javascript"></script>
+<link href="../_static/favicon.ico" rel="icon"/>
+<link href="../genindex.html" rel="index" title="索引"/>
+<link href="../search.html" rel="search" title="搜索"/>
+<link href="async-copies.html" rel="next" title="4.11. 异步数据拷贝"/>
+<link href="async-barriers.html" rel="prev" title="4.9. 异步屏障"/>
+<link as="image" href="https://www.nvidia.com/content/dam/1x1-00000000.png" rel="preload"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="en" name="docsearch:language"/>
+<meta content="" name="docsearch:version"/>
+<meta content="Mar 04, 2026" name="docbuild:last-update"/>
+</p>
+<div class="skip-link d-print-none" id="pst-skip-link"><a href="pipelines.html#main-content">跳到主要内容</a></div>
+<img alt="country_code" height="1" src="https://www.nvidia.com/content/dam/1x1-00000000.png" style="display:none;" width="1"/>
+<div id="pst-scroll-pixel-helper"></div>
+<button class="btn rounded-pill" id="pst-back-to-top" type="button">
+<i class="fa-solid fa-arrow-up"></i>返回顶部</button>
+<dialog id="pst-search-dialog">
+<form action="../search.html" class="bd-search d-flex align-items-center" method="get">
+<i class="fa-solid fa-magnifying-glass"></i>
+<input aria-label="搜索文档..." autocapitalize="off" autocomplete="off" autocorrect="off" class="form-control" name="q" placeholder="搜索文档..." spellcheck="false" type="search"/>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
 </form>
-  </dialog>
-
-  <div class="pst-async-banner-revealer d-none">
-  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</dialog>
+<div class="pst-async-banner-revealer d-none">
+<aside aria-label="版本警告" class="d-none d-print-none" id="bd-header-version-warning"></aside>
 </div>
-
-  
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
-    <span class="fa-solid fa-bars"></span>
-  </button>
-  
-  
-  <div class="col-lg-3 navbar-header-items__start">
-    
-      <div class="navbar-item">
-
-  
-    
-  
-
+<button aria-label="站点导航" class="pst-navbar-icon sidebar-toggle primary-toggle">
+<span class="fa-solid fa-bars"></span>
+</button>
+<div class="col-lg-3 navbar-header-items__start">
+<div class="navbar-item">
 <a class="navbar-brand logo" href="../contents.html">
-  
-  
-  
-  
-  
-    
-    
-      
-    
-    
-    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
-    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
-  
-  
-    <p class="title logo__title">CUDA Programming Guide</p>
-  
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg"/>
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-dark pst-js-only" src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg"/>
+<p class="title logo__title">CUDA 编程指南</p>
 </a></div>
-    
-  </div>
-  
-  <div class="col-lg-9 navbar-header-items">
-    
-    <div class="me-auto navbar-header-items__center">
-      
-        <div class="navbar-item">
-
-
+</div>
+<div class="col-lg-9 navbar-header-items">
+<div class="me-auto navbar-header-items__center">
+<div class="navbar-item">
 <div>
-  <ul class="bd-navbar-elements navbar-nav">
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>v13.2 |</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>|</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
-      
-    </li>
-  
-  </ul>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item pst-header-nav-item">
+<span>v13.2 |</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+</li>
+<li class="nav-item pst-header-nav-item">
+<span>|</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">warp</a>
+</li>
+</ul>
 </div>
 </div>
-      
-    </div>
-    
-    
-    <div class="navbar-header-items__end">
-      
-        <div class="navbar-item navbar-persistent--container">
-          
-
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
- <i class="fa-solid fa-magnifying-glass"></i>
- <span class="search-button__default-text">Search</span>
- <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</div>
+<div class="navbar-header-items__end">
+<div class="navbar-item navbar-persistent--container">
+<button aria-label="warp" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="warp">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">warp</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
 </button>
-        </div>
-      
-      
-        <div class="navbar-item">
-
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</div>
+<div class="navbar-item">
+<button aria-label="色彩模式" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="系统设置"></i>
 </button></div>
-      
-    </div>
-    
-  </div>
-  
-  
-    <div class="navbar-persistent--mobile">
-
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
- <i class="fa-solid fa-magnifying-glass"></i>
- <span class="search-button__default-text">Search</span>
- <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-</button>
-    </div>
-  
-
-  
-    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
-      <span class="fa-solid fa-outdent"></span>
-    </button>
-  
 </div>
-
-    </header>
-  
-
-  <div class="bd-container">
-    <div class="bd-container__inner bd-page-width">
-      
-      
-      
-      <dialog id="pst-primary-sidebar-modal"></dialog>
-      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
-        
-
-
-
-  
-    
-  
-
+</div>
+<div class="navbar-persistent--mobile">
+<button aria-label="warp" class="btn search-button-field search-button__button pst-js-only" data-bs-placement="bottom" data-bs-toggle="tooltip" title="warp">
+<i class="fa-solid fa-magnifying-glass"></i>
+<span class="search-button__default-text">warp</span>
+<span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+</div>
+<button aria-label="切换侧边栏" class="pst-navbar-icon sidebar-toggle secondary-toggle">
+<span class="fa-solid fa-outdent"></span>
+</button>
+</div>
+</header>
+<div class="bd-container">
+<div class="bd-container__inner bd-page-width">
+<dialog id="pst-primary-sidebar-modal"></dialog>
+<div class="bd-sidebar-primary bd-sidebar" id="pst-primary-sidebar">
 <a class="navbar-brand logo" href="../contents.html">
-  
-  
-  
-  
-  
-    
-    
-      
-    
-    
-    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="CUDA Programming Guide - Home"/>
-    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="CUDA Programming Guide - Home"/>
-  
-  
-    <p class="title logo__title">CUDA Programming Guide</p>
-  
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg"/>
+<img alt="CUDA 编程指南 - 主页" class="logo__image only-dark pst-js-only" src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg"/>
+<p class="title logo__title">CUDA 编程指南</p>
 </a>
-
-
-  
-  <div class="sidebar-header-items sidebar-primary__section">
-    
-    
-      <div class="sidebar-header-items__center">
-        
-          
-          
-            <div class="navbar-item">
-
-
+<div class="sidebar-header-items sidebar-primary__section">
+<div class="sidebar-header-items__center">
+<div class="navbar-item">
 <div>
-  <ul class="bd-navbar-elements navbar-nav">
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>v13.2 |</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <span>|</span>
-      
-    </li>
-  
-    <li class="nav-item pst-header-nav-item">
-      
-      <a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">Archive</a>
-      
-    </li>
-  
-  </ul>
+<ul class="bd-navbar-elements navbar-nav">
+<li class="nav-item pst-header-nav-item">
+<span>v13.2 |</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="../pdf/cuda-programming-guide.pdf">PDF</a>
+</li>
+<li class="nav-item pst-header-nav-item">
+<span>|</span>
+</li>
+<li class="nav-item pst-header-nav-item">
+<a class="nav-link nav-external" href="https://developer.nvidia.com/cuda-toolkit-archive">warp</a>
+</li>
+</ul>
 </div>
 </div>
-          
-        
-      </div>
-    
-    
-    
-      <div class="sidebar-header-items__end">
-        
-          <div class="navbar-item">
-
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</div>
+<div class="sidebar-header-items__end">
+<div class="navbar-item">
+<button aria-label="色彩模式" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" data-bs-placement="bottom" data-bs-title="Color mode" data-bs-toggle="tooltip">
+<i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+<i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+<i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="系统设置"></i>
 </button></div>
-        
-      </div>
-    
-  </div>
-  
-    <div class="sidebar-primary-items__start sidebar-primary__section">
-        <div class="sidebar-primary-item">
-
-
-
-<nav class="bd-docs-nav bd-links"
-     aria-label="Table of Contents">
-  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
-  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA Programming Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. Introduction to CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../01-introduction/introduction.html">1.1. Introduction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../01-introduction/programming-model.html">1.2. Programming Model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../01-introduction/cuda-platform.html">1.3. The CUDA platform</a></li>
+</div>
+</div>
+<div class="sidebar-primary-items__start sidebar-primary__section">
+<div class="sidebar-primary-item">
+<nav aria-label="目录" class="bd-docs-nav bd-links">
+<p aria-level="1" class="bd-links__title" role="heading">目录</p>
+<div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">CUDA 编程指南</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part1.html">1. CUDA 简介</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/introduction.html">1.1. 引言</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/programming-model.html">1.2. 编程模型</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../01-introduction/cuda-platform.html">1.3. CUDA 平台</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part2.html">2. Programming GPUs in CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html">2.1. Intro to CUDA C++</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/writing-cuda-kernels.html">2.2. Writing CUDA SIMT Kernels</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/asynchronous-execution.html">2.3. Asynchronous Execution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/understanding-memory.html">2.4. Unified and System Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../02-basics/nvcc.html">2.5. NVCC: The NVIDIA CUDA Compiler</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part2.html">2. 使用 CUDA 进行 GPU 编程</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/intro-to-cuda-cpp.html">2.1. CUDA C++ 入门</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/writing-cuda-kernels.html">2.2. 编写 CUDA SIMT 内核</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/asynchronous-execution.html">2.3. 异步执行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/understanding-memory.html">2.4. 统一内存与系统内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../02-basics/nvcc.html">2.5. NVCC：NVIDIA CUDA 编译器</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. Advanced CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. Advanced CUDA APIs and Features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. Advanced Kernel Programming</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. The CUDA Driver API</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. Programming Systems with Multiple GPUs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. A Tour of CUDA Features</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part3.html">3. 高级 CUDA</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-host-programming.html">3.1. 高级 CUDA API 与特性</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html">3.2. 高级内核编程</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/driver-api.html">3.3. CUDA Driver API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/multi-gpu-systems.html">3.4. 多 GPU 系统编程</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../03-advanced/feature-survey.html">3.5. CUDA 特性概览</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="../part4.html">4. CUDA Features</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="unified-memory.html">4.1. Unified Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cuda-graphs.html">4.2. CUDA Graphs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="stream-ordered-memory-allocation.html">4.3. Stream-Ordered Memory Allocator</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cooperative-groups.html">4.4. Cooperative Groups</a></li>
-<li class="toctree-l3"><a class="reference internal" href="programmatic-dependent-launch.html">4.5. Programmatic Dependent Launch and Synchronization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="green-contexts.html">4.6. Green Contexts</a></li>
-<li class="toctree-l3"><a class="reference internal" href="lazy-loading.html">4.7. Lazy Loading</a></li>
-<li class="toctree-l3"><a class="reference internal" href="error-log-management.html">4.8. Error Log Management</a></li>
-<li class="toctree-l3"><a class="reference internal" href="async-barriers.html">4.9. Asynchronous Barriers</a></li>
-<li class="toctree-l3 current active"><a class="current reference internal" href="pipelines.html#">4.10. Pipelines</a></li>
-<li class="toctree-l3"><a class="reference internal" href="async-copies.html">4.11. Asynchronous Data Copies</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cluster-launch-control.html">4.12. Work Stealing with Cluster Launch Control</a></li>
-<li class="toctree-l3"><a class="reference internal" href="l2-cache-control.html">4.13. L2 Cache Control</a></li>
-<li class="toctree-l3"><a class="reference internal" href="memory-sync-domains.html">4.14. Memory Synchronization Domains</a></li>
-<li class="toctree-l3"><a class="reference internal" href="inter-process-communication.html">4.15. Interprocess Communication</a></li>
-<li class="toctree-l3"><a class="reference internal" href="virtual-memory-management.html">4.16. Virtual Memory Management</a></li>
-<li class="toctree-l3"><a class="reference internal" href="extended-gpu-memory.html">4.17. Extended GPU Memory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dynamic-parallelism.html">4.18. CUDA Dynamic Parallelism</a></li>
-<li class="toctree-l3"><a class="reference internal" href="graphics-interop.html">4.19. CUDA Interoperability with APIs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="driver-entry-point-access.html">4.20. Driver Entry Point Access</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../part4.html">4. CUDA 特性</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="unified-memory.html">4.1. 统一内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda-graphs.html">4.2. CUDA Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stream-ordered-memory-allocation.html">4.3. 流有序内存分配器</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cooperative-groups.html">4.4. 协作组</a></li>
+<li class="toctree-l3"><a class="reference internal" href="programmatic-dependent-launch.html">4.5. 程序化依赖启动与同步</a></li>
+<li class="toctree-l3"><a class="reference internal" href="green-contexts.html">4.6. 绿色上下文</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lazy-loading.html">4.7. 延迟加载</a></li>
+<li class="toctree-l3"><a class="reference internal" href="error-log-management.html">4.8. 错误日志管理</a></li>
+<li class="toctree-l3"><a class="reference internal" href="async-barriers.html">4.9. 异步屏障</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="pipelines.html#">4.10. 流水线</a></li>
+<li class="toctree-l3"><a class="reference internal" href="async-copies.html">4.11. 异步数据拷贝</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cluster-launch-control.html">4.12. 使用簇启动控制进行工作窃取</a></li>
+<li class="toctree-l3"><a class="reference internal" href="l2-cache-control.html">4.13. L2 缓存控制</a></li>
+<li class="toctree-l3"><a class="reference internal" href="memory-sync-domains.html">4.14. 内存同步域</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inter-process-communication.html">4.15. 进程间通信</a></li>
+<li class="toctree-l3"><a class="reference internal" href="virtual-memory-management.html">4.16. 虚拟内存管理</a></li>
+<li class="toctree-l3"><a class="reference internal" href="extended-gpu-memory.html">4.17. 扩展 GPU 内存</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamic-parallelism.html">4.18. CUDA 动态并行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graphics-interop.html">4.19. CUDA 与 API 的互操作</a></li>
+<li class="toctree-l3"><a class="reference internal" href="driver-entry-point-access.html">4.20. 驱动入口点访问</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../part5.html">5. Technical Appendices</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/compute-capabilities.html">5.1. Compute Capabilities</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/environment-variables.html">5.2. CUDA Environment Variables</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-support.html">5.3. C++ Language Support</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-extensions.html">5.4. C/C++ Language Extensions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/mathematical-functions.html">5.5. Floating-Point Computation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/device-callable-apis.html">5.6. Device-Callable APIs and Intrinsics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-memory-model.html">5.7. CUDA C++ Memory Model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-execution-model.html">5.8. CUDA C++ Execution model</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../part5.html">5. 技术附录</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/compute-capabilities.html">5.1. 计算能力</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/environment-variables.html">5.2. CUDA 环境变量</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-support.html">5.3. C++ 语言支持</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cpp-language-extensions.html">5.4. C/C++ 语言扩展</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/mathematical-functions.html">5.5. 浮点计算</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/device-callable-apis.html">5.6. 设备端可调用 API 与内建函数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-memory-model.html">5.7. CUDA C++ 内存模型</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../05-appendices/cuda-cpp-execution-model.html">5.8. CUDA C++ 执行模型</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. Notices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notices.html">6. 声明</a></li>
 </ul>
 </details></li>
 </ul>
 </div>
 </nav></div>
-    </div>
-  
-  
-  <div class="sidebar-primary-items__end sidebar-primary__section">
-  </div>
-
-
-
-      </div>
-      
-      <main id="main-content" class="bd-main" role="main">
-        
-        
-          <div class="bd-content">
-            <div class="bd-article-container">
-              
-              <div class="bd-header-article d-print-none">
+</div>
+<div class="sidebar-primary-items__end sidebar-primary__section">
+</div>
+</div>
+<main class="bd-main" id="main-content" role="main">
+<div class="bd-content">
+<div class="bd-article-container">
+<div class="bd-header-article d-print-none">
 <div class="header-article-items header-article__inner">
-  
-    <div class="header-article-items__start">
-      
-        <div class="header-article-item">
-
+<div class="header-article-items__start">
+<div class="header-article-item">
 <nav aria-label="Breadcrumb" class="d-print-none">
-  <ul class="bd-breadcrumbs">
-    
-    <li class="breadcrumb-item breadcrumb-home">
-      <a href="../contents.html" class="nav-link" aria-label="Home">
-        <i class="fa-solid fa-home"></i>
-      </a>
-    </li>
-    
-    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">CUDA Programming Guide</a></li>
-    
-    
-    <li class="breadcrumb-item"><a href="../part4.html" class="nav-link"><span class="section-number">4. </span>CUDA Features</a></li>
-    
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">4.10. </span>Pipelines</span></li>
-  </ul>
+<ul class="bd-breadcrumbs">
+<li class="breadcrumb-item breadcrumb-home">
+<a aria-label="Home" class="nav-link" href="../contents.html">目录</a>
+</li>
+<li class="breadcrumb-item"><a class="nav-link" href="../index.html">CUDA 编程指南</a></li>
+<li class="breadcrumb-item"><a class="nav-link" href="../part4.html">4. CUDA 特性</a></li>
+<li aria-current="page" class="breadcrumb-item active"><span class="ellipsis"><span class="section-number">4.10. </span>流水线</span></li>
+</ul>
 </nav>
 </div>
-      
-    </div>
-  
-  
-    <div class="header-article-items__end">
-      
-        <div class="header-article-item">
+</div>
+<div class="header-article-items__end">
 <div class="header-article-item">
-  <div class="d-flex justify-content-end w-100">
-    <a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">Is this page helpful?</a>
-  </div>
+<div class="header-article-item">
+<div class="d-flex justify-content-end w-100">
+<a href="https://surveys.hotjar.com/4904bf71-6484-47a7-83ff-4715cceabdb5" id="openPopupButton">此页面有帮助吗？</a>
+</div>
 </div></div>
-      
-    </div>
-  
 </div>
 </div>
-              
-              
-              
-                
+</div>
 <div id="searchbox"></div>
-                <article class="bd-article">
-                  
-  <section id="pipelines">
-<span id="id1"></span><h1><span class="section-number">4.10. </span>Pipelines<a class="headerlink" href="pipelines.html#pipelines" title="Link to this heading">#</a></h1>
-<p>Pipelines, introduced in <a class="reference internal" href="../03-advanced/advanced-kernel-programming.html#advanced-kernels-advanced-sync-primitives"><span class="std std-ref">Advanced Synchronization Primitives</span></a>, are a mechanism for staging work and coordinating multi-buffer producer–consumer patterns, commonly used to overlap compute with <a class="reference internal" href="../03-advanced/advanced-kernel-programming.html#advanced-kernels-async-copies"><span class="std std-ref">asynchronous data copies</span></a>.</p>
-<p>This section provides details on how to use pipelines mainly via the <code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code> API (with pointers to primitives where applicable).</p>
+<article class="bd-article">
+<section id="pipelines">
+<span id="id1"></span><h1>4.10. 流水线<a class="headerlink" href="pipelines.html#pipelines" title="跳转到此标题">#</a></h1>
+<p>管道，引入 <a class="reference internal" href="../03-advanced/advanced-kernel-programming.html#advanced-kernels-advanced-sync-primitives"><span class="std std-ref">高级同步原语</span></a>，是一种用于暂存工作和协调多缓冲区生产者-消费者模式的机制，通常用于与计算重叠 <a class="reference internal" href="../03-advanced/advanced-kernel-programming.html#advanced-kernels-async-copies"><span class="std std-ref">异步数据复制</span></a>.</p>
+<p>本节主要通过以下方式详细介绍如何使用管道 <code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code> API（在适用的情况下带有指向原语的指针）。</p>
 <section id="initialization">
-<span id="pipelines-init"></span><h2><span class="section-number">4.10.1. </span>Initialization<a class="headerlink" href="pipelines.html#initialization" title="Link to this heading">#</a></h2>
-<p>A <code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code> can be created at different thread scopes. For a scope other than <code class="docutils literal notranslate"><span class="pre">cuda::thread_scope_thread</span></code>, a <code class="docutils literal notranslate"><span class="pre">cuda::pipeline_shared_state&lt;scope,</span> <span class="pre">count&gt;</span></code> object is required to coordinate the participating threads. This state encapsulates the finite resources that allow a pipeline to process up to <code class="docutils literal notranslate"><span class="pre">count</span></code> concurrent stages.</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// Create a pipeline at thread scope</span>
+<span id="pipelines-init"></span><h2><span class="section-number">4.10.1. </span>初始化<a class="headerlink" href="pipelines.html#initialization" title="跳转到此标题">#</a></h2>
+<p>A <code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code> 可以在不同的线程范围内创建。对于除以下范围之外的范围 <code class="docutils literal notranslate"><span class="pre">cuda::thread_scope_thread</span></code>, a <code class="docutils literal notranslate"><span class="pre">cuda::pipeline_shared_state&lt;scope,</span> <span class="pre">count&gt;</span></code> 需要对象来协调参与线程。该状态封装了有限的资源，允许管道处理最多 <code class="docutils literal notranslate"><span class="pre">count</span></code> 并发阶段。</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 在线程范围内创建管道</span>
 <span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">scope</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">thread_scope_thread</span><span class="p">;</span>
 <span class="n">cuda</span><span class="o">::</span><span class="n">pipeline</span><span class="o">&lt;</span><span class="n">scope</span><span class="o">&gt;</span><span class="w"> </span><span class="n">pipeline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">make_pipeline</span><span class="p">();</span>
 </pre></div>
 </div>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// Create a pipeline at block scope</span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 在块范围内创建管道</span>
 <span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">scope</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">thread_scope_block</span><span class="p">;</span>
 <span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">stages_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
 <span class="n">__shared__</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">pipeline_shared_state</span><span class="o">&lt;</span><span class="n">scope</span><span class="p">,</span><span class="w"> </span><span class="n">stages_count</span><span class="o">&gt;</span><span class="w"> </span><span class="n">shared_state</span><span class="p">;</span>
 <span class="k">auto</span><span class="w"> </span><span class="n">pipeline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">make_pipeline</span><span class="p">(</span><span class="n">group</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">shared_state</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>Pipelines can be either <em>unified</em> or <em>partitioned</em>. In a unified pipeline, all the participating threads are both producers and consumers. In a partitioned pipeline, each participating thread is either a producer or a consumer and its role cannot change during the lifetime of the pipeline object. A thread-local pipeline cannot be partitioned. To create a partitioned pipeline, we need to provide either the number of producers or the role of the thread to <code class="docutils literal notranslate"><span class="pre">cuda::make_pipeline()</span></code>.</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// Create a partitioned pipeline at block scope where only thread 0 is a producer</span>
+<p>管道可以是 <em>unified</em> 或 <em>partitioned</em>。在统一的管道中，所有参与的线程既是生产者又是消费者。在分区管道中，每个参与线程要么是生产者，要么是消费者，并且其角色在管道对象的生命周期内不能更改。线程本地管道无法分区。要创建分区管道，我们需要提供生产者的数量或线程的角色 <code class="docutils literal notranslate"><span class="pre">cuda::make_pipeline()</span></code>.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 在块范围内创建一个分区管道，其中只有线程 0 是生产者</span>
 <span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">scope</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">thread_scope_block</span><span class="p">;</span>
 <span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">stages_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
 <span class="n">__shared__</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">pipeline_shared_state</span><span class="o">&lt;</span><span class="n">scope</span><span class="p">,</span><span class="w"> </span><span class="n">stages_count</span><span class="o">&gt;</span><span class="w"> </span><span class="n">shared_state</span><span class="p">;</span>
@@ -515,80 +310,80 @@
 <span class="k">auto</span><span class="w"> </span><span class="n">pipeline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">make_pipeline</span><span class="p">(</span><span class="n">group</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">shared_state</span><span class="p">,</span><span class="w"> </span><span class="n">thread_role</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>To support partitioning, a shared <code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code> incurs additional overheads, including using a set of shared memory barriers per stage for synchronization. These are used even when the pipeline is unified and could use <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> instead. Thus, it is preferable to use thread-local pipelines which avoid these overheads when possible.</p>
+<p>为了支持分区，共享 <code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code> 会产生额外的开销，包括每个阶段使用一组共享内存屏障进行同步。即使管道统一并且可以使用，也会使用这些 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 相反。因此，最好使用线程本地管道，尽可能避免这些开销。</p>
 </section>
 <section id="submitting-work">
-<span id="pipelines-submit"></span><h2><span class="section-number">4.10.2. </span>Submitting Work<a class="headerlink" href="pipelines.html#submitting-work" title="Link to this heading">#</a></h2>
-<p>Committing work to a pipeline stage involves:</p>
+<span id="pipelines-submit"></span><h2><span class="section-number">4.10.2. </span>提交作品<a class="headerlink" href="pipelines.html#submitting-work" title="跳转到此标题">#</a></h2>
+<p>将工作提交到管道阶段涉及：</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>Collectively <em>acquiring</em> the pipeline <em>head</em> from a set of producer threads using <code class="docutils literal notranslate"><span class="pre">pipeline.producer_acquire()</span></code>.</p></li>
-<li><p>Submitting asynchronous operations, e.g., <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code>, to the pipeline head.</p></li>
-<li><p>Collectively <em>committing</em> (advancing) the pipeline head using <code class="docutils literal notranslate"><span class="pre">pipeline.producer_commit()</span></code>.</p></li>
+<li><p>Collectively <em>acquiring</em> 管道 <em>head</em> 来自一组生产者线程，使用 <code class="docutils literal notranslate"><span class="pre">pipeline.producer_acquire()</span></code>.</p></li>
+<li><p>提交异步操作，例如 <code class="docutils literal notranslate"><span class="pre">memcpy_async</span></code>，到管道头。</p></li>
+<li><p>Collectively <em>committing</em> （推进）管道头使用 <code class="docutils literal notranslate"><span class="pre">pipeline.producer_commit()</span></code>.</p></li>
 </ul>
 </div></blockquote>
-<p>If all resources are in use, <code class="docutils literal notranslate"><span class="pre">pipeline.producer_acquire()</span></code> blocks producer threads until the resources of the next pipeline stage are released by consumer threads.</p>
+<p>如果所有资源都被使用， <code class="docutils literal notranslate"><span class="pre">pipeline.producer_acquire()</span></code> 阻塞生产者线程，直到消费者线程释放下一个管道阶段的资源。</p>
 </section>
 <section id="consuming-work">
-<span id="pipelines-consume"></span><h2><span class="section-number">4.10.3. </span>Consuming Work<a class="headerlink" href="pipelines.html#consuming-work" title="Link to this heading">#</a></h2>
-<p>Consuming work from a previously committed stage involves:</p>
+<span id="pipelines-consume"></span><h2><span class="section-number">4.10.3. </span>消耗工作<a class="headerlink" href="pipelines.html#consuming-work" title="跳转到此标题">#</a></h2>
+<p>使用先前提交的阶段的工作涉及：</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>Collectively waiting for the stage to complete, e.g., using <code class="docutils literal notranslate"><span class="pre">pipeline.consumer_wait()</span></code> to wait on the tail (oldest) stage, from a set of consumer threads.</p></li>
-<li><p>Collectively <em>releasing</em> the stage using <code class="docutils literal notranslate"><span class="pre">pipeline.consumer_release()</span></code>.</p></li>
+<li><p>共同等待阶段完成，例如，使用 <code class="docutils literal notranslate"><span class="pre">pipeline.consumer_wait()</span></code> 在一组消费者线程的尾部（最旧的）阶段等待。</p></li>
+<li><p>Collectively <em>releasing</em> 舞台使用 <code class="docutils literal notranslate"><span class="pre">pipeline.consumer_release()</span></code>.</p></li>
 </ul>
 </div></blockquote>
-<p>With <code class="docutils literal notranslate"><span class="pre">cuda::pipeline&lt;cuda:thread_scope_thread&gt;</span></code> one can also use the <code class="docutils literal notranslate"><span class="pre">cuda::pipeline_consumer_wait_prior&lt;N&gt;()</span></code> friend function to wait for all except the last N stages to complete, similar to <code class="docutils literal notranslate"><span class="pre">__pipeline_wait_prior(N)</span></code> in the primitives API.</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">cuda::pipeline&lt;cuda:thread_scope_thread&gt;</span></code> 还可以使用 <code class="docutils literal notranslate"><span class="pre">cuda::pipeline_consumer_wait_prior&lt;N&gt;()</span></code> 友元函数等待除最后 N 个阶段之外的所有阶段完成，类似于 <code class="docutils literal notranslate"><span class="pre">__pipeline_wait_prior(N)</span></code> 在原语 API 中。</p>
 </section>
 <section id="warp-entanglement">
-<span id="pipelines-entanglement"></span><h2><span class="section-number">4.10.4. </span>Warp Entanglement<a class="headerlink" href="pipelines.html#warp-entanglement" title="Link to this heading">#</a></h2>
-<p>The pipeline mechanism is shared among CUDA threads in the same warp. This sharing causes sequences of submitted operations to be entangled within a warp, which can impact performance under certain circumstances.</p>
-<p><strong>Commit</strong>. The commit operation is coalesced such that the pipeline’s sequence is incremented once for all converged threads that invoke the commit operation and their submitted operations are batched together. If the warp is fully converged, the sequence is incremented by one and all submitted operations will be batched in the same stage of the pipeline; if the warp is fully diverged, the sequence is incremented by 32 and all submitted operations will be spread to different stages.</p>
+<span id="pipelines-entanglement"></span><h2><span class="section-number">4.10.4. </span>warp 纠缠<a class="headerlink" href="pipelines.html#warp-entanglement" title="跳转到此标题">#</a></h2>
+<p>管道机制在同一 warp 中的 CUDA 线程之间共享。这种共享会导致提交的操作序列纠缠在warp 中，这在某些情况下可能会影响性能。</p>
+<p><strong>Commit</strong>。提交操作被合并，以便对于调用提交操作的所有聚合线程，管道的序列递增一次，并且它们提交的操作被批处理在一起。如果warp完全收敛，则序列加一，所有提交的操作将在管道的同一阶段进行批处理；如果 warp 完全发散，则序列将增加 32，并且所有提交的操作将分散到不同的阶段。</p>
 <ul>
-<li><p>Let <em>PB</em> be the warp-shared pipeline’s <em>actual</em> sequence of operations.</p>
+<li><p>令 <em>PB</em> 是warp共享管道的 <em>actual</em> 操作顺序。</p>
 <p><code class="docutils literal notranslate"><span class="pre">PB</span> <span class="pre">=</span> <span class="pre">{BP0,</span> <span class="pre">BP1,</span> <span class="pre">BP2,</span> <span class="pre">…,</span> <span class="pre">BPL}</span></code></p>
 </li>
-<li><p>Let <em>TB</em> be a thread’s <em>perceived</em> sequence of operations, as if the sequence were only incremented by this thread’s invocation of the commit operation.</p>
+<li><p>令 <em>TB</em> 是一个线程的 <em>perceived</em> 操作序列，就好像该序列仅通过该线程调用提交操作来递增。</p>
 <p><code class="docutils literal notranslate"><span class="pre">TB</span> <span class="pre">=</span> <span class="pre">{BT0,</span> <span class="pre">BT1,</span> <span class="pre">BT2,</span> <span class="pre">…,</span> <span class="pre">BTL}</span></code></p>
 </li>
 </ul>
 <blockquote>
-<div><p>The <code class="docutils literal notranslate"><span class="pre">pipeline::producer_commit()</span></code> return value is from the thread’s <em>perceived</em> batch sequence.</p>
+<div><p><code class="docutils literal notranslate"><span class="pre">pipeline::producer_commit()</span></code> 返回值来自线程的 <em>perceived</em> 批次顺序。</p>
 </div></blockquote>
 <ul>
-<li><p>An index in a thread’s perceived sequence always aligns to an equal or larger index in the actual warp-shared sequence. The sequences are equal only when all commit operations are invoked from fully converged threads.</p>
+<li><p>线程感知序列中的索引始终与实际warp共享序列中相同或更大的索引对齐。仅当从完全聚合的线程调用所有提交操作时，序列才相等。</p>
 <p><code class="docutils literal notranslate"><span class="pre">BTn</span> <span class="pre">≡</span> <span class="pre">BPm</span></code> where <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">&lt;=</span> <span class="pre">m</span></code></p>
 </li>
 </ul>
-<p>For example, when a warp is fully diverged:</p>
+<p>例如，当 warp完全发散时：</p>
 <ul class="simple">
-<li><p>The warp-shared pipeline’s actual sequence would be: <code class="docutils literal notranslate"><span class="pre">PB</span> <span class="pre">=</span> <span class="pre">{0,</span> <span class="pre">1,</span> <span class="pre">2,</span> <span class="pre">3,</span> <span class="pre">...,</span> <span class="pre">31}</span></code> (<code class="docutils literal notranslate"><span class="pre">PL=31</span></code>).</p></li>
-<li><p>The perceived sequence for each thread of this warp would be:</p>
+<li><p>warp共享管道的实际顺序是： <code class="docutils literal notranslate"><span class="pre">PB</span> <span class="pre">=</span> <span class="pre">{0,</span> <span class="pre">1,</span> <span class="pre">2,</span> <span class="pre">3,</span> <span class="pre">...,</span> <span class="pre">31}</span></code> (<code class="docutils literal notranslate"><span class="pre">PL=31</span></code>).</p></li>
+<li><p>该 warp的每个线程的感知序列将是：</p>
 <ul>
-<li><p>Thread 0: <code class="docutils literal notranslate"><span class="pre">TB</span> <span class="pre">=</span> <span class="pre">{0}</span></code> (<code class="docutils literal notranslate"><span class="pre">TL=0</span></code>)</p></li>
-<li><p>Thread 1: <code class="docutils literal notranslate"><span class="pre">TB</span> <span class="pre">=</span> <span class="pre">{0}</span></code> (<code class="docutils literal notranslate"><span class="pre">TL=0</span></code>)</p></li>
+<li><p>线程 0： <code class="docutils literal notranslate"><span class="pre">TB</span> <span class="pre">=</span> <span class="pre">{0}</span></code> (<code class="docutils literal notranslate"><span class="pre">TL=0</span></code>)</p></li>
+<li><p>主题 1： <code class="docutils literal notranslate"><span class="pre">TB</span> <span class="pre">=</span> <span class="pre">{0}</span></code> (<code class="docutils literal notranslate"><span class="pre">TL=0</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">…</span></code></p></li>
-<li><p>Thread 31: <code class="docutils literal notranslate"><span class="pre">TB</span> <span class="pre">=</span> <span class="pre">{0}</span></code> (<code class="docutils literal notranslate"><span class="pre">TL=0</span></code>)</p></li>
+<li><p>主题 31： <code class="docutils literal notranslate"><span class="pre">TB</span> <span class="pre">=</span> <span class="pre">{0}</span></code> (<code class="docutils literal notranslate"><span class="pre">TL=0</span></code>)</p></li>
 </ul>
 </li>
 </ul>
-<p><strong>Wait</strong>. A CUDA thread invokes <code class="docutils literal notranslate"><span class="pre">pipeline::consumer_wait()</span></code> or <code class="docutils literal notranslate"><span class="pre">pipeline_consumer_wait_prior&lt;N&gt;()</span></code> to wait for batches in the <em>perceived</em> sequence <code class="docutils literal notranslate"><span class="pre">TB</span></code> to complete. Note that <code class="docutils literal notranslate"><span class="pre">pipeline::consumer_wait()</span></code> is equivalent to <code class="docutils literal notranslate"><span class="pre">pipeline_consumer_wait_prior&lt;N&gt;()</span></code>, where <code class="docutils literal notranslate"><span class="pre">N</span> <span class="pre">=</span> <span class="pre">PL</span></code>.</p>
-<p>The <em>wait prior</em> variants wait for batches in the <em>actual</em> sequence at least up to and including <code class="docutils literal notranslate"><span class="pre">PL-N</span></code>. Since <code class="docutils literal notranslate"><span class="pre">TL</span> <span class="pre">&lt;=</span> <span class="pre">PL</span></code>, waiting for batch up to and including <code class="docutils literal notranslate"><span class="pre">PL-N</span></code> includes waiting for batch <code class="docutils literal notranslate"><span class="pre">TL-N</span></code>. Thus, when <code class="docutils literal notranslate"><span class="pre">TL</span> <span class="pre">&lt;</span> <span class="pre">PL</span></code>, the thread will unintentionally wait for additional, more recent batches. In the extreme fully-diverged warp example above, each thread could wait for all 32 batches.</p>
+<p><strong>Wait</strong>。 CUDA 线程调用 <code class="docutils literal notranslate"><span class="pre">pipeline::consumer_wait()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">pipeline_consumer_wait_prior&lt;N&gt;()</span></code> 等待批次 <em>perceived</em> sequence <code class="docutils literal notranslate"><span class="pre">TB</span></code> 来完成。请注意 <code class="docutils literal notranslate"><span class="pre">pipeline::consumer_wait()</span></code> 相当于 <code class="docutils literal notranslate"><span class="pre">pipeline_consumer_wait_prior&lt;N&gt;()</span></code>, 其中 <code class="docutils literal notranslate"><span class="pre">N</span> <span class="pre">=</span> <span class="pre">PL</span></code>.</p>
+<p><em>提前等待</em> 变体等待批次 <em>actual</em> 序列至少达到并包括 <code class="docutils literal notranslate"><span class="pre">PL-N</span></code>。自从 <code class="docutils literal notranslate"><span class="pre">TL</span> <span class="pre">&lt;=</span> <span class="pre">PL</span></code>，等待批次达到并包括 <code class="docutils literal notranslate"><span class="pre">PL-N</span></code> 包括等待批次 <code class="docutils literal notranslate"><span class="pre">TL-N</span></code>。因此，当 <code class="docutils literal notranslate"><span class="pre">TL</span> <span class="pre">&lt;</span> <span class="pre">PL</span></code>，线程将无意中等待额外的、更新的批次。在上面的极端完全发散的warp示例中，每个线程可以等待所有 32 个批次。</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>It is recommended that commit invocations are by converged threads to not over-wait, by keeping threads’ perceived sequence of batches aligned with the actual sequence.</p>
-<p>When code preceding these operations diverges threads, then the warp should be re-converged, via <code class="docutils literal notranslate"><span class="pre">__syncwarp</span></code> before invoking commit operations.</p>
+<p class="admonition-title">注</p>
+<p>建议通过保持线程感知的批次序列与实际序列保持一致，由聚合线程进行提交调用，以免过度等待。</p>
+<p>当这些操作之前的代码使线程发散时，应该重新聚合warp，通过 <code class="docutils literal notranslate"><span class="pre">__syncwarp</span></code> 在调用提交操作之前。</p>
 </div>
 </section>
 <section id="early-exit">
-<span id="pipelines-early-exit"></span><h2><span class="section-number">4.10.5. </span>Early Exit<a class="headerlink" href="pipelines.html#early-exit" title="Link to this heading">#</a></h2>
-<p>When a thread that is participating in a pipeline must exit early, that thread must explicitly drop out of participation before exiting using <code class="docutils literal notranslate"><span class="pre">cuda::pipeline::quit()</span></code>. The remaining participating threads can proceed normally with subsequent operations.</p>
+<span id="pipelines-early-exit"></span><h2><span class="section-number">4.10.5. </span>提前退出<a class="headerlink" href="pipelines.html#early-exit" title="跳转到此标题">#</a></h2>
+<p>当参与管道的线程必须提前退出时，该线程必须在退出之前显式退出参与 <code class="docutils literal notranslate"><span class="pre">cuda::pipeline::quit()</span></code>。其余参与线程可以正常进行后续操作。</p>
 </section>
 <section id="tracking-asynchronous-memory-operations">
-<span id="pipelines-tracking"></span><h2><span class="section-number">4.10.6. </span>Tracking Asynchronous Memory Operations<a class="headerlink" href="pipelines.html#tracking-asynchronous-memory-operations" title="Link to this heading">#</a></h2>
-<p>The following example demonstrates how to collectively copy data from global to shared memory with asynchronous memory copies using a pipeline to keep track of the copy operations. Each thread uses its own pipeline to independently submit memory copies and then wait for them to complete and consume the data. For more details on asynchronous data copies, see <a class="reference internal" href="../03-advanced/advanced-kernel-programming.html#advanced-kernels-async-copies"><span class="std std-numref">Section 3.2.5</span></a>.</p>
+<span id="pipelines-tracking"></span><h2><span class="section-number">4.10.6. </span>跟踪异步内存操作<a class="headerlink" href="pipelines.html#tracking-asynchronous-memory-operations" title="跳转到此标题">#</a></h2>
+<p>以下示例演示了如何使用异步内存副本将数据从全局内存集中复制到共享内存，并使用管道来跟踪复制操作。每个线程使用自己的管道独立提交内存副本，然后等待它们完成并消费数据。有关异步数据副本的更多详细信息，请参阅 <a class="reference internal" href="../03-advanced/advanced-kernel-programming.html#advanced-kernels-async-copies"><span class="std std-numref">第3.2.5节</span></a>.</p>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio"/>
 <label class="sd-tab-label" for="sd-tab-item-0">
 CUDA C++ <code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code></label><div class="sd-tab-content docutils">
 <div class="pst-scrollable-table-container"><table class="table" id="table-example-pipelines-std">
@@ -600,48 +395,48 @@ CUDA C++ <code class="docutils literal notranslate"><span class="pre">cuda::pipe
 <span class="w">    </span><span class="n">constexpr</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">block_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">128</span><span class="p">;</span>
 <span class="w">    </span><span class="kt">__shared__</span><span class="w"> </span><span class="nf">__align__</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">))</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">buffer</span><span class="p">[</span><span class="mi">4</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">block_size</span><span class="p">];</span>
 
-<span class="w">    </span><span class="c1">// Create a unified pipeline per thread</span>
+<span class="w">    </span><span class="c1">// 每个线程创建统一的管道</span>
 <span class="w">    </span><span class="n">cuda</span><span class="o">::</span><span class="n">pipeline</span><span class="o">&lt;</span><span class="n">cuda</span><span class="o">::</span><span class="n">thread_scope_thread</span><span class="o">&gt;</span><span class="w"> </span><span class="n">pipeline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">make_pipeline</span><span class="p">();</span>
 
-<span class="w">    </span><span class="c1">// First stage of memory copies</span>
+<span class="w">    </span><span class="c1">// 第一阶段内存复制</span>
 <span class="w">    </span><span class="n">pipeline</span><span class="p">.</span><span class="n">producer_acquire</span><span class="p">();</span>
-<span class="w">    </span><span class="c1">// Every thread fetches one element of the first block</span>
+<span class="w">    </span><span class="c1">// 每个线程获取第一个块的一个元素</span>
 <span class="w">    </span><span class="n">cuda</span><span class="o">::</span><span class="n">memcpy_async</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">in</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">),</span><span class="w"> </span><span class="n">pipeline</span><span class="p">);</span>
 <span class="w">    </span><span class="n">pipeline</span><span class="p">.</span><span class="n">producer_commit</span><span class="p">();</span>
 
-<span class="w">    </span><span class="c1">// Second stage of memory copies</span>
+<span class="w">    </span><span class="c1">// 第二阶段内存复制</span>
 <span class="w">    </span><span class="n">pipeline</span><span class="p">.</span><span class="n">producer_acquire</span><span class="p">();</span>
-<span class="w">    </span><span class="c1">// Every thread fetches one element of the second and third block</span>
+<span class="w">    </span><span class="c1">// 每个线程获取第二个和第三个块的一个元素</span>
 <span class="w">    </span><span class="n">cuda</span><span class="o">::</span><span class="n">memcpy_async</span><span class="p">(</span><span class="n">buffer</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">block_size</span><span class="p">,</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">block_size</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">),</span><span class="w"> </span><span class="n">pipeline</span><span class="p">);</span>
 <span class="w">    </span><span class="n">cuda</span><span class="o">::</span><span class="n">memcpy_async</span><span class="p">(</span><span class="n">buffer</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">block_size</span><span class="p">,</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">block_size</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">),</span><span class="w"> </span><span class="n">pipeline</span><span class="p">);</span>
 <span class="w">    </span><span class="n">pipeline</span><span class="p">.</span><span class="n">producer_commit</span><span class="p">();</span>
 
-<span class="w">    </span><span class="c1">// Third stage of memory copies</span>
+<span class="w">    </span><span class="c1">// 第三阶段内存复制</span>
 <span class="w">    </span><span class="n">pipeline</span><span class="p">.</span><span class="n">producer_acquire</span><span class="p">();</span>
-<span class="w">    </span><span class="c1">// Every thread fetches one element of the last block</span>
+<span class="w">    </span><span class="c1">// 每个线程获取最后一个块的一个元素</span>
 <span class="w">    </span><span class="n">cuda</span><span class="o">::</span><span class="n">memcpy_async</span><span class="p">(</span><span class="n">buffer</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">block_size</span><span class="p">,</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">block_size</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">),</span><span class="w"> </span><span class="n">pipeline</span><span class="p">);</span>
 <span class="w">    </span><span class="n">pipeline</span><span class="p">.</span><span class="n">producer_commit</span><span class="p">();</span>
 
-<span class="w">    </span><span class="c1">// Wait for the oldest stage (waits for first stage)</span>
+<span class="w">    </span><span class="c1">// 等待最旧的阶段（等待第一个阶段）</span>
 <span class="w">    </span><span class="n">pipeline</span><span class="p">.</span><span class="n">consumer_wait</span><span class="p">();</span>
 <span class="w">    </span><span class="n">pipeline</span><span class="p">.</span><span class="n">consumer_release</span><span class="p">();</span>
 
 <span class="w">    </span><span class="c1">// __syncthreads();</span>
-<span class="w">    </span><span class="c1">// Use data from the first stage</span>
+<span class="w">    </span><span class="c1">// 使用第一阶段的数据</span>
 
-<span class="w">    </span><span class="c1">// Wait for the oldest stage (waits for second stage)</span>
+<span class="w">    </span><span class="c1">// 等待最旧的阶段（等待第二阶段）</span>
 <span class="w">    </span><span class="n">pipeline</span><span class="p">.</span><span class="n">consumer_wait</span><span class="p">();</span>
 <span class="w">    </span><span class="n">pipeline</span><span class="p">.</span><span class="n">consumer_release</span><span class="p">();</span>
 
 <span class="w">    </span><span class="c1">// __syncthreads();</span>
-<span class="w">    </span><span class="c1">// Use data from the second stage</span>
+<span class="w">    </span><span class="c1">// 使用第二阶段的数据</span>
 
-<span class="w">    </span><span class="c1">// Wait for the oldest stage (waits for third stage)</span>
+<span class="w">    </span><span class="c1">// 等待最旧的阶段（等待第三阶段）</span>
 <span class="w">    </span><span class="n">pipeline</span><span class="p">.</span><span class="n">consumer_wait</span><span class="p">();</span>
 <span class="w">    </span><span class="n">pipeline</span><span class="p">.</span><span class="n">consumer_release</span><span class="p">();</span>
 
 <span class="w">    </span><span class="c1">// __syncthreads();</span>
-<span class="w">    </span><span class="c1">// Use data from the third stage</span>
+<span class="w">    </span><span class="c1">// 使用第三阶段的数据</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -651,9 +446,9 @@ CUDA C++ <code class="docutils literal notranslate"><span class="pre">cuda::pipe
 </table>
 </div>
 </div>
-<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio"/>
 <label class="sd-tab-label" for="sd-tab-item-1">
-CUDA C primitives</label><div class="sd-tab-content docutils">
+CUDA C 原语</label><div class="sd-tab-content docutils">
 <div class="pst-scrollable-table-container"><table class="table" id="table-example-pipelines-primitives">
 <tbody>
 <tr class="row-odd"><td><div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cuda_pipeline.h&gt;</span>
@@ -663,39 +458,39 @@ CUDA C primitives</label><div class="sd-tab-content docutils">
 <span class="w">    </span><span class="n">constexpr</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">block_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">128</span><span class="p">;</span>
 <span class="w">    </span><span class="kt">__shared__</span><span class="w"> </span><span class="nf">__align__</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">))</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">buffer</span><span class="p">[</span><span class="mi">4</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">block_size</span><span class="p">];</span>
 
-<span class="w">    </span><span class="c1">// First batch of memory copies</span>
-<span class="w">    </span><span class="c1">// Every thread fetches one element of the first block</span>
+<span class="w">    </span><span class="c1">// 第一批内存副本</span>
+<span class="w">    </span><span class="c1">// 每个线程获取第一个块的一个元素</span>
 <span class="w">    </span><span class="n">__pipeline_memcpy_async</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">in</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
 <span class="w">    </span><span class="n">__pipeline_commit</span><span class="p">();</span>
 
-<span class="w">    </span><span class="c1">// Second batch of memory copies</span>
-<span class="w">    </span><span class="c1">// Every thread fetches one element of the second and third block</span>
+<span class="w">    </span><span class="c1">// 第二批内存副本</span>
+<span class="w">    </span><span class="c1">// 每个线程获取第二个和第三个块的一个元素</span>
 <span class="w">    </span><span class="n">__pipeline_memcpy_async</span><span class="p">(</span><span class="n">buffer</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">block_size</span><span class="p">,</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">block_size</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
 <span class="w">    </span><span class="n">__pipeline_memcpy_async</span><span class="p">(</span><span class="n">buffer</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">block_size</span><span class="p">,</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">block_size</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
 <span class="w">    </span><span class="n">__pipeline_commit</span><span class="p">();</span>
 
-<span class="w">    </span><span class="c1">// Third batch of memory copies</span>
-<span class="w">    </span><span class="c1">// Every thread fetches one element of the last block</span>
+<span class="w">    </span><span class="c1">// 第三批内存副本</span>
+<span class="w">    </span><span class="c1">// 每个线程获取最后一个块的一个元素</span>
 <span class="w">    </span><span class="n">__pipeline_memcpy_async</span><span class="p">(</span><span class="n">buffer</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">block_size</span><span class="p">,</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">block_size</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
 <span class="w">    </span><span class="n">__pipeline_commit</span><span class="p">();</span>
 
-<span class="w">    </span><span class="c1">// Wait for all except the last two batches of memory copies (waits for first batch)</span>
+<span class="w">    </span><span class="c1">// 等待除最后两批内存副本之外的所有内存副本（等待第一批）</span>
 <span class="w">    </span><span class="n">__pipeline_wait_prior</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
 
 <span class="w">    </span><span class="c1">// __syncthreads();</span>
-<span class="w">    </span><span class="c1">// Use data from the first batch</span>
+<span class="w">    </span><span class="c1">// 使用第一批数据</span>
 
-<span class="w">    </span><span class="c1">// Wait for all except the last batch of memory copies (waits for second batch)</span>
+<span class="w">    </span><span class="c1">// 等待除最后一批内存副本之外的所有内存副本（等待第二批）</span>
 <span class="w">    </span><span class="n">__pipeline_wait_prior</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
 
 <span class="w">    </span><span class="c1">// __syncthreads();</span>
-<span class="w">    </span><span class="c1">// Use data from the second batch</span>
+<span class="w">    </span><span class="c1">// 使用第二批数据</span>
 
-<span class="w">    </span><span class="c1">// Wait for all batches of memory copies (waits for third batch)</span>
+<span class="w">    </span><span class="c1">// 等待所有批次的内存副本（等待第三批）</span>
 <span class="w">    </span><span class="n">__pipeline_wait_prior</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
 
 <span class="w">    </span><span class="c1">// __syncthreads();</span>
-<span class="w">    </span><span class="c1">// Use data from the last batch</span>
+<span class="w">    </span><span class="c1">// 使用最后一批的数据</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -708,10 +503,10 @@ CUDA C primitives</label><div class="sd-tab-content docutils">
 </div>
 </section>
 <section id="producer-consumer-pattern-using-pipelines">
-<span id="pipelines-producer-consumer"></span><h2><span class="section-number">4.10.7. </span>Producer-Consumer Pattern using Pipelines<a class="headerlink" href="pipelines.html#producer-consumer-pattern-using-pipelines" title="Link to this heading">#</a></h2>
-<p>In <a class="reference internal" href="async-barriers.html#asynchronous-barriers-producer-consumer"><span class="std std-numref">Section 4.9.7</span></a>, we showed how a thread block can be spatially partitioned to implement a producer-consumer pattern using <a class="reference internal" href="async-barriers.html#asynchronous-barriers"><span class="std std-ref">asynchronous barriers</span></a>. With <code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code>, this can be simplified using a single partitioned pipeline with one stage per data buffer instead of two asynchronous barriers per buffer.</p>
+<span id="pipelines-producer-consumer"></span><h2><span class="section-number">4.10.7. </span>使用管道的生产者-消费者模式<a class="headerlink" href="pipelines.html#producer-consumer-pattern-using-pipelines" title="跳转到此标题">#</a></h2>
+<p>In <a class="reference internal" href="async-barriers.html#asynchronous-barriers-producer-consumer"><span class="std std-numref">第4.9.7节</span></a>，我们展示了如何使用空间分区线程块来实现生产者-消费者模式 <a class="reference internal" href="async-barriers.html#asynchronous-barriers"><span class="std std-ref">异步屏障</span></a>。与 <code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code>，这可以使用每个数据缓冲区一个阶段的单个分区管道来简化，而不是每个缓冲区两个异步屏障。</p>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
+<input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio"/>
 <label class="sd-tab-label" for="sd-tab-item-2">
 CUDA C++ <code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code></label><div class="sd-tab-content docutils">
 <div class="pst-scrollable-table-container"><table class="table" id="table-pipeline-basic-std">
@@ -728,7 +523,7 @@ CUDA C++ <code class="docutils literal notranslate"><span class="pre">cuda::pipe
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">batch</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">num_batches</span><span class="p">)</span>
 <span class="w">  </span><span class="p">{</span>
 <span class="w">    </span><span class="n">pipe</span><span class="p">.</span><span class="n">producer_acquire</span><span class="p">();</span>
-<span class="w">    </span><span class="cm">/* copy data from in(batch) to buffer(stage) using asynchronous memory copies */</span>
+<span class="w">    </span><span class="cm">/* 使用异步内存复制将数据从 in(batch) 复制到 buffer(stage) */</span>
 <span class="w">    </span><span class="n">pipe</span><span class="p">.</span><span class="n">producer_commit</span><span class="p">();</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
@@ -736,7 +531,7 @@ CUDA C++ <code class="docutils literal notranslate"><span class="pre">cuda::pipe
 <span class="kt">__device__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">consume</span><span class="p">(</span><span class="n">pipeline</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pipe</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">num_stages</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">stage</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">num_batches</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">batch</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">buffer_len</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">N</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">  </span><span class="n">pipe</span><span class="p">.</span><span class="n">consumer_wait</span><span class="p">();</span>
-<span class="w">  </span><span class="cm">/* consume buffer(stage) and update out(batch) */</span>
+<span class="w">  </span><span class="cm">/* 消耗缓冲区（阶段）并更新输出（批量） */</span>
 <span class="w">  </span><span class="n">pipe</span><span class="p">.</span><span class="n">consumer_release</span><span class="p">();</span>
 <span class="p">}</span>
 
@@ -744,21 +539,21 @@ CUDA C++ <code class="docutils literal notranslate"><span class="pre">cuda::pipe
 <span class="p">{</span>
 <span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">block</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cooperative_groups</span><span class="o">::</span><span class="n">this_thread_block</span><span class="p">();</span>
 
-<span class="w">  </span><span class="cm">/* Shared memory buffer declared below is of size 2 * buffer_len</span>
-<span class="cm">     so that we can alternatively work between two buffers.</span>
-<span class="cm">     buffer_0 = buffer and buffer_1 = buffer + buffer_len */</span>
+<span class="w">  </span><span class="cm">/* 下面声明的共享内存缓冲区的大小为 2 * buffer_len</span>
+<span class="cm">     这样我们就可以在两个缓冲区之间交替工作。</span>
+<span class="cm">     buffer_0 = 缓冲区且 buffer_1 = 缓冲区 + buffer_len */</span>
 <span class="w">  </span><span class="kt">__shared__</span><span class="w"> </span><span class="k">extern</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">buffer</span><span class="p">[];</span>
 
 <span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">num_batches</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">buffer_len</span><span class="p">;</span>
 
-<span class="w">  </span><span class="c1">// Create a partitioned pipeline with 2 stages where half the threads are producers and the other half are consumers.</span>
+<span class="w">  </span><span class="c1">// 创建一个具有 2 个阶段的分区管道，其中一半线程是生产者，另一半是消费者。</span>
 <span class="w">  </span><span class="n">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">scope</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">thread_scope_block</span><span class="p">;</span>
 <span class="w">  </span><span class="n">constexpr</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">num_stages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
 <span class="w">  </span><span class="n">cuda</span><span class="o">::</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">producer_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
 <span class="w">  </span><span class="kt">__shared__</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">pipeline_shared_state</span><span class="o">&lt;</span><span class="n">scope</span><span class="p">,</span><span class="w"> </span><span class="n">num_stages</span><span class="o">&gt;</span><span class="w"> </span><span class="n">shared_state</span><span class="p">;</span>
 <span class="w">  </span><span class="n">pipeline</span><span class="w"> </span><span class="n">pipe</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">make_pipeline</span><span class="p">(</span><span class="n">block</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">shared_state</span><span class="p">,</span><span class="w"> </span><span class="n">producer_count</span><span class="p">);</span>
 
-<span class="w">  </span><span class="c1">// Fill the pipeline</span>
+<span class="w">  </span><span class="c1">// 填充管道</span>
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">block</span><span class="p">.</span><span class="n">thread_rank</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">producer_count</span><span class="p">)</span>
 <span class="w">  </span><span class="p">{</span>
 <span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">num_stages</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">s</span><span class="p">)</span>
@@ -767,18 +562,18 @@ CUDA C++ <code class="docutils literal notranslate"><span class="pre">cuda::pipe
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
 
-<span class="w">  </span><span class="c1">// Process the batches</span>
+<span class="w">  </span><span class="c1">// 处理批次</span>
 <span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">stage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">num_batches</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">b</span><span class="p">)</span>
 <span class="w">  </span><span class="p">{</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">block</span><span class="p">.</span><span class="n">thread_rank</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">producer_count</span><span class="p">)</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="c1">// Prefetch the next batch</span>
+<span class="w">      </span><span class="c1">// 预取下一批</span>
 <span class="w">      </span><span class="n">produce</span><span class="p">(</span><span class="n">pipe</span><span class="p">,</span><span class="w"> </span><span class="n">num_stages</span><span class="p">,</span><span class="w"> </span><span class="n">stage</span><span class="p">,</span><span class="w"> </span><span class="n">num_batches</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">num_stages</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">buffer_len</span><span class="p">,</span><span class="w"> </span><span class="n">in</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="p">);</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">    </span><span class="k">else</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="c1">// Consume the oldest batch</span>
+<span class="w">      </span><span class="c1">// 消耗最旧的批次</span>
 <span class="w">      </span><span class="n">consume</span><span class="p">(</span><span class="n">pipe</span><span class="p">,</span><span class="w"> </span><span class="n">num_stages</span><span class="p">,</span><span class="w"> </span><span class="n">stage</span><span class="p">,</span><span class="w"> </span><span class="n">num_batches</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">buffer_len</span><span class="p">,</span><span class="w"> </span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="p">);</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">    </span><span class="n">stage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">stage</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">num_stages</span><span class="p">;</span>
@@ -793,117 +588,66 @@ CUDA C++ <code class="docutils literal notranslate"><span class="pre">cuda::pipe
 </div>
 </div>
 </div>
-<p>In this example, we use half of the threads in the thread block as producers and the other half as consumers. As a first step, we need to create a <code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code> object. Since we want some threads to be producers and some to be consumers, we need to use a <strong>partitioned</strong> pipeline with <code class="docutils literal notranslate"><span class="pre">cuda::thread_scope_block</span></code>. Partitioned pipelines require a <code class="docutils literal notranslate"><span class="pre">cuda::pipeline_shared_state</span></code> to coordinate the participating threads. We initialize the state for a 2-stage pipeline in thread-block scope and then call <code class="docutils literal notranslate"><span class="pre">cuda::make_pipeline()</span></code>. Next, producer threads fill the pipeline by submitting asynchronous copies from <code class="docutils literal notranslate"><span class="pre">in</span></code> to <code class="docutils literal notranslate"><span class="pre">buffer</span></code>. At this point all data copies are in-flight. Finally, in the main loop, we go over all of the batches of data and depending on whether a thread is a producer or consumer, we either submit another asynchronous copy for a future batch or consume the current batch.</p>
+<p>在这个例子中，我们使用线程块中的一半线程作为生产者，另一半作为消费者。作为第一步，我们需要创建一个 <code class="docutils literal notranslate"><span class="pre">cuda::pipeline</span></code> 目的。由于我们希望一些线程成为生产者，一些线程成为消费者，所以我们需要使用 <strong>partitioned</strong> 管道与 <code class="docutils literal notranslate"><span class="pre">cuda::thread_scope_block</span></code>。分区管道需要 <code class="docutils literal notranslate"><span class="pre">cuda::pipeline_shared_state</span></code> 协调参与的线程。我们在线程块范围内初始化 2 阶段管道的状态，然后调用 <code class="docutils literal notranslate"><span class="pre">cuda::make_pipeline()</span></code>。接下来，生产者线程通过提交异步副本来填充管道 <code class="docutils literal notranslate"><span class="pre">in</span></code> 或 <code class="docutils literal notranslate"><span class="pre">buffer</span></code>。此时，所有数据副本都在进行中。最后，在主循环中，我们检查所有批次的数据，并根据线程是生产者还是消费者，我们要么为未来的批次提交另一个异步副本，要么消耗当前的批次。</p>
 </section>
 </section>
-
-
-                </article>
-              
-              
-              
-              
-              
-                <footer class="prev-next-footer d-print-none">
-                  
+</article>
+<footer class="prev-next-footer d-print-none">
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="async-barriers.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><span class="section-number">4.9. </span>Asynchronous Barriers</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="async-copies.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><span class="section-number">4.11. </span>Asynchronous Data Copies</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
+<a class="left-prev" href="async-barriers.html" title="上一页">4.9. 异步屏障</a>
+<a class="right-next" href="async-copies.html" title="下一页">4.11. 异步数据拷贝</a>
 </div>
-                </footer>
-              
-            </div>
-            
-            
-
-
-              
-                <dialog id="pst-secondary-sidebar-modal"></dialog>
-                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
-
-
-  <div class="sidebar-secondary-item">
-<div
-    id="pst-page-navigation-heading-2"
-    class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
+</footer>
+</div>
+<dialog id="pst-secondary-sidebar-modal"></dialog>
+<div class="bd-sidebar-secondary bd-toc" id="pst-secondary-sidebar"><div class="sidebar-secondary-items sidebar-secondary__inner">
+<div class="sidebar-secondary-item">
+<div class="page-toc tocsection onthispage" id="pst-page-navigation-heading-2">
+<i class="fa-solid fa-list"></i>本页内容
   </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="pipelines.html#initialization">4.10.1. Initialization</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="pipelines.html#submitting-work">4.10.2. Submitting Work</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="pipelines.html#consuming-work">4.10.3. Consuming Work</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="pipelines.html#warp-entanglement">4.10.4. Warp Entanglement</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="pipelines.html#early-exit">4.10.5. Early Exit</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="pipelines.html#tracking-asynchronous-memory-operations">4.10.6. Tracking Asynchronous Memory Operations</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="pipelines.html#producer-consumer-pattern-using-pipelines">4.10.7. Producer-Consumer Pattern using Pipelines</a></li>
+<nav aria-labelledby="pst-page-navigation-heading-2" class="bd-toc-nav page-toc">
+<ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="pipelines.html#initialization">4.10. 流水线</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="pipelines.html#submitting-work">4.10. 流水线</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="pipelines.html#consuming-work">4.10. 流水线</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="pipelines.html#warp-entanglement">4.10. 流水线</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="pipelines.html#early-exit">4.10. 流水线</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="pipelines.html#tracking-asynchronous-memory-operations">4.10. 流水线</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="pipelines.html#producer-consumer-pattern-using-pipelines">4.10. 流水线</a></li>
 </ul>
-  </nav></div>
-
+</nav></div>
 </div></div>
-              
-            
-
-          </div>
-          <footer class="bd-footer-content">
-            
-          </footer>
-        
-      </main>
-    </div>
-  </div>
-  
-
-  <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js"></script>
-
-
+</div>
+<footer class="bd-footer-content">
+</footer>
+</main>
+</div>
+</div>
+ 脚本在 &lt;body&gt; 之后加载，因此 DOM 不会被阻塞 
+<script defer="" src="../_static/scripts/bootstrap.js"></script>
+<script defer="" src="../_static/scripts/pydata-sphinx-theme.js"></script>
 <script type="text/javascript">if (typeof _satellite !== "undefined") {_satellite.pageBottom();}</script>
-
-  <footer class="bd-footer">
+<footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
-  
-    <div class="footer-items__start">
-      
-        <div class="footer-item">
+<div class="footer-items__start">
+<div class="footer-item">
 <a class="footer-brand logo" href="https://www.nvidia.com">
-  <img src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
-  <img src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+<img alt="NVIDIA" class="logo__image only-light" src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg"/>
+<img alt="NVIDIA" class="logo__image only-dark" src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg"/>
 </a></div>
-      
-        <div class="footer-item">
-
+<div class="footer-item">
 <div class="footer-links">
-  
-  
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">Privacy Policy</a>
+<a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-policy/">隐私政策</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">Your Privacy Choices</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/privacy-center/">您的隐私选择</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">Terms of Service</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/terms-of-service/">服务条款</a>
    | 
   
   
@@ -913,47 +657,31 @@ CUDA C++ <code class="docutils literal notranslate"><span class="pre">cuda::pipe
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">Corporate Policies</a>
+  <a class="external" href="https://www.nvidia.com/en-us/about-nvidia/company-policies/">公司政策</a>
    | 
   
   
   
-  <a class="external" href="https://www.nvidia.com/en-us/product-security/">Product Security</a>
+  <a class="external" href="https://www.nvidia.com/en-us/product-security/">产品安全</a>
    | 
   
   
   
   <a class="external" href="https://www.nvidia.com/en-us/contact/">Contact</a>
-  
-  
-  
 </div>
 </div>
-      
-        <div class="footer-item">
-
-
-
-
-  <p class="copyright">
+<div class="footer-item">
+<p class="copyright">
     
-      Copyright © 2007-2026, NVIDIA Corporation &amp; affiliates. All rights reserved.
+      版权所有 © 2007-2026，NVIDIA 公司及附属公司。版权所有。
       <br/>
-    
-  </p>
+</p>
 </div>
-      
-        <div class="footer-item"><p class="last-updated">
-  Last updated on Mar 04, 2026.
+<div class="footer-item"><p class="last-updated">
+  最后更新于 2026 年 3 月 4 日。
   <br/>
 </p></div>
-      
-    </div>
-  
-  
-  
 </div>
-
-  </footer>
-  </body>
-</html>
+</div>
+</footer>
+</body></html>
