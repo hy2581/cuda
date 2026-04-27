@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>4.2. CUDA Graph — CUDA 编程指南</title>
+<title>4.2. CUDA 图 — CUDA 编程指南</title>
 <script data-cfasync="false">
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
@@ -209,7 +209,7 @@
 </details></li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../part4.html">4. CUDA 特性</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="unified-memory.html">4.1. 统一内存</a></li>
-<li class="toctree-l3 current active"><a class="current reference internal" href="cuda-graphs.html#">4.2. CUDA Graph</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="cuda-graphs.html#">4.2. CUDA 图</a></li>
 <li class="toctree-l3"><a class="reference internal" href="stream-ordered-memory-allocation.html">4.3. 流有序内存分配器</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cooperative-groups.html">4.4. 协作组</a></li>
 <li class="toctree-l3"><a class="reference internal" href="programmatic-dependent-launch.html">4.5. 程序化依赖启动与同步</a></li>
@@ -265,7 +265,7 @@
 </li>
 <li class="breadcrumb-item"><a class="nav-link" href="../index.html">CUDA 编程指南</a></li>
 <li class="breadcrumb-item"><a class="nav-link" href="../part4.html">4. CUDA 特性</a></li>
-<li aria-current="page" class="breadcrumb-item active"><span class="ellipsis"><span class="section-number">4.2. </span>CUDA 图形</span></li>
+<li aria-current="page" class="breadcrumb-item active"><span class="ellipsis"><span class="section-number">4.2. </span>CUDA 图</span></li>
 </ul>
 </nav>
 </div>
@@ -284,27 +284,27 @@
 <article class="bd-article">
 <section id="cuda-graphs">
 <span id="id1"></span><h1>4.2. CUDA 图<a class="headerlink" href="cuda-graphs.html#cuda-graphs" title="跳转到此标题">#</a></h1>
-<p>CUDA Graphs 提供了 CUDA 中工作提交的另一种模型。图是一系列通过依赖关系连接的操作，例如内核启动、数据移动等，其定义与其执行分开。这允许图形被定义一次，然后重复启动。将图的定义与其执行分离可以实现许多优化：首先，与流相比，CPU 启动成本降低，因为大部分设置都是提前完成的；其次，将整个工作流程呈现给 CUDA 可以实现优化，而这对于流的分段工作提交机制来说是不可能实现的。</p>
-<p>要了解图形可能进行的优化，请考虑流中发生的情况：当您将内核放入流中时，主机驱动程序会执行一系列操作，为在 GPU 上执行内核做好准备。这些设置和启动内核所必需的操作是必须为每个发布的内核支付的开销成本。对于执行时间较短的 GPU 内核，此开销成本可能占整个端到端执行时间的很大一部分。  通过创建包含将多次启动的工作流的 CUDA 图，可以在实例化期间为整个图支付一次这些开销成本，然后可以以很少的开销重复启动图本身。</p>
+<p>CUDA 图为 CUDA 中的工作提交提供了另一种模型。图由一系列操作组成，例如内核启动、数据移动等；这些操作通过依赖关系连接起来，并且图的定义与执行彼此分离。这样一来，图可以只定义一次，然后反复启动。把图的定义与执行分开可以带来多种优化：首先，相比流，CPU 端启动成本更低，因为大量设置工作已经提前完成；其次，把整个工作流程呈现给 CUDA，可以让 CUDA 执行一些基于流的分段工作提交机制无法实现的优化。</p>
+<p>要理解图能够带来的优化，可以先看看流中的情况：当把内核放入流中时，主机驱动程序会执行一系列操作，为内核在 GPU 上执行做准备。这些用于设置和启动内核的操作属于开销，每发布一个内核都必须支付一次。对于执行时间较短的 GPU 内核，这部分开销可能占端到端总执行时间的很大比例。通过创建一个包含会被多次启动的工作流的 CUDA 图，可以在实例化期间为整个图一次性支付这些开销，之后就能以很低的开销反复启动该图。</p>
 <section id="graph-structure">
 <span id="cuda-graphs-graph-structure"></span><h2><span class="section-number">4.2.1. </span>图结构<a class="headerlink" href="cuda-graphs.html#graph-structure" title="跳转到此标题">#</a></h2>
-<p>一个操作形成图中的一个节点。操作之间的依赖关系是边。这些依赖关系限制了操作的执行顺序。</p>
-<p>一旦操作所依赖的节点完成，就可以随时安排操作。调度由 CUDA 系统决定。</p>
+<p>每个操作都会形成图中的一个节点。操作之间的依赖关系就是边；这些依赖关系约束着操作的执行顺序。</p>
+<p>只要某个操作所依赖的节点已经完成，该操作就可以在任意时刻被调度执行。具体调度由 CUDA 系统决定。</p>
 <section id="node-types">
 <span id="cuda-graphs-node-types"></span><h3><span class="section-number">4.2.1.1. </span>节点类型<a class="headerlink" href="cuda-graphs.html#node-types" title="跳转到此标题">#</a></h3>
-<p>图形节点可以是以下之一：</p>
+<p>图节点可以是以下类型之一：</p>
 <ul class="simple">
-<li><p>kernel</p></li>
-<li><p>CPU函数调用</p></li>
-<li><p>内存复制</p></li>
+<li><p>内核</p></li>
+<li><p>CPU 函数调用</p></li>
+<li><p>内存拷贝</p></li>
 <li><p>memset</p></li>
 <li><p>空节点</p></li>
-<li><p>等待一个 <a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-events"><span class="std std-ref">CUDA事件</span></a></p></li>
-<li><p>记录一个 <a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-events"><span class="std std-ref">CUDA事件</span></a></p></li>
-<li><p>发出信号 <a class="reference internal" href="graphics-interop.html#external-resource-interoperability"><span class="std std-ref">外部信号量</span></a></p></li>
+<li><p>等待一个 <a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-events"><span class="std std-ref">CUDA 事件</span></a></p></li>
+<li><p>记录一个 <a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-events"><span class="std std-ref">CUDA 事件</span></a></p></li>
+<li><p>发出 <a class="reference internal" href="graphics-interop.html#external-resource-interoperability"><span class="std std-ref">外部信号量</span></a> 信号</p></li>
 <li><p>等待一个 <a class="reference internal" href="graphics-interop.html#external-resource-interoperability"><span class="std std-ref">外部信号量</span></a></p></li>
 <li><p><a class="reference internal" href="cuda-graphs.html#cuda-graphs-conditional-graph-nodes"><span class="std std-ref">条件节点</span></a></p></li>
-<li><p><a class="reference internal" href="cuda-graphs.html#cuda-graphs-graph-memory-nodes"><span class="std std-ref">内存节点</span></a></p></li>
+<li><p><a class="reference internal" href="cuda-graphs.html#cuda-graphs-graph-memory-nodes"><span class="std std-ref">图内存节点</span></a></p></li>
 <li><p>子图：执行单独的嵌套图，如下图所示。</p></li>
 </ul>
 <figure class="align-center" id="cuda-graphs-node-types-fig-child-graph">
@@ -316,52 +316,41 @@
 </figure>
 </section>
 <section id="edge-data">
-<span id="cuda-graphs-edge-data"></span><h3><span class="section-number">4.2.1.2. </span>边缘数据<a class="headerlink" href="cuda-graphs.html#edge-data" title="跳转到此标题">#</a></h3>
-<p>CUDA 12.3 在 CUDA 图上引入了边缘数据。此时，非默认边缘数据的唯一用途是启用
+<span id="cuda-graphs-edge-data"></span><h3><span class="section-number">4.2.1.2. </span>边数据<a class="headerlink" href="cuda-graphs.html#edge-data" title="跳转到此标题">#</a></h3>
+<p>CUDA 12.3 为 CUDA 图引入了边数据。目前，非默认边数据的唯一用途是启用
 <a class="reference internal" href="programmatic-dependent-launch.html#programmatic-dependent-launch-and-synchronization"><span class="std std-ref">程序化依赖启动</span></a>.</p>
-<p>一般来说，边数据修改边指定的依赖关系，由三部分组成：
-传出端口、传入端口和类型。传出端口指定何时触发关联边缘。传入端口
-指定节点的哪一部分依赖于关联的边。类型修改端点之间的关系。</p>
-<p>端口值特定于节点类型和方向，并且边缘类型可能仅限于特定节点类型。在所有情况下，
-零初始化的边缘数据表示默认行为。传出端口 0 等待整个任务，传入端口 0 阻塞一个任务
-整个任务，并且边缘类型 0 与内存同步行为的完全依赖性相关联。</p>
-<p>边缘数据可以通过关联节点的并行数组在各种图形 API 中选择性地指定。如果将其省略为
-输入参数，使用零初始化数据。如果将其作为输出（查询）参数省略，则 API 会接受此参数
-被忽略的边缘数据全部初始化为零，并返回 <code class="docutils literal notranslate"><span class="pre">cudaErrorLossyQuery</span></code> 如果调用会丢弃信息。</p>
-<p>边缘数据也可在某些流捕获 API 中使用： <code class="docutils literal notranslate"><span class="pre">cudaStreamBeginCaptureToGraph()</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaStreamGetCaptureInfo()</span></code>,
-和 <code class="docutils literal notranslate"><span class="pre">cudaStreamUpdateCaptureDependencies()</span></code>。在这些情况下，尚不存在下游节点。该数据关联于
-悬空边（半边），它将连接到未来捕获的节点或在流捕获终止时被丢弃。
-请注意，某些边缘类型不会等待上游节点完全完成。当考虑是否
-流捕获已完全重新加入原始流，并且不能在捕获结束时丢弃。参见 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-stream-capture"><span class="std std-ref">流捕获</span></a>.</p>
-<p>没有节点类型定义额外的传入端口，并且只有内核节点定义额外的传出端口。有
-一种非默认依赖类型， <code class="docutils literal notranslate"><span class="pre">cudaGraphDependencyTypeProgrammatic</span></code>，用于启用 <a class="reference internal" href="programmatic-dependent-launch.html#programmatic-dependent-launch-and-synchronization"><span class="std std-ref">程序化依赖启动</span></a> 两个内核节点之间。</p>
+<p>一般来说，边数据会修改由边指定的依赖关系，由三部分组成：传出端口、传入端口和类型。传出端口指定关联边何时触发。传入端口指定节点的哪一部分依赖于关联边。类型则修改两个端点之间的关系。</p>
+<p>端口值取决于节点类型和方向，边类型也可能只适用于特定节点类型。在所有情况下，零初始化的边数据都表示默认行为。传出端口 0 会等待整个任务，传入端口 0 会阻塞整个任务，边类型 0 表示具有内存同步行为的完整依赖关系。</p>
+<p>边数据可以通过与节点关联的并行数组，在各种图 API 中选择性指定。如果作为输入参数省略，则使用零初始化数据。如果作为输出（查询）参数省略，则 API 会接受这些参数，但被省略的边数据都会被初始化为零；如果调用会丢弃信息，则返回 <code class="docutils literal notranslate"><span class="pre">cudaErrorLossyQuery</span></code>。</p>
+<p>边数据也可用于某些流捕获 API：<code class="docutils literal notranslate"><span class="pre">cudaStreamBeginCaptureToGraph()</span></code>、<code class="docutils literal notranslate"><span class="pre">cudaStreamGetCaptureInfo()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaStreamUpdateCaptureDependencies()</span></code>。在这些情况下，下游节点尚不存在。这些数据会关联到悬空边（半边），半边会连接到后续捕获的节点，或在流捕获结束时被丢弃。请注意，某些边类型不会等待上游节点完全完成。在判断流捕获是否已经完全重新汇入原始流、以及捕获结束时是否可以丢弃它时，需要考虑这一点。参见 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-stream-capture"><span class="std std-ref">流捕获</span></a>.</p>
+<p>没有任何节点类型定义额外的传入端口，只有内核节点定义额外的传出端口。只有一种非默认依赖类型：<code class="docutils literal notranslate"><span class="pre">cudaGraphDependencyTypeProgrammatic</span></code>，用于在两个内核节点之间启用 <a class="reference internal" href="programmatic-dependent-launch.html#programmatic-dependent-launch-and-synchronization"><span class="std std-ref">程序化依赖启动</span></a>。</p>
 </section>
 </section>
 <section id="building-and-running-graphs">
-<span id="cuda-graphs-building-and-running-graphs"></span><h2><span class="section-number">4.2.2. </span>构建和运行图表<a class="headerlink" href="cuda-graphs.html#building-and-running-graphs" title="跳转到此标题">#</a></h2>
+<span id="cuda-graphs-building-and-running-graphs"></span><h2><span class="section-number">4.2.2. </span>构建和运行图<a class="headerlink" href="cuda-graphs.html#building-and-running-graphs" title="跳转到此标题">#</a></h2>
 <p>使用图的工作提交分为三个不同的阶段：定义、实例化和执行。</p>
 <ul class="simple">
-<li><p>期间 <strong>定义</strong>和<strong>创建</strong> 阶段，程序创建图中操作的描述以及它们之间的依赖关系。</p></li>
-<li><p><strong>Instantiation</strong> 拍摄图形模板的快照，对其进行验证，并执行大部分设置和初始化工作，目的是最大限度地减少启动时需要完成的工作。由此产生的实例被称为 <em>可执行图。</em></p></li>
-<li><p>An <strong>executable</strong> 与任何其他 CUDA 工作类似，图可以启动到流中。它可以启动任意多次，而无需重复实例化。</p></li>
+<li><p>在<strong>定义</strong>和<strong>创建</strong>阶段，程序会创建图中各项操作的描述，以及这些操作之间的依赖关系。</p></li>
+<li><p><strong>实例化</strong>会对图模板拍摄快照、验证它，并执行大部分设置和初始化工作，目标是尽量减少启动时需要完成的工作。生成的实例称为<em>可执行图</em>。</p></li>
+<li><p><strong>可执行图</strong>可以像其他 CUDA 工作一样启动到流中。它可以启动任意多次，而无需重复实例化。</p></li>
 </ul>
 <section id="graph-creation">
-<span id="cuda-graphs-graph-creation-methods"></span><h3><span class="section-number">4.2.2.1. </span>图表创建<a class="headerlink" href="cuda-graphs.html#graph-creation" title="跳转到此标题">#</a></h3>
+<span id="cuda-graphs-graph-creation-methods"></span><h3><span class="section-number">4.2.2.1. </span>图创建<a class="headerlink" href="cuda-graphs.html#graph-creation" title="跳转到此标题">#</a></h3>
 <p>可以通过两种机制创建图：使用显式图 API 和通过流捕获。</p>
 <section id="graph-apis">
-<span id="cuda-graphs-creating-a-graph-using-graph-apis"></span><h4><span class="section-number">4.2.2.1.1. </span>图形 API<a class="headerlink" href="cuda-graphs.html#graph-apis" title="跳转到此标题">#</a></h4>
-<p>以下是创建下图的示例（省略声明和其他样板代码）。  注意使用 <code class="docutils literal notranslate"><span class="pre">cudaGraphCreate()</span></code> 创建图表并 <code class="docutils literal notranslate"><span class="pre">cudaGraphAddNode()</span></code> 添加内核节点及其依赖项。 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html">CUDA 运行时 API 文档</a> 列出了可用于添加节点和依赖项的所有函数。</p>
+<span id="cuda-graphs-creating-a-graph-using-graph-apis"></span><h4><span class="section-number">4.2.2.1.1. </span>图 API<a class="headerlink" href="cuda-graphs.html#graph-apis" title="跳转到此标题">#</a></h4>
+<p>下面的示例会创建下图所示的图（省略了声明和其他样板代码）。注意示例使用 <code class="docutils literal notranslate"><span class="pre">cudaGraphCreate()</span></code> 创建图，并使用 <code class="docutils literal notranslate"><span class="pre">cudaGraphAddNode()</span></code> 添加内核节点及其依赖关系。<a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html">CUDA 运行时 API 文档</a> 列出了可用于添加节点和依赖关系的所有函数。</p>
 <figure class="align-center" id="cuda-graphs-creating-a-graph-using-api-fig-creating-using-graph-apis">
-<a class="reference internal image-reference" href="../_images/create-a-graph.png"><img alt="使用图形 API 示例创建图形" src="../_images/create-a-graph.png" style="width: 200px;"/>
+<a class="reference internal image-reference" href="../_images/create-a-graph.png"><img alt="使用图 API 创建图的示例" src="../_images/create-a-graph.png" style="width: 200px;"/>
 </a>
 <figcaption>
-<p><span class="caption-number">图22 </span><span class="caption-text">使用图形 API 示例创建图形</span><a class="headerlink" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-api-fig-creating-using-graph-apis" title="跳转到此标题">#</a></p>
+<p><span class="caption-number">图22 </span><span class="caption-text">使用图 API 创建图的示例</span><a class="headerlink" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-api-fig-creating-using-graph-apis" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
-<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// 创建图表 - 它一开始是空的</span>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// 创建图，它一开始为空</span>
 <span class="n">cudaGraphCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 
-<span class="c1">// 创建节点及其依赖项</span>
+<span class="c1">// 创建节点及其依赖关系</span>
 <span class="n">cudaGraphNode_t</span><span class="w"> </span><span class="n">nodes</span><span class="p">[</span><span class="mi">4</span><span class="p">];</span>
 <span class="n">cudaGraphNodeParams</span><span class="w"> </span><span class="n">kParams</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">cudaGraphNodeTypeKernel</span><span class="w"> </span><span class="p">};</span>
 <span class="n">kParams</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="n">func</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">kernelName</span><span class="p">;</span>
@@ -374,11 +363,11 @@
 <span class="n">cudaGraphAddNode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">nodes</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">nodes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">kParams</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>上面的示例显示了四个内核节点之间的依赖关系，以说明如何创建一个非常简单的图。  在典型的用户应用程序中，还需要添加用于内存操作的节点，例如 <code class="docutils literal notranslate"><span class="pre">cudaGraphAddMemcpyNode()</span></code> 等等。  有关添加节点的所有图形 API 函数的完整参考，请参阅 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html">CUDA 运行时 API 文档</a>。</p>
+<p>上面的示例展示了四个内核节点之间的依赖关系，用于说明如何创建一个非常简单的图。在典型用户应用程序中，还需要添加执行内存操作的节点，例如 <code class="docutils literal notranslate"><span class="pre">cudaGraphAddMemcpyNode()</span></code> 等。有关添加节点的所有图 API 函数的完整参考，请参阅 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html">CUDA 运行时 API 文档</a>。</p>
 </section>
 <section id="stream-capture">
 <span id="cuda-graphs-creating-a-graph-using-stream-capture"></span><h4><span class="section-number">4.2.2.1.2. </span>流捕获<a class="headerlink" href="cuda-graphs.html#stream-capture" title="跳转到此标题">#</a></h4>
-<p>流捕获提供了一种从现有的基于流的 API 创建图形的机制。将工作启动到流中的代码部分（包括现有代码）可以用对的调用括起来 <code class="docutils literal notranslate"><span class="pre">cudaStreamBeginCapture()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code>。见下文。</p>
+<p>流捕获提供了一种从现有的基于流的 API 创建图的机制。把工作启动到流中的代码片段（包括现有代码）可以包在一对 <code class="docutils literal notranslate"><span class="pre">cudaStreamBeginCapture()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code> 调用之间，如下所示。</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="n">cudaGraph_t</span><span class="w"> </span><span class="n">graph</span><span class="p">;</span>
 
 <span class="n">cudaStreamBeginCapture</span><span class="p">(</span><span class="n">stream</span><span class="p">);</span>
@@ -391,29 +380,29 @@
 <span class="n">cudaStreamEndCapture</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">graph</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>致电 <code class="docutils literal notranslate"><span class="pre">cudaStreamBeginCapture()</span></code> 将流置于捕获模式。当捕获流时，启动到流中的工作不会排队执行。相反，它被附加到逐步构建的内部图表中。然后通过调用返回该图 <code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code>，这也结束了流的捕获模式。通过流捕获主动构建的图被称为 <em>捕获图。</em></p>
-<p>流捕获可用于任何 CUDA 流，除了 <code class="docutils literal notranslate"><span class="pre">cudaStreamLegacy</span></code> （“NULL 流”）。请注意，它 <em>can</em> 用在 <code class="docutils literal notranslate"><span class="pre">cudaStreamPerThread</span></code>。如果程序正在使用旧版流，则可以将流 0 重新定义为每线程流，而无需进行功能更改。参见 <a class="reference internal" href="../02-basics/asynchronous-execution.html#async-execution-blocking-non-blocking-default-stream"><span class="std std-ref">阻塞流和非阻塞流以及默认流</span></a>.</p>
-<p>可以通过以下方式查询是否正在捕获流 <code class="docutils literal notranslate"><span class="pre">cudaStreamIsCapturing()</span></code>.</p>
-<p>可以使用以下方法将工作捕获到现有图表中 <code class="docutils literal notranslate"><span class="pre">cudaStreamBeginCaptureToGraph()</span></code>。  工作不是捕获到内部图表，而是捕获到用户提供的图表。</p>
+<p>调用 <code class="docutils literal notranslate"><span class="pre">cudaStreamBeginCapture()</span></code> 会使流进入捕获模式。捕获流时，启动到该流中的工作不会排队执行，而是附加到一个逐步构建的内部图中。随后调用 <code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code> 会返回该图，并结束该流的捕获模式。通过流捕获主动构建的图称为<em>捕获图</em>。</p>
+<p>流捕获可用于除 <code class="docutils literal notranslate"><span class="pre">cudaStreamLegacy</span></code>（“NULL 流”）之外的任何 CUDA 流。请注意，它<em>可以</em>用于 <code class="docutils literal notranslate"><span class="pre">cudaStreamPerThread</span></code>。如果程序正在使用遗留流，可以把流 0 重新定义为每线程流，而无需改变功能。参见 <a class="reference internal" href="../02-basics/asynchronous-execution.html#async-execution-blocking-non-blocking-default-stream"><span class="std std-ref">阻塞流和非阻塞流以及默认流</span></a>。</p>
+<p>可以使用 <code class="docutils literal notranslate"><span class="pre">cudaStreamIsCapturing()</span></code> 查询某个流是否正在被捕获。</p>
+<p>可以使用 <code class="docutils literal notranslate"><span class="pre">cudaStreamBeginCaptureToGraph()</span></code> 把工作捕获到现有图中。此时，工作不会捕获到内部图，而是捕获到用户提供的图中。</p>
 <section id="cross-stream-dependencies-and-events">
 <span id="cuda-graphs-cross-stream-dependencies"></span><h5><span class="section-number">4.2.2.1.2.1. </span>跨流依赖关系和事件<a class="headerlink" href="cuda-graphs.html#cross-stream-dependencies-and-events" title="跳转到此标题">#</a></h5>
-<p>流捕获可以处理用以下表示的跨流依赖关系 <code class="docutils literal notranslate"><span class="pre">cudaEventRecord()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code>，前提是正在等待的事件被记录到同一个捕获图中。</p>
-<p>当事件记录在处于捕获模式的流中时，会产生 <em>捕获的事件。</em> 捕获的事件表示捕获图中的一组节点。</p>
-<p>当流等待捕获的事件时，如果流尚未处于捕获模式，它会将流置于捕获模式，并且流中的下一项将对捕获事件中的节点具有额外的依赖关系。然后，这两个流将被捕获到同一个捕获图。</p>
-<p>当流捕获中存在跨流依赖时， <code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code> 仍必须在同一个流中调用 <code class="docutils literal notranslate"><span class="pre">cudaStreamBeginCapture()</span></code> 被称为；这是 <em>源流</em>。由于基于事件的依赖性，被捕获到同一捕获图的任何其他流也必须连接回原始流。如下图所示。被捕获到同一捕获图的所有流都将退出捕获模式 <code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code>。未能重新加入原始流将导致整个捕获操作失败。</p>
-<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// Stream1 是原始流</span>
+<p>流捕获可以处理由 <code class="docutils literal notranslate"><span class="pre">cudaEventRecord()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent()</span></code> 表示的跨流依赖关系，前提是被等待的事件也记录在同一个捕获图中。</p>
+<p>当事件记录到处于捕获模式的流中时，会得到一个<em>捕获事件</em>。捕获事件表示捕获图中的一组节点。</p>
+<p>当某个流等待捕获事件时，如果该流尚未处于捕获模式，它会进入捕获模式，并且该流中的下一项工作会额外依赖于捕获事件中的节点。随后，这两个流会被捕获到同一个捕获图中。</p>
+<p>当流捕获中存在跨流依赖关系时，仍必须在调用 <code class="docutils literal notranslate"><span class="pre">cudaStreamBeginCapture()</span></code> 的同一个流中调用 <code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code>；该流称为<em>原始流</em>。由于存在基于事件的依赖关系，被捕获到同一捕获图中的任何其他流也必须重新连接回原始流，如下图所示。调用 <code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code> 后，捕获到同一捕获图中的所有流都会退出捕获模式。未能重新汇入原始流会导致整个捕获操作失败。</p>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// stream1 是原始流</span>
 <span class="n">cudaStreamBeginCapture</span><span class="p">(</span><span class="n">stream1</span><span class="p">);</span>
 
 <span class="n">kernel_A</span><span class="o">&lt;&lt;&lt;</span><span class="w"> </span><span class="p">...,</span><span class="w"> </span><span class="n">stream1</span><span class="w"> </span><span class="o">&gt;&gt;&gt;</span><span class="p">(...);</span>
 
-<span class="c1">// 分叉到stream2</span>
+<span class="c1">// 分叉到 stream2</span>
 <span class="n">cudaEventRecord</span><span class="p">(</span><span class="n">event1</span><span class="p">,</span><span class="w"> </span><span class="n">stream1</span><span class="p">);</span>
 <span class="n">cudaStreamWaitEvent</span><span class="p">(</span><span class="n">stream2</span><span class="p">,</span><span class="w"> </span><span class="n">event1</span><span class="p">);</span>
 
 <span class="n">kernel_B</span><span class="o">&lt;&lt;&lt;</span><span class="w"> </span><span class="p">...,</span><span class="w"> </span><span class="n">stream1</span><span class="w"> </span><span class="o">&gt;&gt;&gt;</span><span class="p">(...);</span>
 <span class="n">kernel_C</span><span class="o">&lt;&lt;&lt;</span><span class="w"> </span><span class="p">...,</span><span class="w"> </span><span class="n">stream2</span><span class="w"> </span><span class="o">&gt;&gt;&gt;</span><span class="p">(...);</span>
 
-<span class="c1">// 将 Stream2 连接回原始流 (stream1)</span>
+<span class="c1">// 将 stream2 连接回原始流 (stream1)</span>
 <span class="n">cudaEventRecord</span><span class="p">(</span><span class="n">event2</span><span class="p">,</span><span class="w"> </span><span class="n">stream2</span><span class="p">);</span>
 <span class="n">cudaStreamWaitEvent</span><span class="p">(</span><span class="n">stream1</span><span class="p">,</span><span class="w"> </span><span class="n">event2</span><span class="p">);</span>
 
@@ -422,40 +411,40 @@
 <span class="c1">// 结束原始流中的捕获</span>
 <span class="n">cudaStreamEndCapture</span><span class="p">(</span><span class="n">stream1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">graph</span><span class="p">);</span>
 
-<span class="c1">// 流 1 和流 2 不再处于捕获模式</span>
+<span class="c1">// stream1 和 stream2 不再处于捕获模式</span>
 </pre></div>
 </div>
-<p>上述代码返回的图表如图所示 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-api-fig-creating-using-graph-apis"><span class="std std-numref">图22</span></a>.</p>
+<p>上述代码返回的图如 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-api-fig-creating-using-graph-apis"><span class="std std-numref">图22</span></a> 所示。</p>
 <div class="admonition note">
 <p class="admonition-title">注</p>
-<p>当流退出捕获模式时，流中的下一个非捕获项（如果有）仍将依赖于最近的先前非捕获项，尽管中间项已被删除。</p>
+<p>当流退出捕获模式时，流中的下一个非捕获项（如果有）仍会依赖于最近的前一个非捕获项，即使中间捕获项已被移除。</p>
 </div>
 </section>
 <section id="prohibited-and-unhandled-operations">
 <span id="cuda-graphs-prohibited-unhandled-operations"></span><h5><span class="section-number">4.2.2.1.2.2. </span>禁止和未处理的操作<a class="headerlink" href="cuda-graphs.html#prohibited-and-unhandled-operations" title="跳转到此标题">#</a></h5>
-<p>同步或查询正在捕获的流或捕获的事件的执行状态是无效的，因为它们不代表计划执行的项目。当任何关联流处于捕获模式时，查询包含活动流捕获的更广泛句柄（例如设备或上下文句柄）的执行状态或同步也是无效的。</p>
-<p>当同一上下文中的任何流被捕获时，并且它不是用创建的 <code class="docutils literal notranslate"><span class="pre">cudaStreamNonBlocking</span></code>，任何对旧流的尝试都是无效的。这是因为遗留流句柄始终包含这些其他流；排队到遗留流将创建对正在捕获的流的依赖性，并且查询它或同步它将会查询或同步正在捕获的流。</p>
-<p>因此在这种情况下调用同步API也是无效的。同步 API 的一个示例是 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code> 它将工作排入遗留流并在返回之前对其进行同步。</p>
+<p>同步或查询正在捕获的流、或捕获事件的执行状态是无效的，因为它们并不表示已调度执行的项。当任何关联流处于捕获模式时，查询包含活动流捕获的更大范围句柄（例如设备或上下文句柄）的执行状态，或同步这类句柄，也都是无效的。</p>
+<p>当同一上下文中的任何流正在被捕获，并且该流不是用 <code class="docutils literal notranslate"><span class="pre">cudaStreamNonBlocking</span></code> 创建时，任何使用遗留流的尝试都是无效的。这是因为遗留流句柄始终包含这些其他流；向遗留流排队工作会创建对正在捕获的流的依赖关系，而查询或同步遗留流也会查询或同步正在捕获的流。</p>
+<p>因此，在这种情况下调用同步 API 也是无效的。同步 API 的一个示例是 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code>，它会把工作排入遗留流，并在返回前同步该流。</p>
 <div class="admonition note">
 <p class="admonition-title">注</p>
-<p>作为一般规则，当依赖关系将捕获的内容与未捕获的内容连接起来并排队执行时，CUDA 更愿意返回错误而不是忽略依赖关系。将流放入或退出捕获模式是一个例外；这切断了模式转换之前和之后添加到流中的项目之间的依赖关系。</p>
+<p>一般来说，当依赖关系会把捕获内容与未捕获内容连接起来并排队执行时，CUDA 更倾向于返回错误，而不是忽略依赖关系。让流进入或退出捕获模式是一个例外；这一操作会切断模式转换前后添加到流中的项之间的依赖关系。</p>
 </div>
-<p>通过等待来自正在捕获的流的捕获事件来合并两个单独的捕获图是无效的，并且该流与与该事件不同的捕获图关联。在未指定捕获流的情况下等待来自流的非捕获事件是无效的 <code class="docutils literal notranslate"><span class="pre">cudaEventWaitExternal</span></code> 标志。</p>
-<p>目前，图形中不支持少数将异步操作排队到流中的 API，如果使用正在捕获的流调用，将返回错误，例如 <code class="docutils literal notranslate"><span class="pre">cudaStreamAttachMemAsync()</span></code>.</p>
+<p>通过等待来自正在捕获的流的捕获事件来合并两个单独捕获图是无效的，因为该流关联到与该事件不同的捕获图。在未指定 <code class="docutils literal notranslate"><span class="pre">cudaEventWaitExternal</span></code> 标志的情况下，等待来自非捕获流的非捕获事件也是无效的。</p>
+<p>目前，少数会把异步操作排队到流中的 API 在图中不受支持；如果用正在捕获的流调用它们，会返回错误，例如 <code class="docutils literal notranslate"><span class="pre">cudaStreamAttachMemAsync()</span></code>。</p>
 </section>
 <section id="invalidation">
 <h5><span class="section-number">4.2.2.1.2.3. </span>失效<a class="headerlink" href="cuda-graphs.html#invalidation" title="跳转到此标题">#</a></h5>
-<p>当在流捕获期间尝试无效操作时，任何关联的捕获图都会被 <em>invalidated</em>。当捕获图无效时，进一步使用任何正在捕获的流或捕获与该图关联的事件都是无效的，并将返回错误，直到流捕获结束 <code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code>。此调用将使关联的流退出捕获模式，但也会返回错误值和 NULL 图。</p>
+<p>如果在流捕获期间尝试无效操作，任何关联的捕获图都会<em>失效</em>。捕获图失效后，继续使用任何正在捕获的流、或使用与该图关联的捕获事件，都是无效的，并会返回错误，直到通过 <code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code> 结束流捕获。该调用会使关联流退出捕获模式，但也会返回错误值和 NULL 图。</p>
 </section>
 <section id="capture-introspection">
-<h5><span class="section-number">4.2.2.1.2.4. </span>捕捉内省<a class="headerlink" href="cuda-graphs.html#capture-introspection" title="跳转到此标题">#</a></h5>
-<p>可以使用以下命令检查活动流捕获操作 <code class="docutils literal notranslate"><span class="pre">cudaStreamGetCaptureInfo()</span></code>。  这允许用户获取捕获的状态、捕获的唯一（每个进程）ID、底层图形对象以及流中要捕获的下一个节点的依赖项/边缘数据。  此依赖性信息可用于获取流中最后捕获的节点的句柄。</p>
+<h5><span class="section-number">4.2.2.1.2.4. </span>捕获内省<a class="headerlink" href="cuda-graphs.html#capture-introspection" title="跳转到此标题">#</a></h5>
+<p>可以使用 <code class="docutils literal notranslate"><span class="pre">cudaStreamGetCaptureInfo()</span></code> 检查活动流捕获操作。该函数允许用户获取捕获状态、捕获的唯一（每进程）ID、底层图对象，以及流中将要捕获的下一个节点的依赖关系/边数据。这些依赖关系信息可用于获取流中最后捕获节点的句柄。</p>
 </section>
 </section>
 <section id="putting-it-all-together">
-<span id="cuda-graphs-putting-it-all-together"></span><h4><span class="section-number">4.2.2.1.3. </span>把它们放在一起<a class="headerlink" href="cuda-graphs.html#putting-it-all-together" title="跳转到此标题">#</a></h4>
-<p>中的例子 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-api-fig-creating-using-graph-apis"><span class="std std-numref">图22</span></a> 是一个简单的示例，旨在从概念上显示一个小图。  在使用 CUDA 图形的应用程序中，使用图形 API 或流捕获会更加复杂。  以下代码片段显示了 Graph API 和 Stream Capture 的并排比较，以创建 CUDA 图形来执行简单的两阶段缩减算法。</p>
-<p><a class="reference internal" href="cuda-graphs.html#cuda-graphs-visualize-a-graph-using-graphviz"><span class="std std-numref">图23</span></a> 是这个 CUDA 图的图示，是使用 <code class="docutils literal notranslate"><span class="pre">cudaGraphDebugDotPrint</span></code> 函数应用于下面的代码，为了可读性做了一些小的调整，然后使用 <a class="reference external" href="https://graphviz.org/">Graphviz</a>.</p>
+<span id="cuda-graphs-putting-it-all-together"></span><h4><span class="section-number">4.2.2.1.3. </span>综合示例<a class="headerlink" href="cuda-graphs.html#putting-it-all-together" title="跳转到此标题">#</a></h4>
+<p><a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-api-fig-creating-using-graph-apis"><span class="std std-numref">图22</span></a> 中的示例很简单，主要用于从概念上展示一个小型图。在实际使用 CUDA 图的应用程序中，无论使用图 API 还是流捕获，都会有更多细节。下面的代码片段并排比较了图 API 和流捕获两种写法，创建一个用于执行简单两阶段归约算法的 CUDA 图。</p>
+<p><a class="reference internal" href="cuda-graphs.html#cuda-graphs-visualize-a-graph-using-graphviz"><span class="std std-numref">图23</span></a> 展示了这个 CUDA 图。该图由 <code class="docutils literal notranslate"><span class="pre">cudaGraphDebugDotPrint</span></code> 函数作用于下面的代码生成，并为可读性做了少量调整，然后使用 <a class="reference external" href="https://graphviz.org/">Graphviz</a> 渲染。</p>
 <figure class="align-center" id="cuda-graphs-visualize-a-graph-using-graphviz">
 <a class="reference internal image-reference" href="../_images/cuda_graph_reduction.png"><img alt="使用两级缩减内核的 CUDA 图示例" src="../_images/cuda_graph_reduction.png" style="width: 200px;"/>
 </a>
@@ -466,7 +455,7 @@
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio"/>
 <label class="sd-tab-label" data-sync-group="tab" data-sync-id="c++" for="sd-tab-item-0">
-图形API</label><div class="sd-tab-content docutils">
+图 API</label><div class="sd-tab-content docutils">
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">cudaGraphsManual</span><span class="p">(</span><span class="kt">float</span><span class="w">  </span><span class="o">*</span><span class="n">inputVec_h</span><span class="p">,</span>
 <span class="w">                      </span><span class="kt">float</span><span class="w">  </span><span class="o">*</span><span class="n">inputVec_d</span><span class="p">,</span>
 <span class="w">                      </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">outputVec_d</span><span class="p">,</span>
@@ -640,19 +629,19 @@
 </section>
 <section id="graph-instantiation">
 <span id="cuda-graphs-graph-instantiation"></span><h3><span class="section-number">4.2.2.2. </span>图实例化<a class="headerlink" href="cuda-graphs.html#graph-instantiation" title="跳转到此标题">#</a></h3>
-<p>一旦通过使用图形 API 或流捕获创建了图形，就必须实例化图形以创建可执行图形，然后可以启动该图形。  假设 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span> <span class="pre">graph</span></code> 已经创建成功，下面的代码将实例化图并创建可执行图 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span> <span class="pre">graphExec</span></code>:</p>
+<p>通过图 API 或流捕获创建图之后，必须先将图实例化，生成可启动的可执行图。假设 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span> <span class="pre">graph</span></code> 已经成功创建，下面的代码会实例化该图，并创建可执行图 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span> <span class="pre">graphExec</span></code>：</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="n">cudaGraphExec_t</span><span class="w"> </span><span class="n">graphExec</span><span class="p">;</span>
 <span class="n">cudaGraphInstantiate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">graphExec</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 </pre></div>
 </div>
 </section>
 <section id="graph-execution">
-<span id="cuda-graphs-graph-execution"></span><h3><span class="section-number">4.2.2.3. </span>图形执行<a class="headerlink" href="cuda-graphs.html#graph-execution" title="跳转到此标题">#</a></h3>
-<p>创建图形并实例化以创建可执行图形后，就可以启动它了。假设 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span> <span class="pre">graphExec</span></code> 创建成功后，以下代码片段将把图表启动到指定的流中：</p>
+<span id="cuda-graphs-graph-execution"></span><h3><span class="section-number">4.2.2.3. </span>图执行<a class="headerlink" href="cuda-graphs.html#graph-execution" title="跳转到此标题">#</a></h3>
+<p>图创建完成并实例化为可执行图之后，就可以启动它。假设 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span> <span class="pre">graphExec</span></code> 已经成功创建，下面的代码片段会把该图启动到指定流中：</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="n">cudaGraphLaunch</span><span class="p">(</span><span class="n">graphExec</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>将它们放在一起并使用来自的流捕获示例 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-stream-capture"><span class="std std-numref">第 4.2.2.1.2 节</span></a>，以下代码片段将创建一个图、实例化它并启动它：</p>
+<p>把这些步骤结合起来，并使用 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-stream-capture"><span class="std std-numref">第 4.2.2.1.2 节</span></a> 中的流捕获示例，下面的代码片段会创建一个图、实例化它并启动它：</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="n">cudaGraph_t</span><span class="w"> </span><span class="n">graph</span><span class="p">;</span>
 
 <span class="n">cudaStreamBeginCapture</span><span class="p">(</span><span class="n">stream</span><span class="p">);</span>
@@ -673,24 +662,24 @@
 </section>
 <section id="updating-instantiated-graphs">
 <span id="cuda-graphs-updating-instantiated-graphs"></span><h2><span class="section-number">4.2.3. </span>更新实例化图<a class="headerlink" href="cuda-graphs.html#updating-instantiated-graphs" title="跳转到此标题">#</a></h2>
-<p>当工作流程发生变化时，图表就会过时并且必须进行修改。图结构（例如拓扑或节点类型）的重大更改需要重新实例化，因为必须重新应用与拓扑相关的优化。然而，通常只有节点参数（例如内核参数和内存地址）发生变化，而图拓扑保持不变。对于这种情况，CUDA提供了一种轻量级的“图更新”机制，允许就地修改某些节点参数，而无需重建整个图，这比重新实例化要高效得多。</p>
-<p>更新将在下次启动图表时生效，因此它们不会影响之前的图表启动，即使它们在更新时正在运行。图表可以重复更新和重新启动，因此多个更新/启动可以在流上排队。</p>
-<p>CUDA提供了两种更新实例化图参数的机制：全图更新和单个节点更新。整个图更新允许用户提供拓扑相同的 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 其节点包含更新参数的对象。单个节点更新允许用户显式更新单个节点的参数。使用更新的 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 当更新大量节点时，或者当调用者未知图拓扑时（即，图是由库调用的流捕获产生的），这会更方便。当更改数量较小且用户拥有需要更新的节点的句柄时，首选使用单个节点更新。单个节点更新会跳过未更改节点的拓扑检查和比较，因此在许多情况下会更有效。</p>
+<p>当工作流发生变化时，图会变得过时，因此必须修改。图结构（例如拓扑或节点类型）的重大变化需要重新实例化，因为必须重新应用与拓扑相关的优化。不过，更常见的情况是只有节点参数（例如内核参数和内存地址）发生变化，而图拓扑保持不变。针对这种情况，CUDA 提供了一种轻量级的“图更新”机制，允许就地修改某些节点参数，而无需重建整个图；这比重新实例化高效得多。</p>
+<p>更新会在图下次启动时生效，因此不会影响之前的图启动，即使那些启动在更新发生时仍在运行。图可以反复更新并重新启动，因此可以在流上排队多个更新/启动。</p>
+<p>CUDA 提供了两种更新实例化图参数的机制：全图更新和单个节点更新。全图更新允许用户提供一个拓扑相同、但节点中包含更新后参数的 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 对象。单个节点更新允许用户显式更新各个节点的参数。当需要更新大量节点，或者调用者不知道图拓扑（例如该图来自某个库调用的流捕获）时，使用更新后的 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 更方便。当改动数量较少，并且用户持有需要更新的节点句柄时，更适合使用单个节点更新。单个节点更新会跳过未改变节点的拓扑检查和比较，因此在许多情况下效率更高。</p>
 <p>CUDA 还提供了一种启用和禁用各个节点而不影响其当前参数的机制。</p>
 <p>以下部分更详细地解释了每种方法。</p>
 <section id="whole-graph-update">
 <span id="cuda-graphs-whole-graph-update"></span><h3><span class="section-number">4.2.3.1. </span>全图更新<a class="headerlink" href="cuda-graphs.html#whole-graph-update" title="跳转到此标题">#</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code> 允许使用拓扑相同的图（“更新”图）中的参数更新实例化图（“原始图”）。更新图的拓扑必须与用于实例化的原始图相同 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code>。此外，指定依赖项的顺序必须匹配。最后，CUDA 需要对汇聚节点（没有依赖关系的节点）进行一致的排序。 CUDA依赖于特定api调用的顺序来实现一致的sink节点排序。</p>
-<p>更明确地说，遵循以下规则将导致 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code> 确定性地将原始图中的节点与更新图中的节点配对：</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code> 允许使用一个拓扑相同的图（“更新图”）中的参数，更新已经实例化的图（“原始图”）。更新图的拓扑必须与用于实例化 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 的原始图相同。此外，指定依赖关系的顺序也必须匹配。最后，CUDA 需要以一致的方式对汇点节点（没有依赖节点的节点）排序。CUDA 依赖特定 API 调用的顺序来实现一致的汇点节点排序。</p>
+<p>更明确地说，遵循以下规则可以让 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code> 以确定性的方式配对原始图和更新图中的节点：</p>
 <ol class="arabic simple">
-<li><p>对于任何捕获流，对该流进行操作的 API 调用必须以相同的顺序进行，包括事件等待和其他与节点创建不直接对应的 API 调用。</p></li>
-<li><p>直接操作给定图节点的传入边的 API 调用（包括捕获流 API、节点添加 API 和边添加/删除 API）必须以相同的顺序进行。此外，当在数组中指定这些 API 的依赖项时，在这些数组内指定依赖项的顺序必须匹配。</p></li>
-<li><p>接收器节点的顺序必须一致。汇节点是在最终图中没有依赖节点/传出边的节点 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code> 调用。以下操作会影响接收器节点排序（如果存在）并且必须（作为组合集）以相同的顺序进行：</p>
+<li><p>对于任何正在捕获的流，作用于该流的 API 调用必须以相同顺序发出，包括事件等待以及其他不直接对应于节点创建的 API 调用。</p></li>
+<li><p>直接操作某个图节点传入边的 API 调用（包括捕获流 API、节点添加 API，以及边添加/删除 API）必须以相同顺序发出。此外，如果这些 API 通过数组指定依赖关系，数组内部指定依赖关系的顺序也必须匹配。</p></li>
+<li><p>汇点节点的顺序必须一致。汇点节点是指在调用 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code> 时，最终图中没有依赖节点/传出边的节点。以下操作（如果存在）会影响汇点节点排序，因此作为一个整体也必须以相同顺序发出：</p>
 <ul class="simple">
-<li><p>节点添加 API 产生接收器节点。</p></li>
-<li><p>边缘移除导致节点成为汇聚节点。</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cudaStreamUpdateCaptureDependencies()</span></code>，如果它从捕获流的依赖集中删除接收节点。</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code>.</p></li>
+<li><p>产生汇点节点的节点添加 API。</p></li>
+<li><p>导致节点成为汇点节点的边删除操作。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaStreamUpdateCaptureDependencies()</span></code>，如果它会从捕获流的依赖集合中删除某个汇点节点。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaStreamEndCapture()</span></code>。</p></li>
 </ul>
 </li>
 </ol>
@@ -702,8 +691,8 @@
 <span class="w">    </span><span class="n">cudaGraphExecUpdateResult</span><span class="w"> </span><span class="n">updateResult</span><span class="p">;</span>
 <span class="w">    </span><span class="n">cudaGraphNode_t</span><span class="w"> </span><span class="n">errorNode</span><span class="p">;</span>
 
-<span class="w">    </span><span class="c1">// 在此示例中，我们使用流捕获来创建图形。</span>
-<span class="w">    </span><span class="c1">// 您还可以使用图形 API 来生成图形。</span>
+<span class="w">    </span><span class="c1">// 在此示例中，我们使用流捕获来创建图。</span>
+<span class="w">    </span><span class="c1">// 也可以使用图 API 生成图。</span>
 <span class="w">    </span><span class="n">cudaStreamBeginCapture</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamCaptureModeGlobal</span><span class="p">);</span>
 
 <span class="w">    </span><span class="c1">// 例如，调用用户定义的、基于流的工作负载</span>
@@ -711,10 +700,10 @@
 
 <span class="w">    </span><span class="n">cudaStreamEndCapture</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">graph</span><span class="p">);</span>
 
-<span class="w">    </span><span class="c1">// 如果我们已经实例化了图表，请尝试直接更新它</span>
+<span class="w">    </span><span class="c1">// 如果已经实例化了图，则尝试直接更新它</span>
 <span class="w">    </span><span class="c1">// 并避免实例化开销</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">graphExec</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="c1">// 如果图表更新失败，errorNode 将被设置为</span>
+<span class="w">        </span><span class="c1">// 如果图更新失败，errorNode 将被设置为</span>
 <span class="w">        </span><span class="c1">// 导致失败的节点和 updateResult 将被设置为</span>
 <span class="w">        </span><span class="c1">// 原因代码。</span>
 <span class="w">        </span><span class="n">cudaGraphExecUpdate</span><span class="p">(</span><span class="n">graphExec</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">errorNode</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">updateResult</span><span class="p">);</span>
@@ -740,14 +729,14 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>典型的工作流程是创建初始 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 使用流捕获或图形 API。的 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 然后实例化并正常启动。首次推出后，新 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 使用与初始图相同的方法创建并且 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code> 被称为。如果图形更新成功，则由 <code class="docutils literal notranslate"><span class="pre">updateResult</span></code> 上例中的参数，更新后的 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 已推出。如果由于任何原因更新失败， <code class="docutils literal notranslate"><span class="pre">cudaGraphExecDestroy()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiate()</span></code> 被要求毁掉原来的 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 并实例化一个新的。</p>
-<p>也可以更新 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 直接节点（即，使用 <code class="docutils literal notranslate"><span class="pre">cudaGraphKernelNodeSetParams()</span></code>）并随后更新 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code>，但是使用下一节中介绍的显式节点更新 API 会更有效。</p>
-<p>条件句柄标志和默认值作为图形更新的一部分进行更新。</p>
-<p>请参阅 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH">图形API</a> 有关使用和当前限制的更多信息。</p>
+<p>典型工作流程是先使用流捕获或图 API 创建初始 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code>。随后照常实例化并启动该 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code>。首次启动之后，使用与初始图相同的方法创建新的 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code>，并调用 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code>。如果图更新成功（由上例中的 <code class="docutils literal notranslate"><span class="pre">updateResult</span></code> 参数指示），就启动更新后的 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code>。如果更新因任何原因失败，则调用 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecDestroy()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiate()</span></code>，销毁原来的 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 并实例化新的可执行图。</p>
+<p>也可以直接更新 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 节点（例如使用 <code class="docutils literal notranslate"><span class="pre">cudaGraphKernelNodeSetParams()</span></code>），随后再更新 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code>；不过，使用下一节介绍的显式节点更新 API 会更高效。</p>
+<p>条件句柄标志和默认值会作为图更新的一部分同步更新。</p>
+<p>有关用法和当前限制的更多信息，请参阅 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH">图 API</a>。</p>
 </section>
 <section id="individual-node-update">
 <span id="cuda-graphs-individual-node-update"></span><h3><span class="section-number">4.2.3.2. </span>单个节点更新<a class="headerlink" href="cuda-graphs.html#individual-node-update" title="跳转到此标题">#</a></h3>
-<p>实例化的图节点参数可以直接更新。这消除了实例化的开销以及创建新的开销 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code>。如果需要更新的节点数量相对于图中的节点总数而言较少，则最好单独更新节点。可以使用以下方法进行更新 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> nodes:</p>
+<p>可以直接更新实例化图中的节点参数。这样可以消除实例化开销，也不必再创建新的 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code>。如果需要更新的节点数量相对于图中节点总数较少，最好逐个更新节点。可以使用以下方法更新 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 节点：</p>
 <div class="pst-scrollable-table-container"><table class="table-no-stripes table" id="id4">
 <caption><span class="caption-number">表8 </span><span class="caption-text">单个节点更新 API</span><a class="headerlink" href="cuda-graphs.html#id4" title="跳转到此标题">#</a></caption>
 <thead>
@@ -760,10 +749,10 @@
 <td><p>内核节点</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cudaGraphExecMemcpyNodeSetParams()</span></code></p></td>
-<td><p>内存复制节点</p></td>
+<td><p>内存拷贝节点</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cudaGraphExecMemsetNodeSetParams()</span></code></p></td>
-<td><p>内存设置节点</p></td>
+<td><p>memset 节点</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cudaGraphExecHostNodeSetParams()</span></code></p></td>
 <td><p>主机节点</p></td>
@@ -786,30 +775,30 @@
 </tbody>
 </table>
 </div>
-<p>请参阅 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH">图形API</a> 有关使用和当前限制的更多信息。</p>
+<p>有关用法和当前限制的更多信息，请参阅 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH">图 API</a>。</p>
 </section>
 <section id="individual-node-enable">
 <span id="cuda-graphs-individual-node-enable"></span><h3><span class="section-number">4.2.3.3. </span>单个节点启用<a class="headerlink" href="cuda-graphs.html#individual-node-enable" title="跳转到此标题">#</a></h3>
-<p>可以使用以下命令启用或禁用实例化图中的内核、memset 和 memcpy 节点 <code class="docutils literal notranslate"><span class="pre">cudaGraphNodeSetEnabled()</span></code> API。这允许创建一个图表，其中包含所需功能的超集，可以为每次启动进行自定义。可以使用以下命令查询节点的启用状态 <code class="docutils literal notranslate"><span class="pre">cudaGraphNodeGetEnabled()</span></code> API。</p>
-<p>禁用的节点在功能上等同于空节点，直到重新启用为止。节点参数不受启用/禁用节点的影响。启用状态不受单个节点更新或整个图更新的影响 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code>。节点禁用时的参数更新将在节点重新启用时生效。</p>
-<p>请参阅 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH">图形API</a> 有关使用和当前限制的更多信息。</p>
+<p>可以使用 <code class="docutils literal notranslate"><span class="pre">cudaGraphNodeSetEnabled()</span></code> API 启用或禁用实例化图中的内核、memset 和 memcpy 节点。这允许创建一个包含所需功能超集的图，并在每次启动时按需定制。可以使用 <code class="docutils literal notranslate"><span class="pre">cudaGraphNodeGetEnabled()</span></code> API 查询节点的启用状态。</p>
+<p>禁用的节点在功能上等价于空节点，直到重新启用为止。启用或禁用节点不会影响节点参数。启用状态不会受到单个节点更新或通过 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate()</span></code> 进行的全图更新影响。节点处于禁用状态时进行的参数更新，会在节点重新启用时生效。</p>
+<p>有关用法和当前限制的更多信息，请参阅 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH">图 API</a>。</p>
 </section>
 <section id="graph-update-limitations">
 <span id="cuda-graphs-graph-update-limitations"></span><h3><span class="section-number">4.2.3.4. </span>图更新限制<a class="headerlink" href="cuda-graphs.html#graph-update-limitations" title="跳转到此标题">#</a></h3>
 <p>内核节点：</p>
 <ul class="simple">
 <li><p>函数的所属上下文不能更改。</p></li>
-<li><p>原本不使用CUDA动态并行功能的节点无法更新为使用CUDA动态并行功能的节点。</p></li>
+<li><p>原本不使用 CUDA 动态并行功能的节点，不能更新为使用 CUDA 动态并行功能的节点。</p></li>
 </ul>
-<p><code class="docutils literal notranslate"><span class="pre">cudaMemset</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code> nodes:</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaMemset</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code> 节点：</p>
 <ul class="simple">
 <li><p>分配/映射操作数的 CUDA 设备无法更改。</p></li>
 <li><p>源/目标内存必须从与原始源/目标内存相同的上下文中分配。</p></li>
-<li><p>仅一维 <code class="docutils literal notranslate"><span class="pre">cudaMemset</span></code>/<code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code> 节点可以改变。</p></li>
+<li><p>只能更改一维 <code class="docutils literal notranslate"><span class="pre">cudaMemset</span></code>/<code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code> 节点。</p></li>
 </ul>
 <p>其他 memcpy 节点限制：</p>
 <ul class="simple">
-<li><p>更改源或目标内存类型（即 <code class="docutils literal notranslate"><span class="pre">cudaPitchedPtr</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaArray_t</span></code>等），或传输类型（即 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyKind</span></code>) 不支持。</p></li>
+<li><p>不支持更改源内存或目标内存的类型（例如 <code class="docutils literal notranslate"><span class="pre">cudaPitchedPtr</span></code>、<code class="docutils literal notranslate"><span class="pre">cudaArray_t</span></code> 等），也不支持更改传输类型（例如 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyKind</span></code>）。</p></li>
 </ul>
 <p>外部信号量等待节点和记录节点：</p>
 <ul class="simple">
@@ -817,65 +806,65 @@
 </ul>
 <p>条件节点：</p>
 <ul class="simple">
-<li><p>图形之间句柄创建和分配的顺序必须匹配。</p></li>
-<li><p>不支持更改节点参数（即条件、节点上下文中的图形数量等）。</p></li>
+<li><p>图之间句柄创建和分配的顺序必须匹配。</p></li>
+<li><p>不支持更改节点参数（例如条件、节点上下文中的图数量等）。</p></li>
 <li><p>更改条件体图中节点的参数须遵守上述规则。</p></li>
 </ul>
 <p>内存节点：</p>
 <ul class="simple">
-<li><p>无法更新 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 与一个 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 如果 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 当前被实例化为不同的 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code>.</p></li>
+<li><p>如果某个 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 当前已经实例化为另一个不同的 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code>，则不能用它来更新某个 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code>。</p></li>
 </ul>
 <p>对主机节点、事件记录节点或事件等待节点的更新没有限制。</p>
 </section>
 </section>
 <section id="conditional-graph-nodes">
 <span id="cuda-graphs-conditional-graph-nodes"></span><h2><span class="section-number">4.2.4. </span>条件图节点<a class="headerlink" href="cuda-graphs.html#conditional-graph-nodes" title="跳转到此标题">#</a></h2>
-<p>条件节点允许条件节点内包含的图的条件执行和循环。这使得动态和迭代工作流程能够在图形中完全表示，并释放主机 CPU 来并行执行其他工作。</p>
-<p>当条件节点的依赖性得到满足时，在设备上执行条件值的评估。条件节点可以是以下类型之一：</p>
+<p>条件节点允许对包含在条件节点中的图进行条件执行和循环执行。这样一来，动态和迭代式工作流可以完整地表示在图中，同时释放主机 CPU 去并行执行其他工作。</p>
+<p>当条件节点的依赖关系满足后，会在设备上求值条件值。条件节点可以是以下类型之一：</p>
 <ul class="simple">
-<li><p>Conditional <a class="reference internal" href="cuda-graphs.html#cuda-graphs-conditional-if-nodes"><span class="std std-ref">中频节点</span></a> 如果执行节点时条件值非零，则执行一次其主体图。可以提供可选的第二主体图，如果执行节点时条件值为零，则将执行一次。</p></li>
-<li><p>Conditional <a class="reference internal" href="cuda-graphs.html#cuda-graphs-conditional-while-nodes"><span class="std std-ref">WHILE 节点</span></a> 如果执行节点时条件值非零，则执行其主体图，并将继续执行其主体图，直到条件值为零。</p></li>
-<li><p>Conditional <a class="reference internal" href="cuda-graphs.html#cuda-graphs-conditional-switch-nodes"><span class="std std-ref">切换节点</span></a> 如果条件值等于 n，则执行零索引的第 n 个主体图一次。  如果条件值不对应于身体图，则不启动身体图。</p></li>
+<li><p>条件 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-conditional-if-nodes"><span class="std std-ref">IF 节点</span></a>：如果执行节点时条件值非零，则执行一次其主体图。也可以提供可选的第二个主体图；如果执行节点时条件值为零，则执行该主体图一次。</p></li>
+<li><p>条件 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-conditional-while-nodes"><span class="std std-ref">WHILE 节点</span></a>：如果执行节点时条件值非零，则执行其主体图，并持续执行该主体图，直到条件值变为零。</p></li>
+<li><p>条件 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-conditional-switch-nodes"><span class="std std-ref">SWITCH 节点</span></a>：如果条件值等于 n，则执行一次从零开始计数的第 n 个主体图。如果条件值没有对应的主体图，则不会启动任何主体图。</p></li>
 </ul>
-<p>条件值由 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-conditional-handles"><span class="std std-ref">条件句柄</span></a>，必须在节点之前创建。条件值可以通过设备代码设置 <code class="docutils literal notranslate"><span class="pre">cudaGraphSetConditional()</span></code>。还可以在创建句柄时指定应用于每次图形启动的默认值。</p>
-<p>创建条件节点时，将创建一个空图并将句柄返回给用户，以便可以填充该图。  可以使用以下任一方式填充此条件身体图 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-graph-apis"><span class="std std-ref">图形 API</span></a> 和 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-stream-capture"><span class="std std-ref">cudaStreamBeginCaptureToGraph()</span></a>.</p>
+<p>条件值通过<a class="reference internal" href="cuda-graphs.html#cuda-graphs-conditional-handles"><span class="std std-ref">条件句柄</span></a>访问，该句柄必须先于节点创建。设备代码可以使用 <code class="docutils literal notranslate"><span class="pre">cudaGraphSetConditional()</span></code> 设置条件值。创建句柄时，也可以指定一个应用于每次图启动的默认值。</p>
+<p>创建条件节点时，会创建一个空图并把句柄返回给用户，以便用户填充该图。这个条件主体图可以使用 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-graph-apis"><span class="std std-ref">图 API</span></a> 或 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-stream-capture"><span class="std std-ref">cudaStreamBeginCaptureToGraph()</span></a> 填充。</p>
 <p>条件节点可以嵌套。</p>
 <section id="conditional-handles">
 <span id="cuda-graphs-conditional-handles"></span><h3><span class="section-number">4.2.4.1. </span>条件句柄<a class="headerlink" href="cuda-graphs.html#conditional-handles" title="跳转到此标题">#</a></h3>
-<p>条件值表示为 <code class="docutils literal notranslate"><span class="pre">cudaGraphConditionalHandle</span></code> 并且是由创建的 <code class="docutils literal notranslate"><span class="pre">cudaGraphConditionalHandleCreate()</span></code>.</p>
-<p>该句柄必须与单个条件节点关联。句柄无法被破坏，因此无需跟踪它们。</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">cudaGraphCondAssignDefault</span></code> 在创建句柄时指定，条件值将在每次图形执行开始时初始化为指定的默认值。如果未提供此标志，则在每次图形执行开始时条件值未定义，并且代码不应假设条件值在执行过程中持续存在。</p>
-<p>与句柄关联的默认值和标志将在期间更新 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-whole-graph-update"><span class="std std-ref">整个图更新</span></a>.</p>
+<p>条件值由 <code class="docutils literal notranslate"><span class="pre">cudaGraphConditionalHandle</span></code> 表示，并通过 <code class="docutils literal notranslate"><span class="pre">cudaGraphConditionalHandleCreate()</span></code> 创建。</p>
+<p>该句柄必须与单个条件节点关联。句柄不能销毁，因此无需额外跟踪它们。</p>
+<p>如果在创建句柄时指定 <code class="docutils literal notranslate"><span class="pre">cudaGraphCondAssignDefault</span></code>，则条件值会在每次图执行开始时初始化为指定的默认值。如果未提供此标志，则每次图执行开始时条件值未定义，代码不应假设条件值会跨执行保留。</p>
+<p>与句柄关联的默认值和标志会在<a class="reference internal" href="cuda-graphs.html#cuda-graphs-whole-graph-update"><span class="std std-ref">全图更新</span></a>期间更新。</p>
 </section>
 <section id="conditional-node-body-graph-requirements">
 <span id="cuda-graphs-conditional-node-body-graph-requirements"></span><h3><span class="section-number">4.2.4.2. </span>条件节点主体图要求<a class="headerlink" href="cuda-graphs.html#conditional-node-body-graph-requirements" title="跳转到此标题">#</a></h3>
 <p>一般要求：</p>
 <ul class="simple">
-<li><p>图表的节点必须全部驻留在单个设备上。</p></li>
+<li><p>图的所有节点都必须驻留在单个设备上。</p></li>
 <li><p>该图只能包含内核节点、空节点、memcpy 节点、memset 节点、子图节点和条件节点。</p></li>
 </ul>
 <p>内核节点：</p>
 <ul class="simple">
-<li><p>不允许图形中的内核使用 CUDA 动态并行性或设备图形启动。</p></li>
-<li><p>只要不使用 MPS，就允许合作发射。</p></li>
+<li><p>不允许图中的内核使用 CUDA 动态并行功能或设备图启动。</p></li>
+<li><p>只要未使用 MPS，就允许协作启动。</p></li>
 </ul>
 <p>Memcpy/Memset 节点：</p>
 <ul class="simple">
-<li><p>仅允许涉及设备内存和/或固定设备映射主机内存的副本/内存集。</p></li>
-<li><p>不允许涉及 CUDA 数组的副本/内存集。</p></li>
-<li><p>在实例化时，两个操作数都必须可以从当前设备访问。请注意，复制操作将从图形所在的设备执行，即使它的目标是另一个设备上的内存。</p></li>
+<li><p>只允许涉及设备内存和/或固定的设备映射主机内存的拷贝/memset。</p></li>
+<li><p>不允许涉及 CUDA 数组的拷贝/memset。</p></li>
+<li><p>实例化时，两个操作数都必须可从当前设备访问。请注意，即使目标是另一个设备上的内存，拷贝操作也会从图所在的设备执行。</p></li>
 </ul>
 </section>
 <section id="conditional-if-nodes">
 <span id="cuda-graphs-conditional-if-nodes"></span><h3><span class="section-number">4.2.4.3. </span>条件 IF 节点<a class="headerlink" href="cuda-graphs.html#conditional-if-nodes" title="跳转到此标题">#</a></h3>
-<p>如果执行节点时条件非零，则 IF 节点的主体图将被执行一次。  下图描绘了一个 3 节点图，其中中间节点 B 是条件节点：</p>
+<p>如果执行 IF 节点时条件非零，则该节点的主体图会执行一次。下图描绘了一个 3 节点图，其中中间节点 B 是条件节点：</p>
 <figure class="align-default" id="id5">
 <img alt="../_images/conditional-if-node.png" class="image" src="../_images/conditional-if-node.png"/>
 <figcaption>
 <p><span class="caption-number">图24 </span><span class="caption-text">条件 IF 节点</span><a class="headerlink" href="cuda-graphs.html#id5" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
-<p>以下代码说明了如何创建包含 IF 条件节点的图。条件的默认值是使用上游内核设置的。条件语句的主体使用以下方式填充 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-graph-apis"><span class="std std-ref">图形API</span></a>.</p>
+<p>以下代码说明了如何创建包含 IF 条件节点的图。条件的默认值由上游内核设置。条件主体使用 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-graph-apis"><span class="std std-ref">图 API</span></a> 填充。</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">setHandle</span><span class="p">(</span><span class="n">cudaGraphConditionalHandle</span><span class="w"> </span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">value</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">    </span><span class="p">...</span>
@@ -891,14 +880,14 @@
 <span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">kernelArgs</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
 <span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 
-<span class="w">    </span><span class="c1">// 创建图表</span>
+<span class="w">    </span><span class="c1">// 创建图</span>
 <span class="w">    </span><span class="n">cudaGraphCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 
-<span class="w">    </span><span class="c1">// 创建条件句柄；由于未提供默认值，因此在每个图形执行开始时条件值未定义</span>
+<span class="w">    </span><span class="c1">// 创建条件句柄；由于未提供默认值，因此每次图执行开始时条件值未定义</span>
 <span class="w">    </span><span class="n">cudaGraphConditionalHandle</span><span class="w"> </span><span class="n">handle</span><span class="p">;</span>
 <span class="w">    </span><span class="n">cudaGraphConditionalHandleCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">);</span>
 
-<span class="w">    </span><span class="c1">// 使用条件条件上游的内核来设置句柄值</span>
+<span class="w">    </span><span class="c1">// 使用条件节点上游的内核来设置句柄值</span>
 <span class="w">    </span><span class="n">cudaGraphNodeParams</span><span class="w"> </span><span class="n">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">cudaGraphNodeTypeKernel</span><span class="w"> </span><span class="p">};</span>
 <span class="w">    </span><span class="n">params</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="n">func</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">setHandle</span><span class="p">;</span>
 <span class="w">    </span><span class="n">params</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="nb">gridDim</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="nb">gridDim</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="nb">gridDim</span><span class="p">.</span><span class="n">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
@@ -912,17 +901,17 @@
 <span class="w">    </span><span class="n">cudaGraphNodeParams</span><span class="w"> </span><span class="n">cParams</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">cudaGraphNodeTypeConditional</span><span class="w"> </span><span class="p">};</span>
 <span class="w">    </span><span class="n">cParams</span><span class="p">.</span><span class="n">conditional</span><span class="p">.</span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">handle</span><span class="p">;</span>
 <span class="w">    </span><span class="n">cParams</span><span class="p">.</span><span class="n">conditional</span><span class="p">.</span><span class="n">type</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">cudaGraphCondTypeIf</span><span class="p">;</span>
-<span class="w">    </span><span class="n">cParams</span><span class="p">.</span><span class="n">conditional</span><span class="p">.</span><span class="n">size</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="c1">// 身体图只有“如果”</span>
+<span class="w">    </span><span class="n">cParams</span><span class="p">.</span><span class="n">conditional</span><span class="p">.</span><span class="n">size</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="c1">// 只有一个“if”主体图</span>
 <span class="w">    </span><span class="n">cudaGraphAddNode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">cParams</span><span class="p">);</span>
 
-<span class="w">    </span><span class="c1">// 获取条件节点的body图</span>
+<span class="w">    </span><span class="c1">// 获取条件节点的主体图</span>
 <span class="w">    </span><span class="n">cudaGraph_t</span><span class="w"> </span><span class="n">bodyGraph</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cParams</span><span class="p">.</span><span class="n">conditional</span><span class="p">.</span><span class="n">phGraph_out</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
 
 <span class="w">    </span><span class="c1">// 填充 IF 条件节点的主体图</span>
 <span class="w">    </span><span class="p">...</span>
 <span class="w">    </span><span class="n">cudaGraphAddNode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="n">bodyGraph</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">params</span><span class="p">);</span>
 
-<span class="w">    </span><span class="c1">// 实例化并启动图表</span>
+<span class="w">    </span><span class="c1">// 实例化并启动图</span>
 <span class="w">    </span><span class="n">cudaGraphInstantiate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">graphExec</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 <span class="w">    </span><span class="n">cudaGraphLaunch</span><span class="p">(</span><span class="n">graphExec</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 <span class="w">    </span><span class="n">cudaDeviceSynchronize</span><span class="p">();</span>
@@ -933,7 +922,7 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>IF 节点还可以有一个可选的第二主体图，如果条件值为零，则在执行节点时执行一次。</p>
+<p>IF 节点还可以包含一个可选的第二主体图；如果执行该节点时条件值为零，则该主体图会执行一次。</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">graphSetup</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">cudaGraph_t</span><span class="w"> </span><span class="n">graph</span><span class="p">;</span>
 <span class="w">    </span><span class="n">cudaGraphExec_t</span><span class="w"> </span><span class="n">graphExec</span><span class="p">;</span>
@@ -941,14 +930,14 @@
 <span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">kernelArgs</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
 <span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 
-<span class="w">    </span><span class="c1">// 创建图表</span>
+<span class="w">    </span><span class="c1">// 创建图</span>
 <span class="w">    </span><span class="n">cudaGraphCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 
-<span class="w">    </span><span class="c1">// 创建条件句柄；由于未提供默认值，因此在每个图形执行开始时条件值未定义</span>
+<span class="w">    </span><span class="c1">// 创建条件句柄；由于未提供默认值，因此每次图执行开始时条件值未定义</span>
 <span class="w">    </span><span class="n">cudaGraphConditionalHandle</span><span class="w"> </span><span class="n">handle</span><span class="p">;</span>
 <span class="w">    </span><span class="n">cudaGraphConditionalHandleCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">);</span>
 
-<span class="w">    </span><span class="c1">// 使用条件条件上游的内核来设置句柄值</span>
+<span class="w">    </span><span class="c1">// 使用条件节点上游的内核来设置句柄值</span>
 <span class="w">    </span><span class="n">cudaGraphNodeParams</span><span class="w"> </span><span class="n">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">cudaGraphNodeTypeKernel</span><span class="w"> </span><span class="p">};</span>
 <span class="w">    </span><span class="n">params</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="n">func</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">setHandle</span><span class="p">;</span>
 <span class="w">    </span><span class="n">params</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="nb">gridDim</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="nb">gridDim</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="nb">gridDim</span><span class="p">.</span><span class="n">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
@@ -962,10 +951,10 @@
 <span class="w">    </span><span class="n">cudaGraphNodeParams</span><span class="w"> </span><span class="n">cParams</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">cudaGraphNodeTypeConditional</span><span class="w"> </span><span class="p">};</span>
 <span class="w">    </span><span class="n">cParams</span><span class="p">.</span><span class="n">conditional</span><span class="p">.</span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">handle</span><span class="p">;</span>
 <span class="w">    </span><span class="n">cParams</span><span class="p">.</span><span class="n">conditional</span><span class="p">.</span><span class="n">type</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">cudaGraphCondTypeIf</span><span class="p">;</span>
-<span class="w">    </span><span class="n">cParams</span><span class="p">.</span><span class="n">conditional</span><span class="p">.</span><span class="n">size</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="c1">// 身体图同时存在“if”和“else”</span>
+<span class="w">    </span><span class="n">cParams</span><span class="p">.</span><span class="n">conditional</span><span class="p">.</span><span class="n">size</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="c1">// 同时存在“if”和“else”主体图</span>
 <span class="w">    </span><span class="n">cudaGraphAddNode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">cParams</span><span class="p">);</span>
 
-<span class="w">    </span><span class="c1">// 获取条件节点的body图</span>
+<span class="w">    </span><span class="c1">// 获取条件节点的主体图</span>
 <span class="w">    </span><span class="n">cudaGraph_t</span><span class="w"> </span><span class="n">ifBodyGraph</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cParams</span><span class="p">.</span><span class="n">conditional</span><span class="p">.</span><span class="n">phGraph_out</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
 <span class="w">    </span><span class="n">cudaGraph_t</span><span class="w"> </span><span class="n">elseBodyGraph</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cParams</span><span class="p">.</span><span class="n">conditional</span><span class="p">.</span><span class="n">phGraph_out</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
 
@@ -975,7 +964,7 @@
 <span class="w">    </span><span class="p">...</span>
 <span class="w">    </span><span class="n">cudaGraphAddNode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="n">elseBodyGraph</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">params</span><span class="p">);</span>
 
-<span class="w">    </span><span class="c1">// 实例化并启动图表</span>
+<span class="w">    </span><span class="c1">// 实例化并启动图</span>
 <span class="w">    </span><span class="n">cudaGraphInstantiate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">graphExec</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 <span class="w">    </span><span class="n">cudaGraphLaunch</span><span class="p">(</span><span class="n">graphExec</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 <span class="w">    </span><span class="n">cudaDeviceSynchronize</span><span class="p">();</span>
@@ -989,18 +978,14 @@
 </section>
 <section id="conditional-while-nodes">
 <span id="cuda-graphs-conditional-while-nodes"></span><h3><span class="section-number">4.2.4.4. </span>条件 WHILE 节点<a class="headerlink" href="cuda-graphs.html#conditional-while-nodes" title="跳转到此标题">#</a></h3>
-<p>只要条件非零，WHILE 节点的主体图就会被执行。条件将是
-在执行节点时以及主体图完成后进行评估。下图描述了
-一个 3 节点图，其中中间节点 B 是条件节点：</p>
+<p>只要条件非零，WHILE 节点的主体图就会执行。条件会在节点执行时求值，并在主体图完成后再次求值。下图描绘了一个 3 节点图，其中中间节点 B 是条件节点：</p>
 <figure class="align-default" id="id6">
 <img alt="../_images/conditional-while-node.png" class="image" src="../_images/conditional-while-node.png"/>
 <figcaption>
 <p><span class="caption-number">图25 </span><span class="caption-text">条件 WHILE 节点</span><a class="headerlink" href="cuda-graphs.html#id6" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
-<p>以下代码说明了如何创建包含 WHILE 条件节点的图。手柄
-是使用创建的 <em>cudaGraphCondAssignDefault</em> 以避免需要上游内核。的身体
-条件使用填充 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-graph-apis"><span class="std std-ref">图形API</span></a>.</p>
+<p>以下代码说明了如何创建包含 WHILE 条件节点的图。这里使用 <em>cudaGraphCondAssignDefault</em> 创建句柄，从而避免需要上游内核。条件主体使用 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-graph-apis"><span class="std std-ref">图 API</span></a> 填充。</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">loopKernel</span><span class="p">(</span><span class="n">cudaGraphConditionalHandle</span><span class="w"> </span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">dPtr</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">   </span><span class="c1">// 一旦 dPtr 为 0，则递减 dPtr 的值并将条件值设置为 0</span>
@@ -1019,7 +1004,7 @@
 <span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">dPtr</span><span class="p">;</span>
 <span class="w">    </span><span class="n">cudaMalloc</span><span class="p">((</span><span class="kt">void</span><span class="w"> </span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">dPtr</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
 
-<span class="w">    </span><span class="c1">// 创建图表</span>
+<span class="w">    </span><span class="c1">// 创建图</span>
 <span class="w">    </span><span class="n">cudaGraphCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 
 <span class="w">    </span><span class="c1">// 创建条件句柄，默认值为 1</span>
@@ -1033,7 +1018,7 @@
 <span class="w">    </span><span class="n">cParams</span><span class="p">.</span><span class="n">conditional</span><span class="p">.</span><span class="n">size</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 <span class="w">    </span><span class="n">cudaGraphAddNode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">cParams</span><span class="p">);</span>
 
-<span class="w">    </span><span class="c1">// 获取条件节点的body图</span>
+<span class="w">    </span><span class="c1">// 获取条件节点的主体图</span>
 <span class="w">    </span><span class="n">cudaGraph_t</span><span class="w"> </span><span class="n">bodyGraph</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cParams</span><span class="p">.</span><span class="n">conditional</span><span class="p">.</span><span class="n">phGraph_out</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
 
 <span class="w">    </span><span class="c1">// 填充条件节点的主体图</span>
@@ -1046,7 +1031,7 @@
 <span class="w">    </span><span class="n">kernelArgs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">dPtr</span><span class="p">;</span>
 <span class="w">    </span><span class="n">cudaGraphAddNode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="n">bodyGraph</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">params</span><span class="p">);</span>
 
-<span class="w">    </span><span class="c1">// 初始化设备内存、实例化并启动图表</span>
+<span class="w">    </span><span class="c1">// 初始化设备内存、实例化并启动图</span>
 <span class="w">    </span><span class="n">cudaMemset</span><span class="p">(</span><span class="n">dPtr</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="c1">// 将 dPtr 设置为 10；循环将运行直到 dPtr 为 0</span>
 <span class="w">    </span><span class="n">cudaGraphInstantiate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">graphExec</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 <span class="w">    </span><span class="n">cudaGraphLaunch</span><span class="p">(</span><span class="n">graphExec</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
@@ -1062,14 +1047,14 @@
 </section>
 <section id="conditional-switch-nodes">
 <span id="cuda-graphs-conditional-switch-nodes"></span><h3><span class="section-number">4.2.4.5. </span>条件 SWITCH 节点<a class="headerlink" href="cuda-graphs.html#conditional-switch-nodes" title="跳转到此标题">#</a></h3>
-<p>如果执行节点时条件等于n，则SWITCH节点的零索引第n个主体图将被执行一次。  下图描绘了一个 3 节点图，其中中间节点 B 是条件节点：</p>
+<p>如果执行 SWITCH 节点时条件等于 n，则从零开始计数的第 n 个主体图会执行一次。下图描绘了一个 3 节点图，其中中间节点 B 是条件节点：</p>
 <figure class="align-default" id="id7">
 <img alt="../_images/conditional-switch-node.png" class="image" src="../_images/conditional-switch-node.png"/>
 <figcaption>
 <p><span class="caption-number">图26 </span><span class="caption-text">条件 SWITCH 节点</span><a class="headerlink" href="cuda-graphs.html#id7" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
-<p>以下代码说明了如何创建包含 SWITCH 条件节点的图。条件的值是使用上游内核设置的。条件语句的主体使用以下方式填充 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-graph-apis"><span class="std std-ref">图形API</span></a>.</p>
+<p>以下代码说明了如何创建包含 SWITCH 条件节点的图。条件值由上游内核设置。条件主体使用 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-graph-apis"><span class="std std-ref">图 API</span></a> 填充。</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">setHandle</span><span class="p">(</span><span class="n">cudaGraphConditionalHandle</span><span class="w"> </span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">value</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">    </span><span class="p">...</span>
@@ -1085,14 +1070,14 @@
 <span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">kernelArgs</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
 <span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 
-<span class="w">    </span><span class="c1">// 创建图表</span>
+<span class="w">    </span><span class="c1">// 创建图</span>
 <span class="w">    </span><span class="n">cudaGraphCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 
-<span class="w">    </span><span class="c1">// 创建条件句柄；由于未提供默认值，因此在每个图形执行开始时条件值未定义</span>
+<span class="w">    </span><span class="c1">// 创建条件句柄；由于未提供默认值，因此每次图执行开始时条件值未定义</span>
 <span class="w">    </span><span class="n">cudaGraphConditionalHandle</span><span class="w"> </span><span class="n">handle</span><span class="p">;</span>
 <span class="w">    </span><span class="n">cudaGraphConditionalHandleCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">);</span>
 
-<span class="w">    </span><span class="c1">// 使用条件条件上游的内核来设置句柄值</span>
+<span class="w">    </span><span class="c1">// 使用条件节点上游的内核来设置句柄值</span>
 <span class="w">    </span><span class="n">cudaGraphNodeParams</span><span class="w"> </span><span class="n">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">cudaGraphNodeTypeKernel</span><span class="w"> </span><span class="p">};</span>
 <span class="w">    </span><span class="n">params</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="n">func</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">setHandle</span><span class="p">;</span>
 <span class="w">    </span><span class="n">params</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="nb">gridDim</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="nb">gridDim</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="nb">gridDim</span><span class="p">.</span><span class="n">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
@@ -1109,7 +1094,7 @@
 <span class="w">    </span><span class="n">cParams</span><span class="p">.</span><span class="n">conditional</span><span class="p">.</span><span class="n">size</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
 <span class="w">    </span><span class="n">cudaGraphAddNode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">cParams</span><span class="p">);</span>
 
-<span class="w">    </span><span class="c1">// 获取条件节点的body图</span>
+<span class="w">    </span><span class="c1">// 获取条件节点的主体图</span>
 <span class="w">    </span><span class="n">cudaGraph_t</span><span class="w"> </span><span class="o">*</span><span class="n">bodyGraphs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cParams</span><span class="p">.</span><span class="n">conditional</span><span class="p">.</span><span class="n">phGraph_out</span><span class="p">;</span>
 
 <span class="w">    </span><span class="c1">// 填充 SWITCH 条件节点的主体图</span>
@@ -1118,7 +1103,7 @@
 <span class="w">    </span><span class="p">...</span>
 <span class="w">    </span><span class="n">cudaGraphAddNode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="n">bodyGraphs</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">params</span><span class="p">);</span>
 
-<span class="w">    </span><span class="c1">// 实例化并启动图表</span>
+<span class="w">    </span><span class="c1">// 实例化并启动图</span>
 <span class="w">    </span><span class="n">cudaGraphInstantiate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">graphExec</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 <span class="w">    </span><span class="n">cudaGraphLaunch</span><span class="p">(</span><span class="n">graphExec</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 <span class="w">    </span><span class="n">cudaDeviceSynchronize</span><span class="p">();</span>
@@ -1135,48 +1120,48 @@
 <span id="cuda-graphs-graph-memory-nodes"></span><h2><span class="section-number">4.2.5. </span>图内存节点<a class="headerlink" href="cuda-graphs.html#graph-memory-nodes" title="跳转到此标题">#</a></h2>
 <section id="introduction">
 <span id="cuda-graphs-graph-memory-nodes-intro"></span><h3><span class="section-number">4.2.5.1. </span>引言<a class="headerlink" href="cuda-graphs.html#introduction" title="跳转到此标题">#</a></h3>
-<p>图内存节点允许图创建和拥有内存分配。图形内存节点具有 GPU 有序生命周期语义，它指示何时允许在设备上访问内存。这些 GPU 有序生命周期语义支持驱动程序管理的内存重用，并与流有序分配 API 的语义相匹配 <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code>，可以在创建图表时捕获。</p>
-<p>图分配在图的生命周期内具有固定的地址，包括重复实例化和启动。这使得内存可以被图中的其他操作直接引用，而无需更新图，即使 CUDA 更改了后备物理内存也是如此。在一个图中，其图有序生命周期不重叠的分配可以使用相同的底层物理内存。</p>
-<p>CUDA 可以重用相同的物理内存来跨多个图进行分配，根据 GPU 有序生命周期语义对虚拟地址映射进行别名。例如，当不同的图被启动到同一个流中时，CUDA实际上可以为相同的物理内存别名，以满足具有单图生命周期的分配的需求。</p>
+<p>图内存节点允许图创建并拥有内存分配。图内存节点具有 GPU 有序的生命周期语义，用于规定何时允许在设备上访问这段内存。这些 GPU 有序生命周期语义支持由驱动程序管理的内存重用，并且与流有序分配 API <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 和 <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code> 的语义相匹配；这些 API 也可以在创建图时被捕获。</p>
+<p>图分配在图的生命周期内具有固定地址，包括反复实例化和启动期间都是如此。这样，即使 CUDA 改变了背后的物理内存，图中的其他操作也可以直接引用这段内存，而无需更新图。在同一个图中，如果两个分配的图有序生命周期不重叠，它们可以使用相同的底层物理内存。</p>
+<p>CUDA 可以在多个图的分配之间重用同一块物理内存，并根据 GPU 有序生命周期语义对虚拟地址映射进行别名处理。例如，当不同图被启动到同一个流中时，CUDA 可以把同一块物理内存虚拟别名到不同地址，以满足只有单图生命周期的分配需求。</p>
 </section>
 <section id="api-fundamentals">
 <span id="cuda-graphs-graph-memory-node-api-fundamentals"></span><h3><span class="section-number">4.2.5.2. </span>API 基础知识<a class="headerlink" href="cuda-graphs.html#api-fundamentals" title="跳转到此标题">#</a></h3>
-<p>图内存节点是表示内存分配或自由操作的图节点。简而言之，分配内存的节点称为分配节点。同样，释放内存的节点称为空闲节点。由分配节点创建的分配称为图分配。 CUDA 在节点创建时为图形分配分配虚拟地址。虽然这些虚拟地址在分配节点的生命周期内是固定的，但分配内容在释放操作之后并不持久，并且可能会被引用不同分配的访问覆盖。</p>
-<p>每次图运行时，图分配都会被视为重新创建。图分配的生命周期与节点的生命周期不同，当 GPU 执行到达分配图节点时开始，并在发生以下情况之一时结束：</p>
+<p>图内存节点是表示内存分配或释放操作的图节点。为简洁起见，分配内存的节点称为分配节点，释放内存的节点称为释放节点。由分配节点创建的分配称为图分配。CUDA 会在创建节点时为图分配指定虚拟地址。虽然这些虚拟地址在分配节点的生命周期内固定不变，但分配的内容在释放操作之后并不会持久保留，并且可能被引用另一个分配的访问覆盖。</p>
+<p>每次图运行时，图分配都视为重新创建。图分配的生命周期不同于节点生命周期：它从 GPU 执行到达分配图节点时开始，并在发生以下情况之一时结束：</p>
 <ul class="simple">
-<li><p>GPU执行到达释放图节点</p></li>
-<li><p>GPU执行达到释放状态 <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync()</span></code> 流呼叫</p></li>
-<li><p>立即释放呼叫 <code class="docutils literal notranslate"><span class="pre">cudaFree()</span></code></p></li>
+<li><p>GPU 执行到达释放图节点；</p></li>
+<li><p>GPU 执行到达执行释放的 <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync()</span></code> 流调用；</p></li>
+<li><p>调用 <code class="docutils literal notranslate"><span class="pre">cudaFree()</span></code> 执行释放时立即结束。</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">注</p>
-<p>图销毁不会自动释放任何实时图分配的内存，即使它结束了分配节点的生命周期。随后必须在另一个图中释放该分配，或者使用 <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync()</span></code><code class="docutils literal notranslate"><span class="pre">/cudaFree()</span></code>.</p>
+<p>即使销毁图会结束分配节点的生命周期，也不会自动释放任何仍然存活的图分配内存。随后必须在另一个图中释放该分配，或者使用 <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync()</span></code>/<code class="docutils literal notranslate"><span class="pre">cudaFree()</span></code> 释放。</p>
 </div>
-<p>就像其他的一样 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-graph-structure"><span class="std std-ref">graph-structure</span></a>，图内存节点在图中按依赖边排序。程序必须保证访问图内存的操作：</p>
+<p>与其他<a class="reference internal" href="cuda-graphs.html#cuda-graphs-graph-structure"><span class="std std-ref">图结构</span></a>一样，图内存节点在图中通过依赖边排序。程序必须保证访问图内存的操作：</p>
 <ul class="simple">
-<li><p>在分配节点之后排序</p></li>
-<li><p>在释放内存的操作之前命令</p></li>
+<li><p>排序在分配节点之后；</p></li>
+<li><p>排序在释放该内存的操作之前。</p></li>
 </ul>
-<p>图形分配生命周期通常根据 GPU 执行（而不是 API 调用）开始和结束。 GPU 排序是工作在 GPU 上运行的顺序，而不是工作排队或描述的顺序。因此，图分配被视为“GPU 有序”。</p>
+<p>图分配生命周期通常根据 GPU 执行开始和结束，而不是根据 API 调用开始和结束。GPU 顺序指的是工作在 GPU 上实际运行的顺序，而不是工作入队或被描述的顺序。因此，图分配被视为“GPU 有序”。</p>
 <section id="graph-node-apis">
 <span id="cuda-graphs-graph-node-apis"></span><h4><span class="section-number">4.2.5.2.1. </span>图节点 API<a class="headerlink" href="cuda-graphs.html#graph-node-apis" title="跳转到此标题">#</a></h4>
-<p>图内存节点可以使用节点创建 API 显式创建， <code class="docutils literal notranslate"><span class="pre">cudaGraphAddNode</span></code>。添加cudaGraphNodeTypeMemAlloc节点时分配的地址返回给用户 <code class="docutils literal notranslate"><span class="pre">alloc::dptr</span></code> 过去的领域 <code class="docutils literal notranslate"><span class="pre">cudaGraphNodeParams</span></code> 结构。分配图中使用图分配的所有操作必须在分配节点之后排序。类似地，在使用完图中的分配之后，必须对任何空闲节点进行排序。自由节点是使用创建的 <code class="docutils literal notranslate"><span class="pre">cudaGraphAddNode</span></code> 以及 cudaGraphNodeTypeMemFree 的节点类型。</p>
-<p>下图中，有一个包含分配节点和空闲节点的示例图。内核节点 <strong>a</strong>, <strong>b</strong>, 和 <strong>c</strong> 被排序在分配节点之后和空闲节点之前，以便内核可以访问分配。内核节点 <strong>e</strong> 没有在 alloc 节点之后排序，因此无法安全地访问内存。内核节点 <strong>d</strong> 没有在空闲节点之前排序，因此它无法安全地访问内存。</p>
+<p>可以使用节点创建 API <code class="docutils literal notranslate"><span class="pre">cudaGraphAddNode</span></code> 显式创建图内存节点。添加 <code class="docutils literal notranslate"><span class="pre">cudaGraphNodeTypeMemAlloc</span></code> 节点时分配的地址，会通过传入的 <code class="docutils literal notranslate"><span class="pre">cudaGraphNodeParams</span></code> 结构体中的 <code class="docutils literal notranslate"><span class="pre">alloc::dptr</span></code> 字段返回给用户。分配图中所有使用图分配的操作都必须排序在分配节点之后。类似地，所有释放节点都必须排序在图内该分配的所有使用之后。释放节点同样使用 <code class="docutils literal notranslate"><span class="pre">cudaGraphAddNode</span></code> 创建，节点类型为 <code class="docutils literal notranslate"><span class="pre">cudaGraphNodeTypeMemFree</span></code>。</p>
+<p>下图给出了一个包含分配节点和释放节点的示例图。内核节点 <strong>a</strong>、<strong>b</strong> 和 <strong>c</strong> 排序在分配节点之后、释放节点之前，因此这些内核可以访问该分配。内核节点 <strong>e</strong> 未排序在分配节点之后，因此不能安全访问该内存。内核节点 <strong>d</strong> 未排序在释放节点之前，因此也不能安全访问该内存。</p>
 <figure class="align-default" id="id8">
 <img alt="内核节点" src="../_images/kernel-nodes.png"/>
 <figcaption>
 <p><span class="caption-number">图27 </span><span class="caption-text">内核节点</span><a class="headerlink" href="cuda-graphs.html#id8" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
-<p>以下代码片段建立了该图中的图表：</p>
-<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// 创建图表 - 它一开始是空的</span>
+<p>以下代码片段建立了图中所示的图：</p>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// 创建图，它一开始为空</span>
 <span class="n">cudaGraphCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 
-<span class="c1">// 基本分配的参数</span>
+<span class="c1">// 分配的基本参数</span>
 <span class="n">cudaGraphNodeParams</span><span class="w"> </span><span class="n">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">cudaGraphNodeTypeMemAlloc</span><span class="w"> </span><span class="p">};</span>
 <span class="n">params</span><span class="p">.</span><span class="n">alloc</span><span class="p">.</span><span class="n">poolProps</span><span class="p">.</span><span class="n">allocType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaMemAllocationTypePinned</span><span class="p">;</span>
 <span class="n">params</span><span class="p">.</span><span class="n">alloc</span><span class="p">.</span><span class="n">poolProps</span><span class="p">.</span><span class="n">location</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaMemLocationTypeDevice</span><span class="p">;</span>
-<span class="c1">// 指定设备0为常驻设备</span>
+<span class="c1">// 指定设备 0 为驻留设备</span>
 <span class="n">params</span><span class="p">.</span><span class="n">alloc</span><span class="p">.</span><span class="n">poolProps</span><span class="p">.</span><span class="n">location</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="n">params</span><span class="p">.</span><span class="n">alloc</span><span class="p">.</span><span class="n">bytesize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">;</span>
 
@@ -1192,13 +1177,13 @@
 <span class="n">cudaGraphAddNode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">nodeParams</span><span class="p">);</span>
 <span class="n">cudaGraphAddNode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">nodeParams</span><span class="p">);</span>
 <span class="n">cudaGraphNode_t</span><span class="w"> </span><span class="n">dependencies</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
-<span class="c1">// 内核节点 b 和 c 正在使用图分配，因此释放节点必须依赖于它们。  由于节点b对节点a的依赖建立了间接依赖，因此空闲节点不需要显式依赖节点a。</span>
+<span class="c1">// 内核节点 b 和 c 正在使用图分配，因此释放节点必须依赖于它们。由于节点 b 对节点 a 的依赖已经建立了间接依赖，释放节点不需要显式依赖节点 a。</span>
 <span class="n">dependencies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b</span><span class="p">;</span>
 <span class="n">dependencies</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">c</span><span class="p">;</span>
 <span class="n">cudaGraphNodeParams</span><span class="w"> </span><span class="n">freeNodeParams</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">cudaGraphNodeTypeMemFree</span><span class="w"> </span><span class="p">};</span>
 <span class="n">freeNodeParams</span><span class="p">.</span><span class="n">free</span><span class="p">.</span><span class="n">dptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="n">alloc</span><span class="p">.</span><span class="n">dptr</span><span class="p">;</span>
 <span class="n">cudaGraphAddNode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">freeNode</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="n">dependencies</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">freeNodeParams</span><span class="p">);</span>
-<span class="c1">// 空闲节点不依赖于内核节点 d，因此它不能访问已释放的图分配。</span>
+<span class="c1">// 释放节点不依赖于内核节点 d，因此 d 不能访问已释放的图分配。</span>
 <span class="n">cudaGraphAddNode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">nodeParams</span><span class="p">);</span>
 
 <span class="c1">// 节点 e 不依赖于分配节点，因此它不能访问分配。  即使 freeNode 依赖于内核节点 e，情况也是如此。</span>
@@ -1208,24 +1193,24 @@
 </section>
 <section id="cuda-graphs-graph-memory-nodes-stream-capture">
 <span id="id3"></span><h4><span class="section-number">4.2.5.2.2. </span>流捕获<a class="headerlink" href="cuda-graphs.html#cuda-graphs-graph-memory-nodes-stream-capture" title="跳转到此标题">#</a></h4>
-<p>可以通过捕获对应的流有序分配和空闲调用来创建图内存节点 <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code>。在这种情况下，捕获的分配 API 返回的虚拟地址可以由图中的其他操作使用。由于流排序依赖项将被捕获到图中，因此流排序分配 API 的排序要求保证图内存节点将根据捕获的流操作进行正确排序（对于正确编写的流代码）。</p>
-<p>忽略内核节点 <strong>d</strong> 和 <strong>e</strong>为清楚起见，以下代码片段展示了如何使用流捕获来创建上图的图形：</p>
+<p>可以通过捕获对应的流有序分配和释放调用 <code class="docutils literal notranslate"><span class="pre">cudaMallocAsync</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code> 来创建图内存节点。在这种情况下，捕获到的分配 API 返回的虚拟地址可以由图内其他操作使用。由于流有序依赖关系会被捕获到图中，因此对于正确编写的流代码，流有序分配 API 的排序要求会保证图内存节点相对于捕获到的流操作正确排序。</p>
+<p>为清楚起见，忽略内核节点 <strong>d</strong> 和 <strong>e</strong>，以下代码片段展示了如何使用流捕获创建上一张图中的图：</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="n">cudaMallocAsync</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dptr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">stream1</span><span class="p">);</span>
 <span class="n">kernel_A</span><span class="o">&lt;&lt;&lt;</span><span class="w"> </span><span class="p">...,</span><span class="w"> </span><span class="n">stream1</span><span class="w"> </span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">dptr</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
 
-<span class="c1">// 分叉到stream2</span>
+<span class="c1">// 分叉到 stream2</span>
 <span class="n">cudaEventRecord</span><span class="p">(</span><span class="n">event1</span><span class="p">,</span><span class="w"> </span><span class="n">stream1</span><span class="p">);</span>
 <span class="n">cudaStreamWaitEvent</span><span class="p">(</span><span class="n">stream2</span><span class="p">,</span><span class="w"> </span><span class="n">event1</span><span class="p">);</span>
 
 <span class="n">kernel_B</span><span class="o">&lt;&lt;&lt;</span><span class="w"> </span><span class="p">...,</span><span class="w"> </span><span class="n">stream1</span><span class="w"> </span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">dptr</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
-<span class="c1">// 事件依赖关系转换为图依赖关系，因此捕获内核 C 创建的内核节点将依赖于捕获 cudaMallocAsync 调用创建的分配节点。</span>
+<span class="c1">// 事件依赖关系会转换为图依赖关系，因此捕获 kernel_C 创建的内核节点将依赖捕获 cudaMallocAsync 调用创建的分配节点。</span>
 <span class="n">kernel_C</span><span class="o">&lt;&lt;&lt;</span><span class="w"> </span><span class="p">...,</span><span class="w"> </span><span class="n">stream2</span><span class="w"> </span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">dptr</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
 
-<span class="c1">// 将 Stream2 连接回原始流 (stream1)</span>
+<span class="c1">// 将 stream2 连接回原始流 (stream1)</span>
 <span class="n">cudaEventRecord</span><span class="p">(</span><span class="n">event2</span><span class="p">,</span><span class="w"> </span><span class="n">stream2</span><span class="p">);</span>
 <span class="n">cudaStreamWaitEvent</span><span class="p">(</span><span class="n">stream1</span><span class="p">,</span><span class="w"> </span><span class="n">event2</span><span class="p">);</span>
 
-<span class="c1">// 空闲取决于所有访问内存的工作。</span>
+<span class="c1">// 释放操作依赖于所有访问该内存的工作。</span>
 <span class="n">cudaFreeAsync</span><span class="p">(</span><span class="n">dptr</span><span class="p">,</span><span class="w"> </span><span class="n">stream1</span><span class="p">);</span>
 
 <span class="c1">// 结束原始流中的捕获</span>
@@ -1235,12 +1220,12 @@
 </section>
 <section id="accessing-and-freeing-graph-memory-outside-of-the-allocating-graph">
 <span id="cuda-graphs-graph-memory-accessing-and-freeing"></span><h4><span class="section-number">4.2.5.2.3. </span>在分配图之外访问和释放图内存<a class="headerlink" href="cuda-graphs.html#accessing-and-freeing-graph-memory-outside-of-the-allocating-graph" title="跳转到此标题">#</a></h4>
-<p>图分配不必由分配图释放。当图未释放分配时，该分配将在图的执行之外持续存在，并且可以由后续 CUDA 操作访问。这些分配可以在另一个图中访问或直接使用流操作来访问，只要访问操作在分配之后通过 CUDA 事件和其他流排序机制进行排序即可。随后可以通过定期调用来释放分配 <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code>，或者通过启动另一个具有相应空闲节点的图，或者随后启动分配图（如果它是用 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-graph-memory-nodes-cudagraphinstantiateflagautofreeonlaunch"><span class="std std-ref">graph-memory-nodes-cudagraphinstantiateflagautofreeonlaunch</span></a> 旗）。释放内存后访问内存是非法的 - 必须在使用图依赖项、CUDA 事件和其他流排序机制访问内存的所有操作之后对释放操作进行排序。</p>
+<p>图分配不一定要由创建该分配的图释放。当某个图没有释放其分配时，该分配会在图执行结束后继续存在，并可由后续 CUDA 操作访问。只要访问操作通过 CUDA 事件和其他流排序机制排序在分配之后，就可以在另一个图中访问这些分配，也可以直接通过流操作访问。随后，可以通过常规 <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code>、<code class="docutils literal notranslate"><span class="pre">cudaFreeAsync</span></code> 调用释放该分配，也可以启动另一个具有相应释放节点的图来释放，或再次启动分配图来释放（如果该图使用 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-graph-memory-nodes-cudagraphinstantiateflagautofreeonlaunch"><span class="std std-ref">cudaGraphInstantiateFlagAutoFreeOnLaunch</span></a> 标志实例化）。内存释放后再访问是非法的：释放操作必须通过图依赖关系、CUDA 事件和其他流排序机制，排序在所有访问该内存的操作之后。</p>
 <div class="admonition note">
 <p class="admonition-title">注</p>
-<p>由于图形分配可能共享底层物理内存，因此必须在所有设备操作完成后对释放操作进行排序。带外同步（例如计算内核内基于内存的同步）不足以实现内存写入和释放操作之间的排序。欲了解更多信息，请参阅 <a class="reference internal" href="virtual-memory-management.html#virtual-aliasing-support"><span class="std std-ref">虚拟别名支持</span></a> 有关一致性和连贯性的规则。</p>
+<p>由于图分配可能共享底层物理内存，释放操作必须排序在所有设备操作完成之后。带外同步（例如计算内核内基于内存的同步）不足以建立内存写入与释放操作之间的顺序。有关一致性和相干性规则，请参阅<a class="reference internal" href="virtual-memory-management.html#virtual-aliasing-support"><span class="std std-ref">虚拟别名支持</span></a>。</p>
 </div>
-<p>以下三个代码片段演示了如何访问分配图之外的图分配，并通过以下方式正确建立排序：使用单个流、使用流之间的事件以及使用烘焙到分配和释放图中的事件。</p>
+<p>以下三个代码片段演示了如何在分配图之外访问图分配，并分别通过单个流、流之间的事件，以及嵌入到分配图和释放图中的事件正确建立排序。</p>
 <p>首先，使用单个流建立排序：</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// 分配图的内容</span>
 <span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">dptr</span><span class="p">;</span>
@@ -1266,7 +1251,7 @@
 <span class="n">cudaGraphAddNode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">allocNode</span><span class="p">,</span><span class="w"> </span><span class="n">allocGraph</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">allocNodeParams</span><span class="p">);</span>
 <span class="n">dptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">allocNodeParams</span><span class="p">.</span><span class="n">alloc</span><span class="p">.</span><span class="n">dptr</span><span class="p">;</span>
 
-<span class="c1">// 消耗/释放图的内容</span>
+<span class="c1">// 消费/释放图的内容</span>
 <span class="n">kernelNodeParams</span><span class="p">.</span><span class="n">kernel</span><span class="p">.</span><span class="n">kernelParams</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">allocNodeParams</span><span class="p">.</span><span class="n">alloc</span><span class="p">.</span><span class="n">dptr</span><span class="p">;</span>
 <span class="n">cudaGraphAddNode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">freeNode</span><span class="p">,</span><span class="w"> </span><span class="n">freeGraph</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">dptr</span><span class="p">);</span>
 
@@ -1275,7 +1260,7 @@
 
 <span class="n">cudaGraphLaunch</span><span class="p">(</span><span class="n">allocGraphExec</span><span class="p">,</span><span class="w"> </span><span class="n">allocStream</span><span class="p">);</span>
 
-<span class="c1">// 建立stream2对分配节点的依赖关系</span>
+<span class="c1">// 建立 stream2 对分配节点的依赖关系</span>
 <span class="c1">// 注意：依赖关系也可以通过流同步操作建立</span>
 <span class="n">cudaEventRecord</span><span class="p">(</span><span class="n">allocEvent</span><span class="p">,</span><span class="w"> </span><span class="n">allocStream</span><span class="p">);</span>
 <span class="n">cudaStreamWaitEvent</span><span class="p">(</span><span class="n">stream2</span><span class="p">,</span><span class="w"> </span><span class="n">allocEvent</span><span class="p">);</span>
@@ -1306,7 +1291,7 @@
 <span class="n">cudaGraphAddNode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">recordNode</span><span class="p">,</span><span class="w"> </span><span class="n">allocGraph</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">allocNode</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">allocEventNodeParams</span><span class="p">);</span>
 <span class="n">cudaGraphInstantiate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">allocGraphExec</span><span class="p">,</span><span class="w"> </span><span class="n">allocGraph</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 
-<span class="c1">// 带有事件等待节点的消耗/释放图的内容</span>
+<span class="c1">// 带有事件等待节点的消费/释放图的内容</span>
 <span class="n">cudaGraphNodeParams</span><span class="w"> </span><span class="n">streamWaitEventNodeParams</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">cudaGraphNodeTypeEventWait</span><span class="w"> </span><span class="p">};</span>
 <span class="n">streamWaitEventNodeParams</span><span class="p">.</span><span class="n">eventWait</span><span class="p">.</span><span class="n">event</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">streamUseDoneEvent</span><span class="p">;</span>
 <span class="n">cudaGraphAddNode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">streamUseDoneEventNode</span><span class="p">,</span><span class="w"> </span><span class="n">waitAndFreeGraph</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">streamWaitEventNodeParams</span><span class="p">);</span>
@@ -1320,8 +1305,8 @@
 <span class="c1">// allocReadyEventNode 提供了在消费图中使用的 alloc 节点的排序。</span>
 <span class="n">cudaGraphAddNode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">kernelNode</span><span class="p">,</span><span class="w"> </span><span class="n">waitAndFreeGraph</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">allocReadyEventNode</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">kernelNodeParams</span><span class="p">);</span>
 
-<span class="c1">// 免费节点必须在外部和内部用户之后订购。</span>
-<span class="c1">// 因此，该节点必须同时依赖于 kernelNode 和streamUseDoneEventNode。</span>
+<span class="c1">// 释放节点必须排序在外部和内部使用者之后。</span>
+<span class="c1">// 因此，该节点必须同时依赖 kernelNode 和 streamUseDoneEventNode。</span>
 <span class="n">dependencies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kernelNode</span><span class="p">;</span>
 <span class="n">dependencies</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">streamUseDoneEventNode</span><span class="p">;</span>
 
@@ -1332,24 +1317,23 @@
 
 <span class="n">cudaGraphLaunch</span><span class="p">(</span><span class="n">allocGraphExec</span><span class="p">,</span><span class="w"> </span><span class="n">allocStream</span><span class="p">);</span>
 
-<span class="c1">// 建立stream2对事件节点的依赖关系满足排序要求</span>
+<span class="c1">// 建立 stream2 对事件节点的依赖关系，以满足排序要求</span>
 <span class="n">cudaStreamWaitEvent</span><span class="p">(</span><span class="n">stream2</span><span class="p">,</span><span class="w"> </span><span class="n">allocEvent</span><span class="p">);</span>
 <span class="n">kernel</span><span class="o">&lt;&lt;&lt;</span><span class="w"> </span><span class="p">...,</span><span class="w"> </span><span class="n">stream2</span><span class="w"> </span><span class="o">&gt;&gt;&gt;</span><span class="w"> </span><span class="p">(</span><span class="n">dptr</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
 <span class="n">cudaStreamRecordEvent</span><span class="p">(</span><span class="n">streamUseDoneEvent</span><span class="p">,</span><span class="w"> </span><span class="n">stream2</span><span class="p">);</span>
 
-<span class="c1">// waitAndFreeGraphExec 中的事件等待节点建立对“readyForFreeEvent”的依赖关系，这是为了防止流二中运行的内核访问执行顺序中空闲节点之后的分配。</span>
+<span class="c1">// waitAndFreeGraphExec 中的事件等待节点建立对“readyForFreeEvent”的依赖关系，防止 stream2 中运行的内核在执行顺序上晚于释放节点时仍访问该分配。</span>
 <span class="n">cudaGraphLaunch</span><span class="p">(</span><span class="n">waitAndFreeGraphExec</span><span class="p">,</span><span class="w"> </span><span class="n">stream3</span><span class="p">);</span>
 </pre></div>
 </div>
 </section>
 <section id="cudagraphinstantiateflagautofreeonlaunch">
 <span id="cuda-graphs-graph-memory-nodes-cudagraphinstantiateflagautofreeonlaunch"></span><h4><span class="section-number">4.2.5.2.4. </span>cudaGraphInstantiateFlagAutoFreeOnLaunch<a class="headerlink" href="cuda-graphs.html#cudagraphinstantiateflagautofreeonlaunch" title="跳转到此标题">#</a></h4>
-<p>正常情况下，如果图有未释放的内存分配，CUDA 将阻止重新启动图，因为同一地址的多次分配会泄漏内存。实例化一个图 <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiateFlagAutoFreeOnLaunch</span></code> 标志允许在仍有未释放的分配时重新启动图。在这种情况下，启动会自动插入未释放分配的异步释放。</p>
-<p>启动时自动释放对于单生产者多消费者算法非常有用。在每次迭代中，生产者图都会创建多个分配，并且根据运行时条件，不同的消费者集合会访问这些分配。这种类型的变量执行顺序意味着消费者无法释放分配，因为后续消费者可能需要访问。启动时自动释放意味着启动循环不需要跟踪生产者的分配 - 相反，该信息与生产者的创建和销毁逻辑保持隔离。一般来说，启动时自动释放简化了算法，否则该算法需要在每次重新启动之前释放图拥有的所有分配。</p>
+<p>正常情况下，如果图中还有未释放的内存分配，CUDA 会阻止重新启动该图，因为在同一地址进行多次分配会造成内存泄漏。使用 <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiateFlagAutoFreeOnLaunch</span></code> 标志实例化图，可以允许图在仍有未释放分配时重新启动。在这种情况下，启动会自动插入对未释放分配的异步释放。</p>
+<p>启动时自动释放对单生产者、多消费者算法很有用。在每次迭代中，生产者图创建若干分配；根据运行时条件，不同的消费者集合会访问这些分配。这类可变执行序列意味着消费者不能释放分配，因为后续消费者可能仍需要访问。启动时自动释放让启动循环不必跟踪生产者的分配；这些信息可以只保留在生产者的创建和销毁逻辑中。总体而言，启动时自动释放可以简化原本必须在每次重新启动前释放图所拥有全部分配的算法。</p>
 <div class="admonition note">
 <p class="admonition-title">注</p>
-<p><code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiateFlagAutoFreeOnLaunch</span></code> 标志不会改变图破坏的行为。应用程序必须显式释放未释放的内存，以避免内存泄漏，即使对于使用该标志实例化的图形也是如此。
-下面的代码展示了使用 <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiateFlagAutoFreeOnLaunch</span></code> 简化单生产者/多消费者算法：</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiateFlagAutoFreeOnLaunch</span></code> 标志不会改变图销毁的行为。即使图使用该标志实例化，应用程序仍必须显式释放未释放的内存，以避免内存泄漏。下面的代码展示了如何使用 <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiateFlagAutoFreeOnLaunch</span></code> 简化单生产者/多消费者算法：</p>
 </div>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// 创建生产者图，分配内存并用数据填充它</span>
 <span class="n">cudaStreamBeginCapture</span><span class="p">(</span><span class="n">cudaStreamPerThread</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamCaptureModeGlobal</span><span class="p">);</span>
@@ -1399,13 +1383,13 @@
 </section>
 <section id="memory-nodes-in-child-graphs">
 <span id="cuda-graphs-graph-memory-nodes-memory-nodes-in-child-graphs"></span><h4><span class="section-number">4.2.5.2.5. </span>子图中的内存节点<a class="headerlink" href="cuda-graphs.html#memory-nodes-in-child-graphs" title="跳转到此标题">#</a></h4>
-<p>CUDA 12.9 引入了将子图所有权移至父图的功能。移动到父级的子图允许包含内存分配和空闲节点。这允许在将其添加到父图中之前独立构造包含分配或空闲节点的子图。</p>
-<p>以下限制适用于移动后的子图：</p>
+<p>CUDA 12.9 引入了把子图所有权移动到父图的能力。移动到父图之后，子图可以包含内存分配节点和释放节点。这样，包含分配或释放节点的子图就可以在加入父图之前独立构建。</p>
+<p>子图被移动之后，适用以下限制：</p>
 <ul class="simple">
-<li><p>无法独立实例化或销毁。</p></li>
-<li><p>无法添加为单独父图的子图。</p></li>
-<li><p>不能用作 cuGraphExecUpdate 的参数。</p></li>
-<li><p>无法分配额外的内存或添加空闲节点。</p></li>
+<li><p>不能独立实例化或销毁。</p></li>
+<li><p>不能再作为子图添加到另一个父图中。</p></li>
+<li><p>不能用作 <code class="docutils literal notranslate"><span class="pre">cuGraphExecUpdate</span></code> 的参数。</p></li>
+<li><p>不能再添加额外的内存分配节点或释放节点。</p></li>
 </ul>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// 创建子图</span>
 <span class="n">cudaGraphCreate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">child</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
@@ -1414,7 +1398,7 @@
 <span class="n">cudaGraphNodeParams</span><span class="w"> </span><span class="n">allocNodeParams</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">cudaGraphNodeTypeMemAlloc</span><span class="w"> </span><span class="p">};</span>
 <span class="n">allocNodeParams</span><span class="p">.</span><span class="n">alloc</span><span class="p">.</span><span class="n">poolProps</span><span class="p">.</span><span class="n">allocType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaMemAllocationTypePinned</span><span class="p">;</span>
 <span class="n">allocNodeParams</span><span class="p">.</span><span class="n">alloc</span><span class="p">.</span><span class="n">poolProps</span><span class="p">.</span><span class="n">location</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaMemLocationTypeDevice</span><span class="p">;</span>
-<span class="c1">// 指定设备0为常驻设备</span>
+<span class="c1">// 指定设备 0 为驻留设备</span>
 <span class="n">allocNodeParams</span><span class="p">.</span><span class="n">alloc</span><span class="p">.</span><span class="n">poolProps</span><span class="p">.</span><span class="n">location</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="n">allocNodeParams</span><span class="p">.</span><span class="n">alloc</span><span class="p">.</span><span class="n">bytesize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">;</span>
 
@@ -1440,19 +1424,19 @@
 <span id="cuda-graphs-graph-memory-nodes-optimized-memory-reuse"></span><h3><span class="section-number">4.2.5.3. </span>优化内存重用<a class="headerlink" href="cuda-graphs.html#optimized-memory-reuse" title="跳转到此标题">#</a></h3>
 <p>CUDA 以两种方式重用内存：</p>
 <ul class="simple">
-<li><p>图中的虚拟和物理内存重用基于虚拟地址分配，就像在流排序分配器中一样。</p></li>
-<li><p>图之间的物理内存重用是通过虚拟别名完成的：不同的图可以将相同的物理内存映射到其唯一的虚拟地址。</p></li>
+<li><p>图内的虚拟内存和物理内存重用基于虚拟地址分配，这与流有序分配器中的行为类似。</p></li>
+<li><p>图之间的物理内存重用通过虚拟别名完成：不同图可以把同一块物理内存映射到各自唯一的虚拟地址。</p></li>
 </ul>
 <section id="address-reuse-within-a-graph">
-<span id="cuda-graphs-graph-memory-nodes-address-reuse-within-a-graph"></span><h4><span class="section-number">4.2.5.3.1. </span>解决图表内的重用问题<a class="headerlink" href="cuda-graphs.html#address-reuse-within-a-graph" title="跳转到此标题">#</a></h4>
-<p>CUDA 可以通过将相同的虚拟地址范围分配给生命周期不重叠的不同分配来重用图中的内存。由于虚拟地址可以重复使用，因此不能保证指向具有不相交生命周期的不同分配的指针是唯一的。</p>
-<p>下图显示了添加一个新的分配节点 (2)，该节点可以重用从属节点 (1) 释放的地址。</p>
+<span id="cuda-graphs-graph-memory-nodes-address-reuse-within-a-graph"></span><h4><span class="section-number">4.2.5.3.1. </span>图内地址重用<a class="headerlink" href="cuda-graphs.html#address-reuse-within-a-graph" title="跳转到此标题">#</a></h4>
+<p>CUDA 可以通过把相同的虚拟地址范围分配给生命周期不重叠的不同分配，在图内重用内存。由于虚拟地址可以重用，指向不同分配的指针即使生命周期互不重叠，也不保证一定唯一。</p>
+<p>下图展示了添加一个新的分配节点 (2)，该节点可以重用依赖节点 (1) 释放的地址。</p>
 <figure class="align-default" id="id9">
 <img alt="添加新的分配节点 2" src="../_images/new-alloc-node.png"/>
 <figcaption>
 <p><span class="caption-number">图28 </span><span class="caption-text">添加新的分配节点 2</span><a class="headerlink" href="cuda-graphs.html#id9" title="跳转到此标题">#</a></p>
 <div class="legend">
-<p>下图显示了添加新的分配节点（4）。新的分配节点不依赖于空闲节点 (2)，因此无法重用关联分配节点 (2) 的地址。如果分配节点 (2) 使用了空闲节点 (1) 释放的地址，则新分配节点 3 将需要新地址。</p>
+<p>下图展示了添加新的分配节点 (4)。新的分配节点不依赖释放节点 (2)，因此不能重用关联分配节点 (2) 的地址。如果分配节点 (2) 使用了释放节点 (1) 释放的地址，则新的分配节点 3 将需要新地址。</p>
 </div>
 </figcaption>
 </figure>
@@ -1465,9 +1449,9 @@
 </section>
 <section id="physical-memory-management-and-sharing">
 <span id="cuda-graphs-graph-memory-nodes-physical-memory-mgmt"></span><h4><span class="section-number">4.2.5.3.2. </span>物理内存管理与共享<a class="headerlink" href="cuda-graphs.html#physical-memory-management-and-sharing" title="跳转到此标题">#</a></h4>
-<p>CUDA负责在GPU顺序到达分配节点之前将物理内存映射到虚拟地址。作为内存占用和映射开销的优化，如果多个图不同时运行，则它们可以使用相同的物理内存进行不同的分配；但是，如果物理页同时绑定到多个执行图，或者绑定到未释放的图分配，则无法重用物理页。</p>
-<p>CUDA 可以在图实例化、启动或执行期间随时更新物理内存映射。 CUDA 还可能在未来的图形启动之间引入同步，以防止实时图形分配引用相同的物理内存。对于任何分配-自由-分配模式，如果程序访问分配生命周期之外的指针，则错误访问可能会默默地读取或写入另一个分配拥有的实时数据（即使分配的虚拟地址是唯一的）。使用计算清理工具可以捕获此错误。</p>
-<p>下图显示了在同一流中按顺序启动的图。在此示例中，每个图都释放其分配的所有内存。由于同一流中的图形永远不会同时运行，因此 CUDA 可以而且应该使用相同的物理内存来满足所有分配。</p>
+<p>CUDA 负责在 GPU 顺序到达分配节点之前，把物理内存映射到虚拟地址。作为对内存占用和映射开销的优化，如果多个图不会同时运行，它们可以使用相同的物理内存来满足不同分配；但是，如果物理页同时绑定到多个正在执行的图，或绑定到尚未释放的图分配，就不能重用这些物理页。</p>
+<p>CUDA 可以在图实例化、启动或执行期间随时更新物理内存映射。CUDA 也可能在未来的图启动之间引入同步，以防止仍然存活的图分配引用同一块物理内存。和任何“分配-释放-分配”模式一样，如果程序在某个分配的生命周期之外访问指针，错误访问可能会悄悄读取或写入另一个分配拥有的存活数据，即使该分配的虚拟地址是唯一的。使用 Compute Sanitizer 工具可以捕获这类错误。</p>
+<p>下图展示了在同一流中顺序启动的图。在此示例中，每个图都会释放自己分配的所有内存。由于同一流中的图不会并发运行，CUDA 可以，也应该，使用同一块物理内存来满足所有分配。</p>
 <figure class="align-default" id="id11">
 <img alt="顺序启动图" src="../_images/sequentially-launched-graphs.png"/>
 <figcaption>
@@ -1478,35 +1462,35 @@
 </section>
 <section id="performance-considerations">
 <span id="cuda-graphs-graph-memory-nodes-performance-considerations"></span><h3><span class="section-number">4.2.5.4. </span>性能考虑因素<a class="headerlink" href="cuda-graphs.html#performance-considerations" title="跳转到此标题">#</a></h3>
-<p>当多个图启动到同一个流中时，CUDA 会尝试为它们分配相同的物理内存，因为这些图的执行不能重叠。作为优化，图的物理映射在启动之间保留，以避免重新映射的成本。如果稍后启动其中一个图，使其执行可能与其他图重叠（例如，如果将其启动到不同的流中），则 CUDA 必须执行一些重新映射，因为并发图需要不同的内存以避免数据损坏。</p>
-<p>一般来说，CUDA 中图形内存的重新映射可能是由以下操作引起的：</p>
+<p>当多个图启动到同一个流中时，CUDA 会尝试为它们分配相同的物理内存，因为这些图的执行不会重叠。作为一种优化，图的物理映射会在多次启动之间保留，以避免重新映射成本。如果稍后某个图以可能与其他图重叠的方式启动（例如启动到不同流中），CUDA 就必须执行一些重新映射，因为并发图需要不同的内存来避免数据损坏。</p>
+<p>一般来说，CUDA 中图内存发生重新映射，可能由以下操作引起：</p>
 <ul class="simple">
-<li><p>更改启动图表的流</p></li>
-<li><p>图内存池上的修剪操作，显式释放未使用的内存（在 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-graph-memory-nodes-physical-memory-footprint"><span class="std std-ref">graph-memory-nodes-physical-memory-footprint</span></a>)</p></li>
-<li><p>当另一个图的未释放分配映射到同一内存时重新启动图将导致在重新启动之前重新映射内存</p></li>
+<li><p>更改图启动到的流；</p></li>
+<li><p>对图内存池执行 trim 操作，显式释放未使用的内存（见<a class="reference internal" href="cuda-graphs.html#cuda-graphs-graph-memory-nodes-physical-memory-footprint"><span class="std std-ref">物理内存占用</span></a>）；</p></li>
+<li><p>当另一个图的未释放分配映射到同一块内存时，重新启动图会导致在重新启动前重新映射内存。</p></li>
 </ul>
-<p>重新映射必须按执行顺序进行，但必须在该图的任何先前执行完成之后进行（否则仍在使用的内存可能会被取消映射）。由于这种顺序依赖性，以及因为映射操作是操作系统调用，所以映射操作可能相对昂贵。应用程序可以通过将包含分配内存节点的图一致地启动到同一流中来避免这种成本。</p>
+<p>重新映射必须按执行顺序进行，但也必须等该图的任何先前执行完成之后才能进行，否则仍在使用的内存可能会被取消映射。由于这种顺序依赖关系，并且映射操作属于操作系统调用，映射操作可能相对昂贵。应用程序可以通过始终把包含分配内存节点的图启动到同一个流中，来避免这类成本。</p>
 <section id="first-launch-cudagraphupload">
 <span id="cuda-graphs-graph-memory-nodes-first-launch"></span><h4><span class="section-number">4.2.5.4.1. </span>首次启动 / cudaGraphUpload<a class="headerlink" href="cuda-graphs.html#first-launch-cudagraphupload" title="跳转到此标题">#</a></h4>
-<p>在图实例化期间无法分配或映射物理内存，因为图将在其中执行的流未知。映射是在图形启动期间完成的。呼唤 <code class="docutils literal notranslate"><span class="pre">cudaGraphUpload</span></code> 通过立即执行该图的所有映射并将该图与上传流相关联，可以将分配成本与启动分离。如果随后将图表启动到同一流中，它将启动而无需任何额外的重新映射。</p>
-<p>使用不同的流进行图形上传和图形启动的行为与切换流类似，可能会导致重新映射操作。此外，允许不相关的内存池管理从空闲流中提取内存，这可以抵消上传的影响。</p>
+<p>图实例化期间无法分配或映射物理内存，因为此时尚不知道图将在哪个流中执行。映射会在图启动期间完成。调用 <code class="docutils literal notranslate"><span class="pre">cudaGraphUpload</span></code> 可以立即执行该图的所有映射，并把图与上传流关联起来，从而把分配成本从启动路径中分离出来。如果随后把图启动到同一流中，该图启动时就不需要任何额外的重新映射。</p>
+<p>图上传和图启动使用不同流时，其行为类似于切换流，可能会导致重新映射操作。此外，不相关的内存池管理操作允许从空闲流中回收内存，这可能抵消上传带来的效果。</p>
 </section>
 </section>
 <section id="physical-memory-footprint">
 <span id="cuda-graphs-graph-memory-nodes-physical-memory-footprint"></span><h3><span class="section-number">4.2.5.5. </span>物理内存占用<a class="headerlink" href="cuda-graphs.html#physical-memory-footprint" title="跳转到此标题">#</a></h3>
-<p>异步分配的池管理行为意味着销毁包含内存节点的图（即使它们的分配是空闲的）不会立即将物理内存返回给操作系统以供其他进程使用。要显式地将内存释放回操作系统，应用程序应使用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGraphMemTrim</span></code> API。</p>
-<p><code class="docutils literal notranslate"><span class="pre">cudaDeviceGraphMemTrim</span></code> 将取消映射并释放未主动使用的图形内存节点保留的任何物理内存。尚未释放的分配以及计划或运行的图形被视为正在积极使用物理内存，不会受到影响。使用修剪 API 将使物理内存可供其他分配 API 和其他应用程序或进程使用，但会导致 CUDA 在下次启动修剪后的图形时重新分配和重新映射内存。请注意 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGraphMemTrim</span></code> 在不同的池上运行 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolTrimTo()</span></code>。图形内存池不暴露给steam有序内存分配器。 CUDA 允许应用程序通过以下方式查询其图形内存占用量 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetGraphMemAttribute</span></code> API。查询属性 <code class="docutils literal notranslate"><span class="pre">cudaGraphMemAttrReservedMemCurrent</span></code> 返回驱动程序为当前进程中的图形分配保留的物理内存量。查询 <code class="docutils literal notranslate"><span class="pre">cudaGraphMemAttrUsedMemCurrent</span></code> 返回当前至少由一张图映射的物理内存量。这些属性中的任何一个都可以用于跟踪 CUDA 何时为了分配图而获取新的物理内存。这两个属性对于检查共享机制节省了多少内存都很有用。</p>
+<p>异步分配的池管理行为意味着，销毁包含内存节点的图不会立即把物理内存返还给操作系统供其他进程使用，即使这些分配已经释放也是如此。要显式地把内存释放回操作系统，应用程序应使用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGraphMemTrim</span></code> API。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaDeviceGraphMemTrim</span></code> 会取消映射并释放由图内存节点保留、但当前未被主动使用的任何物理内存。尚未释放的分配，以及已调度或正在运行的图，都视为正在主动使用物理内存，因此不会受到影响。使用 trim API 会让物理内存可供其他分配 API、应用程序或进程使用，但也会导致 CUDA 在被 trim 的图下次启动时重新分配并重新映射内存。请注意，<code class="docutils literal notranslate"><span class="pre">cudaDeviceGraphMemTrim</span></code> 操作的池不同于 <code class="docutils literal notranslate"><span class="pre">cudaMemPoolTrimTo()</span></code>。图内存池不会暴露给流有序内存分配器。CUDA 允许应用程序通过 <code class="docutils literal notranslate"><span class="pre">cudaDeviceGetGraphMemAttribute</span></code> API 查询图内存占用。查询 <code class="docutils literal notranslate"><span class="pre">cudaGraphMemAttrReservedMemCurrent</span></code> 属性会返回驱动程序为当前进程中的图分配保留的物理内存量。查询 <code class="docutils literal notranslate"><span class="pre">cudaGraphMemAttrUsedMemCurrent</span></code> 会返回当前至少被一个图映射的物理内存量。这两个属性都可以用于跟踪 CUDA 何时为了分配图而获取新的物理内存，也都有助于检查共享机制节省了多少内存。</p>
 </section>
 <section id="peer-access">
 <span id="cuda-graphs-graph-memory-nodes-peer-access"></span><h3><span class="section-number">4.2.5.6. </span>对等访问<a class="headerlink" href="cuda-graphs.html#peer-access" title="跳转到此标题">#</a></h3>
-<p>图形分配可以配置为从多个 GPU 进行访问，在这种情况下，CUDA 将根据需要将分配映射到对等 GPU。 CUDA 允许需要不同映射的图形分配来重用相同的虚拟地址。发生这种情况时，地址范围将映射到不同分配所需的所有 GPU。这意味着分配有时可能允许比创建期间请求的更多的对等访问；然而，依赖这些额外的映射仍然是一个错误。</p>
+<p>图分配可以配置为允许多个 GPU 访问。在这种情况下，CUDA 会按需把分配映射到对等 GPU。CUDA 允许需要不同映射的图分配重用同一段虚拟地址。发生这种情况时，该地址范围会被映射到不同分配所需的所有 GPU。这意味着某个分配有时可能允许比创建时请求的更多对等访问；不过，依赖这些额外映射仍然是错误的。</p>
 <section id="peer-access-with-graph-node-apis">
 <span id="cuda-graphs-graph-memory-nodes-peer-access-with-graph-node-apis"></span><h4><span class="section-number">4.2.5.6.1. </span>使用图节点 API 进行对等访问<a class="headerlink" href="cuda-graphs.html#peer-access-with-graph-node-apis" title="跳转到此标题">#</a></h4>
-<p><code class="docutils literal notranslate"><span class="pre">cudaGraphAddNode</span></code> API 接受映射请求 <code class="docutils literal notranslate"><span class="pre">accessDescs</span></code> alloc 节点参数结构的数组字段。的 <code class="docutils literal notranslate"><span class="pre">poolProps.location</span></code> 嵌入结构指定分配的驻留设备。假定需要从分配 GPU 进行访问，因此应用程序不需要在 <code class="docutils literal notranslate"><span class="pre">accessDescs</span></code> array.</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaGraphAddNode</span></code> API 通过分配节点参数结构中的 <code class="docutils literal notranslate"><span class="pre">accessDescs</span></code> 数组字段接受映射请求。嵌入的 <code class="docutils literal notranslate"><span class="pre">poolProps.location</span></code> 结构会指定分配的驻留设备。分配所在 GPU 默认被认为需要访问该分配，因此应用程序不需要在 <code class="docutils literal notranslate"><span class="pre">accessDescs</span></code> 数组中为驻留设备指定条目。</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="n">cudaGraphNodeParams</span><span class="w"> </span><span class="n">allocNodeParams</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">cudaGraphNodeTypeMemAlloc</span><span class="w"> </span><span class="p">};</span>
 <span class="n">allocNodeParams</span><span class="p">.</span><span class="n">alloc</span><span class="p">.</span><span class="n">poolProps</span><span class="p">.</span><span class="n">allocType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaMemAllocationTypePinned</span><span class="p">;</span>
 <span class="n">allocNodeParams</span><span class="p">.</span><span class="n">alloc</span><span class="p">.</span><span class="n">poolProps</span><span class="p">.</span><span class="n">location</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaMemLocationTypeDevice</span><span class="p">;</span>
-<span class="c1">// 指定设备1为常驻设备</span>
+<span class="c1">// 指定设备 1 为驻留设备</span>
 <span class="n">allocNodeParams</span><span class="p">.</span><span class="n">alloc</span><span class="p">.</span><span class="n">poolProps</span><span class="p">.</span><span class="n">location</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 <span class="n">allocNodeParams</span><span class="p">.</span><span class="n">alloc</span><span class="p">.</span><span class="n">bytesize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">;</span>
 
@@ -1514,7 +1498,7 @@
 <span class="n">cudaGraphAddNode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">allocNode</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">allocNodeParams</span><span class="p">);</span>
 
 <span class="n">accessDescs</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
-<span class="c1">// 访问描述的样板（添加节点 api 仅支持读写和设备访问）</span>
+<span class="c1">// 访问描述符样板代码（添加节点 API 仅支持读写和设备访问）</span>
 <span class="n">accessDescs</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaMemAccessFlagsProtReadWrite</span><span class="p">;</span>
 <span class="n">accessDescs</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">location</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaMemLocationTypeDevice</span><span class="p">;</span>
 <span class="n">accessDescs</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaMemAccessFlagsProtReadWrite</span><span class="p">;</span>
@@ -1535,13 +1519,13 @@
 </section>
 <section id="peer-access-with-stream-capture">
 <span id="cuda-graphs-graph-memory-nodes-peer-access-with-stream-capture"></span><h4><span class="section-number">4.2.5.6.2. </span>通过流捕获进行对等访问<a class="headerlink" href="cuda-graphs.html#peer-access-with-stream-capture" title="跳转到此标题">#</a></h4>
-<p>对于流捕获，分配节点记录捕获时分配池的对等可访问性。更改分配池的对等可访问性 <code class="docutils literal notranslate"><span class="pre">cudaMallocFromPoolAsync</span></code> 捕获调用不会影响图表将为分配所做的映射。</p>
-<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// 访问描述的样板（添加节点 api 仅支持读写和设备访问）</span>
+<p>对于流捕获，分配节点会记录捕获时分配池的对等可访问性。在捕获 <code class="docutils literal notranslate"><span class="pre">cudaMallocFromPoolAsync</span></code> 调用之后再更改分配池的对等可访问性，不会影响图为该分配建立的映射。</p>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// 访问描述符样板代码（添加节点 API 仅支持读写和设备访问）</span>
 <span class="n">accessDesc</span><span class="p">.</span><span class="n">flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaMemAccessFlagsProtReadWrite</span><span class="p">;</span>
 <span class="n">accessDesc</span><span class="p">.</span><span class="n">location</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaMemLocationTypeDevice</span><span class="p">;</span>
 <span class="n">accessDesc</span><span class="p">.</span><span class="n">location</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 
-<span class="c1">// 让memPool驻留在设备0上并可访问</span>
+<span class="c1">// 让 memPool 驻留在设备 0 上并可访问</span>
 
 <span class="n">cudaStreamBeginCapture</span><span class="p">(</span><span class="n">stream</span><span class="p">);</span>
 <span class="n">cudaMallocAsync</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dptr1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">memPool</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
@@ -1553,8 +1537,8 @@
 <span class="n">cudaMallocAsync</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dptr2</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="n">memPool</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
 <span class="n">cudaStreamEndCapture</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">graph2</span><span class="p">);</span>
 
-<span class="c1">// 即使 memPool 现在具有设备 1 的可访问性，分配 dptr1 的图形节点也仅具有设备 0 的可访问性。</span>
-<span class="c1">// 分配 dptr2 的图形节点将具有设备 0 和设备 1 可访问性，因为这是 cudaMallocAsync 调用时的池可访问性。</span>
+<span class="c1">// 即使 memPool 现在可从设备 1 访问，分配 dptr1 的图节点仍然只具有设备 0 的可访问性。</span>
+<span class="c1">// 分配 dptr2 的图节点将具有设备 0 和设备 1 的可访问性，因为这是调用 cudaMallocAsync 时的池可访问性。</span>
 </pre></div>
 </div>
 </section>
@@ -1562,38 +1546,38 @@
 </section>
 <section id="device-graph-launch">
 <span id="cuda-graphs-device-graph-launch"></span><h2><span class="section-number">4.2.6. </span>设备图启动<a class="headerlink" href="cuda-graphs.html#device-graph-launch" title="跳转到此标题">#</a></h2>
-<p>有许多工作流需要在运行时做出依赖于数据的决策，并根据这些决策执行不同的操作。用户可能更愿意在设备上执行此决策过程，而不是将此决策过程卸载到主机（这可能需要从设备进行往返）。为此，CUDA 提供了一种从设备启动图形的机制。</p>
-<p>设备图启动提供了一种从设备执行动态控制流的便捷方法，无论是简单的循环还是复杂的设备端工作调度程序。</p>
-<p>可以从设备启动的图此后将被称为设备图，而不能从设备启动的图将被称为主机图。</p>
-<p>设备图可以从主机和设备启动，而主机图只能从主机启动。与主机启动不同，在先前启动的图正在运行时从设备启动设备图将导致错误，返回 <code class="docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code>;因此，设备图不能同时从设备启动两次。同时从主机和设备启动设备图将导致未定义的行为。</p>
+<p>许多工作流需要在运行时根据数据做出决策，并据此执行不同操作。用户可能希望在设备上完成这类决策，而不是把决策过程交给主机处理，因为后者可能需要在设备和主机之间往返。为此，CUDA 提供了从设备启动图的机制。</p>
+<p>设备图启动提供了一种从设备执行动态控制流的便捷方式，无论是简单循环，还是复杂的设备端工作调度器，都可以使用。</p>
+<p>下文把可以从设备启动的图称为设备图，把不能从设备启动的图称为主机图。</p>
+<p>设备图既可以从主机启动，也可以从设备启动；主机图只能从主机启动。与主机启动不同，如果先前启动的图仍在运行，又从设备启动同一个设备图，会返回 <code class="docutils literal notranslate"><span class="pre">cudaErrorInvalidValue</span></code> 错误。因此，设备图不能同时从设备启动两次。同时从主机和设备启动设备图会导致未定义行为。</p>
 <section id="device-graph-creation">
 <span id="cuda-graphs-device-graph-creation"></span><h3><span class="section-number">4.2.6.1. </span>设备图创建<a class="headerlink" href="cuda-graphs.html#device-graph-creation" title="跳转到此标题">#</a></h3>
-<p>为了从设备启动图表，必须为设备启动显式实例化它。这是通过通过 <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiateFlagDeviceLaunch</span></code> 标志到 <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiate()</span></code> 打电话。与主机图的情况一样，设备图结构在实例化时是固定的，如果不重新实例化就无法更新，并且实例化只能在主机上执行。为了能够在设备启动时实例化图表，它必须遵守各种要求。</p>
+<p>要从设备启动图，必须显式地为设备启动实例化该图。做法是在调用 <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiate()</span></code> 时传入 <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiateFlagDeviceLaunch</span></code> 标志。与主机图一样，设备图结构在实例化时固定，若不重新实例化便无法更新；实例化也只能在主机上执行。若要实例化为可从设备启动的图，该图必须满足若干要求。</p>
 <section id="device-graph-requirements">
 <span id="cuda-graphs-device-graph-requirements"></span><h4><span class="section-number">4.2.6.1.1. </span>设备图要求<a class="headerlink" href="cuda-graphs.html#device-graph-requirements" title="跳转到此标题">#</a></h4>
 <p>一般要求：</p>
 <ul class="simple">
-<li><p>图表的节点必须全部驻留在单个设备上。</p></li>
+<li><p>图的节点必须全部驻留在同一个设备上。</p></li>
 <li><p>该图只能包含内核节点、memcpy 节点、memset 节点和子图节点。</p></li>
 </ul>
 <p>内核节点：</p>
 <ul class="simple">
 <li><p>不允许图中的内核使用 CUDA 动态并行性。</p></li>
-<li><p>只要不使用 MPS，就允许合作发射。</p></li>
+<li><p>只要未使用 MPS，就允许协作启动。</p></li>
 </ul>
 <p>Memcpy 节点：</p>
 <ul class="simple">
-<li><p>仅允许涉及设备内存和/或固定设备映射主机内存的副本。</p></li>
-<li><p>不允许涉及 CUDA 数组的副本。</p></li>
-<li><p>在实例化时，两个操作数都必须可以从当前设备访问。请注意，复制操作将从图形所在的设备执行，即使它的目标是另一个设备上的内存。</p></li>
+<li><p>仅允许涉及设备内存和/或固定的设备映射主机内存的拷贝。</p></li>
+<li><p>不允许涉及 CUDA 数组的拷贝。</p></li>
+<li><p>实例化时，两个操作数都必须能从当前设备访问。请注意，拷贝操作会从图所在的设备执行，即使它的目标是另一个设备上的内存。</p></li>
 </ul>
 </section>
 <section id="device-graph-upload">
 <span id="cuda-graphs-device-graph-upload"></span><h4><span class="section-number">4.2.6.1.2. </span>设备图上传<a class="headerlink" href="cuda-graphs.html#device-graph-upload" title="跳转到此标题">#</a></h4>
-<p>为了在设备上启动图表，必须首先将其上传到设备以填充必要的设备资源。这可以通过两种方式之一来实现。</p>
-<p>首先，可以通过以下方式显式上传图表： <code class="docutils literal notranslate"><span class="pre">cudaGraphUpload()</span></code> 或者通过请求上传作为实例化的一部分 <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiateWithParams()</span></code>.</p>
-<p>或者，可以首先从主机启动图表，主机将在启动过程中隐式执行此上传步骤。</p>
-<p>所有三种方法的示例如下：</p>
+<p>要在设备上启动图，必须先把图上传到设备，以填充必要的设备资源。这可以通过两种方式完成。</p>
+<p>第一种方式是显式上传图：可以调用 <code class="docutils literal notranslate"><span class="pre">cudaGraphUpload()</span></code>，也可以通过 <code class="docutils literal notranslate"><span class="pre">cudaGraphInstantiateWithParams()</span></code> 请求把上传作为实例化的一部分。</p>
+<p>另一种方式是先从主机启动该图，主机启动会在启动过程中隐式执行这个上传步骤。</p>
+<p>下面给出了三种方法的示例：</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// 实例化后显式上传</span>
 <span class="n">cudaGraphInstantiate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">deviceGraphExec1</span><span class="p">,</span><span class="w"> </span><span class="n">deviceGraph1</span><span class="p">,</span><span class="w"> </span><span class="n">cudaGraphInstantiateFlagDeviceLaunch</span><span class="p">);</span>
 <span class="n">cudaGraphUpload</span><span class="p">(</span><span class="n">deviceGraphExec1</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
@@ -1612,42 +1596,42 @@
 </section>
 <section id="device-graph-update">
 <span id="cuda-graphs-device-graph-update"></span><h4><span class="section-number">4.2.6.1.3. </span>设备图更新<a class="headerlink" href="cuda-graphs.html#device-graph-update" title="跳转到此标题">#</a></h4>
-<p>设备图只能从主机更新，并且必须在可执行图更新后重新上传到设备才能使更改生效。这可以使用章节中概述的相同方法来实现 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-device-graph-upload"><span class="std std-ref">device-graph-upload</span></a>。与主机图不同，在应用更新时从设备启动设备图将导致未定义的行为。</p>
+<p>设备图只能从主机更新，并且在可执行图更新后必须重新上传到设备，更新才会生效。可以使用 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-device-graph-upload"><span class="std std-ref">设备图上传</span></a> 一节中介绍的相同方法完成重新上传。与主机图不同，如果在更新生效期间从设备启动设备图，会导致未定义行为。</p>
 </section>
 </section>
 <section id="device-launch">
 <span id="cuda-graphs-device-graph-device-launch"></span><h3><span class="section-number">4.2.6.2. </span>设备启动<a class="headerlink" href="cuda-graphs.html#device-launch" title="跳转到此标题">#</a></h3>
-<p>设备图可以通过主机和设备启动 <code class="docutils literal notranslate"><span class="pre">cudaGraphLaunch()</span></code>，它在设备上与主机上具有相同的签名。设备图通过主机和设备上的相同句柄启动。从设备启动时，设备图必须从另一个图启动。</p>
-<p>设备端图启动是按线程进行的，不同线程可能同时发生多个启动，因此用户需要选择一个线程来启动给定图。</p>
-<p>与主机启动不同，设备图不能启动到常规 CUDA 流中，只能启动到不同的命名流中，每个流都表示特定的启动模式。下表列出了可用的启动模式。</p>
+<p>设备图可以通过 <code class="docutils literal notranslate"><span class="pre">cudaGraphLaunch()</span></code> 从主机和设备两端启动；该函数在设备端与主机端具有相同签名。主机端和设备端使用同一个句柄来启动设备图。从设备端启动时，设备图必须由另一个图启动。</p>
+<p>设备端图启动按线程进行，不同线程可能同时发起多个启动，因此用户需要选择一个线程来启动给定图。</p>
+<p>与主机启动不同，设备图不能启动到普通 CUDA 流中，只能启动到若干具名流中；每个具名流都表示一种特定的启动模式。下表列出了可用的启动模式。</p>
 <div class="pst-scrollable-table-container"><table class="table-no-stripes table" id="id12">
-<caption><span class="caption-number">表9 </span><span class="caption-text">仅限设备的图形启动流</span><a class="headerlink" href="cuda-graphs.html#id12" title="跳转到此标题">#</a></caption>
+<caption><span class="caption-number">表9 </span><span class="caption-text">仅供设备图启动使用的流</span><a class="headerlink" href="cuda-graphs.html#id12" title="跳转到此标题">#</a></caption>
 <thead>
-<tr class="row-odd"><th class="head"><p>Stream</p></th>
+<tr class="row-odd"><th class="head"><p>流</p></th>
 <th class="head"><p>启动模式</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cudaStreamGraphFireAndForget</span></code></p></td>
-<td><p>即发即忘发射</p></td>
+<td><p>即发即忘启动</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cudaStreamGraphTailLaunch</span></code></p></td>
-<td><p>尾部发射</p></td>
+<td><p>尾部启动</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cudaStreamGraphFireAndForgetAsSibling</span></code></p></td>
-<td><p>兄弟姐妹推出</p></td>
+<td><p>兄弟启动</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <section id="fire-and-forget-launch">
-<span id="cuda-graphs-device-graph-fire-and-forget-launch"></span><h4><span class="section-number">4.2.6.2.1. </span>即发即忘发射<a class="headerlink" href="cuda-graphs.html#fire-and-forget-launch" title="跳转到此标题">#</a></h4>
+<span id="cuda-graphs-device-graph-fire-and-forget-launch"></span><h4><span class="section-number">4.2.6.2.1. </span>即发即忘启动<a class="headerlink" href="cuda-graphs.html#fire-and-forget-launch" title="跳转到此标题">#</a></h4>
 <p>顾名思义，即发即忘启动会立即提交给 GPU，并且独立于启动图运行。在“即发即忘”场景中，启动图是父图，启动图是子图。</p>
 <figure class="align-default" id="id13">
 <a class="image reference internal image-reference" href="../_images/fire-and-forget-simple.png"><img alt="../_images/fire-and-forget-simple.png" class="image" src="../_images/fire-and-forget-simple.png" style="width: 400px;"/>
 </a>
 <figcaption>
-<p><span class="caption-number">图31 </span><span class="caption-text">即发即忘发射</span><a class="headerlink" href="cuda-graphs.html#id13" title="跳转到此标题">#</a></p>
+<p><span class="caption-number">图31 </span><span class="caption-text">即发即忘启动</span><a class="headerlink" href="cuda-graphs.html#id13" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
 <p>上图可以通过下面的示例代码生成：</p>
@@ -1675,12 +1659,12 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>一个图在其执行过程中最多可以有 120 个即发即弃图。此总数会在同一父图的启动之间重置。</p>
+<p>在一次执行过程中，一个图最多可以生成 120 个即发即忘图。这个计数会在同一个父图的两次启动之间重置。</p>
 <section id="graph-execution-environments">
 <span id="cuda-graphs-device-graph-execution-environments"></span><h5><span class="section-number">4.2.6.2.1.1. </span>图执行环境<a class="headerlink" href="cuda-graphs.html#graph-execution-environments" title="跳转到此标题">#</a></h5>
 <p>为了充分理解设备端同步模型，首先需要理解执行环境的概念。</p>
 <p>当从设备启动图时，它会启动到自己的执行环境中。给定图的执行环境封装了图中的所有工作以及所有生成的即发即忘工作。当该图已完成执行并且所有生成的子工作都已完成时，可以认为该图已完成。</p>
-<p>下图显示了由上一节中的“即发即弃”示例代码生成的环境封装。</p>
+<p>下图展示了上一节中即发即忘示例代码会生成的环境封装关系。</p>
 <figure class="align-default" id="id14">
 <a class="image reference internal image-reference" href="../_images/fire-and-forget-environments.png"><img alt="../_images/fire-and-forget-environments.png" class="image" src="../_images/fire-and-forget-environments.png" style="width: 400px;"/>
 </a>
@@ -1688,7 +1672,7 @@
 <p><span class="caption-number">图32 </span><span class="caption-text">即发即忘启动，具有执行环境</span><a class="headerlink" href="cuda-graphs.html#id14" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
-<p>这些环境也是分层的，因此图形环境可以包含“即发即忘”启动的多个级别的子环境。</p>
+<p>这些环境也具有层级结构，因此一个图环境可以包含由即发即忘启动产生的多级子环境。</p>
 <figure class="align-default" id="id15">
 <a class="image reference internal image-reference" href="../_images/fire-and-forget-nested-environments.png"><img alt="../_images/fire-and-forget-nested-environments.png" class="image" src="../_images/fire-and-forget-nested-environments.png" style="width: 500px;"/>
 </a>
@@ -1696,25 +1680,25 @@
 <p><span class="caption-number">图33 </span><span class="caption-text">嵌套的即发即忘环境</span><a class="headerlink" href="cuda-graphs.html#id15" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
-<p>当从主机启动图时，存在一个流环境，它是已启动图的执行环境的父级。流环境封装了作为整体启动的一部分生成的所有工作。当整个流环境被标记为完成时，流启动完成（即下游相关工作现在可以运行）。</p>
+<p>当从主机启动图时，会存在一个流环境，它是所启动图的执行环境的父环境。流环境封装了整个启动过程中生成的全部工作。当整个流环境被标记为完成时，流启动才算完成，也就是下游依赖工作可以开始运行。</p>
 <figure class="align-default" id="id16">
 <a class="image reference internal image-reference" href="../_images/device-graph-stream-environment.png"><img alt="../_images/device-graph-stream-environment.png" class="image" src="../_images/device-graph-stream-environment.png" style="width: 600px;"/>
 </a>
 <figcaption>
-<p><span class="caption-number">图34 </span><span class="caption-text">可视化的流环境</span><a class="headerlink" href="cuda-graphs.html#id16" title="跳转到此标题">#</a></p>
+<p><span class="caption-number">图34 </span><span class="caption-text">流环境可视化</span><a class="headerlink" href="cuda-graphs.html#id16" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
 </section>
 </section>
 <section id="tail-launch">
-<span id="cuda-graphs-device-graph-tail-launch"></span><h4><span class="section-number">4.2.6.2.2. </span>尾部发射<a class="headerlink" href="cuda-graphs.html#tail-launch" title="跳转到此标题">#</a></h4>
-<p>与主机不同，无法通过传统方法（例如）从 GPU 与设备图同步 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code>。相反，为了启用串行工作依赖性，提供了不同的启动模式 - 尾部启动 - 来提供类似的功能。</p>
-<p>当图的环境被认为是完整的时，即当图及其所有子图都完成时，尾部启动就会执行。当一个图完成时，尾启动列表中下一个图的环境将替换已完成的环境作为父环境的子环境。与“即发即弃”启动类似，一个图可以有多个排队等待尾部启动的图。</p>
+<span id="cuda-graphs-device-graph-tail-launch"></span><h4><span class="section-number">4.2.6.2.2. </span>尾部启动<a class="headerlink" href="cuda-graphs.html#tail-launch" title="跳转到此标题">#</a></h4>
+<p>与主机端不同，在 GPU 上无法通过 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaStreamSynchronize()</span></code> 等传统方法与设备图同步。因此，为了表达串行工作依赖关系，CUDA 提供了另一种启动模式，也就是尾部启动，用来提供类似功能。</p>
+<p>当某个图的环境被认为完成时，尾部启动才会执行；换言之，要等该图及其所有子图都完成。当一个图完成时，尾部启动列表中下一个图的环境会替换这个已完成的环境，成为父环境的子环境。与即发即忘启动类似，一个图可以排队多个等待尾部启动的图。</p>
 <figure class="align-default" id="id17">
 <a class="image reference internal image-reference" href="../_images/tail-launch-simple.png"><img alt="../_images/tail-launch-simple.png" class="image" src="../_images/tail-launch-simple.png" style="width: 600px;"/>
 </a>
 <figcaption>
-<p><span class="caption-number">图35 </span><span class="caption-text">简单的尾翼发射</span><a class="headerlink" href="cuda-graphs.html#id17" title="跳转到此标题">#</a></p>
+<p><span class="caption-number">图35 </span><span class="caption-text">一个简单的尾部启动</span><a class="headerlink" href="cuda-graphs.html#id17" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
 <p>上述执行流程可以通过以下代码生成：</p>
@@ -1746,24 +1730,24 @@
 <figure class="align-default" id="id18">
 <img alt="../_images/tail-launch-ordering-simple.png" class="image" src="../_images/tail-launch-ordering-simple.png"/>
 <figcaption>
-<p><span class="caption-number">图36 </span><span class="caption-text">尾部发射顺序</span><a class="headerlink" href="cuda-graphs.html#id18" title="跳转到此标题">#</a></p>
+<p><span class="caption-number">图36 </span><span class="caption-text">尾部启动顺序</span><a class="headerlink" href="cuda-graphs.html#id18" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
-<p>由尾部图排队的尾部启动将在由尾部启动列表中的先前图排队的尾部启动之前执行。这些新的尾部启动将按照它们排队的顺序执行。</p>
+<p>由尾部图排队的尾部启动，会先于尾部启动列表中更早图所排队的尾部启动执行。这些新的尾部启动仍会按照各自入队顺序执行。</p>
 <figure class="align-default" id="id19">
 <img alt="../_images/tail-launch-ordering-complex.png" class="image" src="../_images/tail-launch-ordering-complex.png"/>
 <figcaption>
-<p><span class="caption-number">图37 </span><span class="caption-text">从多个图表排队时尾部启动顺序</span><a class="headerlink" href="cuda-graphs.html#id19" title="跳转到此标题">#</a></p>
+<p><span class="caption-number">图37 </span><span class="caption-text">从多个图排队时的尾部启动顺序</span><a class="headerlink" href="cuda-graphs.html#id19" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
-<p>一个图表最多可以有 255 个待处理的尾部启动。</p>
+<p>一个图最多可以有 255 个待处理的尾部启动。</p>
 <section id="tail-self-launch">
-<span id="cuda-graphs-device-graph-tail-self-launch"></span><h5><span class="section-number">4.2.6.2.2.1. </span>尾部自发射<a class="headerlink" href="cuda-graphs.html#tail-self-launch" title="跳转到此标题">#</a></h5>
-<p>设备图可以将自身排队以进行尾部启动，尽管给定的图一次只能有一个自启动入队。为了查询当前正在运行的设备图以便可以重新启动，添加了一个新的设备端函数：</p>
+<span id="cuda-graphs-device-graph-tail-self-launch"></span><h5><span class="section-number">4.2.6.2.2.1. </span>尾部自启动<a class="headerlink" href="cuda-graphs.html#tail-self-launch" title="跳转到此标题">#</a></h5>
+<p>设备图可以把自身加入尾部启动队列，不过给定图在同一时间只能有一个自启动入队。为了查询当前正在运行的设备图，以便重新启动它，CUDA 添加了一个新的设备端函数：</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="n">cudaGraphExec_t</span><span class="w"> </span><span class="nf">cudaGetCurrentGraphExec</span><span class="p">();</span>
 </pre></div>
 </div>
-<p>如果当前运行的图形是设备图形，则此函数返回其句柄。如果当前执行的内核不是设备图中的节点，则该函数将返回 NULL。</p>
+<p>如果当前运行的图是设备图，此函数会返回该图的句柄。如果当前执行的内核不是设备图中的节点，则该函数会返回 NULL。</p>
 <p>下面的示例代码显示了此函数在重新启动循环中的用法：</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kt">__device__</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">relaunchCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 
@@ -1783,8 +1767,8 @@
 </section>
 </section>
 <section id="sibling-launch">
-<span id="cuda-graphs-sibling-launch"></span><h4><span class="section-number">4.2.6.2.3. </span>兄弟推出<a class="headerlink" href="cuda-graphs.html#sibling-launch" title="跳转到此标题">#</a></h4>
-<p>同级启动是即发即忘启动的一种变体，其中图不是作为启动图执行环境的子级启动，而是作为启动图父环境的子级启动。同级启动相当于从启动图的父环境进行即发即忘启动。</p>
+<span id="cuda-graphs-sibling-launch"></span><h4><span class="section-number">4.2.6.2.3. </span>兄弟启动<a class="headerlink" href="cuda-graphs.html#sibling-launch" title="跳转到此标题">#</a></h4>
+<p>兄弟启动是即发即忘启动的一种变体：被启动的图不会作为启动图执行环境的子环境启动，而是作为启动图父环境的子环境启动。兄弟启动等价于从启动图的父环境发起一次即发即忘启动。</p>
 <figure class="align-default" id="id20">
 <img alt="../_images/sibling-launch-simple.png" class="image" src="../_images/sibling-launch-simple.png"/>
 <figcaption>
@@ -1816,21 +1800,21 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>由于同级启动不会启动到启动图的执行环境中，因此它们不会对启动图排队的尾部启动进行门控。</p>
+<p>由于兄弟启动不会进入启动图的执行环境，因此它们不会阻塞由启动图排队的尾部启动。</p>
 </section>
 </section>
 </section>
 <section id="using-graph-apis">
-<span id="cuda-graphs-using-graph-apis"></span><h2><span class="section-number">4.2.7. </span>使用图形 API<a class="headerlink" href="cuda-graphs.html#using-graph-apis" title="跳转到此标题">#</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 对象不是线程安全的。用户有责任确保多个线程不会同时访问相同的内容 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code>.</p>
-<p>A <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 不能与其自身同时运行。推出一个 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 将在先前启动同一可执行图之后进行排序。</p>
-<p>图形执行在流中完成，以便与其他异步工作进行排序。然而，该流仅用于订购；它不限制图的内部并行性，也不影响图节点的执行位置。</p>
-<p>See <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH">图形API。</a></p>
+<span id="cuda-graphs-using-graph-apis"></span><h2><span class="section-number">4.2.7. </span>使用图 API<a class="headerlink" href="cuda-graphs.html#using-graph-apis" title="跳转到此标题">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 对象不是线程安全的。用户有责任确保多个线程不会并发访问同一个 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code>。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 不能与自身并发运行。启动某个 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 时，它会排序在同一个可执行图先前启动之后。</p>
+<p>图执行会在流中完成，以便与其他异步工作排序。不过，该流只用于排序；它不会限制图内部的并行性，也不会影响图节点的执行位置。</p>
+<p>更多信息请参阅 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH">图 API</a>。</p>
 </section>
 <section id="cuda-user-objects">
 <span id="cuda-graphs-cuda-user-objects"></span><h2><span class="section-number">4.2.8. </span>CUDA 用户对象<a class="headerlink" href="cuda-graphs.html#cuda-user-objects" title="跳转到此标题">#</a></h2>
-<p>CUDA 用户对象可用于帮助管理 CUDA 中异步工作所使用的资源的生命周期。该功能特别适用于 <a class="reference internal" href="cuda-graphs.html#cuda-graphs"><span class="std std-ref">cuda-graphs</span></a> 和 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-stream-capture"><span class="std std-ref">流捕获</span></a>.</p>
-<p>各种资源管理方案与 CUDA 图不兼容。例如，考虑基于事件的池或同步创建、异步销毁方案。</p>
+<p>CUDA 用户对象可用于帮助管理 CUDA 中异步工作所使用资源的生命周期。该功能尤其适用于 <a class="reference internal" href="cuda-graphs.html#cuda-graphs"><span class="std std-ref">CUDA 图</span></a> 和 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-stream-capture"><span class="std std-ref">流捕获</span></a>。</p>
+<p>一些资源管理方案并不兼容 CUDA 图。例如，可以考虑基于事件的池，或者“同步创建、异步销毁”的方案。</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// 具有池分配功能的库 API</span>
 <span class="kt">void</span><span class="w"> </span><span class="nf">libraryWork</span><span class="p">(</span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="o">&amp;</span><span class="n">resource</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pool</span><span class="p">.</span><span class="n">claimTemporaryResource</span><span class="p">();</span>
@@ -1855,47 +1839,47 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>这些方案对于 CUDA 图来说很困难，因为资源的非固定指针或句柄需要间接或图更新，并且每次提交工作时都需要同步 CPU 代码。如果这些注意事项对库的调用者隐藏，并且由于在捕获期间使用了不允许的 API，它们也无法与流捕获一起使用。存在多种解决方案，例如将资源公开给调用者。 CUDA 用户对象提供了另一种方法。</p>
-<p>CUDA 用户对象将用户指定的析构函数回调与内部引用计数相关联，类似于 C++ <code class="docutils literal notranslate"><span class="pre">shared_ptr</span></code>。引用可能由 CPU 上的用户代码和 CUDA 图拥有。请注意，对于用户拥有的引用，与 C++ 智能指针不同，没有表示引用的对象；用户必须手动跟踪用户拥有的引用。典型的用例是在创建用户对象后立即将唯一用户拥有的引用移至 CUDA 图形。</p>
-<p>当引用与 CUDA 图关联时，CUDA 将自动管理图操作。克隆的 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 保留来源所拥有的每个参考文献的副本 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code>，具有相同的重数。一个实例化的 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 保留源中每个引用的副本 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code>。当一个 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 在没有同步的情况下被销毁，引用将保留直到执行完成。</p>
-<p>这是一个使用示例。</p>
-<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="n">cudaGraph_t</span><span class="w"> </span><span class="n">graph</span><span class="p">;</span><span class="w">  </span><span class="c1">// 已有图</span>
+<p>这些方案在 CUDA 图中很难处理：资源的指针或句柄并不固定，因此需要间接访问或更新图；每次提交工作时还需要执行同步的 CPU 代码。如果这些细节对库调用者隐藏起来，它们也无法与流捕获配合使用，原因既包括捕获期间使用了不允许的 API，也包括调用者无法处理这些资源管理要求。解决办法有多种，例如把资源暴露给调用者。CUDA 用户对象提供了另一种路径。</p>
+<p>CUDA 用户对象会把用户指定的析构函数回调与内部引用计数关联起来，类似于 C++ <code class="docutils literal notranslate"><span class="pre">shared_ptr</span></code>。引用可以由 CPU 上的用户代码拥有，也可以由 CUDA 图拥有。需要注意的是，对于用户拥有的引用，与 C++ 智能指针不同，并不存在一个表示该引用的对象；用户必须手动跟踪这些用户拥有的引用。一个典型用法是在创建用户对象后，立即把唯一的用户拥有引用移动到 CUDA 图中。</p>
+<p>当引用与 CUDA 图关联后，CUDA 会自动管理图操作。克隆得到的 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 会保留源 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 所拥有每个引用的副本，并保持相同的重数。实例化得到的 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 会保留源 <code class="docutils literal notranslate"><span class="pre">cudaGraph_t</span></code> 中每个引用的副本。如果某个 <code class="docutils literal notranslate"><span class="pre">cudaGraphExec_t</span></code> 在未同步的情况下被销毁，这些引用会一直保留到执行完成。</p>
+<p>下面是一个用法示例。</p>
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="n">cudaGraph_t</span><span class="w"> </span><span class="n">graph</span><span class="p">;</span><span class="w">  </span><span class="c1">// 已存在的图</span>
 
-<span class="n">Object</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">Object</span><span class="p">;</span><span class="w">  </span><span class="c1">// 具有可能不平凡的析构函数的 C++ 对象</span>
+<span class="n">Object</span><span class="w"> </span><span class="o">*</span><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">new</span><span class="w"> </span><span class="n">Object</span><span class="p">;</span><span class="w">  </span><span class="c1">// 析构函数可能并不平凡的 C++ 对象</span>
 <span class="n">cudaUserObject_t</span><span class="w"> </span><span class="n">cuObject</span><span class="p">;</span>
 <span class="n">cudaUserObjectCreate</span><span class="p">(</span>
 <span class="w">    </span><span class="o">&amp;</span><span class="n">cuObject</span><span class="p">,</span>
 <span class="w">    </span><span class="n">object</span><span class="p">,</span><span class="w">  </span><span class="c1">// 这里我们使用 CUDA 提供的模板包装器来实现此 API，</span>
 <span class="w">             </span><span class="c1">// 它提供了删除 C++ 对象指针的回调</span>
-<span class="w">    </span><span class="mi">1</span><span class="p">,</span><span class="w">  </span><span class="c1">// 初始重新计数</span>
-<span class="w">    </span><span class="n">cudaUserObjectNoDestructorSync</span><span class="w">  </span><span class="c1">// 确认回调不能</span>
-<span class="w">                                    </span><span class="c1">// 通过 CUDA 等待</span>
+<span class="w">    </span><span class="mi">1</span><span class="p">,</span><span class="w">  </span><span class="c1">// 初始引用计数</span>
+<span class="w">    </span><span class="n">cudaUserObjectNoDestructorSync</span><span class="w">  </span><span class="c1">// 确认无法通过 CUDA</span>
+<span class="w">                                    </span><span class="c1">// 等待该回调</span>
 <span class="p">);</span>
 <span class="n">cudaGraphRetainUserObject</span><span class="p">(</span>
 <span class="w">    </span><span class="n">graph</span><span class="p">,</span>
 <span class="w">    </span><span class="n">cuObject</span><span class="p">,</span>
-<span class="w">    </span><span class="mi">1</span><span class="p">,</span><span class="w">  </span><span class="c1">// 参考文献数量</span>
-<span class="w">    </span><span class="n">cudaGraphUserObjectMove</span><span class="w">  </span><span class="c1">// 传输调用者拥有的引用（执行</span>
-<span class="w">                             </span><span class="c1">// 不修改总引用计数）</span>
+<span class="w">    </span><span class="mi">1</span><span class="p">,</span><span class="w">  </span><span class="c1">// 引用数量</span>
+<span class="w">    </span><span class="n">cudaGraphUserObjectMove</span><span class="w">  </span><span class="c1">// 转移调用者拥有的引用（不会</span>
+<span class="w">                             </span><span class="c1">// 修改总引用计数）</span>
 <span class="p">);</span>
-<span class="c1">// 该线程不再拥有任何引用；无需调用发布API</span>
+<span class="c1">// 此线程不再拥有任何引用；无需调用 release API</span>
 <span class="n">cudaGraphExec_t</span><span class="w"> </span><span class="n">graphExec</span><span class="p">;</span>
 <span class="n">cudaGraphInstantiate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">graphExec</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="n">nullptr</span><span class="p">,</span><span class="w"> </span><span class="n">nullptr</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">  </span><span class="c1">// 会保留一个</span>
-<span class="w">                                                               </span><span class="c1">// 新参考</span>
+<span class="w">                                                               </span><span class="c1">// 新引用</span>
 <span class="n">cudaGraphDestroy</span><span class="p">(</span><span class="n">graph</span><span class="p">);</span><span class="w">  </span><span class="c1">// graphExec 仍然拥有一个引用</span>
 <span class="n">cudaGraphLaunch</span><span class="p">(</span><span class="n">graphExec</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">  </span><span class="c1">// 异步启动可以访问用户对象</span>
-<span class="n">cudaGraphExecDestroy</span><span class="p">(</span><span class="n">graphExec</span><span class="p">);</span><span class="w">  </span><span class="c1">// 启动不同步；释放</span>
-<span class="w">                                  </span><span class="c1">// 如果需要的话将被推迟</span>
-<span class="n">cudaStreamSynchronize</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w">  </span><span class="c1">// 启动同步后，剩余</span>
-<span class="w">                           </span><span class="c1">// 引用被释放，析构函数将</span>
-<span class="w">                           </span><span class="c1">// 执行。请注意，这是异步发生的。</span>
-<span class="c1">// 如果析构函数回调已发出同步对象信号，它将</span>
-<span class="c1">// 此时请放心等待。</span>
+<span class="n">cudaGraphExecDestroy</span><span class="p">(</span><span class="n">graphExec</span><span class="p">);</span><span class="w">  </span><span class="c1">// 启动不会被同步；如有需要，</span>
+<span class="w">                                  </span><span class="c1">// 释放会被延后</span>
+<span class="n">cudaStreamSynchronize</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w">  </span><span class="c1">// 启动同步之后，剩余</span>
+<span class="w">                           </span><span class="c1">// 引用会被释放，析构函数将</span>
+<span class="w">                           </span><span class="c1">// 执行。注意这会异步发生。</span>
+<span class="c1">// 如果析构函数回调已经发出同步对象信号，</span>
+<span class="c1">// 此时就可以安全地等待该对象。</span>
 </pre></div>
 </div>
-<p>子图节点中的图所拥有的引用与子图相关联，而不是与父图相关联。如果更新或删除子图，引用也会相应更改。如果可执行图或子图更新为 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecChildGraphNodeSetParams</span></code>，新源图中的引用将被克隆并替换目标图中的引用。在任一情况下，如果先前的启动未同步，则将保留将释放的任何引用，直到启动完成执行。</p>
-<p>目前没有一种机制可以通过 CUDA API 等待用户对象析构函数。用户可以从析构函数代码手动发出同步对象信号。另外，从析构函数中调用CUDA API是不合法的，类似于对 <code class="docutils literal notranslate"><span class="pre">cudaLaunchHostFunc</span></code>。这是为了避免阻塞 CUDA 内部共享线程并阻止前进。如果依赖关系是单向的并且执行调用的线程不能阻止 CUDA 工作的前进进度，则向另一个线程发出信号以执行 API 调用是合法的。</p>
-<p>用户对象是用以下命令创建的 <code class="docutils literal notranslate"><span class="pre">cudaUserObjectCreate</span></code>，这是浏览相关 API 的良好起点。</p>
+<p>子图节点中的图所拥有的引用与子图关联，而不是与父图关联。如果子图被更新或删除，引用也会相应变化。如果使用 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecUpdate</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaGraphExecChildGraphNodeSetParams</span></code> 更新可执行图或子图，新源图中的引用会被克隆，并替换目标图中的引用。在这两种情况下，如果先前启动尚未同步，任何原本要释放的引用都会保留到这些启动执行完成为止。</p>
+<p>目前还没有通过 CUDA API 等待用户对象析构函数的机制。用户可以在析构函数代码中手动发出同步对象信号。另外，与 <code class="docutils literal notranslate"><span class="pre">cudaLaunchHostFunc</span></code> 的限制类似，不能从析构函数中调用 CUDA API。这是为了避免阻塞 CUDA 内部共享线程，从而阻碍继续推进。如果依赖关系是单向的，并且执行 API 调用的线程不会阻塞 CUDA 工作的继续推进，那么可以通知另一个线程来执行该 API 调用。</p>
+<p>用户对象通过 <code class="docutils literal notranslate"><span class="pre">cudaUserObjectCreate</span></code> 创建；浏览相关 API 时，这是一个很好的起点。</p>
 </section>
 </section>
 </article>
@@ -1914,93 +1898,93 @@
   </div>
 <nav aria-labelledby="pst-page-navigation-heading-2" class="bd-toc-nav page-toc">
 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-structure">4.2. CUDA Graph</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#node-types">4.2. CUDA Graph</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#edge-data">4.2. CUDA Graph</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-structure">4.2.1. 图结构</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#node-types">4.2.1.1. 节点类型</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#edge-data">4.2.1.2. 边数据</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#building-and-running-graphs">4.2. CUDA Graph</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-creation">4.2. CUDA Graph</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-apis">4.2. CUDA Graph</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#stream-capture">4.2. CUDA Graph</a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#cross-stream-dependencies-and-events">4.2. CUDA Graph</a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#prohibited-and-unhandled-operations">4.2. CUDA Graph</a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#invalidation">4.2. CUDA Graph</a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#capture-introspection">4.2. CUDA Graph</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#building-and-running-graphs">4.2.2. 构建和运行图</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-creation">4.2.2.1. 图创建</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-apis">4.2.2.1.1. 图 API</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#stream-capture">4.2.2.1.2. 流捕获</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#cross-stream-dependencies-and-events">4.2.2.1.2.1. 跨流依赖关系和事件</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#prohibited-and-unhandled-operations">4.2.2.1.2.2. 禁止和未处理的操作</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#invalidation">4.2.2.1.2.3. 失效</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#capture-introspection">4.2.2.1.2.4. 捕获内省</a></li>
 </ul>
 </li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#putting-it-all-together">4.2. CUDA Graph</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#putting-it-all-together">4.2.2.1.3. 综合示例</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-instantiation">4.2. CUDA Graph</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-execution">4.2. CUDA Graph</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-instantiation">4.2.2.2. 图实例化</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-execution">4.2.2.3. 图执行</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#updating-instantiated-graphs">4.2. CUDA Graph</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#whole-graph-update">4.2. CUDA Graph</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#individual-node-update">4.2. CUDA Graph</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#individual-node-enable">4.2. CUDA Graph</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-update-limitations">4.2. CUDA Graph</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#updating-instantiated-graphs">4.2.3. 更新实例化图</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#whole-graph-update">4.2.3.1. 全图更新</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#individual-node-update">4.2.3.2. 单个节点更新</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#individual-node-enable">4.2.3.3. 单个节点启用</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-update-limitations">4.2.3.4. 图更新限制</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#conditional-graph-nodes">4.2. CUDA Graph</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#conditional-handles">4.2. CUDA Graph</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#conditional-node-body-graph-requirements">4.2. CUDA Graph</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#conditional-if-nodes">4.2. CUDA Graph</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#conditional-while-nodes">4.2. CUDA Graph</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#conditional-switch-nodes">4.2. CUDA Graph</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#conditional-graph-nodes">4.2.4. 条件图节点</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#conditional-handles">4.2.4.1. 条件句柄</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#conditional-node-body-graph-requirements">4.2.4.2. 条件节点主体图要求</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#conditional-if-nodes">4.2.4.3. 条件 IF 节点</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#conditional-while-nodes">4.2.4.4. 条件 WHILE 节点</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#conditional-switch-nodes">4.2.4.5. 条件 SWITCH 节点</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-memory-nodes">4.2. CUDA Graph</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#introduction">4.2. CUDA Graph</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#api-fundamentals">4.2. CUDA Graph</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-node-apis">4.2. CUDA Graph</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#cuda-graphs-graph-memory-nodes-stream-capture">4.2. CUDA Graph</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#accessing-and-freeing-graph-memory-outside-of-the-allocating-graph">4.2. CUDA Graph</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#cudagraphinstantiateflagautofreeonlaunch">4.2. CUDA Graph</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#memory-nodes-in-child-graphs">4.2. CUDA Graph</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-memory-nodes">4.2.5. 图内存节点</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#introduction">4.2.5.1. 引言</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#api-fundamentals">4.2.5.2. API 基础知识</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-node-apis">4.2.5.2.1. 图节点 API</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#cuda-graphs-graph-memory-nodes-stream-capture">4.2.5.2.2. 流捕获</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#accessing-and-freeing-graph-memory-outside-of-the-allocating-graph">4.2.5.2.3. 在分配图之外访问和释放图内存</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#cudagraphinstantiateflagautofreeonlaunch">4.2.5.2.4. cudaGraphInstantiateFlagAutoFreeOnLaunch</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#memory-nodes-in-child-graphs">4.2.5.2.5. 子图中的内存节点</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#optimized-memory-reuse">4.2. CUDA Graph</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#address-reuse-within-a-graph">4.2. CUDA Graph</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#physical-memory-management-and-sharing">4.2. CUDA Graph</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#optimized-memory-reuse">4.2.5.3. 优化内存重用</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#address-reuse-within-a-graph">4.2.5.3.1. 图内地址重用</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#physical-memory-management-and-sharing">4.2.5.3.2. 物理内存管理与共享</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#performance-considerations">4.2. CUDA Graph</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#first-launch-cudagraphupload">4.2. CUDA Graph</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#performance-considerations">4.2.5.4. 性能考虑因素</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#first-launch-cudagraphupload">4.2.5.4.1. 首次启动 / cudaGraphUpload</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#physical-memory-footprint">4.2. CUDA Graph</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#peer-access">4.2. CUDA Graph</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#peer-access-with-graph-node-apis">4.2. CUDA Graph</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#peer-access-with-stream-capture">4.2. CUDA Graph</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#device-graph-launch">4.2. CUDA Graph</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#device-graph-creation">4.2. CUDA Graph</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#device-graph-requirements">4.2. CUDA Graph</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#device-graph-upload">4.2. CUDA Graph</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#device-graph-update">4.2. CUDA Graph</a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#device-launch">4.2. CUDA Graph</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#fire-and-forget-launch">4.2. CUDA Graph</a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-execution-environments">4.2. CUDA Graph</a></li>
-</ul>
-</li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#tail-launch">4.2. CUDA Graph</a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#tail-self-launch">4.2. CUDA Graph</a></li>
-</ul>
-</li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#sibling-launch">4.2. CUDA Graph</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#physical-memory-footprint">4.2.5.5. 物理内存占用</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#peer-access">4.2.5.6. 对等访问</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#peer-access-with-graph-node-apis">4.2.5.6.1. 使用图节点 API 进行对等访问</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#peer-access-with-stream-capture">4.2.5.6.2. 通过流捕获进行对等访问</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#using-graph-apis">4.2. CUDA Graph</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#cuda-user-objects">4.2. CUDA Graph</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#device-graph-launch">4.2.6. 设备图启动</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#device-graph-creation">4.2.6.1. 设备图创建</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#device-graph-requirements">4.2.6.1.1. 设备图要求</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#device-graph-upload">4.2.6.1.2. 设备图上传</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#device-graph-update">4.2.6.1.3. 设备图更新</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#device-launch">4.2.6.2. 设备启动</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#fire-and-forget-launch">4.2.6.2.1. 即发即忘启动</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#graph-execution-environments">4.2.6.2.1.1. 图执行环境</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#tail-launch">4.2.6.2.2. 尾部启动</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#tail-self-launch">4.2.6.2.2.1. 尾部自启动</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#sibling-launch">4.2.6.2.3. 兄弟启动</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#using-graph-apis">4.2.7. 使用图 API</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="cuda-graphs.html#cuda-user-objects">4.2.8. CUDA 用户对象</a></li>
 </ul>
 </nav></div>
 </div></div>
