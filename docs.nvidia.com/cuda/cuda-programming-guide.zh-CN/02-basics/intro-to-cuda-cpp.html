@@ -285,20 +285,20 @@
 <section id="intro-to-cuda-c">
 <span id="intro-applications-cpp"></span><h1>2.1. CUDA C++ 入门<a class="headerlink" href="intro-to-cuda-cpp.html#intro-to-cuda-c" title="跳转到此标题">#</a></h1>
 <p>本章通过 C++ 示例介绍 CUDA 编程模型中的一些基础概念。</p>
-<p>本编程指南重点关注 CUDA Runtime API。它是 C++ 中最常用的 CUDA 使用方式，并构建在更基础的 CUDA Driver API 之上。</p>
-<p><a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-driver-and-runtime"><span class="std std-ref">CUDA 运行时 API 和 CUDA 驱动程序 API</span></a> 讨论 API 和 API 之间的区别 <a class="reference internal" href="../03-advanced/driver-api.html#driver-api"><span class="std std-ref">CUDA驱动程序API</span></a> 讨论编写混合 API 的代码。</p>
-<p>本指南假设已安装 CUDA 工具包和 NVIDIA 驱动程序，并且存在受支持的 NVIDIA GPU。参见 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-quick-start-guide/index.html">CUDA 快速入门指南</a> 有关安装必要的 CUDA 组件的说明。</p>
+<p>本编程指南主要介绍 CUDA Runtime API。它是 C++ 中最常用的 CUDA 使用方式，并构建在更底层的 CUDA Driver API 之上。</p>
+<p><a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-driver-and-runtime"><span class="std std-ref">CUDA Runtime API 与 CUDA Driver API</span></a> 说明了这两套 API 的差异；<a class="reference internal" href="../03-advanced/driver-api.html#driver-api"><span class="std std-ref">CUDA Driver API</span></a> 章节则讨论如何编写混用两套 API 的代码。</p>
+<p>本指南假设系统已经安装 CUDA Toolkit 和 NVIDIA Driver，并且配备受支持的 NVIDIA GPU。安装必要 CUDA 组件的步骤，请参阅 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-quick-start-guide/index.html">CUDA 快速入门指南</a>。</p>
 <section id="compilation-with-nvcc">
 <span id="id1"></span><h2><span class="section-number">2.1.1. </span>使用 NVCC 编译<a class="headerlink" href="intro-to-cuda-cpp.html#compilation-with-nvcc" title="跳转到此标题">#</a></h2>
-<p>使用C++编写的GPU代码通过NVIDIA CUDA编译器 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 进行编译。 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 是一个编译器驱动程序，可简化编译 C++ 或 PTX 代码的过程：它提供简单且熟悉的命令行选项，并通过调用实现不同编译阶段的工具集合来执行它们。</p>
-<p>本指南将展示 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 命令行，可在安装了 CUDA 工具包的任何 Linux 系统、Windows 命令行或 Power shell 或带有 CUDA 工具包的 Windows Subsystem for Linux 上使用。  的 <a class="reference internal" href="nvcc.html#nvcc"><span class="std std-ref">NVCC 分会</span></a> 本指南涵盖了以下常见用例 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code>，完整的文档由 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html">nvcc 用户手册</a>.</p>
+<p>使用 C++ 编写的 GPU 代码由 NVIDIA CUDA 编译器 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 编译。<code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 是一个编译器驱动程序，用来简化 C++ 或 PTX 代码的编译流程：它提供简单、熟悉的命令行选项，并通过调用一组工具来完成不同的编译阶段。</p>
+<p>本指南中的 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 命令行示例，可用于安装了 CUDA Toolkit 的 Linux 系统、Windows 命令提示符或 PowerShell，也可用于带 CUDA Toolkit 的 Windows Subsystem for Linux。本文档的 <a class="reference internal" href="nvcc.html#nvcc"><span class="std std-ref">NVCC 章节</span></a> 介绍 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 的常见用法；完整文档见 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html">nvcc 用户手册</a>。</p>
 </section>
 <section id="kernels">
 <span id="id2"></span><h2><span class="section-number">2.1.2. </span>内核（Kernel）<a class="headerlink" href="intro-to-cuda-cpp.html#kernels" title="跳转到此标题">#</a></h2>
-<p>正如 <a class="reference internal" href="../01-introduction/programming-model.html#programming-model"><span class="std std-ref">CUDA 编程模型</span></a> 一章提到，不可主机端调用并在 GPU 上执行称为内核（kernel）的函数。内核被编写为由许多并行线程同时运行。</p>
+<p>如 <a class="reference internal" href="../01-introduction/programming-model.html#programming-model"><span class="std std-ref">CUDA 编程模型</span></a> 中所述，可以从主机端调用、并在 GPU 上执行的函数称为内核（kernel）。内核会由许多并行线程同时运行。</p>
 <section id="specifying-kernels">
 <span id="intro-cpp-specifying-kernels"></span><h3><span class="section-number">2.1.2.1. </span>定义内核<a class="headerlink" href="intro-to-cuda-cpp.html#specifying-kernels" title="跳转到此标题">#</a></h3>
-<p>内核的代码是使用以下命令指定的 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 声明说明符。这向编译器表明该函数将以允许从内核启动调用它的方式为 GPU 编译。内核启动是通常从 CPU 启动内核运行的操作。内核是带有 <code class="docutils literal notranslate"><span class="pre">void</span></code> 返回类型。</p>
+<p>内核代码使用 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 声明说明符来标记。该说明符告诉编译器：这个函数需要为 GPU 编译，并且可以通过一次内核启动来调用。内核启动通常是从 CPU 发起、让内核开始运行的操作。内核函数的返回类型必须是 <code class="docutils literal notranslate"><span class="pre">void</span></code>。</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// 内核定义</span>
 <span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">vecAdd</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">C</span><span class="p">)</span>
 <span class="p">{</span>
@@ -309,11 +309,11 @@
 </section>
 <section id="launching-kernels">
 <span id="intro-cpp-launching-kernels"></span><h3><span class="section-number">2.1.2.2. </span>启动内核<a class="headerlink" href="intro-to-cuda-cpp.html#launching-kernels" title="跳转到此标题">#</a></h3>
-<p>内核线程执行的线程数量在内核启动时进行指定，这称为执行配置（executionconfiguration）。同一内核的不同调用可能会使用不同的执行配置，例如不同数量的线程或线程块。</p>
-<p>有两种从 CPU 代码启动内核的方法， <a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-launching-kernels-triple-chevron"><span class="std std-ref">三重 V 形符号</span></a> 和 <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code>。这里介绍了三重 V 形符号，这是启动内核的最常见方式。使用以下命令启动内核的示例 <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code> 在章节中详细显示和讨论 <a class="reference internal" href="../03-advanced/advanced-host-programming.html#advanced-host-cudalaunchkernelex"><span class="std std-numref">第3.1.1节</span></a>.</p>
+<p>并行执行内核的线程数量会在内核启动时指定，这称为执行配置（execution configuration）。同一个内核的不同调用可以使用不同的执行配置，例如不同数量的线程或线程块。</p>
+<p>从 CPU 代码启动内核有两种方式：<a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-launching-kernels-triple-chevron"><span class="std std-ref">三尖括号语法</span></a> 和 <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code>。这里先介绍最常见的三尖括号语法。使用 <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code> 启动内核的示例，会在 <a class="reference internal" href="../03-advanced/advanced-host-programming.html#advanced-host-cudalaunchkernelex"><span class="std std-numref">第 3.1.1 节</span></a> 中详细展示和讨论。</p>
 <section id="triple-chevron-notation">
 <span id="intro-cpp-launching-kernels-triple-chevron"></span><h4><span class="section-number">2.1.2.2.1. </span>三尖括号语法<a class="headerlink" href="intro-to-cuda-cpp.html#triple-chevron-notation" title="跳转到此标题">#</a></h4>
-<p>三重 V 形符号是 <a class="reference internal" href="../05-appendices/cpp-language-extensions.html#execution-configuration"><span class="std std-ref">CUDA C++ 语言扩展</span></a> 用于启动内核。它被称为三重 V 形，因为它使用三个 V 形字符来封装内核启动的执行配置，即 <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;</span> <span class="pre">&gt;&gt;&gt;</span></code>。执行配置参数被指定为 V 形内的逗号分隔列表，类似于函数调用的参数。内核启动的语法 <code class="docutils literal notranslate"><span class="pre">vecAdd</span></code> 内核如下所示。</p>
+<p>三尖括号语法是一项用于启动内核的 <a class="reference internal" href="../05-appendices/cpp-language-extensions.html#execution-configuration"><span class="std std-ref">CUDA C++ 语言扩展</span></a>。它之所以叫三尖括号，是因为它用三个尖括号字符包住内核启动的执行配置，即 <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;</span> <span class="pre">&gt;&gt;&gt;</span></code>。执行配置参数以逗号分隔的列表写在尖括号内，形式类似函数调用的参数。下面展示了 <code class="docutils literal notranslate"><span class="pre">vecAdd</span></code> 内核的启动语法。</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="w"> </span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">vecAdd</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">C</span><span class="p">)</span>
 <span class="w"> </span><span class="p">{</span>
 
@@ -328,11 +328,11 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>三重 V 形符号的前两个参数分别是网格尺寸和线程块尺寸。当使用一维线程块或网格时，可以使用整数来指定维度。</p>
-<p>上面的代码启动了一个包含 256 个线程的线程块。每个线程将执行完全相同的内核代码。在 <a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-thread-indexing"><span class="std std-ref">线程和网格索引内在函数</span></a>，我们将展示每个线程如何使用其在线程块和网格中的索引来更改其操作的数据。</p>
-<p>每个块的线程数量是有限的，因为块中的所有线程都驻留在同一个流式多处理器 (SM) 上，并且必须共享 SM 的资源。在当前的 GPU 上，一个线程块最多可以包含 1024 个线程。如果资源允许，可以在SM上同时调度多个线程块。</p>
-<p>内核启动相对于主机线程是异步的。也就是说，内核将被设置为在 GPU 上执行，但主机代码不会等待内核在 GPU 上完成（甚至开始）执行，然后再继续。必须使用 GPU 和 CPU 之间某种形式的同步来确定内核是否已完成。最基本的版本，完全同步整个GPU，如图所示 <a class="reference internal" href="intro-to-cuda-cpp.html#intro-synchronizing-the-gpu"><span class="std std-ref">同步CPU和GPU</span></a>。更复杂的同步方法包含在 <a class="reference internal" href="asynchronous-execution.html#asynchronous-execution"><span class="std std-ref">异步执行</span></a>.</p>
-<p>当使用 2 或 3 维网格或线程块时，CUDA 类型 <code class="docutils literal notranslate"><span class="pre">dim3</span></code> 用作网格和线程块尺寸参数。下面的代码片段显示了内核启动 <code class="docutils literal notranslate"><span class="pre">MatAdd</span></code> 内核使用 16 x 16 网格的线程块，每个线程块是 8 x 8。</p>
+<p>三尖括号语法的前两个参数分别是网格维度和线程块维度。使用一维线程块或网格时，可以直接用整数指定维度。</p>
+<p>上面的代码启动了一个包含 256 个线程的线程块。每个线程都会执行同一份内核代码。在 <a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-thread-indexing"><span class="std std-ref">线程与网格索引内建变量</span></a> 中，我们会展示每个线程如何利用自己在线程块和网格中的索引，选择要处理的数据。</p>
+<p>每个线程块中的线程数量有上限，因为同一线程块中的所有线程都驻留在同一个流式多处理器（SM）上，并且必须共享该 SM 的资源。在当前 GPU 上，一个线程块最多可包含 1024 个线程。如果资源允许，一个 SM 可以同时调度多个线程块。</p>
+<p>相对于主机线程，内核启动是异步的。也就是说，内核会被提交到 GPU 上执行，但主机代码不会等待内核在 GPU 上完成执行，甚至不会等待它开始执行，就会继续向下运行。因此必须在 GPU 与 CPU 之间使用某种同步机制，才能确定内核已经完成。最基本的方式是同步整个 GPU，见 <a class="reference internal" href="intro-to-cuda-cpp.html#intro-synchronizing-the-gpu"><span class="std std-ref">CPU 与 GPU 同步</span></a>。更复杂的同步方法见 <a class="reference internal" href="asynchronous-execution.html#asynchronous-execution"><span class="std std-ref">异步执行</span></a>。</p>
+<p>使用二维或三维网格、线程块时，CUDA 类型 <code class="docutils literal notranslate"><span class="pre">dim3</span></code> 可作为网格和线程块维度参数。下面的代码片段展示了如何启动 <code class="docutils literal notranslate"><span class="pre">MatAdd</span></code> 内核：它使用 16 x 16 个线程块构成的网格，每个线程块大小为 8 x 8。</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
 <span class="p">{</span>
 <span class="w">    </span><span class="p">...</span>
@@ -352,14 +352,14 @@
 <div><ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">threadIdx</span></code> 给出线程在其线程块中的索引。线程块中的每个线程都会有不同的索引。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">blockDim</span></code> 给出线程块的尺寸，该尺寸在内核启动的执行配置中指定。</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">blockIdx</span></code> 给出网格内线程块的索引.每个线程块都会有不同的索引。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">blockIdx</span></code> 给出线程块在网格中的索引。每个线程块都会有不同的索引。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">gridDim</span></code> 给出网格的尺寸，该尺寸在内核启动时在执行配置中指定。</p></li>
 </ul>
 </div></blockquote>
-<p>这些内在函数中的每一个都是一个 3 分量向量，其中 <code class="docutils literal notranslate"><span class="pre">.x</span></code>, <code class="docutils literal notranslate"><span class="pre">.y</span></code>, 和 <code class="docutils literal notranslate"><span class="pre">.z</span></code> 会员。启动配置未指定的维度将默认为 1。
-<code class="docutils literal notranslate"><span class="pre">threadIdx</span></code> 或 <code class="docutils literal notranslate"><span class="pre">blockIdx</span></code> 是零索引的。也就是说， <code class="docutils literal notranslate"><span class="pre">threadIdx.x</span></code> 将采用从 0 到（包括）的值 <code class="docutils literal notranslate"><span class="pre">blockDim.x-1</span></code>. <code class="docutils literal notranslate"><span class="pre">.y</span></code> 或 <code class="docutils literal notranslate"><span class="pre">.z</span></code> 在各自的维度上操作相同。</p>
-<p>同样， <code class="docutils literal notranslate"><span class="pre">blockIdx.x</span></code> 值从 0 到（包括） <code class="docutils literal notranslate"><span class="pre">gridDim.x-1</span></code>，同样对于 <code class="docutils literal notranslate"><span class="pre">.y</span></code> 或 <code class="docutils literal notranslate"><span class="pre">.z</span></code> 尺寸，分别。</p>
-<p>这些允许单个线程识别它应该执行什么工作。回到 <code class="docutils literal notranslate"><span class="pre">vecAdd</span></code> kernel，内核采用三个参数，每个参数都是浮点数向量。内核执行逐元素加法 <code class="docutils literal notranslate"><span class="pre">A</span></code> 或 <code class="docutils literal notranslate"><span class="pre">B</span></code> 并将结果存储在 <code class="docutils literal notranslate"><span class="pre">C</span></code>。内核是并行的，每个线程都会执行一次加法。它计算哪个元素由其线程和网格索引决定。</p>
+<p>这些内建变量都是三分量向量，成员包括 <code class="docutils literal notranslate"><span class="pre">.x</span></code>、<code class="docutils literal notranslate"><span class="pre">.y</span></code> 和 <code class="docutils literal notranslate"><span class="pre">.z</span></code>。启动配置中没有指定的维度会默认为 1。
+<code class="docutils literal notranslate"><span class="pre">threadIdx</span></code> 和 <code class="docutils literal notranslate"><span class="pre">blockIdx</span></code> 都从 0 开始计数。也就是说，<code class="docutils literal notranslate"><span class="pre">threadIdx.x</span></code> 的取值范围是 0 到 <code class="docutils literal notranslate"><span class="pre">blockDim.x-1</span></code>，包含两端。<code class="docutils literal notranslate"><span class="pre">.y</span></code> 和 <code class="docutils literal notranslate"><span class="pre">.z</span></code> 在各自维度上遵循同样的规则。</p>
+<p>类似地，<code class="docutils literal notranslate"><span class="pre">blockIdx.x</span></code> 的取值范围是 0 到 <code class="docutils literal notranslate"><span class="pre">gridDim.x-1</span></code>，包含两端；<code class="docutils literal notranslate"><span class="pre">.y</span></code> 和 <code class="docutils literal notranslate"><span class="pre">.z</span></code> 维度也是如此。</p>
+<p>这些内建变量让每个线程能够识别自己要执行的工作。回到 <code class="docutils literal notranslate"><span class="pre">vecAdd</span></code> 内核，它接收三个参数，每个参数都是浮点向量。内核对 <code class="docutils literal notranslate"><span class="pre">A</span></code> 和 <code class="docutils literal notranslate"><span class="pre">B</span></code> 做逐元素加法，并将结果存入 <code class="docutils literal notranslate"><span class="pre">C</span></code>。该内核会并行执行，让每个线程完成一次加法；具体计算哪个元素，由线程索引和网格索引共同决定。</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">vecAdd</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">C</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">   </span><span class="c1">// 计算这个线程负责计算哪个元素</span>
@@ -378,11 +378,11 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>在此示例中，使用 256 个线程的 4 个线程块来添加 1024 个元素的向量。在第一个线程块中， <code class="docutils literal notranslate"><span class="pre">blockIdx.x</span></code> 将为零，因此每个线程的 workIndex 将只是其 <code class="docutils literal notranslate"><span class="pre">threadIdx.x</span></code>。在第二个线程块中， <code class="docutils literal notranslate"><span class="pre">blockIdx.x</span></code> 将是 1，所以 <code class="docutils literal notranslate"><span class="pre">blockDim.x</span> <span class="pre">*</span> <span class="pre">blockIdx.x</span></code> 将与以下相同 <code class="docutils literal notranslate"><span class="pre">blockDim.x</span></code>，在本例中为 256。的 <code class="docutils literal notranslate"><span class="pre">workIndex</span></code> 对于第二个线程块中的每个线程将是其 <code class="docutils literal notranslate"><span class="pre">threadIdx.x</span> <span class="pre">+</span> <span class="pre">256</span></code>。在第三个线程块中 <code class="docutils literal notranslate"><span class="pre">workIndex</span></code> 将是 <code class="docutils literal notranslate"><span class="pre">threadIdx.x</span> <span class="pre">+</span> <span class="pre">512</span></code>.</p>
-<p>这个计算 <code class="docutils literal notranslate"><span class="pre">workIndex</span></code> 对于一维并行化来说非常常见。扩展到二维或三维通常在每个维度中遵循相同的模式。</p>
+<p>在这个示例中，程序使用 4 个线程块、每块 256 个线程来相加一个包含 1024 个元素的向量。在第一个线程块中，<code class="docutils literal notranslate"><span class="pre">blockIdx.x</span></code> 为 0，因此每个线程的 <code class="docutils literal notranslate"><span class="pre">workIndex</span></code> 就等于它的 <code class="docutils literal notranslate"><span class="pre">threadIdx.x</span></code>。在第二个线程块中，<code class="docutils literal notranslate"><span class="pre">blockIdx.x</span></code> 为 1，因此 <code class="docutils literal notranslate"><span class="pre">blockDim.x</span> <span class="pre">*</span> <span class="pre">blockIdx.x</span></code> 等于 <code class="docutils literal notranslate"><span class="pre">blockDim.x</span></code>，本例中也就是 256。第二个线程块中每个线程的 <code class="docutils literal notranslate"><span class="pre">workIndex</span></code> 为 <code class="docutils literal notranslate"><span class="pre">threadIdx.x</span> <span class="pre">+</span> <span class="pre">256</span></code>。第三个线程块中，<code class="docutils literal notranslate"><span class="pre">workIndex</span></code> 则为 <code class="docutils literal notranslate"><span class="pre">threadIdx.x</span> <span class="pre">+</span> <span class="pre">512</span></code>。</p>
+<p>这种 <code class="docutils literal notranslate"><span class="pre">workIndex</span></code> 计算在一维并行化中很常见。扩展到二维或三维时，通常也会在每个维度上采用类似模式。</p>
 <section id="bounds-checking">
 <span id="intro-cpp-bounds-checking"></span><h4><span class="section-number">2.1.2.3.1. </span>边界检查<a class="headerlink" href="intro-to-cuda-cpp.html#bounds-checking" title="跳转到此标题">#</a></h4>
-<p>上面给出的示例假设向量的长度是线程块大小的倍数，在本例中为 256 个线程。为了使内核处理任何向量长度，我们可以添加检查以确保内存访问不超过数组的边界，如下所示，然后启动一个线程块，该线程块将包含一些不活动的线程。</p>
+<p>上面的示例假设向量长度是线程块大小的整数倍，本例中线程块大小为 256。为了让内核能处理任意向量长度，可以像下面这样添加边界检查，确保内存访问不会越过数组边界；这样启动的最后一个线程块中可能会包含一些不执行实际工作的线程。</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">vecAdd</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">     </span><span class="c1">// 计算这个线程负责计算哪个元素</span>
@@ -396,32 +396,32 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>使用上述内核代码，可以启动比需要更多的线程，而不会导致对数组的越界访问。什么时候 <code class="docutils literal notranslate"><span class="pre">workIndex</span></code> exceeds <code class="docutils literal notranslate"><span class="pre">vectorLength</span></code>，线程退出并且不做任何工作。在不执行任何工作的块中启动额外的线程不会产生较大的开销成本，但是应避免启动其中没有线程执行工作的线程块。该内核现在可以处理不是块大小倍数的向量长度。</p>
-<p>所需线程块的数量可以计算为所需线程数量的上限（本例中为向量长度）除以每个块的线程数量。即所需线程数除以每块线程数的整数，向上取整。下面给出了将其表示为单个整数除法的常用方法。通过添加 <code class="docutils literal notranslate"><span class="pre">threads</span> <span class="pre">-</span> <span class="pre">1</span></code> 在整数除法之前，这就像一个上限函数，仅当向量长度不能被每个块的线程数整除时才添加另一个线程块。</p>
+<p>使用上述内核代码后，可以启动略多于实际需要的线程，而不会造成数组越界访问。当 <code class="docutils literal notranslate"><span class="pre">workIndex</span></code> 超过 <code class="docutils literal notranslate"><span class="pre">vectorLength</span></code> 时，该线程会直接退出，不执行任何工作。在线程块内多启动一些不工作的线程通常开销不大，但应避免启动完全没有线程执行有效工作的线程块。这样修改后，内核就可以处理长度不是线程块大小整数倍的向量。</p>
+<p>所需线程块数量可以按“所需线程数除以每块线程数并向上取整”来计算，本例中所需线程数就是向量长度。下面给出一种常见写法，它只用一次整数除法表达向上取整。通过在整数除法前加上 <code class="docutils literal notranslate"><span class="pre">threads</span> <span class="pre">-</span> <span class="pre">1</span></code>，该表达式的行为类似上取整函数：只有当向量长度不能被每块线程数整除时，才会额外增加一个线程块。</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// vectorLength 是一个整数，存储向量中元素的数量</span>
 <span class="kt">int</span><span class="w"> </span><span class="n">threads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">256</span><span class="p">;</span>
 <span class="kt">int</span><span class="w"> </span><span class="n">blocks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">vectorLength</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">threads</span><span class="mi">-1</span><span class="p">)</span><span class="o">/</span><span class="n">threads</span><span class="p">;</span>
 <span class="n">vecAdd</span><span class="o">&lt;&lt;&lt;</span><span class="n">blocks</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">devA</span><span class="p">,</span><span class="w"> </span><span class="n">devB</span><span class="p">,</span><span class="w"> </span><span class="n">devC</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">);</span>
 </pre></div>
 </div>
-<p><a class="reference external" href="https://nvidia.github.io/cccl/">CUDA 核心计算库 (CCCL)</a> 提供了方便的实用工具， <code class="docutils literal notranslate"><span class="pre">cuda::ceil_div</span></code>，用于执行此上限除法来计算内核启动所需的块数。该实用程序可通过包含标头来使用 <code class="docutils literal notranslate"><span class="pre">&lt;cuda/cmath&gt;</span></code>.</p>
+<p><a class="reference external" href="https://nvidia.github.io/cccl/">CUDA Core Compute Library (CCCL)</a> 提供了方便的工具函数 <code class="docutils literal notranslate"><span class="pre">cuda::ceil_div</span></code>，可用这种向上取整除法计算内核启动所需的线程块数。包含头文件 <code class="docutils literal notranslate"><span class="pre">&lt;cuda/cmath&gt;</span></code> 后即可使用该工具。</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="c1">// vectorLength 是一个整数，存储向量中元素的数量</span>
 <span class="kt">int</span><span class="w"> </span><span class="n">threads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">256</span><span class="p">;</span>
 <span class="kt">int</span><span class="w"> </span><span class="n">blocks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">ceil_div</span><span class="p">(</span><span class="n">vectorLength</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="p">);</span>
 <span class="n">vecAdd</span><span class="o">&lt;&lt;&lt;</span><span class="n">blocks</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">devA</span><span class="p">,</span><span class="w"> </span><span class="n">devB</span><span class="p">,</span><span class="w"> </span><span class="n">devC</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>这里每个块 256 个线程的选择是任意的，但这通常是一个很好的开始值。</p>
+<p>这里选择每个线程块 256 个线程只是示例取值，不过它通常是一个不错的起点。</p>
 </section>
 </section>
 </section>
 <section id="memory-in-gpu-computing">
 <span id="intro-cpp-allocating-memory"></span><h2><span class="section-number">2.1.3. </span>GPU 计算中的内存<a class="headerlink" href="intro-to-cuda-cpp.html#memory-in-gpu-computing" title="跳转到此标题">#</a></h2>
-<p>要使用上文的 <code class="docutils literal notranslate"><span class="pre">vecAdd</span></code> 内核，数组 <code class="docutils literal notranslate"><span class="pre">A</span></code>、<code class="docutils literal notranslate"><span class="pre">B</span></code>、<code class="docutils literal notranslate"><span class="pre">C</span></code> 必须位于 GPU 可访问的内存中。有几种不同的方法可以做到这一点，这里将说明其中两种。其他方法将在后面的章节中介绍 <a class="reference internal" href="understanding-memory.html#memory-unified-memory"><span class="std std-ref">统一内存</span></a>。 GPU 上运行的代码可用的内存空间在 <a class="reference internal" href="../01-introduction/programming-model.html#programming-model-memory"><span class="std std-ref">显存</span></a> 并在以下内容中有更详细的介绍 <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-gpu-device-memory-spaces"><span class="std std-ref">GPU 设备内存空间</span></a>.</p>
+<p>要使用上面的 <code class="docutils literal notranslate"><span class="pre">vecAdd</span></code> 内核，数组 <code class="docutils literal notranslate"><span class="pre">A</span></code>、<code class="docutils literal notranslate"><span class="pre">B</span></code> 和 <code class="docutils literal notranslate"><span class="pre">C</span></code> 必须位于 GPU 可以访问的内存中。实现方式有多种，这里介绍其中两种。其他方式会在后续 <a class="reference internal" href="understanding-memory.html#memory-unified-memory"><span class="std std-ref">统一内存</span></a> 章节中说明。GPU 端代码可用的内存空间已在 <a class="reference internal" href="../01-introduction/programming-model.html#programming-model-memory"><span class="std std-ref">GPU 内存</span></a> 中简要介绍，并会在 <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-gpu-device-memory-spaces"><span class="std std-ref">GPU 设备内存空间</span></a> 中进一步展开。</p>
 <section id="unified-memory">
 <span id="intro-cpp-unified-memory"></span><h3><span class="section-number">2.1.3.1. </span>统一内存<a class="headerlink" href="intro-to-cuda-cpp.html#unified-memory" title="跳转到此标题">#</a></h3>
-<p>统一内存是 CUDA 运行时的一项功能，可让 NVIDIA 驱动程序管理主机和设备之间的数据移动。内存分配使用 <code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code> API 或通过声明变量 <code class="docutils literal notranslate"><span class="pre">__managed__</span></code> 说明符。每当 GPU 或 CPU 尝试访问内存时，NVIDIA 驱动程序都会确保该内存可供访问。</p>
-<p>下面的代码显示了启动的完整功能 <code class="docutils literal notranslate"><span class="pre">vecAdd</span></code> 内核使用统一内存来存储将在 GPU 上使用的输入和输出向量。 <code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code> 分配可以从 CPU 或 GPU 访问的缓冲区。这些缓冲区被释放使用 <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code>.</p>
+<p>统一内存是 CUDA Runtime 的一项功能，可让 NVIDIA Driver 管理主机与设备之间的数据移动。可以使用 <code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code> API 分配统一内存，也可以在变量声明中使用 <code class="docutils literal notranslate"><span class="pre">__managed__</span></code> 说明符。无论 GPU 还是 CPU 试图访问这段内存，NVIDIA Driver 都会确保它在访问方可用。</p>
+<p>下面的代码展示了一个完整函数：它启动 <code class="docutils literal notranslate"><span class="pre">vecAdd</span></code> 内核，并用统一内存存放 GPU 将要使用的输入、输出向量。<code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code> 分配的缓冲区既可由 CPU 访问，也可由 GPU 访问。这些缓冲区使用 <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code> 释放。</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">unifiedMemExample</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">    </span><span class="c1">// 指向内存向量的指针</span>
@@ -439,18 +439,18 @@
 <span class="w">    </span><span class="n">initArray</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">);</span>
 <span class="w">    </span><span class="n">initArray</span><span class="p">(</span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">);</span>
 
-<span class="w">    </span><span class="c1">// 启动内核。统一内存将确保 A、B 和 C</span>
-<span class="w">    </span><span class="c1">// GPU 可以访问</span>
+<span class="w">    </span><span class="c1">// 启动内核。统一内存会确保 GPU</span>
+<span class="w">    </span><span class="c1">// 可以访问 A、B 和 C</span>
 <span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">threads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">256</span><span class="p">;</span>
 <span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">blocks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cuda</span><span class="o">::</span><span class="n">ceil_div</span><span class="p">(</span><span class="n">vectorLength</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="p">);</span>
 <span class="w">    </span><span class="n">vecAdd</span><span class="o">&lt;&lt;&lt;</span><span class="n">blocks</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">);</span>
 <span class="w">    </span><span class="c1">// 等待内核完成执行</span>
 <span class="w">    </span><span class="n">cudaDeviceSynchronize</span><span class="p">();</span>
 
-<span class="w">    </span><span class="c1">// 在CPU上串行执行计算以进行比较</span>
+<span class="w">    </span><span class="c1">// 在 CPU 上串行执行计算以便比较</span>
 <span class="w">    </span><span class="n">serialVecAdd</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">comparisonResult</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">);</span>
 
-<span class="w">    </span><span class="c1">// 确认CPU和GPU得到相同的答案</span>
+<span class="w">    </span><span class="c1">// 确认 CPU 和 GPU 得到相同结果</span>
 <span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">vectorApproximatelyEqual</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">comparisonResult</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">))</span>
 <span class="w">    </span><span class="p">{</span>
 <span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">"Unified Memory: CPU and GPU answers match</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
@@ -469,11 +469,11 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>CUDA 支持的所有操作系统和 GPU 均支持统一内存，但底层机制和性能可能因系统架构而异。 <a class="reference internal" href="understanding-memory.html#memory-unified-memory"><span class="std std-ref">统一内存</span></a> 提供更多详细信息。在某些 Linux 系统上（例如那些带有 <a class="reference internal" href="understanding-memory.html#memory-unified-address-translation-services"><span class="std std-ref">地址翻译服务</span></a> 和 <a class="reference internal" href="understanding-memory.html#memory-heterogeneous-memory-management"><span class="std std-ref">异构内存管理</span></a>）所有系统内存自动统一内存，无需使用 <code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code> 或 <code class="docutils literal notranslate"><span class="pre">__managed__</span></code> specifier.</p>
+<p>CUDA 支持的所有操作系统和 GPU 都支持统一内存，但底层机制和性能可能随系统架构而变化。更多细节见 <a class="reference internal" href="understanding-memory.html#memory-unified-memory"><span class="std std-ref">统一内存</span></a>。在某些 Linux 系统上，例如支持 <a class="reference internal" href="understanding-memory.html#memory-unified-address-translation-services"><span class="std std-ref">地址转换服务</span></a> 或 <a class="reference internal" href="understanding-memory.html#memory-heterogeneous-memory-management"><span class="std std-ref">异构内存管理</span></a> 的系统，所有系统内存都会自动成为统一内存，因此无需使用 <code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code> 或 <code class="docutils literal notranslate"><span class="pre">__managed__</span></code> 说明符。</p>
 </section>
 <section id="explicit-memory-management">
 <span id="intro-cpp-explicit-memory-management"></span><h3><span class="section-number">2.1.3.2. </span>显式内存管理<a class="headerlink" href="intro-to-cuda-cpp.html#explicit-memory-management" title="跳转到此标题">#</a></h3>
-<p>显式管理内存空间之间的内存分配和数据迁移有助于提高应用程序性能，尽管它确实会导致更冗长的代码。下面的代码使用显式分配 GPU 上的内存 <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code>。使用相同的方法释放 GPU 上的内存 <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code> 在前面的示例中，API as 用于统一内存。</p>
+<p>显式管理内存分配，以及不同内存空间之间的数据迁移，有助于提升应用程序性能，但代码也会更长。下面的代码使用 <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code> 在 GPU 上显式分配内存。GPU 内存使用 <code class="docutils literal notranslate"><span class="pre">cudaFree</span></code> 释放，这与前面统一内存示例中使用的 API 相同。</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">explicitMemExample</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">)</span>
 <span class="p">{</span>
 <span class="w">    </span><span class="c1">// 主机内存指针</span>
@@ -487,8 +487,8 @@
 <span class="w">    </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">devB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
 <span class="w">    </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">devC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
 
-<span class="w">    </span><span class="c1">// 使用 cudaMallocHost API 分配主机内存。这是最佳实践</span>
-<span class="w">    </span><span class="c1">// 何时使用缓冲区在 CPU 和 GPU 内存之间进行复制</span>
+<span class="w">    </span><span class="c1">// 使用 cudaMallocHost API 分配主机内存。缓冲区将用于</span>
+<span class="w">    </span><span class="c1">// CPU 与 GPU 内存之间的数据复制时，这是推荐做法</span>
 <span class="w">    </span><span class="n">cudaMallocHost</span><span class="p">(</span><span class="o">&amp;</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
 <span class="w">    </span><span class="n">cudaMallocHost</span><span class="p">(</span><span class="o">&amp;</span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
 <span class="w">    </span><span class="n">cudaMallocHost</span><span class="p">(</span><span class="o">&amp;</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
@@ -503,7 +503,7 @@
 <span class="w">    </span><span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">devB</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
 <span class="w">    </span><span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">devC</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
 
-<span class="w">    </span><span class="c1">// 将数据复制到GPU</span>
+<span class="w">    </span><span class="c1">// 将数据复制到 GPU</span>
 <span class="w">    </span><span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">devA</span><span class="p">,</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">),</span><span class="w"> </span><span class="n">cudaMemcpyDefault</span><span class="p">);</span>
 <span class="w">    </span><span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">devB</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">),</span><span class="w"> </span><span class="n">cudaMemcpyDefault</span><span class="p">);</span>
 <span class="w">    </span><span class="n">cudaMemset</span><span class="p">(</span><span class="n">devC</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
@@ -519,10 +519,10 @@
 <span class="w">    </span><span class="c1">// 将结果复制回主机</span>
 <span class="w">    </span><span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">devC</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">),</span><span class="w"> </span><span class="n">cudaMemcpyDefault</span><span class="p">);</span>
 
-<span class="w">    </span><span class="c1">// 在CPU上串行执行计算以进行比较</span>
+<span class="w">    </span><span class="c1">// 在 CPU 上串行执行计算以便比较</span>
 <span class="w">    </span><span class="n">serialVecAdd</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">comparisonResult</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">);</span>
 
-<span class="w">    </span><span class="c1">// 确认CPU和GPU得到相同的答案</span>
+<span class="w">    </span><span class="c1">// 确认 CPU 和 GPU 得到相同结果</span>
 <span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">vectorApproximatelyEqual</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">comparisonResult</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">))</span>
 <span class="w">    </span><span class="p">{</span>
 <span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">"Explicit Memory: CPU and GPU answers match</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
@@ -543,25 +543,25 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>CUDA API <code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code> 用于将数据从驻留在 CPU 上的缓冲区复制到驻留在 GPU 上的缓冲区。除了目标指针、源指针和字节大小之外，最后一个参数 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code> 是一个 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyKind_t</span></code>。这可以具有诸如以下的值 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyHostToDevice</span></code> 对于从 CPU 到 GPU 的副本， <code class="docutils literal notranslate"><span class="pre">cudaMemcpyDeviceToHost</span></code> 用于从 CPU 到 GPU 的副本，或者 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyDeviceToDevice</span></code> 用于 GPU 内或 GPU 之间的副本。</p>
-<p>在这个例子中， <code class="docutils literal notranslate"><span class="pre">cudaMemcpyDefault</span></code> 作为最后一个参数传递给 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code>。  这会导致 CUDA 使用源指针和目标指针的值来确定要执行的复制类型。</p>
-<p><code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code> API 是同步的。也就是说，在复制完成之前它不会返回。异步副本引入于 <a class="reference internal" href="asynchronous-execution.html#async-execution-memory-transfers"><span class="std std-ref">在 CUDA 流中启动内存传输</span></a>.</p>
-<p>代码使用 <code class="docutils literal notranslate"><span class="pre">cudaMallocHost</span></code> 在CPU上分配内存。这分配 <a class="reference internal" href="understanding-memory.html#memory-page-locked-host-memory"><span class="std std-ref">页锁定内存</span></a> 在主机上，这可以提高复制性能，并且对于  <a class="reference internal" href="asynchronous-execution.html#async-execution-memory-transfers"><span class="std std-ref">asynchronous</span></a> 内存传输。一般来说，最好将页面锁定内存用于 CPU 缓冲区，这些缓冲区将用于与 GPU 之间的数据传输。如果太多主机内存被页面锁定，某些系统上的性能可能会下降。最佳实践是仅对用于从 GPU 发送或接收数据的缓冲区进行页面锁定。</p>
+<p>CUDA API <code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code> 用于在 CPU 端缓冲区和 GPU 端缓冲区之间复制数据。除了目标指针、源指针和字节数之外，<code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code> 的最后一个参数是 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyKind_t</span></code>。它可以取 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyHostToDevice</span></code> 这样的值，表示从 CPU 复制到 GPU；也可以取 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyDeviceToHost</span></code>，表示从 GPU 复制到 CPU；还可以取 <code class="docutils literal notranslate"><span class="pre">cudaMemcpyDeviceToDevice</span></code>，表示在同一 GPU 内部或不同 GPU 之间复制。</p>
+<p>在这个示例中，<code class="docutils literal notranslate"><span class="pre">cudaMemcpyDefault</span></code> 作为最后一个参数传给 <code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code>。这样 CUDA 会根据源指针和目标指针的值自动判断应执行哪种复制。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaMemcpy</span></code> API 是同步的，也就是说，它会等到复制完成后才返回。异步复制会在 <a class="reference internal" href="asynchronous-execution.html#async-execution-memory-transfers"><span class="std std-ref">在 CUDA 流中启动内存传输</span></a> 中介绍。</p>
+<p>示例代码使用 <code class="docutils literal notranslate"><span class="pre">cudaMallocHost</span></code> 在 CPU 上分配内存。它会在主机上分配 <a class="reference internal" href="understanding-memory.html#memory-page-locked-host-memory"><span class="std std-ref">页锁定内存</span></a>，这能提升复制性能，并且是进行 <a class="reference internal" href="asynchronous-execution.html#async-execution-memory-transfers"><span class="std std-ref">异步</span></a> 内存传输所必需的。一般来说，用于向 GPU 发送数据或从 GPU 接收数据的 CPU 缓冲区，最好使用页锁定内存。不过，如果过多主机内存被页锁定，某些系统上的性能可能会下降；最佳实践是只对确实参与 GPU 数据传输的缓冲区使用页锁定。</p>
 </section>
 <section id="memory-management-and-application-performance">
 <h3><span class="section-number">2.1.3.3. </span>内存管理与应用性能<a class="headerlink" href="intro-to-cuda-cpp.html#memory-management-and-application-performance" title="跳转到此标题">#</a></h3>
-<p>从上面的例子可以看出，显式内存管理更加冗长，需要程序员指定主机和设备之间的副本。这是显式内存管理的优点和缺点：它可以更好地控制何时在主机和设备之间复制数据、内存驻留在何处以及确切地在何处分配哪些内存。显式内存管理可以提供控制内存传输并将其与其他计算重叠的性能机会。</p>
-<p>当使用统一内存时，有CUDA API（将在 <a class="reference internal" href="understanding-memory.html#memory-mem-advise-prefetch"><span class="std std-ref">内存建议和预取</span></a>），它为管理内存的 NVIDIA 驱动程序提供提示，这可以在使用统一内存时实现使用显式内存管理的一些性能优势。</p>
+<p>从上面的示例可以看出，显式内存管理更繁琐，需要程序员明确指定主机与设备之间的数据复制。这既是显式内存管理的缺点，也是它的优点：程序员可以更精确地控制何时在主机和设备之间复制数据、内存驻留在哪里，以及哪些内存在何处被分配。显式内存管理也为控制内存传输、并将传输与其他计算重叠提供了性能优化空间。</p>
+<p>使用统一内存时，也有一些 CUDA API 可以向负责管理内存的 NVIDIA Driver 提供提示，相关内容会在 <a class="reference internal" href="understanding-memory.html#memory-mem-advise-prefetch"><span class="std std-ref">内存建议和预取</span></a> 中介绍。借助这些提示，统一内存也能获得显式内存管理中的部分性能优势。</p>
 </section>
 </section>
 <section id="synchronizing-cpu-and-gpu">
-<span id="intro-synchronizing-the-gpu"></span><h2><span class="section-number">2.1.4. </span>CPU与GPU同步<a class="headerlink" href="intro-to-cuda-cpp.html#synchronizing-cpu-and-gpu" title="跳转到此标题">#</a></h2>
+<span id="intro-synchronizing-the-gpu"></span><h2><span class="section-number">2.1.4. </span>CPU 与 GPU 同步<a class="headerlink" href="intro-to-cuda-cpp.html#synchronizing-cpu-and-gpu" title="跳转到此标题">#</a></h2>
 <p>如 <a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-launching-kernels"><span class="std std-ref">启动内核</span></a> 一节所述，内核启动相对于发起调用的 CPU 线程是异步的。这意味着 CPU 线程的控制流会在内核完成之前继续向前执行，甚至可能在内核尚未真正启动前就继续执行。若要保证主机端后续代码执行前内核已经完成，就必须使用某种同步机制。</p>
-<p>同步 GPU 和主机线程的最简单方法是使用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize</span></code>，它会阻塞主机线程，直到 GPU 上所有先前发出的工作完成为止。在本章的示例中，这已经足够了，因为 GPU 上只执行单个操作。在较大的应用中，可能有多个 <a class="reference internal" href="asynchronous-execution.html#cuda-streams"><span class="std std-ref">streams</span></a> 在 GPU 上执行工作并 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize</span></code> 将等待所有流中的工作完成。在这些应用中，使用 <a class="reference internal" href="asynchronous-execution.html#async-execution-stream-synchronization"><span class="std std-ref">流同步</span></a> 仅与特定流同步的 API 或 <a class="reference internal" href="asynchronous-execution.html#cuda-events"><span class="std std-ref">CUDA 活动</span></a> 推荐。这些内容将在 <a class="reference internal" href="asynchronous-execution.html#asynchronous-execution"><span class="std std-ref">异步执行</span></a> chapter.</p>
+<p>同步 GPU 与主机线程最简单的方法是调用 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize</span></code>，它会阻塞主机线程，直到 GPU 上此前提交的所有工作都完成。本章示例中 GPU 只执行单个操作，因此这种方式已经足够。更大的应用可能会有多个 <a class="reference internal" href="asynchronous-execution.html#cuda-streams"><span class="std std-ref">流</span></a> 同时在 GPU 上执行工作，而 <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize</span></code> 会等待所有流中的工作完成。在这类应用中，更推荐使用 <a class="reference internal" href="asynchronous-execution.html#async-execution-stream-synchronization"><span class="std std-ref">流同步</span></a> API 只同步特定流，或使用 <a class="reference internal" href="asynchronous-execution.html#cuda-events"><span class="std std-ref">CUDA 事件</span></a>。这些内容会在 <a class="reference internal" href="asynchronous-execution.html#asynchronous-execution"><span class="std std-ref">异步执行</span></a> 一章中介绍。</p>
 </section>
 <section id="putting-it-all-together">
 <span id="intro-cuda-cpp-all-together"></span><h2><span class="section-number">2.1.5. </span>整合示例<a class="headerlink" href="intro-to-cuda-cpp.html#putting-it-all-together" title="跳转到此标题">#</a></h2>
-<p>以下清单显示了本章中介绍的简单向量加法内核的完整代码，以及用于检查以验证所获得的答案是否正确的所有主机代码和实用程序函数。这些示例默认使用向量长度 1024，但接受不同的向量长度作为可执行文件的命令行参数。</p>
+<p>下面的清单给出了本章简单向量加法内核的完整代码，包括所有主机端代码，以及用于检查结果是否正确的辅助函数。示例默认使用长度为 1024 的向量，也可以通过可执行文件的命令行参数传入其他向量长度。</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio"/>
 <label class="sd-tab-label" for="sd-tab-item-0">
@@ -641,7 +641,7 @@
 <span class="w">    </span><span class="c1">// 在CPU上串行执行计算以进行比较</span>
 <span class="w">    </span><span class="n">serialVecAdd</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">comparisonResult</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">);</span>
 
-<span class="w">    </span><span class="c1">// 确认CPU和GPU得到相同的答案</span>
+<span class="w">    </span><span class="c1">// 确认 CPU 和 GPU 得到相同结果</span>
 <span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">vectorApproximatelyEqual</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">comparisonResult</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">))</span>
 <span class="w">    </span><span class="p">{</span>
 <span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">"Unified Memory: CPU and GPU answers match</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
@@ -772,7 +772,7 @@
 <span class="w">    </span><span class="c1">// 在CPU上串行执行计算以进行比较</span>
 <span class="w">    </span><span class="n">serialVecAdd</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">comparisonResult</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">);</span>
 
-<span class="w">    </span><span class="c1">// 确认CPU和GPU得到相同的答案</span>
+<span class="w">    </span><span class="c1">// 确认 CPU 和 GPU 得到相同结果</span>
 <span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">vectorApproximatelyEqual</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">comparisonResult</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="p">))</span>
 <span class="w">    </span><span class="p">{</span>
 <span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">"Explicit Memory: CPU and GPU answers match</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
@@ -808,7 +808,7 @@
 </div>
 </div>
 </div>
-<p>这些可以使用以下方式构建和运行 <cite>nvcc</cite> 如下：</p>
+<p>这些示例可以用 <cite>nvcc</cite> 按如下方式构建并运行：</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>nvcc<span class="w"> </span>vecAdd_unifiedMemory.cu<span class="w"> </span>-o<span class="w"> </span>vecAdd_unifiedMemory
 $<span class="w"> </span>./vecAdd_unifiedMemory
 Unified<span class="w"> </span>Memory:<span class="w"> </span>CPU<span class="w"> </span>and<span class="w"> </span>GPU<span class="w"> </span>answers<span class="w"> </span>match
@@ -823,27 +823,27 @@ $<span class="w"> </span>./vecAdd_explicitMemory<span class="w"> </span><span cl
 Explicit<span class="w"> </span>Memory:<span class="w"> </span>CPU<span class="w"> </span>and<span class="w"> </span>GPU<span class="w"> </span>answers<span class="w"> </span>match
 </pre></div>
 </div>
-<p>在这些示例中，所有线程都在执行独立的工作，不需要彼此协调或同步。通常，线程需要与其他线程合作和通信才能执行其工作。块内的线程可以通过以下方式共享数据  <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-shared-memory"><span class="std std-ref">共享内存</span></a> 并同步以协调内存访问。</p>
-<p>块级同步的最基本机制是 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 内在的，它充当屏障，块中的所有线程都必须等待，然后才允许任何线程继续。 <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-shared-memory"><span class="std std-ref">共享内存</span></a> 给出了使用共享内存的示例。</p>
-<p>为了高效合作，共享内存预计是每个处理器核心附近的低延迟内存（很像 L1 缓存），并且 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 预计会轻量化。 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 仅同步单个线程块内的线程。 CUDA 编程模型不支持块之间的同步。 <a class="reference internal" href="../04-special-topics/cooperative-groups.html#cooperative-groups"><span class="std std-ref">合作团体</span></a> 提供设置同步域而不是单个线程块的机制。</p>
-<p>当同步保持在线程块内时，通常可以获得最佳性能。线程块仍然可以使用以下方法处理常见结果 <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-atomics"><span class="std std-ref">原子内存函数</span></a>，这将在接下来的章节中介绍。</p>
-<p>Section <a class="reference internal" href="../03-advanced/advanced-kernel-programming.html#advanced-kernels-advanced-sync-primitives"><span class="std std-numref">第3.2.4节</span></a> 涵盖了 CUDA 同步原语，这些原语提供非常细粒度的控制，以最大限度地提高性能和资源利用率。</p>
+<p>在这些示例中，所有线程都执行相互独立的工作，不需要彼此协调或同步。但在实际程序中，线程经常需要与其他线程协作、通信才能完成任务。同一线程块内的线程可以通过 <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-shared-memory"><span class="std std-ref">共享内存</span></a> 共享数据，并通过同步来协调内存访问。</p>
+<p>块级同步最基本的机制是内建函数 <code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code>。它会充当一个屏障：线程块中的所有线程都必须到达该位置后，任何线程才允许继续执行。<a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-shared-memory"><span class="std std-ref">共享内存</span></a> 一节给出了使用共享内存的示例。</p>
+<p>为了高效协作，共享内存被设计为靠近每个处理器核心的低延迟内存，类似 L1 缓存；<code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 也被设计为相对轻量。<code class="docutils literal notranslate"><span class="pre">__syncthreads()</span></code> 只同步单个线程块内的线程。CUDA 编程模型不支持普通线程块之间的同步。<a class="reference internal" href="../04-special-topics/cooperative-groups.html#cooperative-groups"><span class="std std-ref">Cooperative Groups</span></a> 提供了设置其他同步域的机制，而不仅限于单个线程块。</p>
+<p>通常，将同步限制在线程块内部可以获得最佳性能。线程块仍然可以通过 <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-atomics"><span class="std std-ref">原子内存函数</span></a> 协同更新共同结果，后续章节会介绍这一点。</p>
+<p><a class="reference internal" href="../03-advanced/advanced-kernel-programming.html#advanced-kernels-advanced-sync-primitives"><span class="std std-numref">第 3.2.4 节</span></a> 介绍 CUDA 同步原语，这些原语提供非常细粒度的控制，有助于最大化性能和资源利用率。</p>
 </section>
 <section id="runtime-initialization">
 <span id="intro-cpp-runtime-initialization"></span><h2><span class="section-number">2.1.6. </span>运行时初始化<a class="headerlink" href="intro-to-cuda-cpp.html#runtime-initialization" title="跳转到此标题">#</a></h2>
-<p>CUDA 运行时创建一个 <a class="reference internal" href="../03-advanced/driver-api.html#driver-api-context"><span class="std std-ref">CUDA 上下文</span></a> 对于系统中的每个设备。该上下文是该设备的主要上下文，并在第一个运行时函数处初始化，该函数需要该设备上的活动上下文。上下文在应用程序的所有主机线程之间共享。作为上下文创建的一部分，设备代码是 <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-just-in-time-compilation"><span class="std std-ref">即时编译</span></a> 如有必要并加载到设备内存中。这一切都是透明发生的。可以从驱动程序 API 访问由 CUDA 运行时创建的主要上下文以实现互操作性，如中所述 <a class="reference internal" href="../03-advanced/driver-api.html#driver-api-interop-with-runtime"><span class="std std-ref">运行时和驱动程序 API 之间的互操作性</span></a>.</p>
-<p>从 CUDA 12.0 开始， <code class="docutils literal notranslate"><span class="pre">cudaInitDevice</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice</span></code> 调用初始化运行时和主 <a class="reference internal" href="../03-advanced/driver-api.html#driver-api-context"><span class="std std-ref">context</span></a> 与指定设备关联。运行时将隐式使用设备 0 并根据需要进行自初始化，以处理运行时 API 请求（如果这些请求发生在这些调用之前）。这在计时运行时函数调用以及解释第一次调用到运行时的错误代码时非常重要。在 CUDA 12.0 之前， <code class="docutils literal notranslate"><span class="pre">cudaSetDevice</span></code> 不会初始化运行时。</p>
-<p><code class="docutils literal notranslate"><span class="pre">cudaDeviceReset</span></code> 破坏当前设备的主要上下文。如果在销毁主上下文后调用 CUDA 运行时 API，将为该设备创建一个新的主上下文。</p>
+<p>CUDA Runtime 会为系统中的每个设备创建一个 <a class="reference internal" href="../03-advanced/driver-api.html#driver-api-context"><span class="std std-ref">CUDA 上下文</span></a>。这个上下文是该设备的主上下文，会在第一个需要该设备上有活动上下文的 Runtime 函数中初始化。上下文由应用程序的所有主机线程共享。创建上下文时，如有必要，设备代码会被 <a class="reference internal" href="../01-introduction/cuda-platform.html#cuda-platform-just-in-time-compilation"><span class="std std-ref">即时编译</span></a>，并加载到设备内存中；这些过程对应用程序透明。CUDA Runtime 创建的主上下文也可以通过 Driver API 访问，以实现互操作，见 <a class="reference internal" href="../03-advanced/driver-api.html#driver-api-interop-with-runtime"><span class="std std-ref">Runtime API 与 Driver API 的互操作</span></a>。</p>
+<p>从 CUDA 12.0 开始，调用 <code class="docutils literal notranslate"><span class="pre">cudaInitDevice</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice</span></code> 会初始化运行时，以及与指定设备关联的主 <a class="reference internal" href="../03-advanced/driver-api.html#driver-api-context"><span class="std std-ref">上下文</span></a>。如果在这些调用之前已经发生 Runtime API 请求，运行时会隐式使用设备 0，并按需自初始化来处理这些请求。对 Runtime 函数调用计时，或解释第一次进入 Runtime 调用返回的错误码时，这一点很重要。在 CUDA 12.0 之前，<code class="docutils literal notranslate"><span class="pre">cudaSetDevice</span></code> 不会初始化运行时。</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaDeviceReset</span></code> 会销毁当前设备的主上下文。如果主上下文被销毁后又调用 CUDA Runtime API，系统会为该设备创建新的主上下文。</p>
 <div class="admonition note">
 <p class="admonition-title">注</p>
-<p>CUDA 接口使用全局状态，该状态在主机程序启动期间初始化并在主机程序终止期间销毁。在 main 之后的程序启动或终止期间使用任何这些接口（隐式或显式）将导致未定义的行为。</p>
-<p>从 CUDA 12.0 开始， <code class="docutils literal notranslate"><span class="pre">cudaSetDevice</span></code> 在更改主机线程的当前设备后，显式初始化运行时（如果尚未初始化）。以前版本的 CUDA 会延迟新设备上的运行时初始化，直到第一次运行时调用发生后 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice</span></code>。因此，检查返回值非常重要 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice</span></code> 对于初始化错误。</p>
-<p>参考手册的错误处理和版本管理部分中的运行时函数不会初始化运行时。</p>
+<p>CUDA 接口使用全局状态；该状态会在主机程序启动期间初始化，并在主机程序终止期间销毁。在 <code class="docutils literal notranslate"><span class="pre">main</span></code> 之外的程序启动或终止阶段，隐式或显式使用这些接口都会导致未定义行为。</p>
+<p>从 CUDA 12.0 开始，<code class="docutils literal notranslate"><span class="pre">cudaSetDevice</span></code> 在切换主机线程的当前设备后，会在运行时尚未初始化时显式初始化运行时。旧版本 CUDA 会把新设备上的运行时初始化推迟到 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice</span></code> 之后的第一次 Runtime 调用。因此，检查 <code class="docutils literal notranslate"><span class="pre">cudaSetDevice</span></code> 的返回值以发现初始化错误非常重要。</p>
+<p>参考手册中错误处理和版本管理部分的 Runtime 函数不会初始化运行时。</p>
 </div>
 </section>
 <section id="error-checking-in-cuda">
 <span id="intro-cpp-error-checking"></span><h2><span class="section-number">2.1.7. </span>CUDA 中的错误检查<a class="headerlink" href="intro-to-cuda-cpp.html#error-checking-in-cuda" title="跳转到此标题">#</a></h2>
-<p>每个 CUDA API 返回一个枚举类型的值， <code class="docutils literal notranslate"><span class="pre">cudaError_t</span></code>。在示例代码中，这些错误通常不会被检查。在生产应用程序中，最佳实践是始终检查和管理每个 CUDA API 调用的返回值。当没有错误时，返回值是 <code class="docutils literal notranslate"><span class="pre">cudaSuccess</span></code>。许多应用程序选择实现实用程序宏，如下所示</p>
+<p>每个 CUDA API 都会返回一个枚举类型值 <code class="docutils literal notranslate"><span class="pre">cudaError_t</span></code>。示例代码中常常省略错误检查；但在生产应用中，最佳实践是始终检查并处理每个 CUDA API 调用的返回值。没有错误时，返回值为 <code class="docutils literal notranslate"><span class="pre">cudaSuccess</span></code>。许多应用会实现类似下面这样的辅助宏。</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="cp">#define CUDA_CHECK(expr_to_check) do {            \</span>
 <span class="cp">    cudaError_t result  = expr_to_check;          \</span>
 <span class="cp">    if(result != cudaSuccess)                     \</span>
@@ -858,43 +858,43 @@ Explicit<span class="w"> </span>Memory:<span class="w"> </span>CPU<span class="w
 <span class="cp">} while(0)</span>
 </pre></div>
 </div>
-<p>该宏使用 <code class="docutils literal notranslate"><span class="pre">cudaGetErrorString</span></code> API，它返回一个人类可读的字符串，描述特定的含义 <code class="docutils literal notranslate"><span class="pre">cudaError_t</span></code> 值。  使用上面的宏，应用程序将在 <code class="docutils literal notranslate"><span class="pre">CUDA_CHECK(expression)</span></code> 宏，如下图：</p>
+<p>该宏使用 <code class="docutils literal notranslate"><span class="pre">cudaGetErrorString</span></code> API，后者会返回一个人类可读的字符串，用来描述特定 <code class="docutils literal notranslate"><span class="pre">cudaError_t</span></code> 值的含义。使用上面的宏时，应用程序可以把 CUDA Runtime API 调用包在 <code class="docutils literal notranslate"><span class="pre">CUDA_CHECK(expression)</span></code> 中，如下所示：</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">devA</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">)));</span>
 <span class="w">    </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">devB</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">)));</span>
 <span class="w">    </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaMalloc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">devC</span><span class="p">,</span><span class="w"> </span><span class="n">vectorLength</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">)));</span>
 </pre></div>
 </div>
-<p>如果这些调用中的任何一个检测到错误，它将被打印到 <code class="docutils literal notranslate"><span class="pre">stderr</span></code> 使用这个宏。该宏对于较小的项目很常见，但可以适应较大应用程序中的日志系统或其他错误处理机制。</p>
+<p>如果这些调用中的任意一个检测到错误，该宏就会把错误打印到 <code class="docutils literal notranslate"><span class="pre">stderr</span></code>。这种宏在小型项目中很常见；在大型应用中，也可以改造成接入日志系统或其他错误处理机制的形式。</p>
 <div class="admonition note">
 <p class="admonition-title">注</p>
-<p>值得注意的是，从任何 CUDA API 调用返回的错误状态也可以指示先前发出的异步操作的错误。部分 <a class="reference internal" href="asynchronous-execution.html#asynchronous-execution-error-handling"><span class="std std-ref">异步错误处理</span></a> 更详细地介绍了这一点。</p>
+<p>需要注意，任意 CUDA API 调用返回的错误状态，也可能表示此前发出的异步操作发生了错误。<a class="reference internal" href="asynchronous-execution.html#asynchronous-execution-error-handling"><span class="std std-ref">异步错误处理</span></a> 一节会更详细地说明这一点。</p>
 </div>
 <section id="error-state">
 <h3><span class="section-number">2.1.7.1. </span>错误状态<a class="headerlink" href="intro-to-cuda-cpp.html#error-state" title="跳转到此标题">#</a></h3>
-<p>CUDA运行时维护一个 <code class="docutils literal notranslate"><span class="pre">cudaError_t</span></code> 每个主机线程的状态。该值默认为 <code class="docutils literal notranslate"><span class="pre">cudaSuccess</span></code> 并在发生错误时被覆盖。 <code class="docutils literal notranslate"><span class="pre">cudaGetLastError</span></code> 返回当前错误状态，然后将其重置为 <code class="docutils literal notranslate"><span class="pre">cudaSuccess</span></code>。或者， <code class="docutils literal notranslate"><span class="pre">cudaPeekLastError</span></code> 返回错误状态而不重置它。</p>
-<p>内核启动使用 <a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-launching-kernels-triple-chevron"><span class="std std-ref">三重 V 形符号</span></a> 不返回 <code class="docutils literal notranslate"><span class="pre">cudaError_t</span></code>。最好在内核启动后立即检查错误状态，以检测内核启动中的即时错误或 <a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-error-checking-asynchronous"><span class="std std-ref">异步错误</span></a> 在内核启动之前。值为 <code class="docutils literal notranslate"><span class="pre">cudaSuccess</span></code> 在内核启动后立即检查错误状态并不意味着内核已成功执行甚至开始执行。它仅验证传递给运行时的内核启动参数和执行配置没有触发任何错误，并且错误状态不是内核启动之前的先前错误或异步错误。</p>
+<p>CUDA Runtime 会为每个主机线程维护一个 <code class="docutils literal notranslate"><span class="pre">cudaError_t</span></code> 状态。该值默认为 <code class="docutils literal notranslate"><span class="pre">cudaSuccess</span></code>，发生错误时会被覆盖。<code class="docutils literal notranslate"><span class="pre">cudaGetLastError</span></code> 返回当前错误状态，并将其重置为 <code class="docutils literal notranslate"><span class="pre">cudaSuccess</span></code>。相对地，<code class="docutils literal notranslate"><span class="pre">cudaPeekLastError</span></code> 会返回错误状态，但不会重置它。</p>
+<p>使用 <a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-launching-kernels-triple-chevron"><span class="std std-ref">三尖括号语法</span></a> 启动内核时不会返回 <code class="docutils literal notranslate"><span class="pre">cudaError_t</span></code>。因此，最好在内核启动后立即检查错误状态，以捕获内核启动本身的即时错误，或捕获内核启动之前已经发生的 <a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-error-checking-asynchronous"><span class="std std-ref">异步错误</span></a>。在内核启动后立刻检查到 <code class="docutils literal notranslate"><span class="pre">cudaSuccess</span></code>，并不表示内核已经成功执行，甚至不表示它已经开始执行；它只说明传给 Runtime 的启动参数和执行配置没有触发错误，并且错误状态中没有内核启动前遗留的错误或异步错误。</p>
 </section>
 <section id="asynchronous-errors">
 <span id="intro-cpp-error-checking-asynchronous"></span><h3><span class="section-number">2.1.7.2. </span>异步错误<a class="headerlink" href="intro-to-cuda-cpp.html#asynchronous-errors" title="跳转到此标题">#</a></h3>
-<p>CUDA 内核启动和许多运行时 API 都是异步的。异步 CUDA 运行时 API 将在 <a class="reference internal" href="asynchronous-execution.html#asynchronous-execution"><span class="std std-ref">异步执行</span></a>。每当发生错误时，都会设置并覆盖 CUDA 错误状态。这意味着只有在接下来检查错误状态时才会报告异步操作执行期间发生的错误。如前所述，这可能是一个调用 <code class="docutils literal notranslate"><span class="pre">cudaGetLastError</span></code>, <code class="docutils literal notranslate"><span class="pre">cudaPeekLastError</span></code>，或者它可以是任何返回的 CUDA API <code class="docutils literal notranslate"><span class="pre">cudaError_t</span></code>.</p>
-<p>当 CUDA 运行时 API 函数返回错误时，错误状态不会被清除。这意味着来自异步错误的错误代码（例如内核的无效内存访问）将由每个 CUDA 运行时 API 返回，直到通过调用清除错误状态 <code class="docutils literal notranslate"><span class="pre">cudaGetLastError</span></code>.</p>
+<p>CUDA 内核启动和许多 Runtime API 都是异步的。异步 CUDA Runtime API 会在 <a class="reference internal" href="asynchronous-execution.html#asynchronous-execution"><span class="std std-ref">异步执行</span></a> 中详细讨论。每当发生错误时，CUDA 错误状态都会被设置并覆盖。这意味着异步操作执行期间发生的错误，只会在下一次检查错误状态时报告。如前所述，这次检查可能是调用 <code class="docutils literal notranslate"><span class="pre">cudaGetLastError</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaPeekLastError</span></code>，也可能是任意一个返回 <code class="docutils literal notranslate"><span class="pre">cudaError_t</span></code> 的 CUDA API。</p>
+<p>CUDA Runtime API 函数返回错误时，不会自动清除错误状态。这意味着来自异步错误的错误码，例如内核中的非法内存访问，会被每个 CUDA Runtime API 持续返回，直到调用 <code class="docutils literal notranslate"><span class="pre">cudaGetLastError</span></code> 清除该错误状态。</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="n">vecAdd</span><span class="o">&lt;&lt;&lt;</span><span class="n">blocks</span><span class="p">,</span><span class="w"> </span><span class="n">threads</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">devA</span><span class="p">,</span><span class="w"> </span><span class="n">devB</span><span class="p">,</span><span class="w"> </span><span class="n">devC</span><span class="p">);</span>
 <span class="w">    </span><span class="c1">// 内核启动后检查错误状态</span>
 <span class="w">    </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaGetLastError</span><span class="p">());</span>
 <span class="w">    </span><span class="c1">// 等待内核执行完成</span>
-<span class="w">    </span><span class="c1">// CUDA_CHECK将报告内核执行期间发生的错误</span>
+<span class="w">    </span><span class="c1">// CUDA_CHECK 将报告内核执行期间发生的错误</span>
 <span class="w">    </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaDeviceSynchronize</span><span class="p">());</span>
 <span class="w">    </span>
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">注</p>
-<p><code class="docutils literal notranslate"><span class="pre">cudaError_t</span></code> 值 <code class="docutils literal notranslate"><span class="pre">cudaErrorNotReady</span></code>，可以通过以下方式返回 <code class="docutils literal notranslate"><span class="pre">cudaStreamQuery</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaEventQuery</span></code>，不被视为错误并且不会被报告 <code class="docutils literal notranslate"><span class="pre">cudaPeekAtLastError</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaGetLastError</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">cudaStreamQuery</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaEventQuery</span></code> 可能返回 <code class="docutils literal notranslate"><span class="pre">cudaError_t</span></code> 值 <code class="docutils literal notranslate"><span class="pre">cudaErrorNotReady</span></code>。该值不视为错误，也不会由 <code class="docutils literal notranslate"><span class="pre">cudaPeekAtLastError</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaGetLastError</span></code> 报告。</p>
 </div>
 </section>
 <section id="cuda-log-file">
 <h3><span class="section-number">2.1.7.3. </span><code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code><a class="headerlink" href="intro-to-cuda-cpp.html#cuda-log-file" title="跳转到此标题">#</a></h3>
-<p>识别 CUDA 错误的另一个好方法是使用 <code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code> 环境变量。设置此环境变量后，CUDA 驱动程序会将遇到的错误消息写入环境变量中指定路径的文件中。例如，采用以下错误的 CUDA 代码，该代码尝试启动大于任何体系结构支持的最大值的线程块。</p>
+<p>识别 CUDA 错误的另一种好方法是使用 <code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code> 环境变量。设置该变量后，CUDA Driver 会把遇到的错误消息写入变量所指定路径的文件。例如，下面这段错误的 CUDA 代码尝试启动一个线程块，其大小超过了任何架构所支持的上限。</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">k</span><span class="p">()</span>
 <span class="p">{</span><span class="w"> </span><span class="p">}</span>
 
@@ -906,59 +906,59 @@ Explicit<span class="w"> </span>Memory:<span class="w"> </span>CPU<span class="w
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>构建并运行它，内核启动后的检查使用中所示的宏检测并报告错误 <a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-error-checking"><span class="std std-numref">第2.1.7节</span></a>.</p>
+<p>构建并运行这段代码时，内核启动之后的检查会使用 <a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-error-checking"><span class="std std-numref">第 2.1.7 节</span></a> 中展示的宏检测并报告错误。</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>nvcc<span class="w"> </span>errorLogIllustration.cu<span class="w"> </span>-o<span class="w"> </span>errlog
 $<span class="w"> </span>./errlog
-CUDA<span class="w"> </span>运行时<span class="w"> </span>Error:<span class="w"> </span>/home/cuda/intro-cpp/errorLogIllustration.cu:24:1<span class="w"> </span><span class="o">=</span><span class="w"> </span>invalid<span class="w"> </span>argument
+CUDA<span class="w"> </span>Runtime<span class="w"> </span>Error:<span class="w"> </span>/home/cuda/intro-cpp/errorLogIllustration.cu:24:1<span class="w"> </span><span class="o">=</span><span class="w"> </span>invalid<span class="w"> </span>argument
 </pre></div>
 </div>
-<p>但是，当应用程序运行时 <code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code> 设置为文本文件，该文件包含有关错误的更多信息。</p>
+<p>不过，如果运行应用程序时把 <code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code> 设置为一个文本文件，该文件会包含关于错误的更多信息。</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>env<span class="w"> </span><span class="nv">CUDA_LOG_FILE</span><span class="o">=</span>cudaLog.txt<span class="w"> </span>./errlog
-CUDA<span class="w"> </span>运行时<span class="w"> </span>Error:<span class="w"> </span>/home/cuda/intro-cpp/errorLogIllustration.cu:24:1<span class="w"> </span><span class="o">=</span><span class="w"> </span>invalid<span class="w"> </span>argument
+CUDA<span class="w"> </span>Runtime<span class="w"> </span>Error:<span class="w"> </span>/home/cuda/intro-cpp/errorLogIllustration.cu:24:1<span class="w"> </span><span class="o">=</span><span class="w"> </span>invalid<span class="w"> </span>argument
 $<span class="w"> </span>cat<span class="w"> </span>cudaLog.txt
 <span class="o">[</span><span class="m">12</span>:46:23.854<span class="o">][</span><span class="m">137216133754880</span><span class="o">][</span>CUDA<span class="o">][</span>E<span class="o">]</span><span class="w"> </span>One<span class="w"> </span>or<span class="w"> </span>more<span class="w"> </span>of<span class="w"> </span>block<span class="w"> </span>dimensions<span class="w"> </span>of<span class="w"> </span><span class="o">(</span><span class="m">4096</span>,1,1<span class="o">)</span><span class="w"> </span>exceeds<span class="w"> </span>corresponding<span class="w"> </span>maximum<span class="w"> </span>value<span class="w"> </span>of<span class="w"> </span><span class="o">(</span><span class="m">1024</span>,1024,64<span class="o">)</span>
 <span class="o">[</span><span class="m">12</span>:46:23.854<span class="o">][</span><span class="m">137216133754880</span><span class="o">][</span>CUDA<span class="o">][</span>E<span class="o">]</span><span class="w"> </span>Returning<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="o">(</span>CUDA_ERROR_INVALID_VALUE<span class="o">)</span><span class="w"> </span>from<span class="w"> </span>cuLaunchKernel
 </pre></div>
 </div>
-<p>Setting <code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code> 或 <code class="docutils literal notranslate"><span class="pre">stdout</span></code> 或 <code class="docutils literal notranslate"><span class="pre">stderr</span></code> 将分别打印到标准输出和标准错误。使用 <code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code> 环境变量，即使应用程序没有对 CUDA 返回值实施正确的错误检查，也可以捕获和识别 CUDA 错误。这种方法对于调试来说非常强大，但环境变量本身不允许应用程序在运行时处理 CUDA 错误并从中恢复。的 <a class="reference internal" href="../04-special-topics/error-log-management.html#error-log-management"><span class="std std-ref">错误日志管理</span></a> CUDA 的功能还允许向驱动程序注册回调函数，每当检测到错误时就会调用该回调函数。这可用于在运行时捕获和处理错误，还可以将 CUDA 错误日志记录无缝集成到应用程序的现有日志记录系统中。</p>
-<p><a class="reference internal" href="../04-special-topics/error-log-management.html#error-log-management"><span class="std std-numref">第 4.8 节</span></a> 显示了 CUDA 错误日志管理功能的更多示例。错误日志管理和 <code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code> 适用于 NVIDIA 驱动程序版本 r570 及更高版本。</p>
+<p>将 <code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code> 设置为 <code class="docutils literal notranslate"><span class="pre">stdout</span></code> 或 <code class="docutils literal notranslate"><span class="pre">stderr</span></code> 时，日志会分别打印到标准输出或标准错误。借助 <code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code> 环境变量，即便应用程序没有正确检查 CUDA 返回值，也可以捕获并识别 CUDA 错误。这对调试非常有用，但仅靠环境变量并不能让应用程序在运行时处理 CUDA 错误并从中恢复。CUDA 的 <a class="reference internal" href="../04-special-topics/error-log-management.html#error-log-management"><span class="std std-ref">错误日志管理</span></a> 还允许向驱动注册回调函数；每当检测到错误时，该回调就会被调用。它可用于在运行时捕获和处理错误，也能把 CUDA 错误日志无缝集成到应用程序已有的日志系统中。</p>
+<p><a class="reference internal" href="../04-special-topics/error-log-management.html#error-log-management"><span class="std std-numref">第 4.8 节</span></a> 展示了更多 CUDA 错误日志管理功能示例。错误日志管理和 <code class="docutils literal notranslate"><span class="pre">CUDA_LOG_FILE</span></code> 适用于 r570 及更高版本的 NVIDIA Driver。</p>
 </section>
 </section>
 <section id="device-and-host-functions">
-<span id="intro-device-host-functions"></span><h2><span class="section-number">2.1.8. </span>设备和主机功能<a class="headerlink" href="intro-to-cuda-cpp.html#device-and-host-functions" title="跳转到此标题">#</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">__global__</span></code> 说明符用于指示内核的入口点。也就是说，将调用一个函数以在 GPU 上并行执行。大多数情况下，内核是从主机启动的，但是也可以使用以下命令从另一个内核中启动内核： <a class="reference internal" href="../04-special-topics/dynamic-parallelism.html#cuda-dynamic-parallelism"><span class="std std-ref">动态并行性</span></a>.</p>
-<p>说明符 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> 表示函数应该为 GPU 编译并且可以从其他 GPU 调用 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> 或 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 功能。  函数（包括类成员函数、函子和 lambda）可以指定为  <code class="docutils literal notranslate"><span class="pre">__device__</span></code> 或 <code class="docutils literal notranslate"><span class="pre">__host__</span></code> 如下例所示。</p>
+<span id="intro-device-host-functions"></span><h2><span class="section-number">2.1.8. </span>设备函数与主机函数<a class="headerlink" href="intro-to-cuda-cpp.html#device-and-host-functions" title="跳转到此标题">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">__global__</span></code> 说明符用于标记内核入口点，也就是会被调用并在 GPU 上并行执行的函数。多数情况下，内核从主机端启动；不过，也可以借助 <a class="reference internal" href="../04-special-topics/dynamic-parallelism.html#cuda-dynamic-parallelism"><span class="std std-ref">动态并行</span></a> 从另一个内核内部启动内核。</p>
+<p><code class="docutils literal notranslate"><span class="pre">__device__</span></code> 说明符表示函数应为 GPU 编译，并且可由其他 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> 或 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 函数调用。函数，包括类成员函数、函数对象和 lambda，也可以同时指定为 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> 与 <code class="docutils literal notranslate"><span class="pre">__host__</span></code>，如下例所示。</p>
 </section>
 <section id="variable-specifiers">
 <span id="intro-device-managed-variables"></span><h2><span class="section-number">2.1.9. </span>变量说明符<a class="headerlink" href="intro-to-cuda-cpp.html#variable-specifiers" title="跳转到此标题">#</a></h2>
-<p><a class="reference internal" href="../05-appendices/cpp-language-extensions.html#memory-space-specifiers"><span class="std std-ref">CUDA 说明符</span></a> 可用于静态变量声明来控制放置。</p>
+<p><a class="reference internal" href="../05-appendices/cpp-language-extensions.html#memory-space-specifiers"><span class="std std-ref">CUDA 说明符</span></a> 可用于静态变量声明，以控制变量的放置位置。</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">__device__</span></code> 指定变量存储在 <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-global-memory"><span class="std std-ref">全局内存</span></a></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">__constant__</span></code> 指定变量存储在 <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-constant-memory"><span class="std std-ref">常量内存</span></a></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">__managed__</span></code> 指定变量存储为 <a class="reference internal" href="understanding-memory.html#memory-unified-memory"><span class="std std-ref">统一内存</span></a></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">__shared__</span></code> 指定变量存储在 <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-shared-memory"><span class="std std-ref">共享内存</span></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">__device__</span></code> 指定变量存储在 <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-global-memory"><span class="std std-ref">全局内存</span></a> 中</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">__constant__</span></code> 指定变量存储在 <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-constant-memory"><span class="std std-ref">常量内存</span></a> 中</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">__managed__</span></code> 指定变量以 <a class="reference internal" href="understanding-memory.html#memory-unified-memory"><span class="std std-ref">统一内存</span></a> 形式存储</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">__shared__</span></code> 指定变量存储在 <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-shared-memory"><span class="std std-ref">共享内存</span></a> 中</p></li>
 </ul>
-<p>当变量在 a 中声明时没有说明符 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> 或 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 函数，如果可能的话，它被分配到寄存器，并且 <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-local-memory"><span class="std std-ref">本地内存</span></a> 必要时。在 a 之外声明的任何没有说明符的变量 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> 或 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 函数将被分配到系统内存中。</p>
+<p>如果变量在 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> 或 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 函数内部声明且没有使用说明符，那么它会在可能时分配到寄存器中，必要时分配到 <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-local-memory"><span class="std std-ref">本地内存</span></a> 中。任何在 <code class="docutils literal notranslate"><span class="pre">__device__</span></code> 或 <code class="docutils literal notranslate"><span class="pre">__global__</span></code> 函数外部声明、且没有使用说明符的变量，都会分配到系统内存中。</p>
 <section id="detecting-device-compilation">
 <span id="intro-detecting-device-compilation"></span><h3><span class="section-number">2.1.9.1. </span>检测设备编译<a class="headerlink" href="intro-to-cuda-cpp.html#detecting-device-compilation" title="跳转到此标题">#</a></h3>
-<p>当函数指定为 <code class="docutils literal notranslate"><span class="pre">__host__</span> <span class="pre">__device__</span></code>，编译器被指示为此函数生成 GPU 和 CPU 代码。在此类函数中，可能需要使用预处理器来仅为函数的 GPU 或 CPU 副本指定代码。检查是否 <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH_</span></code> 定义是最常见的方法，如下例所示。</p>
+<p>当函数被指定为 <code class="docutils literal notranslate"><span class="pre">__host__</span> <span class="pre">__device__</span></code> 时，编译器会同时为该函数生成 GPU 版本和 CPU 版本。在这类函数中，有时需要借助预处理器只为 GPU 版本或 CPU 版本指定某段代码。最常见的方法是检查是否定义了 <code class="docutils literal notranslate"><span class="pre">__CUDA_ARCH_</span></code>，如下例所示。</p>
 </section>
 </section>
 <section id="thread-block-clusters">
 <span id="id3"></span><h2><span class="section-number">2.1.10. </span>线程块簇<a class="headerlink" href="intro-to-cuda-cpp.html#thread-block-clusters" title="跳转到此标题">#</a></h2>
-<p>从计算能力 9.0 开始，CUDA 编程模型包括一个可选的层次结构级别，称为由线程块组成的线程块簇。与如何保证线程块中的线程在流式多处理器上共同调度类似，集群中的线程块也保证在 GPU 中的 GPU 处理集群 (GPC) 上共同调度。</p>
-<p>与线程块类似，簇也被组织成线程块簇的一维、二维或三维网格，如下所示 <a class="reference internal" href="../01-introduction/programming-model.html#figure-thread-block-clusters"><span class="std std-numref">图5</span></a>.</p>
-<p>簇中线程块的数量可以由用户定义，并且簇中最多支持 8 个线程块作为 CUDA 中的可移植簇大小。
-请注意，在 GPU 硬件或 MIG 配置上太小而无法支持 8 个多处理器时，最大集群大小将相应减小。这些较小配置以及支持超过 8 的线程块簇大小的较大配置的标识是特定于体系结构的，可以使用以下命令进行查询 <code class="docutils literal notranslate"><span class="pre">cudaOccupancyMaxPotentialClusterSize</span></code> API。</p>
-<p>保证集群中的所有线程块共同调度在单个 GPU 处理集群 (GPC) 上同时执行，并允许集群中的线程块使用以下命令执行硬件支持的同步： <a class="reference internal" href="../04-special-topics/cooperative-groups.html#cooperative-groups"><span class="std std-ref">合作团体</span></a> API <code class="docutils literal notranslate"><span class="pre">cluster.sync()</span></code>。集群组还提供成员函数来查询集群组的大小（线程数或块数），使用 <code class="docutils literal notranslate"><span class="pre">num_threads()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">num_blocks()</span></code> 分别是API。可以使用以下命令查询集群组中线程或块的排名 <code class="docutils literal notranslate"><span class="pre">dim_threads()</span></code> 或 <code class="docutils literal notranslate"><span class="pre">dim_blocks()</span></code> 分别是API。</p>
-<p>属于集群的线程块可以访问 <em>分布式共享内存</em>，这是集群中所有线程块的共享内存的总和。集群中的线程块能够对分布式共享内存中的任何地址进行读取、写入和执行原子操作。 <a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-distributed-shared-memory"><span class="std std-ref">分布式共享内存</span></a> 给出了在分布式共享内存中执行直方图的示例。</p>
+<p>从计算能力 9.0 开始，CUDA 编程模型加入了一个可选的层次结构，称为线程块簇（thread block cluster），它由多个线程块组成。类似于同一线程块中的线程保证会共同调度到一个流式多处理器上，同一簇中的线程块也保证会共同调度到 GPU 内的一个 GPU Processing Cluster（GPC）上。</p>
+<p>与线程块类似，簇也会组织成由线程块簇构成的一维、二维或三维网格，如 <a class="reference internal" href="../01-introduction/programming-model.html#figure-thread-block-clusters"><span class="std std-numref">图 5</span></a> 所示。</p>
+<p>簇中线程块的数量可由用户定义。在 CUDA 中，最多 8 个线程块的簇大小作为可移植簇大小受到支持。
+请注意，如果 GPU 硬件或 MIG 配置小到无法支持 8 个多处理器，则最大簇大小会相应减小。对于这些较小配置，以及支持超过 8 个线程块簇大小的较大配置，相关限制取决于具体架构，可通过 <code class="docutils literal notranslate"><span class="pre">cudaOccupancyMaxPotentialClusterSize</span></code> API 查询。</p>
+<p>簇中的所有线程块都保证会共同调度到单个 GPU Processing Cluster（GPC）上并同时执行，并且簇内线程块可以通过 <a class="reference internal" href="../04-special-topics/cooperative-groups.html#cooperative-groups"><span class="std std-ref">Cooperative Groups</span></a> API <code class="docutils literal notranslate"><span class="pre">cluster.sync()</span></code> 执行硬件支持的同步。cluster group 还提供成员函数，可分别通过 <code class="docutils literal notranslate"><span class="pre">num_threads()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">num_blocks()</span></code> 查询簇组中的线程数或线程块数；也可以分别通过 <code class="docutils literal notranslate"><span class="pre">dim_threads()</span></code> 和 <code class="docutils literal notranslate"><span class="pre">dim_blocks()</span></code> 查询线程或线程块在簇组中的秩。</p>
+<p>属于同一簇的线程块可以访问 <em>分布式共享内存</em>，也就是簇中所有线程块共享内存的组合。簇内线程块能够对分布式共享内存中的任意地址进行读取、写入和原子操作。<a class="reference internal" href="writing-cuda-kernels.html#writing-cuda-kernels-distributed-shared-memory"><span class="std std-ref">分布式共享内存</span></a> 给出了在分布式共享内存中执行直方图的示例。</p>
 <div class="admonition note">
 <p class="admonition-title">注</p>
-<p>在使用集群支持启动的内核中，出于兼容性目的，gridDim 变量仍然表示线程块数量的大小。可以使用以下命令找到集群中块的排名 <a class="reference internal" href="../04-special-topics/cooperative-groups.html#cooperative-groups"><span class="std std-ref">合作团体</span></a> API。</p>
+<p>在启用簇支持启动的内核中，出于兼容性考虑，<code class="docutils literal notranslate"><span class="pre">gridDim</span></code> 变量仍以线程块数量表示网格大小。线程块在簇中的秩可通过 <a class="reference internal" href="../04-special-topics/cooperative-groups.html#cooperative-groups"><span class="std std-ref">Cooperative Groups</span></a> API 获取。</p>
 </div>
 <section id="launching-with-clusters-in-triple-chevron-notation">
-<span id="intro-cpp-launching-cluster-triple-chevron"></span><h3><span class="section-number">2.1.10.1. </span>使用三重 V 形符号的集群启动<a class="headerlink" href="intro-to-cuda-cpp.html#launching-with-clusters-in-triple-chevron-notation" title="跳转到此标题">#</a></h3>
-<p>可以使用编译时内核属性在内核中启用线程块集群 <code class="docutils literal notranslate"><span class="pre">__cluster_dims__(X,Y,Z)</span></code> 或使用 CUDA 内核启动 API <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code>。下面的示例展示了如何使用编译时内核属性启动集群。使用内核属性的簇大小在编译时固定，然后可以使用经典的启动内核 <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;</span> <span class="pre">,</span> <span class="pre">&gt;&gt;&gt;</span></code>。如果内核使用编译时簇大小，则在启动内核时无法修改簇大小。</p>
+<span id="intro-cpp-launching-cluster-triple-chevron"></span><h3><span class="section-number">2.1.10.1. </span>用三尖括号语法启动簇<a class="headerlink" href="intro-to-cuda-cpp.html#launching-with-clusters-in-triple-chevron-notation" title="跳转到此标题">#</a></h3>
+<p>线程块簇可以通过编译时内核属性 <code class="docutils literal notranslate"><span class="pre">__cluster_dims__(X,Y,Z)</span></code> 在内核中启用，也可以通过 CUDA 内核启动 API <code class="docutils literal notranslate"><span class="pre">cudaLaunchKernelEx</span></code> 启用。下面的示例展示了如何使用编译时内核属性启动簇。通过内核属性指定的簇大小在编译时固定；之后即可使用传统的 <code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;</span> <span class="pre">,</span> <span class="pre">&gt;&gt;&gt;</span></code> 语法启动内核。如果内核使用编译时簇大小，那么启动内核时不能再修改该簇大小。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 内核定义</span>
 <span class="c1">// 编译时簇大小在 X 维度为 2，在 Y 和 Z 维度为 1</span>
 <span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">__cluster_dims__</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">cluster_kernel</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">output</span><span class="p">)</span>
@@ -973,7 +973,7 @@ $<span class="w"> </span>cat<span class="w"> </span>cudaLog.txt
 <span class="w">    </span><span class="n">dim3</span><span class="w"> </span><span class="nf">threadsPerBlock</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">);</span>
 <span class="w">    </span><span class="n">dim3</span><span class="w"> </span><span class="nf">numBlocks</span><span class="p">(</span><span class="n">N</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">threadsPerBlock</span><span class="p">.</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">threadsPerBlock</span><span class="p">.</span><span class="n">y</span><span class="p">);</span>
 
-<span class="w">    </span><span class="c1">// 网格维度不受集群启动影响，仍然枚举</span>
+<span class="w">    </span><span class="c1">// 网格维度不受簇启动影响，仍然枚举</span>
 <span class="w">    </span><span class="c1">// 使用块数。</span>
 <span class="w">    </span><span class="c1">// 网格尺寸必须是簇大小的倍数。</span>
 <span class="w">    </span><span class="n">cluster_kernel</span><span class="o">&lt;&lt;&lt;</span><span class="n">numBlocks</span><span class="p">,</span><span class="w"> </span><span class="n">threadsPerBlock</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="n">output</span><span class="p">);</span>
@@ -999,41 +999,41 @@ $<span class="w"> </span>cat<span class="w"> </span>cudaLog.txt
   </div>
 <nav aria-labelledby="pst-page-navigation-heading-2" class="bd-toc-nav page-toc">
 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#compilation-with-nvcc">2.1. CUDA C++ 入门</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#kernels">2.1. CUDA C++ 入门</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#specifying-kernels">2.1. CUDA C++ 入门</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#launching-kernels">2.1. CUDA C++ 入门</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#triple-chevron-notation">2.1. CUDA C++ 入门</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#compilation-with-nvcc">2.1.1. 使用 NVCC 编译</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#kernels">2.1.2. 内核（Kernel）</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#specifying-kernels">2.1.2.1. 定义内核</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#launching-kernels">2.1.2.2. 启动内核</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#triple-chevron-notation">2.1.2.2.1. 三尖括号语法</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#thread-and-grid-index-intrinsics">2.1. CUDA C++ 入门</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#bounds-checking">2.1. CUDA C++ 入门</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#thread-and-grid-index-intrinsics">2.1.2.3. 线程与网格索引内建变量</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#bounds-checking">2.1.2.3.1. 边界检查</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#memory-in-gpu-computing">2.1. CUDA C++ 入门</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#unified-memory">2.1. CUDA C++ 入门</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#explicit-memory-management">2.1. CUDA C++ 入门</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#memory-management-and-application-performance">2.1. CUDA C++ 入门</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#memory-in-gpu-computing">2.1.3. GPU 计算中的内存</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#unified-memory">2.1.3.1. 统一内存</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#explicit-memory-management">2.1.3.2. 显式内存管理</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#memory-management-and-application-performance">2.1.3.3. 内存管理与应用性能</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#synchronizing-cpu-and-gpu">2.1. CUDA C++ 入门</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#putting-it-all-together">2.1. CUDA C++ 入门</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#runtime-initialization">2.1. CUDA C++ 入门</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#error-checking-in-cuda">2.1. CUDA C++ 入门</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#error-state">2.1. CUDA C++ 入门</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#asynchronous-errors">2.1. CUDA C++ 入门</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#cuda-log-file">2.1. CUDA C++ 入门</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#synchronizing-cpu-and-gpu">2.1.4. CPU 与 GPU 同步</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#putting-it-all-together">2.1.5. 整合示例</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#runtime-initialization">2.1.6. 运行时初始化</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#error-checking-in-cuda">2.1.7. CUDA 中的错误检查</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#error-state">2.1.7.1. 错误状态</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#asynchronous-errors">2.1.7.2. 异步错误</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#cuda-log-file">2.1.7.3. CUDA_LOG_FILE</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#device-and-host-functions">2.1. CUDA C++ 入门</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#variable-specifiers">2.1. CUDA C++ 入门</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#detecting-device-compilation">2.1. CUDA C++ 入门</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#device-and-host-functions">2.1.8. 设备函数与主机函数</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#variable-specifiers">2.1.9. 变量说明符</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#detecting-device-compilation">2.1.9.1. 检测设备编译</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#thread-block-clusters">2.1. CUDA C++ 入门</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#launching-with-clusters-in-triple-chevron-notation">2.1. CUDA C++ 入门</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#thread-block-clusters">2.1.10. 线程块簇</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="intro-to-cuda-cpp.html#launching-with-clusters-in-triple-chevron-notation">2.1.10.1. 用三尖括号语法启动簇</a></li>
 </ul>
 </li>
 </ul>

@@ -310,16 +310,16 @@
 <li><p><strong>回调方式</strong>：当操作完成时执行预先注册的函数。</p></li>
 </ul>
 <p>虽然编程接口是异步的，但硬件能否真正并发执行各类操作还取决于 CUDA 版本和所用硬件的计算能力。相关细节将在本指南后续章节说明（见 <a class="reference internal" href="../05-appendices/compute-capabilities.html#compute-capabilities"><span class="std std-ref">计算能力</span></a>）。</p>
-<p>在 <a class="reference internal" href="intro-to-cuda-cpp.html#intro-synchronizing-the-gpu"><span class="std std-ref">CPU与GPU同步</span></a> 一节中，我们介绍了 CUDA 运行时函数 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code>。这是一个阻塞调用，会等待此前发出的所有工作完成。之所以需要调用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code>，是因为内核启动本身是异步且立即返回的。CUDA 提供了阻塞和非阻塞两类同步 API，并支持主机侧回调函数。</p>
-<p>CUDA 中异步执行的核心 API 组件是 <strong>CUDA流</strong> 与 <strong>CUDA事件</strong>。
+<p>在 <a class="reference internal" href="intro-to-cuda-cpp.html#intro-synchronizing-the-gpu"><span class="std std-ref">CPU 与 GPU 同步</span></a> 一节中，我们介绍了 CUDA 运行时函数 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code>。这是一个阻塞调用，会等待此前发出的所有工作完成。之所以需要调用 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code>，是因为内核启动本身是异步且立即返回的。CUDA 提供了阻塞和非阻塞两类同步 API，并支持主机侧回调函数。</p>
+<p>CUDA 中异步执行的核心 API 组件是 <strong>CUDA 流</strong> 与 <strong>CUDA 事件</strong>。
 在本节其余部分中，我们将说明如何利用这些机制来表达 CUDA 异步执行。</p>
-<p>另一个相关主题是 <strong>CUDA图（CUDA Graphs）</strong>。它允许预先定义异步操作图，并以很小开销重复执行。我们会在 <a class="reference internal" href="asynchronous-execution.html#async-execution-cuda-graphs"><span class="std std-ref">2.4.9.2 使用流捕获入门 CUDA 图</span></a> 中做入门介绍，更完整的讨论见 <a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs"><span class="std std-ref">4.1 CUDA 图</span></a>。</p>
+<p>另一个相关主题是 <strong>CUDA 图（CUDA Graphs）</strong>。它允许预先定义异步操作图，并以很小开销重复执行。我们会在 <a class="reference internal" href="asynchronous-execution.html#async-execution-cuda-graphs"><span class="std std-ref">2.3.9.2 通过流捕获入门 CUDA 图</span></a> 中做入门介绍，更完整的讨论见 <a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs"><span class="std std-ref">4.1 CUDA 图</span></a>。</p>
 </section>
 <section id="cuda-streams">
-<span id="id2"></span><h2><span class="section-number">2.3.2. </span>CUDA流<a class="headerlink" href="asynchronous-execution.html#cuda-streams" title="跳转到此标题">#</a></h2>
-<p>在最基础层面，CUDA流是一种抽象，用于让程序员表达一串按顺序操作。流的操作就像一个工作队列，程序可以向其中添加要按顺序执行的操作，例如内存复制或内核启动。给定流的队列前面的操作被执行，然后出队，允许下一个排队的操作到达前面并被考虑执行。流中操作的执行顺序是连续的，并且操作按照它们排队到流中的顺序执行。</p>
+<span id="id2"></span><h2><span class="section-number">2.3.2. </span>CUDA 流<a class="headerlink" href="asynchronous-execution.html#cuda-streams" title="跳转到此标题">#</a></h2>
+<p>在最基础层面，CUDA 流是一种抽象，用于让程序员表达一串按顺序操作。流的操作就像一个工作队列，程序可以向其中添加要按顺序执行的操作，例如内存复制或内核启动。位于队列前端的操作会先执行，随后出队，让下一个排队操作到达前端并等待执行。一个流中的操作按入队顺序串行执行。</p>
 <p>应用程序可以同时使用多个流。在这种情况下，运行时会根据 GPU 资源状态，从有待执行任务的流中选择任务执行。流可设置优先级，用作影响调度的提示，但不保证严格的执行顺序。</p>
-<p>在某个流中执行的 API 调用与内核启动相对主机线程都是异步的。 应用程序可以通过等待流清空任务来与流同步，也可以在设备级别进行同步。</p>
+<p>在某个流中执行的 API 调用与内核启动相对主机线程都是异步的。应用程序可以等待流中的任务清空来与该流同步，也可以在设备级别进行同步。</p>
 <p>CUDA 有一个默认流。未显式指定流的操作和内核启动都会进入默认流。未注明流的示例代码都隐式使用该默认流。默认流具有一些特殊语义，详见子节 <a class="reference internal" href="asynchronous-execution.html#async-execution-blocking-non-blocking-default-stream"><span class="std std-ref">阻塞与非阻塞流及默认流</span></a>。</p>
 <section id="creating-and-destroying-cuda-streams">
 <h3><span class="section-number">2.3.2.1. </span>创建与销毁 CUDA 流<a class="headerlink" href="asynchronous-execution.html#creating-and-destroying-cuda-streams" title="跳转到此标题">#</a></h3>
@@ -391,9 +391,9 @@
 </section>
 </section>
 <section id="cuda-events">
-<span id="id3"></span><h2><span class="section-number">2.3.3. </span>CUDA事件<a class="headerlink" href="asynchronous-execution.html#cuda-events" title="跳转到此标题">#</a></h2>
-<p>CUDA 事件是一种向 CUDA 流中插入标记点的机制。它本质上类似“示踪粒子”，可用于跟踪流中任务进度。设想向一个流中启动两个内核；若没有这类跟踪事件，我们只能判断流是否为空。若某个操作依赖第一个内核输出，那么在确认流为空之前无法安全启动该操作，而此时两个内核往往都已完成。</p>
-<p>使用 CUDA 事件可以做得更好。若在第一个内核之后、第二个内核之前向流中插入一个事件，我们可以等待该事件到达流前端。这样就能在确认第一个内核完成、但第二个内核尚未开始时，安全启动依赖操作。按此方式使用事件，可构建操作与流之间的依赖图，这与后文讨论的 <a class="reference internal" href="asynchronous-execution.html#async-execution-cuda-graphs"><span class="std std-ref">CUDA图</span></a> 直接对应。</p>
+<span id="id3"></span><h2><span class="section-number">2.3.3. </span>CUDA 事件<a class="headerlink" href="asynchronous-execution.html#cuda-events" title="跳转到此标题">#</a></h2>
+<p>CUDA 事件是一种向 CUDA 流中插入标记点的机制，可用于跟踪流中任务进度。设想向一个流中启动两个内核；若没有这类事件，我们只能判断流是否为空。若某个操作依赖第一个内核输出，那么在确认流为空之前无法安全启动该操作，而此时两个内核往往都已完成。</p>
+<p>使用 CUDA 事件可以做得更好。若在第一个内核之后、第二个内核之前向流中插入一个事件，我们可以等待该事件到达流前端。这样就能在确认第一个内核完成、但第二个内核尚未开始时，安全启动依赖操作。按此方式使用事件，可构建操作与流之间的依赖图，这与后文讨论的 <a class="reference internal" href="asynchronous-execution.html#async-execution-cuda-graphs"><span class="std std-ref">CUDA 图</span></a> 直接对应。</p>
 <p>CUDA 流还会保留时间信息，可用于测量内核启动和内存传输耗时。</p>
 <section id="creating-and-destroying-cuda-events">
 <h3><span class="section-number">2.3.3.1. </span>创建与销毁 CUDA 事件<a class="headerlink" href="asynchronous-execution.html#creating-and-destroying-cuda-events" title="跳转到此标题">#</a></h3>
@@ -604,7 +604,7 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">userData</span></code>：传入回调函数的数据指针。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">flags</span></code>：当前必须设为 0，以保证未来兼容性。</p></li>
 </ul>
-<p>的签名  <code class="docutils literal notranslate"><span class="pre">callback</span></code> 功能与我们使用时的情况略有不同 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaLaunchHostFunc()</span></code> 功能。
+<p><code class="docutils literal notranslate"><span class="pre">callback</span></code> 的签名与 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaLaunchHostFunc()</span></code> 使用的主机函数签名略有不同。
 在本例中，回调函数是一个具有以下签名的 C 函数：</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">callbackFunction</span><span class="p">(</span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="n">cudaError_t</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">userData</span><span class="p">);</span>
 </pre></div>
@@ -731,9 +731,9 @@
 <h2><span class="section-number">2.3.9. </span>杂项与高级主题<a class="headerlink" href="asynchronous-execution.html#miscellaneous-and-advanced-topics" title="跳转到此标题">#</a></h2>
 <section id="stream-prioritization">
 <span id="async-execution-stream-priorities"></span><h3><span class="section-number">2.3.9.1. </span>流优先级<a class="headerlink" href="asynchronous-execution.html#stream-prioritization" title="跳转到此标题">#</a></h3>
-<p>如前所述，开发人员可以为 CUDA 流分配优先级。需要使用以下方法创建优先级流 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamCreateWithPriority()</span></code> 功能。该函数有两个参数：流句柄和优先级。
-一般的方案是较低的数字对应较高的优先级。给定设备和上下文的给定优先级范围
-可以使用以下方式查询 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaDeviceGetStreamPriorityRange()</span></code> 功能。流的默认优先级为 0。</p>
+<p>如前所述，开发者可以为 CUDA 流分配优先级。优先级流需要通过 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaStreamCreateWithPriority()</span></code> 创建；该函数接收两个关键参数：流创建标志和优先级。
+通常，数值越低表示优先级越高。给定设备和上下文支持的优先级范围
+可通过 <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">cudaDeviceGetStreamPriorityRange()</span></code> 查询。流的默认优先级为 0。</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">minPriority</span><span class="p">,</span><span class="w"> </span><span class="n">maxPriority</span><span class="p">;</span>
 
 <span class="c1">// 查询设备的优先级范围</span>
@@ -753,7 +753,7 @@
 <section id="introduction-to-cuda-graphs-with-stream-capture">
 <span id="async-execution-cuda-graphs"></span><h3><span class="section-number">2.3.9.2. </span>通过流捕获入门 CUDA 图<a class="headerlink" href="asynchronous-execution.html#introduction-to-cuda-graphs-with-stream-capture" title="跳转到此标题">#</a></h3>
 <p>CUDA 流允许程序按顺序指定一系列操作（如内核或内存拷贝）。借助多流与 <code class="docutils literal notranslate"><span class="pre">cudaStreamWaitEvent</span></code> 跨流依赖，应用可描述完整的有向无环图（DAG）操作流。有些应用在运行期间需要反复执行同一序列或 DAG。</p>
-<p>针对这种场景，CUDA 提供了 CUDA 图功能。本节介绍 CUDA 图及其一种构建机制——<em>流捕获</em>。更详细内容见 <a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs"><span class="std std-ref">CUDA图</span></a>。捕获或创建图可减少主机线程重复调用同一 API 链带来的延迟与 CPU 开销：图定义一次，之后可重复执行多次。</p>
+<p>针对这种场景，CUDA 提供了 CUDA 图。本节介绍 CUDA 图及其一种构建机制——<em>流捕获</em>。更详细内容见 <a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs"><span class="std std-ref">CUDA 图</span></a>。捕获或创建图可减少主机线程重复调用同一 API 链带来的延迟与 CPU 开销：图定义一次，之后可重复执行多次。</p>
 <p>CUDA 图的一般工作流程如下：</p>
 <ol class="lowerroman simple">
 <li><p>应用先对图进行<em>捕获</em>（通常在首次执行时完成）；也可通过 CUDA Graph API 手工构建图。</p></li>
@@ -777,7 +777,7 @@
 <span class="c1">// 该图将执行 NSTEP 次</span>
 <span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">istep</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">istep</span><span class="o">&lt;</span><span class="n">NSTEP</span><span class="p">;</span><span class="w"> </span><span class="n">istep</span><span class="o">++</span><span class="p">){</span>
 <span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">graphCreated</span><span class="p">){</span>
-<span class="w">        </span><span class="c1">// 捕获图表</span>
+<span class="w">        </span><span class="c1">// 捕获图</span>
 <span class="w">        </span><span class="n">cudaStreamBeginCapture</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamCaptureModeGlobal</span><span class="p">);</span>
 
 <span class="w">        </span><span class="c1">// 启动 NKERNEL 内核</span>
@@ -788,12 +788,12 @@
 <span class="w">        </span><span class="c1">// 结束捕获</span>
 <span class="w">        </span><span class="n">cudaStreamEndCapture</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">graph</span><span class="p">);</span>
 
-<span class="w">        </span><span class="c1">// 实例化图表</span>
+<span class="w">        </span><span class="c1">// 实例化图</span>
 <span class="w">        </span><span class="n">cudaGraphInstantiate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">instance</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 <span class="w">        </span><span class="n">graphCreated</span><span class="o">=</span><span class="nb">true</span><span class="p">;</span>
 <span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="c1">// 启动图表</span>
+<span class="w">    </span><span class="c1">// 启动图</span>
 <span class="w">    </span><span class="n">cudaGraphLaunch</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="p">);</span>
 
 <span class="w">    </span><span class="c1">// 同步流</span>
@@ -802,7 +802,7 @@
 </pre></div>
 </div>
 </div>
-<p>关于 CUDA 图的更多细节请参见 <a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs"><span class="std std-ref">CUDA图</span></a>。</p>
+<p>关于 CUDA 图的更多细节请参见 <a class="reference internal" href="../04-special-topics/cuda-graphs.html#cuda-graphs"><span class="std std-ref">CUDA 图</span></a>。</p>
 </section>
 </section>
 <section id="summary-of-asynchronous-execution">
@@ -837,40 +837,40 @@
   </div>
 <nav aria-labelledby="pst-page-navigation-heading-2" class="bd-toc-nav page-toc">
 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#what-is-asynchronous-concurrent-execution">2.3. 异步执行</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#cuda-streams">2.3. 异步执行</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#creating-and-destroying-cuda-streams">2.3. 异步执行</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#launching-kernels-in-cuda-streams">2.3. 异步执行</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#launching-memory-transfers-in-cuda-streams">2.3. 异步执行</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#stream-synchronization">2.3. 异步执行</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#what-is-asynchronous-concurrent-execution">2.3.1. 什么是异步并发执行？</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#cuda-streams">2.3.2. CUDA 流</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#creating-and-destroying-cuda-streams">2.3.2.1. 创建与销毁 CUDA 流</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#launching-kernels-in-cuda-streams">2.3.2.2. 在 CUDA 流中启动内核</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#launching-memory-transfers-in-cuda-streams">2.3.2.3. 在 CUDA 流中发起内存传输</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#stream-synchronization">2.3.2.4. 流同步</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#cuda-events">2.3. 异步执行</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#creating-and-destroying-cuda-events">2.3. 异步执行</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#inserting-events-into-cuda-streams">2.3. 异步执行</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#timing-operations-in-cuda-streams">2.3. 异步执行</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#checking-the-status-of-cuda-events">2.3. 异步执行</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#cuda-events">2.3.3. CUDA 事件</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#creating-and-destroying-cuda-events">2.3.3.1. 创建与销毁 CUDA 事件</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#inserting-events-into-cuda-streams">2.3.3.2. 向 CUDA 流中插入事件</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#timing-operations-in-cuda-streams">2.3.3.3. 对 CUDA 流中的操作计时</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#checking-the-status-of-cuda-events">2.3.3.4. 检查 CUDA 事件状态</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#callback-functions-from-streams">2.3. 异步执行</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#using-cudastreamaddcallback">2.3. 异步执行</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#asynchronous-error-handling">2.3. 异步执行</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#callback-functions-from-streams">2.3.4. 来自流的回调函数</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#using-cudastreamaddcallback">2.3.4.1. 使用 cudaStreamAddCallback()</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#asynchronous-error-handling">2.3.4.2. 异步错误处理</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#cuda-stream-ordering">2.3. 异步执行</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#blocking-and-non-blocking-streams-and-the-default-stream">2.3. 异步执行</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#legacy-default-stream">2.3. 异步执行</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#per-thread-default-stream">2.3. 异步执行</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#cuda-stream-ordering">2.3.5. CUDA 流的顺序语义</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#blocking-and-non-blocking-streams-and-the-default-stream">2.3.6. 阻塞/非阻塞流与默认流</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#legacy-default-stream">2.3.6.1. 传统默认流</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#per-thread-default-stream">2.3.6.2. 每线程默认流</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#explicit-synchronization">2.3. 异步执行</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#implicit-synchronization">2.3. 异步执行</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#miscellaneous-and-advanced-topics">2.3. 异步执行</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#stream-prioritization">2.3. 异步执行</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#introduction-to-cuda-graphs-with-stream-capture">2.3. 异步执行</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#explicit-synchronization">2.3.7. 显式同步</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#implicit-synchronization">2.3.8. 隐式同步</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#miscellaneous-and-advanced-topics">2.3.9. 杂项与高级主题</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#stream-prioritization">2.3.9.1. 流优先级</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#introduction-to-cuda-graphs-with-stream-capture">2.3.9.2. 通过流捕获入门 CUDA 图</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#summary-of-asynchronous-execution">2.3. 异步执行</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="asynchronous-execution.html#summary-of-asynchronous-execution">2.3.10. 异步执行总结</a></li>
 </ul>
 </nav></div>
 </div></div>

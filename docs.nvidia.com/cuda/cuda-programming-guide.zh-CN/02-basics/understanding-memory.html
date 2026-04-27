@@ -285,16 +285,16 @@
 <section id="unified-and-system-memory">
 <span id="id1"></span><h1>2.4. 统一内存与系统内存<a class="headerlink" href="understanding-memory.html#unified-and-system-memory" title="跳转到此标题">#</a></h1>
 <p>异构系统中存在多个可存储数据的物理内存。主机 CPU 连接主机 DRAM，而系统中的每块 GPU 也有各自连接的 DRAM。当数据驻留在访问它的处理器本地内存中时，性能最佳。CUDA 提供了用于<a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-explicit-memory-management"><span class="std std-ref">显式管理内存放置</span></a>的 API，但这往往较为冗长并增加软件设计复杂度。CUDA 也提供了多种特性来简化不同物理内存间的数据分配、放置与迁移。</p>
-<p>本章旨在介绍并解释这些特性，以及它们对应用开发者在功能和性能层面的意义。统一内存在不同操作系统、驱动版本和 GPU 条件下会呈现不同形态。本章将说明如何判断当前适用的统一内存范式，以及各范式下统一内存的行为。关于统一内存的更深入内容见后续<a class="reference internal" href="../04-special-topics/unified-memory.html#um-details-intro"><span class="std std-ref">统一内存章节</span></a>。</p>
+<p>本章旨在介绍并解释这些特性，以及它们对应用开发者在能力和性能层面的意义。统一内存在不同操作系统、驱动版本和 GPU 条件下会呈现不同形态。本章将说明如何判断当前适用的统一内存范式，以及各范式下统一内存的行为。关于统一内存的更深入内容见后续 <a class="reference internal" href="../04-special-topics/unified-memory.html#um-details-intro"><span class="std std-ref">统一内存章节</span></a>。</p>
 <p>本章将定义并解释以下概念：</p>
 <ul>
 <li><p><a class="reference internal" href="understanding-memory.html#memory-unified-virtual-address-space"><span class="std std-ref">统一虚拟地址空间</span></a> - CPU 内存和每个 GPU 内存在单个虚拟地址空间内具有不同的范围</p></li>
-<li><p><a class="reference internal" href="understanding-memory.html#memory-unified-memory"><span class="std std-ref">统一内存</span></a> - CUDA 功能可实现托管内存在 CPU 和 GPU 之间自动迁移</p>
+<li><p><a class="reference internal" href="understanding-memory.html#memory-unified-memory"><span class="std std-ref">统一内存</span></a> - CUDA 提供的特性，可让托管内存在 CPU 与 GPU 之间自动迁移</p>
 <blockquote>
 <div><ul class="simple">
-<li><p><a class="reference internal" href="understanding-memory.html#memory-limited-unified-memory-support"><span class="std std-ref">有限统一内存</span></a> - 有一些限制的统一内存范例</p></li>
-<li><p><a class="reference internal" href="understanding-memory.html#memory-unified-memory-full"><span class="std std-ref">全统一内存</span></a> - 全面支持统一内存功能</p></li>
-<li><p><a class="reference internal" href="understanding-memory.html#memory-unified-address-translation-services"><span class="std std-ref">具有硬件一致性的完全统一内存</span></a> - 使用硬件功能全面支持统一内存</p></li>
+<li><p><a class="reference internal" href="understanding-memory.html#memory-limited-unified-memory-support"><span class="std std-ref">有限统一内存</span></a> - 带有若干限制的统一内存范式</p></li>
+<li><p><a class="reference internal" href="understanding-memory.html#memory-unified-memory-full"><span class="std std-ref">全统一内存</span></a> - 完整支持统一内存能力</p></li>
+<li><p><a class="reference internal" href="understanding-memory.html#memory-unified-address-translation-services"><span class="std std-ref">具有硬件一致性的完全统一内存</span></a> - 借助硬件机制完整支持统一内存</p></li>
 <li><p><a class="reference internal" href="understanding-memory.html#memory-mem-advise-prefetch"><span class="std std-ref">统一内存提示</span></a> - 用于指导特定分配的统一内存行为的 API</p></li>
 </ul>
 </div></blockquote>
@@ -309,8 +309,8 @@
 </ul>
 <p>此外，本章还会介绍讨论统一内存与系统内存时常见的术语：</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="understanding-memory.html#memory-heterogeneous-memory-management"><span class="std std-ref">异构管理内存</span></a> (HMM) - Linux 内核的一项功能，可实现完全统一内存的软件一致性</p></li>
-<li><p><a class="reference internal" href="understanding-memory.html#memory-unified-address-translation-services"><span class="std std-ref">地址翻译服务</span></a> (ATS) - 一项硬件功能，当 GPU 通过 NVLink 芯片到芯片 (C2C) 互连连接到 CPU 时可用，为完全统一的内存提供硬件一致性</p></li>
+<li><p><a class="reference internal" href="understanding-memory.html#memory-heterogeneous-memory-management"><span class="std std-ref">异构内存管理</span></a>（HMM）- Linux 内核功能，可为完整统一内存提供软件一致性</p></li>
+<li><p><a class="reference internal" href="understanding-memory.html#memory-unified-address-translation-services"><span class="std std-ref">地址转换服务</span></a>（ATS）- 当 GPU 通过 NVLink Chip-to-Chip（C2C）互连连接到 CPU 时可用的硬件功能，可为完全统一内存提供硬件一致性</p></li>
 </ul>
 <section id="unified-virtual-address-space">
 <span id="memory-unified-virtual-address-space"></span><h2><span class="section-number">2.4.1. </span>统一虚拟地址空间<a class="headerlink" href="understanding-memory.html#unified-virtual-address-space" title="跳转到此标题">#</a></h2>
@@ -327,7 +327,7 @@
 <p>在某些系统上，托管内存需要显式分配。CUDA 中可通过以下几种方式显式分配托管内存：</p>
 <ul class="simple">
 <li><p>CUDA API：<code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code></p></li>
-<li><p>在内存池的 <code class="docutils literal notranslate"><span class="pre">allocType</span></code> 设置为 <code class="docutils literal notranslate"><span class="pre">cudaMemAllocationTypeManaged</span></code> 时，使用CUDA API <code class="docutils literal notranslate"><span class="pre">cudaMallocFromPoolAsync</span></code></p></li>
+<li><p>在内存池的 <code class="docutils literal notranslate"><span class="pre">allocType</span></code> 设置为 <code class="docutils literal notranslate"><span class="pre">cudaMemAllocationTypeManaged</span></code> 时，使用 CUDA API <code class="docutils literal notranslate"><span class="pre">cudaMallocFromPoolAsync</span></code></p></li>
 <li><p>使用 <code class="docutils literal notranslate"><span class="pre">__managed__</span></code> 说明符的全局变量（见 <a class="reference internal" href="../05-appendices/cpp-language-extensions.html#memory-space-specifiers"><span class="std std-ref">内存空间说明符</span></a>）</p></li>
 </ul>
 <p>在支持 <a class="reference internal" href="understanding-memory.html#memory-heterogeneous-memory-management"><span class="std std-ref">HMM</span></a> 或 <a class="reference internal" href="understanding-memory.html#memory-unified-address-translation-services"><span class="std std-ref">ATS</span></a> 的系统上，无论系统内存如何分配，都会隐式作为托管内存，无需特殊分配。</p>
@@ -337,9 +337,9 @@
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">cudaDevAttrConcurrentManagedAccess</span></code> - 1 表示完全统一内存支持，0 表示有限支持</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccess</span></code> - 1 表示所有系统内存都是完全支持的统一内存，0 表示只有显式分配为托管内存的内存才是完全支持的统一内存</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccessUsesHostPageTables</span></code> - 表示CPU/GPU一致性的机制：1是硬件，0是软件。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccessUsesHostPageTables</span></code> - 表示 CPU/GPU 一致性的实现机制：1 表示硬件一致性，0 表示软件一致性。</p></li>
 </ul>
-<p><a class="reference internal" href="understanding-memory.html#unified-memory-flow-chart"><span class="std std-numref">图18</span></a> 说明了如何直观地确定统一内存范式，然后是 <a class="reference internal" href="understanding-memory.html#memory-unified-querying-code"><span class="std std-ref">代码示例</span></a> 实现相同的逻辑。</p>
+<p><a class="reference internal" href="understanding-memory.html#unified-memory-flow-chart"><span class="std std-numref">图 18</span></a> 展示了如何直观判断统一内存范式，随后给出的 <a class="reference internal" href="understanding-memory.html#memory-unified-querying-code"><span class="std std-ref">代码示例</span></a> 实现了相同逻辑。</p>
 <p>统一内存共有四种工作范式：</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="understanding-memory.html#memory-unified-memory-full"><span class="std std-ref">完全支持显式托管内存分配</span></a></p></li>
@@ -355,7 +355,7 @@
 <p><span class="caption-number">图 18 </span><span class="caption-text">当前所有 GPU 均使用统一虚拟地址空间，并具备统一内存能力。当 <code class="docutils literal notranslate"><span class="pre">cudaDevAttrConcurrentManagedAccess</span></code> 为 1 时，表示支持完整统一内存；否则仅有限支持。若已完整支持且 <code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccess</span></code> 也为 1，则所有系统内存都属于统一内存；否则仅 CUDA API（如 <code class="docutils literal notranslate"><span class="pre">cudaMallocManaged</span></code>）分配的内存属于统一内存。当系统内存全部统一时，<code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccessUsesHostPageTables</span></code> 指示一致性由硬件（值为 1）还是软件（值为 0）提供。</span><a class="headerlink" href="understanding-memory.html#unified-memory-flow-chart" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
-<p><a class="reference internal" href="understanding-memory.html#table-unified-memory-levels"><span class="std std-numref">表3</span></a> 显示相同的信息 <a class="reference internal" href="understanding-memory.html#unified-memory-flow-chart"><span class="std std-numref">图18</span></a> 作为一个表格，其中包含本章相关部分的链接以及本指南后面部分中更完整的文档。</p>
+<p><a class="reference internal" href="understanding-memory.html#table-unified-memory-levels"><span class="std std-numref">表 3</span></a> 以表格形式呈现了与 <a class="reference internal" href="understanding-memory.html#unified-memory-flow-chart"><span class="std std-numref">图 18</span></a> 相同的信息，并包含指向本章相关小节以及本指南后续完整说明的链接。</p>
 <div class="pst-scrollable-table-container"><table class="table" id="table-unified-memory-levels">
 <caption><span class="caption-number">表 3 </span><span class="caption-text">统一内存范式概览</span><a class="headerlink" href="understanding-memory.html#table-unified-memory-levels" title="跳转到此标题">#</a></caption>
 <thead>
@@ -367,7 +367,7 @@
 <tbody>
 <tr class="row-even"><td><p><a class="reference internal" href="understanding-memory.html#memory-limited-unified-memory-support"><span class="std std-ref">有限的统一内存支持</span></a></p></td>
 <td><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">cudaDevAttrConcurrentManagedAccess</span></code> is 0</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">cudaDevAttrConcurrentManagedAccess</span></code> 为 0</div>
 </div>
 </td>
 <td><div class="line-block">
@@ -379,8 +379,8 @@
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="understanding-memory.html#memory-unified-memory-full"><span class="std std-ref">完全支持显式托管内存分配</span></a></p></td>
 <td><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccess</span></code> is 0</div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">cudaDevAttrConcurrentManagedAccess</span></code> is 1</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccess</span></code> 为 0</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">cudaDevAttrConcurrentManagedAccess</span></code> 为 1</div>
 </div>
 </td>
 <td><div class="line-block">
@@ -390,9 +390,9 @@
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="understanding-memory.html#memory-unified-memory-full"><span class="std std-ref">完全支持所有具有软件一致性的分配</span></a></p></td>
 <td><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccessUsesHostPageTables</span></code> is 0</div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccess</span></code> is 1</div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">cudaDevAttrConcurrentManagedAccess</span></code> is 1</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccessUsesHostPageTables</span></code> 为 0</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccess</span></code> 为 1</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">cudaDevAttrConcurrentManagedAccess</span></code> 为 1</div>
 </div>
 </td>
 <td><div class="line-block">
@@ -402,9 +402,9 @@
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="understanding-memory.html#memory-unified-address-translation-services"><span class="std std-ref">完全支持所有具有硬件一致性的分配</span></a></p></td>
 <td><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccessUsesHostPageTables</span></code> is 1</div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccess</span></code> is 1</div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">cudaDevAttrConcurrentManagedAccess</span></code> is 1</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccessUsesHostPageTables</span></code> 为 1</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccess</span></code> 为 1</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">cudaDevAttrConcurrentManagedAccess</span></code> 为 1</div>
 </div>
 </td>
 <td><div class="line-block">
@@ -457,7 +457,7 @@
 </section>
 <section id="full-unified-memory-feature-support">
 <span id="memory-unified-memory-full"></span><h3><span class="section-number">2.4.2.2. </span>完整统一内存特性支持<a class="headerlink" href="understanding-memory.html#full-unified-memory-feature-support" title="跳转到此标题">#</a></h3>
-<p>多数 Linux 系统支持完整统一内存。若设备属性 <code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccess</span></code> 为 1，则无论通过 CUDA API 还是系统 API 分配，所有系统内存都以具备完整特性的统一内存方式运行，其中也包括通过 <code class="docutils literal notranslate"><span class="pre">mmap</span></code> 创建的文件映射内存。</p>
+<p>多数 Linux 系统支持完整统一内存。若设备属性 <code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccess</span></code> 为 1，则无论通过 CUDA API 还是系统 API 分配，所有系统内存都以具备完整能力的统一内存方式运行，其中也包括通过 <code class="docutils literal notranslate"><span class="pre">mmap</span></code> 创建的文件映射内存。</p>
 <p>若 <code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccess</span></code> 为 0，则只有通过 CUDA 作为托管内存分配的内存才表现为统一内存。通过系统 API 分配的内存不受托管，也不一定能被 GPU 内核访问。</p>
 <p>总体而言，在“完整支持”下，统一内存分配通常具有以下行为：</p>
 <ul class="simple">
@@ -469,7 +469,7 @@
 <p>实际分配与迁移行为也可能偏离上述规则。开发者可通过<a class="reference internal" href="understanding-memory.html#memory-mem-advise-prefetch"><span class="std std-ref">提示与预取</span></a>进行影响。关于完整统一内存支持的全面说明见 <a class="reference internal" href="../04-special-topics/unified-memory.html#um-pageable-systems"><span class="std std-ref">具备完整 CUDA 统一内存支持的设备上的统一内存</span></a>。</p>
 <section id="full-unified-memory-with-hardware-coherency">
 <span id="memory-unified-address-translation-services"></span><h4><span class="section-number">2.4.2.2.1. </span>具备硬件一致性的完整统一内存<a class="headerlink" href="understanding-memory.html#full-unified-memory-with-hardware-coherency" title="跳转到此标题">#</a></h4>
-<p>在Grace Hopper、Grace Blackwell等硬件上，当采用NVIDIA CPU且CPU-GPU互连为NVLink Chip-to-Chip（C2C）时，可用地址转换服务（ATS）。当ATS可用时，<code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccessUsesHostPageTables</span></code> 为 1。</p>
+<p>在 Grace Hopper、Grace Blackwell 等硬件上，当系统采用 NVIDIA CPU 且 CPU-GPU 互连为 NVLink Chip-to-Chip（C2C）时，可以使用地址转换服务（ATS）。当 ATS 可用时，<code class="docutils literal notranslate"><span class="pre">cudaDevAttrPageableMemoryAccessUsesHostPageTables</span></code> 为 1。</p>
 <p>在 ATS 下，除对全部主机分配提供完整统一内存支持外，还具备：</p>
 <ul class="simple">
 <li><p>CPU 可访问 GPU 分配（如 <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code>），此时 <code class="docutils literal notranslate"><span class="pre">cudaDevAttrDirectManagedMemAccessFromHost</span></code> 为 1；</p></li>
@@ -480,7 +480,7 @@
 </section>
 <section id="hmm-full-unified-memory-with-software-coherency">
 <span id="memory-heterogeneous-memory-management"></span><h4><span class="section-number">2.4.2.2.2. </span>HMM：具备软件一致性的完整统一内存<a class="headerlink" href="understanding-memory.html#hmm-full-unified-memory-with-software-coherency" title="跳转到此标题">#</a></h4>
-<p><em>异构内存管理</em> (HMM) 是 Linux 操作系统（具有适当的内核版本）上可用的一项功能，可实现软件一致性 <a class="reference internal" href="understanding-memory.html#memory-unified-memory-full"><span class="std std-ref">完全统一内存支持</span></a>。异构内存管理为 PCIe 连接的 GPU 带来了 ATS 提供的一些功能和便利。</p>
+<p><em>异构内存管理</em>（HMM）是 Linux 操作系统在合适内核版本下提供的一项功能，可实现具备软件一致性的 <a class="reference internal" href="understanding-memory.html#memory-unified-memory-full"><span class="std std-ref">完整统一内存支持</span></a>。异构内存管理为通过 PCIe 连接的 GPU 带来了 ATS 的部分能力与便利性。</p>
 <p>在 Linux 内核版本至少为 6.1.24、6.2.11 或 6.3+ 的系统上，可能支持异构内存管理（HMM）。可用以下命令检查寻址模式是否为 <code class="docutils literal notranslate"><span class="pre">HMM</span></code>。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">$</span><span class="w"> </span><span class="n">nvidia</span><span class="o">-</span><span class="n">smi</span><span class="w"> </span><span class="o">-</span><span class="n">q</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">grep</span><span class="w"> </span><span class="n">Addressing</span>
 <span class="n">Addressing</span><span class="w"> </span><span class="n">Mode</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">HMM</span>
@@ -505,15 +505,15 @@
 </section>
 <section id="memory-advise-and-prefetch">
 <span id="memory-mem-advise-prefetch"></span><h3><span class="section-number">2.4.2.4. </span>内存建议与预取<a class="headerlink" href="understanding-memory.html#memory-advise-and-prefetch" title="跳转到此标题">#</a></h3>
-<p>开发者可向管理统一内存的 NVIDIA 驱动提供提示，以帮助最大化应用性能。CUDA API <code class="docutils literal notranslate"><span class="pre">cudaMemAdvise</span></code> 允许指定分配属性，从而影响其放置位置以及被其他设备访问时是否迁移。</p>
+<p>开发者可向管理统一内存的 NVIDIA 驱动提供提示，帮助应用获得更好的性能。CUDA API <code class="docutils literal notranslate"><span class="pre">cudaMemAdvise</span></code> 允许指定分配属性，从而影响其放置位置以及被其他设备访问时是否迁移。</p>
 <p><code class="docutils literal notranslate"><span class="pre">cudaMemPrefetchAsync</span></code> 允许开发者建议异步启动某个分配到其他位置的迁移。常见用法是在内核启动前预先传输其将使用的数据，从而让数据拷贝与其他 GPU 内核执行重叠。</p>
-<p><a class="reference internal" href="../04-special-topics/unified-memory.html#um-perf-hints"><span class="std std-ref">性能提示</span></a>一节介绍了可传给 <code class="docutils literal notranslate"><span class="pre">cudaMemAdvise</span></code> 的不同提示，并给出 <code class="docutils literal notranslate"><span class="pre">cudaMemPrefetchAsync</span></code> 的示例。</p>
+<p><a class="reference internal" href="../04-special-topics/unified-memory.html#um-perf-hints"><span class="std std-ref">性能提示</span></a> 一节介绍了可传给 <code class="docutils literal notranslate"><span class="pre">cudaMemAdvise</span></code> 的不同提示，并给出 <code class="docutils literal notranslate"><span class="pre">cudaMemPrefetchAsync</span></code> 的示例。</p>
 </section>
 </section>
 <section id="page-locked-host-memory">
 <span id="memory-page-locked-host-memory"></span><h2><span class="section-number">2.4.3. </span>页锁定主机内存<a class="headerlink" href="understanding-memory.html#page-locked-host-memory" title="跳转到此标题">#</a></h2>
-<p>在<a class="reference internal" href="intro-to-cuda-cpp.html#intro-cuda-cpp-all-together"><span class="std std-ref">入门示例</span></a>中，我们使用 <code class="docutils literal notranslate"><span class="pre">cudaMallocHost</span></code> 在 CPU 端分配内存。这会在主机端分配<em>页锁定</em>（也称 <em>pinned</em>）内存。通过传统机制（如 <code class="docutils literal notranslate"><span class="pre">malloc</span></code>、<code class="docutils literal notranslate"><span class="pre">new</span></code>、<code class="docutils literal notranslate"><span class="pre">mmap</span></code>）得到的主机内存并非页锁定，因此可能被操作系统换出到磁盘或发生物理重定位。</p>
-<p>进行<a class="reference internal" href="asynchronous-execution.html#async-execution-memory-transfers"><span class="std std-ref">CPU 与 GPU 之间的异步拷贝</span></a>需要页锁定主机内存。页锁定主机内存也能提升同步拷贝性能。此外，页锁定内存可被<a class="reference internal" href="understanding-memory.html#memory-mapped-memory"><span class="std std-ref">映射</span></a>到 GPU，供 GPU 内核直接访问。</p>
+<p>在 <a class="reference internal" href="intro-to-cuda-cpp.html#intro-cuda-cpp-all-together"><span class="std std-ref">入门示例</span></a> 中，我们使用 <code class="docutils literal notranslate"><span class="pre">cudaMallocHost</span></code> 在 CPU 端分配内存。这会在主机端分配<em>页锁定</em>（也称 <em>pinned</em>）内存。通过传统机制（如 <code class="docutils literal notranslate"><span class="pre">malloc</span></code>、<code class="docutils literal notranslate"><span class="pre">new</span></code>、<code class="docutils literal notranslate"><span class="pre">mmap</span></code>）得到的主机内存并非页锁定，因此可能被操作系统换出到磁盘或发生物理重定位。</p>
+<p>进行 <a class="reference internal" href="asynchronous-execution.html#async-execution-memory-transfers"><span class="std std-ref">CPU 与 GPU 之间的异步拷贝</span></a> 需要页锁定主机内存。页锁定主机内存也能提升同步拷贝性能。此外，页锁定内存可被 <a class="reference internal" href="understanding-memory.html#memory-mapped-memory"><span class="std std-ref">映射</span></a> 到 GPU，供 GPU 内核直接访问。</p>
 <p>CUDA 运行时提供了用于分配页锁定主机内存或对已有分配执行页锁定的 API：</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">cudaMallocHost</span></code>：分配页锁定主机内存</p></li>
@@ -529,7 +529,7 @@
 </div>
 <section id="mapped-memory">
 <span id="memory-mapped-memory"></span><h3><span class="section-number">2.4.3.1. </span>映射内存<a class="headerlink" href="understanding-memory.html#mapped-memory" title="跳转到此标题">#</a></h3>
-在支持 <a class="reference internal" href="understanding-memory.html#memory-heterogeneous-memory-management"><span class="std std-ref">HMM</span></a> 或 <a class="reference internal" href="understanding-memory.html#memory-unified-address-translation-services"><span class="std std-ref">ATS</span></a> 的系统上，GPU 可直接通过主机指针访问全部主机内存。若 ATS/HMM 不可用，则可通过将主机内存<em>映射</em>到 GPU 内存空间来实现访问。映射内存始终是页锁定内存。
+<p>在支持 <a class="reference internal" href="understanding-memory.html#memory-heterogeneous-memory-management"><span class="std std-ref">HMM</span></a> 或 <a class="reference internal" href="understanding-memory.html#memory-unified-address-translation-services"><span class="std std-ref">ATS</span></a> 的系统上，GPU 可直接通过主机指针访问全部主机内存。若 ATS/HMM 不可用，则可通过将主机内存<em>映射</em>到 GPU 内存空间来实现访问。映射内存始终是页锁定内存。</p>
 <p>下面的代码示例将展示如下数组复制内核如何直接在映射主机内存上工作。</p>
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">copyKernel</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
 <span class="p">{</span>
@@ -541,7 +541,7 @@
 <p>在某些无需拷贝到 GPU、但内核仍需访问的数据场景中，映射内存可能有用。然而内核访问映射内存需要跨越 CPU-GPU 互连（PCIe 或 NVLink C2C）进行事务，延迟更高、带宽更低，不如访问设备内存高效。对于内核的大多数内存需求，不应将映射内存视为 <a class="reference internal" href="understanding-memory.html#memory-unified-memory"><span class="std std-ref">统一内存</span></a> 或 <a class="reference internal" href="intro-to-cuda-cpp.html#intro-cpp-explicit-memory-management"><span class="std std-ref">显式内存管理</span></a> 的高性能替代方案。</p>
 <section id="cudamallochost-and-cudahostalloc">
 <h4><span class="section-number">2.4.3.1.1. </span>cudaMallocHost 与 cudaHostAlloc<a class="headerlink" href="understanding-memory.html#cudamallochost-and-cudahostalloc" title="跳转到此标题">#</a></h4>
-<p>通过 <code class="docutils literal notranslate"><span class="pre">cudaHostMalloc</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc</span></code> 分配的主机内存会自动映射。其返回指针可直接在内核代码中访问主机内存；访问路径经过 CPU-GPU 互连。</p>
+<p>通过 <code class="docutils literal notranslate"><span class="pre">cudaMallocHost</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaHostAlloc</span></code> 分配的主机内存会自动映射。其返回指针可直接在内核代码中访问主机内存；访问路径经过 CPU-GPU 互连。</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio"/>
 <label class="sd-tab-label" for="sd-tab-item-0">
@@ -570,7 +570,7 @@ cudaMallocHost</label><div class="sd-tab-content docutils">
 </div>
 <input id="sd-tab-item-1" name="sd-tab-set-0" type="radio"/>
 <label class="sd-tab-label" for="sd-tab-item-1">
-cudaAllocHost</label><div class="sd-tab-content docutils">
+cudaHostAlloc</label><div class="sd-tab-content docutils">
 <div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">usingCudaHostAlloc</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
 <span class="w">  </span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">;</span>
@@ -587,7 +587,7 @@ cudaAllocHost</label><div class="sd-tab-content docutils">
 <span class="w">  </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaGetLastError</span><span class="p">());</span>
 <span class="w">  </span><span class="n">CUDA_CHECK</span><span class="p">(</span><span class="n">cudaDeviceSynchronize</span><span class="p">());</span>
 
-<span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">"Using cudaAllocHost: "</span><span class="p">);</span>
+<span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">"Using cudaHostAlloc: "</span><span class="p">);</span>
 <span class="w">  </span><span class="n">checkAnswer</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">);</span>
 <span class="p">}</span>
 </pre></div>
@@ -635,7 +635,7 @@ cudaAllocHost</label><div class="sd-tab-content docutils">
 <div class="admonition note">
 <p class="admonition-title">注意</p>
 <p>在以往文档中，映射内存也常被称为 <em>zero-copy</em>（零拷贝）内存。</p>
-<p>在所有 CUDA 应用都使用<a class="reference internal" href="understanding-memory.html#memory-unified-virtual-address-space"><span class="std std-ref">统一虚拟地址空间</span></a>之前，需要额外 API 才能启用内存映射（<code class="docutils literal notranslate"><span class="pre">cudaSetDeviceFlags</span></code> 配合 <code class="docutils literal notranslate"><span class="pre">cudaDeviceMapHost</span></code>）。这些 API 现已不再需要。</p>
+<p>在所有 CUDA 应用都使用 <a class="reference internal" href="understanding-memory.html#memory-unified-virtual-address-space"><span class="std std-ref">统一虚拟地址空间</span></a> 之前，需要额外 API 才能启用内存映射（<code class="docutils literal notranslate"><span class="pre">cudaSetDeviceFlags</span></code> 配合 <code class="docutils literal notranslate"><span class="pre">cudaDeviceMapHost</span></code>）。这些 API 现已不再需要。</p>
 <p>对映射主机内存执行的原子函数（见 <a class="reference internal" href="../05-appendices/cpp-language-extensions.html#atomic-functions"><span class="std std-ref">原子函数</span></a>）从主机或其他 GPU 视角看不具备原子性。</p>
 <p>CUDA 运行时要求：由设备发起并作用于主机内存的 1/2/4/8/16 字节自然对齐读写，从主机和其他设备视角看必须保持为单次访问。在某些平台上，硬件可能将内存原子操作拆分为独立的加载与存储；这些子操作同样需满足自然对齐访问保持要求。CUDA 运行时不支持会拆分 8 字节自然对齐操作的 PCIe 拓扑；NVIDIA 也不了解会拆分 16 字节自然对齐操作的拓扑。</p>
 </div>
@@ -655,8 +655,8 @@ cudaAllocHost</label><div class="sd-tab-content docutils">
 </ul>
 </div></blockquote>
 </li>
-<li><p>在 Windows 与 Tegra 平台上，统一内存存在功能限制；</p></li>
-<li><p>在配备ATS的NVLINK C2C系统上，<code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code> 分配的设备内存可被 CPU 或其他 GPU 直接访问。</p></li>
+<li><p>在 Windows 与 Tegra 平台上，统一内存能力受到限制；</p></li>
+<li><p>在配备 ATS 的 NVLink C2C 系统上，<code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code> 分配的设备内存可被 CPU 或其他 GPU 直接访问。</p></li>
 </ul>
 </section>
 </section>
@@ -676,31 +676,31 @@ cudaAllocHost</label><div class="sd-tab-content docutils">
   </div>
 <nav aria-labelledby="pst-page-navigation-heading-2" class="bd-toc-nav page-toc">
 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#unified-virtual-address-space">2.4. 统一内存与系统内存</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#unified-memory">2.4. 统一内存与系统内存</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#unified-memory-paradigms">2.4. 统一内存与系统内存</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#unified-memory-paradigm-code-example">2.4. 统一内存与系统内存</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#unified-virtual-address-space">2.4.1. 统一虚拟地址空间</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#unified-memory">2.4.2. 统一内存</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#unified-memory-paradigms">2.4.2.1. 统一内存范式</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#unified-memory-paradigm-code-example">2.4.2.1.1. 统一内存范式：代码示例</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#full-unified-memory-feature-support">2.4. 统一内存与系统内存</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#full-unified-memory-with-hardware-coherency">2.4. 统一内存与系统内存</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#hmm-full-unified-memory-with-software-coherency">2.4. 统一内存与系统内存</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#full-unified-memory-feature-support">2.4.2.2. 完整统一内存特性支持</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#full-unified-memory-with-hardware-coherency">2.4.2.2.1. 具备硬件一致性的完整统一内存</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#hmm-full-unified-memory-with-software-coherency">2.4.2.2.2. HMM：具备软件一致性的完整统一内存</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#limited-unified-memory-support">2.4. 统一内存与系统内存</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#memory-advise-and-prefetch">2.4. 统一内存与系统内存</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#limited-unified-memory-support">2.4.2.3. 有限统一内存支持</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#memory-advise-and-prefetch">2.4.2.4. 内存建议与预取</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#page-locked-host-memory">2.4. 统一内存与系统内存</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#mapped-memory">2.4. 统一内存与系统内存</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#cudamallochost-and-cudahostalloc">2.4. 统一内存与系统内存</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#cudahostregister">2.4. 统一内存与系统内存</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#comparing-unified-memory-and-mapped-memory">2.4. 统一内存与系统内存</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#page-locked-host-memory">2.4.3. 页锁定主机内存</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#mapped-memory">2.4.3.1. 映射内存</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#cudamallochost-and-cudahostalloc">2.4.3.1.1. cudaMallocHost 与 cudaHostAlloc</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#cudahostregister">2.4.3.1.2. cudaHostRegister</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#comparing-unified-memory-and-mapped-memory">2.4.3.1.3. 统一内存与映射内存对比</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#summary">2.4. 统一内存与系统内存</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="understanding-memory.html#summary">2.4.4. 总结</a></li>
 </ul>
 </nav></div>
 </div></div>
