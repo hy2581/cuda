@@ -209,7 +209,7 @@
 </details></li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../part4.html">4. CUDA 特性</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="unified-memory.html">4.1. 统一内存</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cuda-graphs.html">4.2. CUDA Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuda-graphs.html">4.2. CUDA 图</a></li>
 <li class="toctree-l3"><a class="reference internal" href="stream-ordered-memory-allocation.html">4.3. 流有序内存分配器</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cooperative-groups.html">4.4. 协作组</a></li>
 <li class="toctree-l3 current active"><a class="current reference internal" href="programmatic-dependent-launch.html#">4.5. 程序化依赖启动与同步</a></li>
@@ -265,7 +265,7 @@
 </li>
 <li class="breadcrumb-item"><a class="nav-link" href="../index.html">CUDA 编程指南</a></li>
 <li class="breadcrumb-item"><a class="nav-link" href="../part4.html">4. CUDA 特性</a></li>
-<li aria-current="page" class="breadcrumb-item active"><span class="ellipsis"><span class="section-number">4.5. </span>程序化依赖启动和同步</span></li>
+<li aria-current="page" class="breadcrumb-item active"><span class="ellipsis"><span class="section-number">4.5. </span>程序化依赖启动与同步</span></li>
 </ul>
 </nav>
 </div>
@@ -284,14 +284,10 @@
 <article class="bd-article">
 <section id="programmatic-dependent-launch-and-synchronization">
 <span id="id1"></span><h1>4.5. 程序化依赖启动与同步<a class="headerlink" href="programmatic-dependent-launch.html#programmatic-dependent-launch-and-synchronization" title="跳转到此标题">#</a></h1>
-<p><em>程序化依赖启动</em> 机制允许依赖 <em>secondary</em> 内核
-之前启动 <em>primary</em> 它所依赖的同一个 CUDA 流中的内核已完成执行。
-从计算能力 9.0 的设备开始可用，该技术可以提供性能
-的好处时 <em>secondary</em> 内核可以完成不依赖于结果的重要工作 <em>primary</em> kernel.</p>
+<p><em>程序化依赖启动</em> 机制允许有依赖关系的 <em>secondary</em>（辅助）内核，在同一 CUDA 流中其所依赖的 <em>primary</em>（主）内核完成执行之前启动。该技术从计算能力 9.0 的设备开始可用；当辅助内核能够完成大量不依赖主内核结果的工作时，它可以带来性能收益。</p>
 <section id="background">
 <h2><span class="section-number">4.5.1. </span>背景<a class="headerlink" href="programmatic-dependent-launch.html#background" title="跳转到此标题">#</a></h2>
-<p>CUDA 应用程序通过在 GPU 上启动和执行多个内核来利用 GPU。
-典型的 GPU 活动时间线如图所示 <a class="reference internal" href="programmatic-dependent-launch.html#gpu-activity"><span class="std std-numref">图39</span></a>.</p>
+<p>CUDA 应用程序通过在 GPU 上启动并执行多个内核来使用 GPU。典型的 GPU 活动时间线如 <a class="reference internal" href="programmatic-dependent-launch.html#gpu-activity"><span class="std std-numref">图39</span></a> 所示。</p>
 <figure class="align-default" id="gpu-activity">
 <a class="reference internal image-reference" href="../_images/gpu-activity.png"><img alt="GPU 活动时间线" src="../_images/gpu-activity.png" style="width: 723.36px; height: 121.44000000000001px;"/>
 </a>
@@ -299,56 +295,43 @@
 <p><span class="caption-number">图39 </span><span class="caption-text">GPU 活动时间线</span><a class="headerlink" href="programmatic-dependent-launch.html#gpu-activity" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
-<p>在这里， <code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code> 之后推出 <code class="docutils literal notranslate"><span class="pre">primary_kernel</span></code> 完成其执行。
-串行执行通常是必要的，因为 <code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code> 取决于结果数据
-生产者 <code class="docutils literal notranslate"><span class="pre">primary_kernel</span></code>. If <code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code> 不依赖于 <code class="docutils literal notranslate"><span class="pre">primary_kernel</span></code>,
-它们都可以通过使用同时启动 <a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-streams"><span class="std std-ref">CUDA 流</span></a>。
-即使 <code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code> 取决于 <code class="docutils literal notranslate"><span class="pre">primary_kernel</span></code>, 有一定的潜力
-并发执行。例如，几乎所有内核都有
-某种 <em>preamble</em> 在此期间执行诸如清零缓冲区或加载之类的任务的部分
-执行恒定值。</p>
+<p>这里，<code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code> 会在 <code class="docutils literal notranslate"><span class="pre">primary_kernel</span></code> 执行完成之后启动。通常需要串行执行，因为 <code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code> 依赖 <code class="docutils literal notranslate"><span class="pre">primary_kernel</span></code> 生成的结果数据。如果 <code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code> 不依赖 <code class="docutils literal notranslate"><span class="pre">primary_kernel</span></code>，二者就可以使用 <a class="reference internal" href="../02-basics/asynchronous-execution.html#cuda-streams"><span class="std std-ref">CUDA 流</span></a> 并发启动。即使 <code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code> 依赖 <code class="docutils literal notranslate"><span class="pre">primary_kernel</span></code>，仍然可能存在一定的并发执行空间。例如，几乎所有内核都有某种 <em>preamble</em>（序言）部分，在这部分中会执行清零缓冲区、加载常量值等任务。</p>
 <figure class="align-default" id="secondary-kernel-preamble">
-<a class="reference internal image-reference" href="../_images/secondary-kernel-preamble.png"><img alt="“ secondary_kernel ”的序言部分" src="../_images/secondary-kernel-preamble.png" style="width: 723.36px; height: 156.42000000000002px;"/>
+<a class="reference internal image-reference" href="../_images/secondary-kernel-preamble.png"><img alt="secondary_kernel 的序言部分" src="../_images/secondary-kernel-preamble.png" style="width: 723.36px; height: 156.42000000000002px;"/>
 </a>
 <figcaption>
-<p><span class="caption-number">图40 </span><span class="caption-text">序言部分 <code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code></span><a class="headerlink" href="programmatic-dependent-launch.html#secondary-kernel-preamble" title="跳转到此标题">#</a></p>
+<p><span class="caption-number">图40 </span><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code> 的序言部分</span><a class="headerlink" href="programmatic-dependent-launch.html#secondary-kernel-preamble" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
-<p><a class="reference internal" href="programmatic-dependent-launch.html#secondary-kernel-preamble"><span class="std std-numref">图40</span></a> 演示了的部分 <code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code> 那可以
-并发执行而不影响应用程序。
-请注意，并发启动还允许我们隐藏启动延迟 <code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code> 后面
-的执行 <code class="docutils literal notranslate"><span class="pre">primary_kernel</span></code>.</p>
+<p><a class="reference internal" href="programmatic-dependent-launch.html#secondary-kernel-preamble"><span class="std std-numref">图40</span></a> 展示了 <code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code> 中可以并发执行且不会影响应用程序的部分。请注意，并发启动还允许我们把 <code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code> 的启动延迟隐藏在 <code class="docutils literal notranslate"><span class="pre">primary_kernel</span></code> 的执行之后。</p>
 <figure class="align-default" id="preamble-overlap">
 <a class="reference internal image-reference" href="../_images/preamble-overlap.png"><img alt="并发执行“primary_kernel”和“secondary_kernel”" src="../_images/preamble-overlap.png" style="width: 723.36px; height: 192.06px;"/>
 </a>
 <figcaption>
-<p><span class="caption-number">图41 </span><span class="caption-text">并发执行 <code class="docutils literal notranslate"><span class="pre">primary_kernel</span></code> 或 <code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code></span><a class="headerlink" href="programmatic-dependent-launch.html#preamble-overlap" title="跳转到此标题">#</a></p>
+<p><span class="caption-number">图41 </span><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">primary_kernel</span></code> 和 <code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code> 的并发执行</span><a class="headerlink" href="programmatic-dependent-launch.html#preamble-overlap" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
-<p>并发启动和执行 <code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code> 显示在 <a class="reference internal" href="programmatic-dependent-launch.html#preamble-overlap"><span class="std std-numref">图41</span></a> 是
-使用可实现 <em>程序化依赖启动</em>.</p>
-<p><em>程序化依赖启动</em> 引入了对 CUDA 内核启动 API 的更改，如下节所述。
-这些 API 至少需要 9.0 的计算能力才能提供重叠执行。</p>
+<p><a class="reference internal" href="programmatic-dependent-launch.html#preamble-overlap"><span class="std std-numref">图41</span></a> 所示的 <code class="docutils literal notranslate"><span class="pre">secondary_kernel</span></code> 并发启动和执行，可以通过 <em>程序化依赖启动</em> 实现。</p>
+<p><em>程序化依赖启动</em> 对 CUDA 内核启动 API 引入了若干变化，如下一节所述。这些 API 至少需要计算能力 9.0 才能提供重叠执行。</p>
 </section>
 <section id="api-description">
-<h2><span class="section-number">4.5.2. </span>接口说明<a class="headerlink" href="programmatic-dependent-launch.html#api-description" title="跳转到此标题">#</a></h2>
-<p>在程序化依赖启动中，主内核和辅助内核在同一 CUDA 流中启动。
-主内核应该执行 <code class="docutils literal notranslate"><span class="pre">cudaTriggerProgrammaticLaunchCompletion</span></code> 与所有线程块时
-它已准备好启动辅助内核。辅助内核必须使用可扩展启动 API 启动，如图所示。</p>
+<h2><span class="section-number">4.5.2. </span>API 说明<a class="headerlink" href="programmatic-dependent-launch.html#api-description" title="跳转到此标题">#</a></h2>
+<p>在程序化依赖启动中，主内核和辅助内核会在同一 CUDA 流中启动。当主内核已经准备好让辅助内核启动时，主内核的所有线程块都应执行 <code class="docutils literal notranslate"><span class="pre">cudaTriggerProgrammaticLaunchCompletion</span></code>。辅助内核必须使用可扩展启动 API 启动，如下所示。</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">primary_kernel</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">   </span><span class="c1">// 启动辅助内核之前应完成的初始工作</span>
 
-<span class="w">   </span><span class="c1">// 触发二级内核</span>
+<span class="w">   </span><span class="c1">// 触发辅助内核</span>
 <span class="w">   </span><span class="n">cudaTriggerProgrammaticLaunchCompletion</span><span class="p">();</span>
 
-<span class="w">   </span><span class="c1">// 可以与辅助内核重合的工作</span>
+<span class="w">   </span><span class="c1">// 可以与辅助内核重叠执行的工作</span>
 <span class="p">}</span>
 
 <span class="n">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">secondary_kernel</span><span class="p">()</span>
 <span class="p">{</span>
 <span class="w">   </span><span class="c1">// 独立工作</span>
 
-<span class="w">   </span><span class="c1">// 将阻塞，直到辅助内核所依赖的所有主内核都已完成并将结果刷新到全局内存</span>
+<span class="w">   </span><span class="c1">// 将阻塞，直到辅助内核依赖的所有主内核都已完成，</span>
+<span class="w">   </span><span class="c1">// 并且结果已刷新到全局内存</span>
 <span class="w">   </span><span class="n">cudaGridDependencySynchronize</span><span class="p">();</span>
 
 <span class="w">   </span><span class="c1">// 依赖工作</span>
@@ -364,33 +347,19 @@
 <span class="n">cudaLaunchKernelEx</span><span class="p">(</span><span class="o">&amp;</span><span class="n">configSecondary</span><span class="p">,</span><span class="w"> </span><span class="n">secondary_kernel</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>当使用辅助内核启动时 <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeProgrammaticStreamSerialization</span></code> 属性，
-CUDA 驱动程序可以安全地提前启动辅助内核，而不是等待
-在启动辅助数据库之前完成主数据库的完成和内存刷新。</p>
-<p>当所有主线程块启动并执行后，CUDA 驱动程序可以启动辅助内核
-<code class="docutils literal notranslate"><span class="pre">cudaTriggerProgrammaticLaunchCompletion</span></code>。
-如果主内核不执行触发器，它会隐式发生在
-主内核中的所有线程块都会退出。</p>
-<p>在任何一种情况下，辅助线程块都可能启动
-在主内核写入的数据可见之前。因此，当辅助内核配置为 <em>程序化依赖启动</em>,
-它必须始终使用 <code class="docutils literal notranslate"><span class="pre">cudaGridDependencySynchronize</span></code>
-或其他方式来验证来自主设备的结果数据是否可用。</p>
-<p>请注意，这些方法为主内核和辅助内核提供了同时执行的机会，但是
-这种行为是机会主义的，并不能保证导致并发内核执行。
-以这种方式依赖并发执行是不安全的，并且可能导致死锁。</p>
+<p>当辅助内核使用 <code class="docutils literal notranslate"><span class="pre">cudaLaunchAttributeProgrammaticStreamSerialization</span></code> 属性启动时，CUDA 驱动程序可以安全地提前启动辅助内核，而不必在启动辅助内核之前等待主内核完成并完成内存刷新。</p>
+<p>当所有主内核线程块都已启动并执行 <code class="docutils literal notranslate"><span class="pre">cudaTriggerProgrammaticLaunchCompletion</span></code> 后，CUDA 驱动程序就可以启动辅助内核。如果主内核没有执行该触发操作，则它会在主内核中的所有线程块退出后隐式发生。</p>
+<p>无论哪种情况，辅助线程块都有可能在主内核写入的数据变为可见之前启动。因此，当辅助内核配置为使用 <em>程序化依赖启动</em> 时，它必须始终使用 <code class="docutils literal notranslate"><span class="pre">cudaGridDependencySynchronize</span></code>，或通过其他方式确认来自主内核的结果数据已经可用。</p>
+<p>请注意，这些方法只是为主内核和辅助内核并发执行提供机会；这种行为是机会性的，并不保证一定会产生并发内核执行。以这种方式依赖并发执行是不安全的，并且可能导致死锁。</p>
 </section>
 <section id="use-in-cuda-graphs">
-<h2><span class="section-number">4.5.3. </span>在 CUDA 图表中使用<a class="headerlink" href="programmatic-dependent-launch.html#use-in-cuda-graphs" title="跳转到此标题">#</a></h2>
-<p>程序化依赖启动可用于 <a class="reference internal" href="cuda-graphs.html#cuda-graphs"><span class="std std-ref">CUDA 图形</span></a> via <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-stream-capture"><span class="std std-ref">流捕获</span></a> 或
-直接通过 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-edge-data"><span class="std std-ref">边缘数据</span></a>。要在具有边缘数据的 CUDA 图中对此功能进行编程，请使用 <code class="docutils literal notranslate"><span class="pre">cudaGraphDependencyType</span></code>
-的值 <code class="docutils literal notranslate"><span class="pre">cudaGraphDependencyTypeProgrammatic</span></code> 在连接两个内核节点的边上。这种边缘类型使得上游内核
-对 a 可见 <code class="docutils literal notranslate"><span class="pre">cudaGridDependencySynchronize()</span></code> 在下游内核中。此类型必须与传出端口一起使用
-要么 <code class="docutils literal notranslate"><span class="pre">cudaGraphKernelNodePortLaunchCompletion</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaGraphKernelNodePortProgrammatic</span></code>.</p>
-<p>流捕获的结果图等效如下：</p>
+<h2><span class="section-number">4.5.3. </span>在 CUDA 图中使用<a class="headerlink" href="programmatic-dependent-launch.html#use-in-cuda-graphs" title="跳转到此标题">#</a></h2>
+<p>程序化依赖启动可以通过 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-creating-a-graph-using-stream-capture"><span class="std std-ref">流捕获</span></a> 用于 <a class="reference internal" href="cuda-graphs.html#cuda-graphs"><span class="std std-ref">CUDA 图</span></a>，也可以直接通过 <a class="reference internal" href="cuda-graphs.html#cuda-graphs-edge-data"><span class="std std-ref">边数据</span></a> 使用。要在带有边数据的 CUDA 图中对该功能进行编程，请在连接两个内核节点的边上使用 <code class="docutils literal notranslate"><span class="pre">cudaGraphDependencyType</span></code> 值 <code class="docutils literal notranslate"><span class="pre">cudaGraphDependencyTypeProgrammatic</span></code>。这种边类型会让上游内核对下游内核中的 <code class="docutils literal notranslate"><span class="pre">cudaGridDependencySynchronize()</span></code> 可见。该类型必须配合出端口 <code class="docutils literal notranslate"><span class="pre">cudaGraphKernelNodePortLaunchCompletion</span></code> 或 <code class="docutils literal notranslate"><span class="pre">cudaGraphKernelNodePortProgrammatic</span></code> 使用。</p>
+<p>流捕获得到的等价图边如下：</p>
 <div class="pst-scrollable-table-container"><table class="table-no-stripes table">
 <thead>
 <tr class="row-odd"><th class="head"><p>流代码（略）</p></th>
-<th class="head"><p>生成的图形边缘</p></th>
+<th class="head"><p>生成的图边</p></th>
 </tr>
 </thead>
 <tbody>
@@ -454,9 +423,9 @@ CUDA 驱动程序可以安全地提前启动辅助内核，而不是等待
   </div>
 <nav aria-labelledby="pst-page-navigation-heading-2" class="bd-toc-nav page-toc">
 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="programmatic-dependent-launch.html#background">4.5. 程序化依赖启动与同步</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="programmatic-dependent-launch.html#api-description">4.5. 程序化依赖启动与同步</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="programmatic-dependent-launch.html#use-in-cuda-graphs">4.5. 程序化依赖启动与同步</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="programmatic-dependent-launch.html#background">4.5.1. 背景</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="programmatic-dependent-launch.html#api-description">4.5.2. API 说明</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="programmatic-dependent-launch.html#use-in-cuda-graphs">4.5.3. 在 CUDA 图中使用</a></li>
 </ul>
 </nav></div>
 </div></div>
