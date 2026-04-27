@@ -284,37 +284,37 @@
 <article class="bd-article">
 <section id="the-cuda-platform">
 <span id="cuda-platform"></span><h1>1.3. CUDA 平台<a class="headerlink" href="cuda-platform.html#the-cuda-platform" title="跳转到此标题">#</a></h1>
-<p>NVIDIA CUDA 平台由众多软硬件组件与关键技术构成，旨在支持异构系统计算。本章介绍 CUDA 平台中应用开发者需要理解的一些基础概念与核心组件。与 <a class="reference internal" href="programming-model.html#programming-model"><span class="std std-ref">编程模型</span></a> 一章类似，本章不依赖特定编程语言，而适用于所有使用 CUDA 平台的开发场景。</p>
+<p>NVIDIA CUDA 平台由许多软件、硬件组件以及为异构系统计算而发展出的关键技术组成。本章介绍应用开发者理解 CUDA 平台时需要掌握的一些基础概念和核心组件。与 <a class="reference internal" href="programming-model.html#programming-model"><span class="std std-ref">编程模型</span></a> 一章类似，本章内容不依赖具体编程语言，而适用于所有使用 CUDA 平台的场景。</p>
 <section id="compute-capability-and-streaming-multiprocessor-versions">
 <span id="cuda-platform-compute-capability-sm-version"></span><h2><span class="section-number">1.3.1. </span>计算能力与 SM 版本<a class="headerlink" href="cuda-platform.html#compute-capability-and-streaming-multiprocessor-versions" title="跳转到此标题">#</a></h2>
-<p>每个 NVIDIA GPU 都有一个 <em>计算能力</em>（Compute Capability，CC）编号，用于标识该 GPU 支持的功能以及一些硬件参数。这些规范记录在 <a class="reference internal" href="../05-appendices/compute-capabilities.html#compute-capabilities"><span class="std std-numref">第 5.1 节</span></a> 附录。  所有 NVIDIA GPU 及其计算能力的列表均保存在 <a class="reference external" href="https://developer.nvidia.com/cuda-gpus">CUDA GPU 计算能力页面</a>.</p>
-<p>计算能力以 X.Y 格式表示为主版本号和次版本号，其中 X 是主版本号，Y 是次版本号。例如CC 12.0，主版本为12，次版本为0。计算能力直接对应SM的版本号。例如，CC 12.0的GPU内的SM有SM版本 <cite>sm_120</cite>。该版本用于标记二进制文件。</p>
-<p><a class="reference internal" href="../05-appendices/compute-capabilities.html#compute-capabilities-querying"><span class="std std-numref">第 5.1.1 节</span></a> 显示如何查询和确定系统中 GPU 的计算能力。</p>
+<p>每个 NVIDIA GPU 都有一个 <em>计算能力</em>（Compute Capability，CC）编号，用于表示该 GPU 支持哪些功能，并给出该 GPU 的若干硬件参数。这些规格记录在 <a class="reference internal" href="../05-appendices/compute-capabilities.html#compute-capabilities"><span class="std std-numref">第 5.1 节</span></a> 的附录中。所有 NVIDIA GPU 及其计算能力的列表维护在 <a class="reference external" href="https://developer.nvidia.com/cuda-gpus">CUDA GPU 计算能力页面</a>。</p>
+<p>计算能力以 X.Y 格式表示为主版本号和次版本号，其中 X 为主版本号，Y 为次版本号。例如，CC 12.0 的主版本为 12、次版本为 0。计算能力直接对应 SM 版本号。例如，CC 12.0 GPU 内的 SM 版本为 <cite>sm_120</cite>，该版本号用于标记二进制文件。</p>
+<p><a class="reference internal" href="../05-appendices/compute-capabilities.html#compute-capabilities-querying"><span class="std std-numref">第 5.1.1 节</span></a> 展示了如何查询并确定系统中 GPU 的计算能力。</p>
 </section>
 <section id="cuda-toolkit-and-nvidia-driver">
 <span id="cuda-platform-compatibility"></span><h2><span class="section-number">1.3.2. </span>CUDA 工具包与 NVIDIA 驱动<a class="headerlink" href="cuda-platform.html#cuda-toolkit-and-nvidia-driver" title="跳转到此标题">#</a></h2>
-<p><em>NVIDIA 驱动</em>NVIDIA 驱动程序是一个软件组件，必须安装在主机系统的操作系统上，并且是所有 GPU 使用所必需的，包括显示和图形功能。 NVIDIA 驱动程序是 CUDA 平台的基础。除了 CUDA 之外，NVIDIA 驱动程序还提供使用 GPU 的所有其他方法，例如 Vulkan 和 Direct3D。 NVIDIA 驱动程序的版本号如 r580。</p>
-<p><em>CUDA工具包</em> 是一组用于编写、构建和分析 GPU 计算软件的库、头文件与工具。CUDA Toolkit 与 NVIDIA 驱动是彼此独立的软件产品。</p>
-<p><em>CUDA运行时</em> 是 CUDA 工具包提供的库之一的特例。 CUDA 运行时提供 API 和一些语言扩展来处理常见任务，例如分配内存、在 GPU 与其他 GPU 或 CPU 之间复制数据以及启动内核。 CUDA 运行时的 API 组件称为 CUDA 运行时 API。</p>
-<p><a class="reference external" href="https://docs.nvidia.com/deploy/cuda-compatibility/index.html">CUDA 兼容性</a> 文档提供了不同 GPU、NVIDIA 驱动程序和 CUDA 工具包版本之间兼容性的完整详细信息。</p>
+<p>可以把 <em>NVIDIA 驱动</em> 理解为 GPU 的操作系统层。NVIDIA 驱动是一个必须安装在主机操作系统上的软件组件，所有 GPU 用途都离不开它，包括显示和图形功能。NVIDIA 驱动是 CUDA 平台的基础。除 CUDA 之外，Vulkan、Direct3D 等其他 GPU 使用方式也由 NVIDIA 驱动提供支持。NVIDIA 驱动具有类似 r580 这样的版本号。</p>
+<p><em>CUDA 工具包</em> 是一组库、头文件和工具，用于编写、构建和分析利用 GPU 计算的软件。CUDA Toolkit 与 NVIDIA 驱动是彼此独立的软件产品。</p>
+<p><em>CUDA 运行时</em> 是 CUDA 工具包所提供库中的一个特殊库。CUDA 运行时提供 API 和一些语言扩展，用于处理内存分配、在 GPU 与其他 GPU 或 CPU 之间复制数据、启动内核等常见任务。CUDA 运行时的 API 组件称为 CUDA 运行时 API。</p>
+<p><a class="reference external" href="https://docs.nvidia.com/deploy/cuda-compatibility/index.html">CUDA 兼容性</a> 文档提供了不同 GPU、NVIDIA 驱动和 CUDA 工具包版本之间兼容性的完整细节。</p>
 <section id="cuda-runtime-api-and-cuda-driver-api">
 <span id="cuda-platform-driver-and-runtime"></span><h3><span class="section-number">1.3.2.1. </span>CUDA 运行时 API 和 CUDA 驱动程序 API<a class="headerlink" href="cuda-platform.html#cuda-runtime-api-and-cuda-driver-api" title="跳转到此标题">#</a></h3>
-<p>CUDA 运行时 API 是在称为 <em>CUDA驱动程序API</em>，这是 NVIDIA 驱动程序公开的 API。本指南重点介绍 CUDA 运行时 API 公开的 API。如果需要，可以仅使用驱动程序 API 来实现所有相同的功能。某些功能只能使用驱动程序 API 来使用。应用程序可以使用其中一个 API，也可以同时使用两者。部分 <a class="reference internal" href="../03-advanced/driver-api.html#driver-api"><span class="std std-ref">CUDA 驱动程序 API</span></a> 涵盖运行时和驱动程序 API 之间的互操作。</p>
-<p>CUDA 运行时 API 函数的完整 API 参考可以在 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/index.html">CUDA 运行时 API 文档</a>。</p>
-<p>CUDA 驱动程序 API 的完整 API 参考可以在 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-driver-api/index.html">CUDA 驱动 API 文档</a>。</p>
+<p>CUDA 运行时 API 构建在更低层的 <em>CUDA 驱动程序 API</em> 之上；CUDA 驱动程序 API 是 NVIDIA 驱动公开的 API。本指南主要关注 CUDA 运行时 API 暴露的接口。如果需要，只使用驱动程序 API 也可以完成同样的功能。有些功能只通过驱动程序 API 提供。应用程序可以选择其中一个 API，也可以同时使用二者并进行互操作。<a class="reference internal" href="../03-advanced/driver-api.html#driver-api"><span class="std std-ref">CUDA 驱动程序 API</span></a> 一节介绍运行时 API 与驱动程序 API 的互操作。</p>
+<p>CUDA 运行时 API 函数的完整参考见 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/index.html">CUDA 运行时 API 文档</a>。</p>
+<p>CUDA 驱动程序 API 的完整参考见 <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-driver-api/index.html">CUDA 驱动程序 API 文档</a>。</p>
 </section>
 </section>
 <section id="parallel-thread-execution-ptx">
 <span id="cuda-platform-ptx"></span><h2><span class="section-number">1.3.3. </span>并行线程执行（PTX）<a class="headerlink" href="cuda-platform.html#parallel-thread-execution-ptx" title="跳转到此标题">#</a></h2>
-<p>CUDA 平台中一个基础但常被忽视的层是 <em>并行线程执行</em>（PTX）虚拟指令集架构（ISA）。 PTX 是一种用于 NVIDIA GPU 的高级汇编语言。 PTX 在真实 GPU 硬件的物理 ISA 之上提供了一个抽象层。与其他平台一样，应用程序可以直接用这种汇编语言编写，尽管这样做会给软件开发增加不必要的复杂性和困难。</p>
-<p>特定领域的语言和高级语言的编译器可以生成 PTX 代码作为中间表示 (IR)，然后使用 NVIDIA 的离线或即时 (JIT) 编译工具生成可执行的二进制 GPU 代码。这使得 CUDA 平台能够使用 NVIDIA 提供的工具支持的语言以外的语言进行编程，例如 <a class="reference internal" href="../02-basics/nvcc.html#nvcc"><span class="std std-ref">NVCC：NVIDIA CUDA 编译器</span></a>.</p>
-<p>由于 GPU 功能会随着时间的推移而变化和增长，因此 PTX 虚拟 ISA 规范是有版本的。 PTX版本与SM版本一样，对应于计算能力。例如，支持计算能力8.0所有特性的PTX称为 <cite>compute_80</cite>.</p>
-<p>有关 PTX 的完整文档可以在 <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html">PTX ISA</a>。</p>
+<p>CUDA 平台中一个基础但有时并不显眼的层，是 <em>并行线程执行</em>（Parallel Thread Execution，PTX）虚拟指令集架构（ISA）。PTX 是面向 NVIDIA GPU 的高级汇编语言，在真实 GPU 硬件的物理 ISA 之上提供了一层抽象。与其他平台类似，应用也可以直接用这种汇编语言编写，不过这样通常会给软件开发增加不必要的复杂度和难度。</p>
+<p>面向特定领域的语言，以及高级语言的编译器，可以生成 PTX 代码作为中间表示（IR），再使用 NVIDIA 的离线编译或即时（JIT）编译工具生成可执行的 GPU 二进制代码。这使 CUDA 平台不只限于 NVIDIA 工具直接支持的语言，例如 <a class="reference internal" href="../02-basics/nvcc.html#nvcc"><span class="std std-ref">NVCC：NVIDIA CUDA 编译器</span></a>，也可以被其他语言使用。</p>
+<p>由于 GPU 能力会随时间不断变化和扩展，PTX 虚拟 ISA 规范也带有版本号。PTX 版本和 SM 版本一样，对应某个计算能力。例如，支持计算能力 8.0 全部功能的 PTX 称为 <cite>compute_80</cite>。</p>
+<p>有关 PTX 的完整文档见 <a class="reference external" href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html">PTX ISA</a>。</p>
 </section>
 <section id="cubins-and-fatbins">
-<span id="cuda-platform-cubins-fatbins"></span><h2><span class="section-number">1.3.4. </span>库宾与法特宾<a class="headerlink" href="cuda-platform.html#cubins-and-fatbins" title="跳转到此标题">#</a></h2>
-<p>CUDA应用和库通常使用C++这类高级语言编写。该高级语言被编译为PTX，然后PTX被编译为物理GPU的真正二进制文件，称为 <em>CUDA 二进制文件</em>, or <em>cubin</em> 简而言之。 cubin 对于特定的 SM 版本具有特定的二进制格式，例如 <cite>sm_120</cite>.</p>
-<p>使用 GPU 计算的可执行文件和库二进制文件包含 CPU 和 GPU 代码。 GPU 代码存储在一个称为 <em>fatbin</em>。 Fatbins 可以包含用于多个不同目标的 cubins 和 PTX。例如，可以使用针对多个不同 GPU 架构（即不同 SM 版本）的二进制文件构建应用程序。当应用程序运行时，其 GPU 代码会加载到特定 GPU 上，并使用 fatbin 中适合该 GPU 的最佳二进制文件。</p>
+<span id="cuda-platform-cubins-fatbins"></span><h2><span class="section-number">1.3.4. </span>Cubin 与 Fatbin<a class="headerlink" href="cuda-platform.html#cubins-and-fatbins" title="跳转到此标题">#</a></h2>
+<p>CUDA 应用和库通常使用 C++ 这类高级语言编写。高级语言先被编译为 PTX，随后 PTX 再被编译为面向物理 GPU 的真实二进制代码，称为 <em>CUDA 二进制文件</em>，简称 <em>cubin</em>。cubin 针对特定 SM 版本具有特定的二进制格式，例如 <cite>sm_120</cite>。</p>
+<p>使用 GPU 计算的可执行文件和库二进制文件同时包含 CPU 代码和 GPU 代码。GPU 代码存放在称为 <em>fatbin</em> 的容器中。fatbin 可以包含面向多个不同目标的 cubin 和 PTX。例如，一个应用可以构建出面向多个不同 GPU 架构的二进制代码，也就是面向不同 SM 版本的二进制代码。应用运行时，其 GPU 代码会加载到具体 GPU 上，并从 fatbin 中选择最适合该 GPU 的二进制版本。</p>
 <figure class="align-center" id="fatbin-graphic">
 <a class="reference internal image-reference" href="../_images/fatbin.png"><img alt="可执行文件或库中的 Fatbin 容器可以包含多个 GPU 代码版本" src="../_images/fatbin.png" style="width: 454px;"/>
 </a>
@@ -322,27 +322,27 @@
 <p><span class="caption-number">图 8 </span><span class="caption-text">可执行文件或库的二进制中同时包含 CPU 代码和用于 GPU 代码的 fatbin 容器。fatbin 可同时包含 cubin 形式的 GPU 二进制代码与 PTX 虚拟 ISA 代码；其中 PTX 代码可在运行时针对未来目标进行 JIT 编译。</span><a class="headerlink" href="cuda-platform.html#fatbin-graphic" title="跳转到此标题">#</a></p>
 </figcaption>
 </figure>
-<p>Fatbin 还可以包含一个或多个 PTX 版本的 GPU 代码，其用途在 <a class="reference internal" href="cuda-platform.html#cuda-platform-ptx-compatibility"><span class="std std-ref">PTX 兼容性</span></a>. <a class="reference internal" href="cuda-platform.html#fatbin-graphic"><span class="std std-numref">图8</span></a> 显示了一个应用程序或库二进制文件的示例，其中包含多个 cubin 版本的 GPU 代码以及一个版本的 PTX 代码。</p>
+<p>fatbin 还可以包含一个或多个 PTX 版本的 GPU 代码，其用途见 <a class="reference internal" href="cuda-platform.html#cuda-platform-ptx-compatibility"><span class="std std-ref">PTX 兼容性</span></a>。<a class="reference internal" href="cuda-platform.html#fatbin-graphic"><span class="std std-numref">图 8</span></a> 展示了一个应用或库二进制文件示例，其中包含多个 cubin 版本的 GPU 代码以及一个 PTX 版本的代码。</p>
 <section id="binary-compatibility">
 <span id="cuda-platform-compute-binary-compatibility"></span><h3><span class="section-number">1.3.4.1. </span>二进制兼容性<a class="headerlink" href="cuda-platform.html#binary-compatibility" title="跳转到此标题">#</a></h3>
-<p>NVIDIA GPU 在某些情况下保证二进制兼容性。具体来说，在计算能力的主要版本内，次要计算能力大于或等于目标版本cubin的GPU可以加载并执行该cubin。例如，如果应用程序包含为计算能力 8.6 编译的 cubin，则该 cubin 可以在计算能力 8.6 或 8.9 的 GPU 上加载和执行。但是，它无法加载到计算能力为 8.0 的 GPU 上，因为 GPU 的 CC 次要版本 0 低于代码的次要版本 6。</p>
+<p>NVIDIA GPU 在特定情况下保证二进制兼容性。具体来说，在同一个计算能力主版本内，如果某个 GPU 的计算能力次版本大于或等于 cubin 的目标次版本，就可以加载并执行该 cubin。例如，如果应用包含为计算能力 8.6 编译的 cubin，则该 cubin 可以在计算能力 8.6 或 8.9 的 GPU 上加载和执行。但它不能加载到计算能力 8.0 的 GPU 上，因为该 GPU 的 CC 次版本 0 低于代码的次版本 6。</p>
 <p>NVIDIA GPU 在主要计算能力版本之间不具有二进制兼容性。也就是说，为计算能力 8.6 编译的 cubin 代码将不会加载到计算能力 9.0 的 GPU 上。</p>
-<p>在讨论二进制代码时，二进制代码通常被称为具有如下版本： <cite>sm_86</cite> 在上面的例子中。这相当于二进制文件是为计算能力 8.6 构建的。这种简写方式经常被使用，因为开发人员通过它向 NVIDIA CUDA 编译器指定此二进制构建目标， <a class="reference internal" href="../02-basics/nvcc.html#nvcc"><span class="std std-ref">nvcc</span></a>.</p>
+<p>讨论二进制代码时，通常会说该二进制具有类似 <cite>sm_86</cite> 这样的版本。它等价于说该二进制是为计算能力 8.6 构建的。之所以常用这种简写，是因为开发者正是通过这种形式向 NVIDIA CUDA 编译器 <a class="reference internal" href="../02-basics/nvcc.html#nvcc"><span class="std std-ref">nvcc</span></a> 指定二进制构建目标。</p>
 <div class="admonition note">
 <p class="admonition-title">注意</p>
-<p>仅承诺由 NVIDIA 工具创建的二进制文件的二进制兼容性，例如 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code>。不支持手动编辑或生成 NVIDIA GPU 的二进制代码。如果以任何方式修改二进制文件，兼容性承诺将失效。</p>
+<p>二进制兼容性承诺仅适用于由 NVIDIA 工具（例如 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code>）创建的二进制文件。不支持手动编辑或生成 NVIDIA GPU 二进制代码。如果以任何方式修改二进制文件，兼容性承诺即失效。</p>
 </div>
 </section>
 <section id="ptx-compatibility">
 <span id="cuda-platform-ptx-compatibility"></span><h3><span class="section-number">1.3.4.2. </span>PTX 兼容性<a class="headerlink" href="cuda-platform.html#ptx-compatibility" title="跳转到此标题">#</a></h3>
-<p>GPU 代码可以以二进制或 PTX 形式存储在可执行文件中，这在 <a class="reference internal" href="cuda-platform.html#cuda-platform-cubins-fatbins"><span class="std std-ref">库宾斯和胖宾斯</span></a>。当应用程序存储 GPU 代码的 PTX 版本时，可以在应用程序运行时对该 PTX 进行 JIT 编译，以获得等于或高于 PTX 代码的计算能力的任何计算能力。例如，如果应用程序包含 PTX <cite>compute_80</cite>，PTX代码可以被JIT编译为更高的SM版本，例如 <cite>sm_120</cite> 在应用程序运行时。这样可以向前兼容未来的 GPU，而无需重建应用程序或库。</p>
+<p>如 <a class="reference internal" href="cuda-platform.html#cuda-platform-cubins-fatbins"><span class="std std-ref">Cubin 与 Fatbin</span></a> 所述，GPU 代码可以以二进制形式或 PTX 形式存储在可执行文件中。当应用保存 GPU 代码的 PTX 版本时，该 PTX 可以在应用运行时被 JIT 编译为任意计算能力不低于该 PTX 代码计算能力的目标。例如，如果应用包含 <cite>compute_80</cite> PTX，那么该 PTX 代码可在运行时 JIT 编译为更高的 SM 版本，例如 <cite>sm_120</cite>。这样无需重建应用或库，也能向前兼容未来 GPU。</p>
 </section>
 <section id="just-in-time-compilation">
 <span id="cuda-platform-just-in-time-compilation"></span><h3><span class="section-number">1.3.4.3. </span>即时编译<a class="headerlink" href="cuda-platform.html#just-in-time-compilation" title="跳转到此标题">#</a></h3>
-<p>应用程序在运行时加载的 PTX 代码会由设备驱动编译为二进制代码，这个过程称为即时编译（JIT）。即时编译会增加应用程序加载时间，但允许应用程序受益于每个新设备驱动程序带来的任何新编译器改进。它还允许应用程序在编译应用程序时不存在的设备上运行。</p>
-<p>当设备驱动程序即时编译应用程序的 PTX 代码时，它会自动缓存生成的二进制代码的副本，以避免在应用程序的后续调用中重复编译。当设备驱动程序升级时，缓存（称为计算缓存）会自动失效，因此应用程序可以从设备驱动程序内置的新即时编译器的改进中受益。</p>
-<p>自 CUDA 的最早版本以来，PTX 在运行时 JIT 编译的方式和时间已经放宽，从而在何时和是否 JIT 编译部分或全部内核方面提供了更大的灵活性。该部分 <a class="reference internal" href="../04-special-topics/lazy-loading.html#lazy-loading"><span class="std std-ref">延迟加载</span></a> 描述可用选项以及如何控制 JIT 行为。还有一些控制即时编译行为的环境变量，如中所述 <a class="reference internal" href="../05-appendices/environment-variables.html#cuda-environment-variables"><span class="std std-ref">CUDA 环境变量</span></a>.</p>
-<p>作为使用的替代方案 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 要编译 CUDA C++ 设备代码，NVRTC 可用于在运行时将 CUDA C++ 设备代码编译为 PTX。 NVRTC是CUDA C++的运行时编译库；更多信息可在 NVRTC 用户指南中找到。</p>
+<p>应用在运行时加载的 PTX 代码会由设备驱动编译为二进制代码，这一过程称为即时（JIT）编译。JIT 编译会增加应用加载时间，但也让应用能够受益于每个新设备驱动带来的编译器改进；同时，它还使应用能够运行在编译该应用时尚不存在的设备上。</p>
+<p>当设备驱动为应用 JIT 编译 PTX 代码时，会自动缓存生成的二进制代码副本，以避免应用后续运行时重复编译。设备驱动升级时，该缓存（称为计算缓存）会自动失效，使应用能够受益于新驱动内置 JIT 编译器的改进。</p>
+<p>从 CUDA 早期版本至今，运行时 JIT 编译 PTX 的方式和时机已经逐步放宽，使应用在是否以及何时 JIT 编译部分或全部内核方面拥有更大灵活性。<a class="reference internal" href="../04-special-topics/lazy-loading.html#lazy-loading"><span class="std std-ref">延迟加载</span></a> 一节介绍了可用选项以及如何控制 JIT 行为。还有一些环境变量可控制即时编译行为，详见 <a class="reference internal" href="../05-appendices/environment-variables.html#cuda-environment-variables"><span class="std std-ref">CUDA 环境变量</span></a>。</p>
+<p>除使用 <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> 编译 CUDA C++ 设备代码外，也可以使用 NVRTC 在运行时将 CUDA C++ 设备代码编译为 PTX。NVRTC 是 CUDA C++ 的运行时编译库；更多信息见 <a class="reference external" href="https://docs.nvidia.com/cuda/nvrtc/index.html">NVRTC 用户指南</a>。</p>
 </section>
 </section>
 </section>

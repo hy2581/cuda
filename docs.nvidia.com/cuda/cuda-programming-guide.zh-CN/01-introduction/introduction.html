@@ -286,13 +286,13 @@
 <span id="id1"></span><h1>1.1. 引言<a class="headerlink" href="introduction.html#introduction" title="跳转到此标题">#</a></h1>
 <section id="the-graphics-processing-unit">
 <span id="introduction-the-gpu"></span><h2><span class="section-number">1.1.1. </span>图形处理器（GPU）<a class="headerlink" href="introduction.html#the-graphics-processing-unit" title="跳转到此标题">#</a></h2>
-<p><em>图形处理器</em>（GPU）最初作为 3D 图形专用处理器诞生，起初以固定功能硬件的形式，加速实时 3D 渲染中的并行操作。随着代际演进，GPU 的可编程性不断增强。到 2003 年，图形流水线中的部分阶段已经完全可编程，能够针对 3D 场景或图像中的各个组成部分并行运行自定义代码。</p>
-<p>2006年，NVIDIA推出 <em>统一计算设备架构</em>（CUDA），使各类计算工作负载能够在不依赖图形 API 的前提下利用 GPU 的高吞吐能力。</p>
+<p><em>图形处理器</em>（GPU）最初是面向 3D 图形的专用处理器，以固定功能硬件加速实时 3D 渲染中的并行操作。随着硬件一代代演进，GPU 的可编程能力不断增强。到 2003 年，图形流水线中的部分阶段已经完全可编程，可以针对 3D 场景或图像中的每个组成部分并行运行自定义代码。</p>
+<p>2006 年，NVIDIA 推出了 <em>统一计算设备架构</em>（CUDA），使各种计算工作负载能够脱离图形 API，直接利用 GPU 的高吞吐能力。</p>
 <p>此后，CUDA 与 GPU 计算被广泛用于加速几乎各类计算负载：从流体动力学、能量传输等科学仿真，到数据库与分析等企业应用。更重要的是，GPU 的算力与可编程性也成为众多新算法与新技术进步的基础，覆盖从图像分类到扩散模型、大语言模型等生成式人工智能方向。</p>
 </section>
 <section id="the-benefits-of-using-gpus">
 <span id="from-graphics-processing-to-general-purpose-parallel-computing"></span><h2><span class="section-number">1.1.2. </span>使用 GPU 的优势<a class="headerlink" href="introduction.html#the-benefits-of-using-gpus" title="跳转到此标题">#</a></h2>
-<p>在相近的成本与功耗范围内，GPU 可提供远高于 CPU 的指令吞吐与内存带宽。许多应用借助这些能力，在 GPU 上可显著快于 CPU（见 <a class="reference external" href="https://www.nvidia.com/en-us/accelerated-applications/">GPU应用</a>）。其他计算设备（如 FPGA）同样具备较高能效，但在编程灵活性方面通常不及 GPU。</p>
+<p>在相近的成本与功耗范围内，GPU 可提供远高于 CPU 的指令吞吐量和内存带宽。许多应用借助这些能力，在 GPU 上的运行速度显著快于 CPU（见 <a class="reference external" href="https://www.nvidia.com/en-us/accelerated-applications/">GPU 应用</a>）。FPGA 等其他计算设备也具备很高能效，但编程灵活性通常不及 GPU。</p>
 <p>GPU 与 CPU 的设计目标不同。CPU 擅长尽可能快地执行串行操作序列（即线程），并可并行执行数十个线程；GPU 则擅长并行执行成千上万个线程，通过牺牲单线程性能来换取更高的总体吞吐。</p>
 <p>GPU 面向高并行计算进行了专门优化，会将更多晶体管用于数据处理单元；而 CPU 则会将更多晶体管用于数据缓存与控制流管理。<a class="reference internal" href="introduction.html#from-graphics-processing-to-general-purpose-parallel-computing-gpu-devotes-more-transistors-to-data-processing"><span class="std std-numref">图 1</span></a> 给出了 CPU 与 GPU 芯片资源分配的一个示例。</p>
 <figure class="align-center" id="from-graphics-processing-to-general-purpose-parallel-computing-gpu-devotes-more-transistors-to-data-processing">
@@ -309,7 +309,7 @@
 <p>各领域不断扩展的算法与计算例程，通常可通过专用库获得。若已有可用库——尤其是 NVIDIA 提供的库——直接使用往往比从零重写算法在效率与性能上都更优。cuBLAS、cuFFT、cuDNN、CUTLASS 等都是典型示例，可帮助开发者避免重复实现成熟算法。这些库还会针对各代 GPU 架构进行优化，在开发效率、性能与可移植性之间提供良好平衡。</p>
 <p>此外，还有许多框架（尤其是 AI 领域框架）提供了 GPU 加速的基础模块。这些框架中的大量加速能力，正是构建在前述 GPU 加速库之上。</p>
 <p>同时，诸如 NVIDIA Warp、OpenAI Triton 等领域专用语言（DSL）也可以编译后直接运行在 CUDA 平台上。相较于本指南涵盖的通用高级语言，这提供了更高层次的 GPU 编程方式。</p>
-<p><a class="reference external" href="https://github.com/NVIDIA/accelerated-computing-hub">NVIDIA 加速计算中心</a> 提供了大量 GPU 与 CUDA 计算相关的学习资源、示例与教程。</p>
+<p><a class="reference external" href="https://github.com/NVIDIA/accelerated-computing-hub">NVIDIA 加速计算中心</a> 提供了大量学习 GPU 与 CUDA 计算的资源、示例和教程。</p>
 </section>
 </section>
 </article>
